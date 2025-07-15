@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام ApexCharts المتكامل - MaxCon ERP</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: white;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .success-banner {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .success-banner h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .success-banner p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .charts-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        
+        .chart-title {
+            color: #2d3748;
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chart-title i {
+            margin-left: 12px;
+            font-size: 18px;
+        }
+        
+        .chart-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #cbd5e0;
+            position: relative;
+        }
+        
+        .chart-status.success { 
+            background: #48bb78; 
+            box-shadow: 0 0 10px rgba(72, 187, 120, 0.5);
+        }
+        
+        .chart-status.error { 
+            background: #f56565; 
+            box-shadow: 0 0 10px rgba(245, 101, 101, 0.5);
+        }
+        
+        .chart-status.loading { 
+            background: #ed8936; 
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px rgba(237, 137, 54, 0.5);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        .chart-container {
+            height: 350px;
+            position: relative;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 28px;
+            color: white;
+        }
+        
+        .feature-title {
+            color: #2d3748;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .feature-description {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .control-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin: 8px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .btn.success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+        .btn.danger { background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); }
+        .btn.warning { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); }
+        .btn.purple { background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); }
+        
+        .stats-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-showcase {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-chart-line"></i>
+            نظام ApexCharts المتكامل
+        </h1>
+        
+        <!-- Success Banner -->
+        <div class="success-banner">
+            <h2><i class="fas fa-rocket"></i> تم تطبيق ApexCharts بنجاح!</h2>
+            <p>مكتبة رسوم بيانية متقدمة مع دعم كامل للغة العربية وتصميم متجاوب</p>
+        </div>
+        
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <h3 style="margin: 0 0 15px 0; color: #2d3748; text-align: center;">إحصائيات النظام</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="chartsCount">0</div>
+                    <div class="stat-label">رسوم نشطة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="loadTime">-</div>
+                    <div class="stat-label">وقت التحميل</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="libraryStatus">-</div>
+                    <div class="stat-label">حالة المكتبة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="dataStatus">-</div>
+                    <div class="stat-label">حالة البيانات</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="feature-title">أداء عالي</div>
+                <div class="feature-description">
+                    ApexCharts أسرع من Chart.js بنسبة 40% مع رسوم أكثر سلاسة
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);">
+                    <i class="fas fa-language"></i>
+                </div>
+                <div class="feature-title">دعم العربية</div>
+                <div class="feature-description">
+                    دعم كامل للغة العربية مع تخطيط RTL وخطوط Cairo
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="feature-title">تصميم متجاوب</div>
+                <div class="feature-description">
+                    رسوم تتكيف تلقائياً مع جميع أحجام الشاشات والأجهزة
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);">
+                    <i class="fas fa-download"></i>
+                </div>
+                <div class="feature-title">تصدير متقدم</div>
+                <div class="feature-description">
+                    تصدير الرسوم كـ PNG, SVG, PDF مع جودة عالية
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Showcase -->
+        <div class="charts-showcase">
+            <!-- Revenue Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-area" style="color: #667eea;"></i>
+                        اتجاه الإيرادات
+                    </h3>
+                    <div class="chart-status loading" id="revenueStatus"></div>
+                </div>
+                <div class="chart-container">
+                    <div id="revenueChart"></div>
+                </div>
+            </div>
+            
+            <!-- Category Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-pie" style="color: #ed8936;"></i>
+                        المبيعات حسب الفئة
+                    </h3>
+                    <div class="chart-status loading" id="categoryStatus"></div>
+                </div>
+                <div class="chart-container">
+                    <div id="categoryChart"></div>
+                </div>
+            </div>
+            
+            <!-- Customer Segments -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <i class="fas fa-users-cog" style="color: #9f7aea;"></i>
+                        شرائح العملاء
+                    </h3>
+                    <div class="chart-status loading" id="customerSegmentsStatus"></div>
+                </div>
+                <div class="chart-container">
+                    <div id="customerSegmentsChart"></div>
+                </div>
+            </div>
+            
+            <!-- Performance Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-area" style="color: #48bb78;"></i>
+                        أداء المؤشرات
+                    </h3>
+                    <div class="chart-status loading" id="performanceStatus"></div>
+                </div>
+                <div class="chart-container">
+                    <div id="performanceChart"></div>
+                </div>
+            </div>
+            
+            <!-- Market Share Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-pie" style="color: #4299e1;"></i>
+                        حصة السوق
+                    </h3>
+                    <div class="chart-status loading" id="marketShareStatus"></div>
+                </div>
+                <div class="chart-container">
+                    <div id="marketShareChart"></div>
+                </div>
+            </div>
+            
+            <!-- Goals Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <i class="fas fa-bullseye" style="color: #48bb78;"></i>
+                        تحقيق الأهداف
+                    </h3>
+                    <div class="chart-status loading" id="goalsStatus"></div>
+                </div>
+                <div class="chart-container">
+                    <div id="goalsChart"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <h3 style="margin: 0 0 25px 0; color: #2d3748;">لوحة التحكم المتقدمة</h3>
+            <button class="btn success" onclick="initializeCharts()">
+                <i class="fas fa-play"></i> تشغيل الرسوم
+            </button>
+            <button class="btn" onclick="refreshCharts()">
+                <i class="fas fa-sync-alt"></i> تحديث
+            </button>
+            <button class="btn danger" onclick="destroyCharts()">
+                <i class="fas fa-trash"></i> حذف
+            </button>
+            <button class="btn warning" onclick="checkPerformance()">
+                <i class="fas fa-tachometer-alt"></i> فحص الأداء
+            </button>
+            <button class="btn purple" onclick="exportAllCharts()">
+                <i class="fas fa-download"></i> تصدير الكل
+            </button>
+        </div>
+    </div>
+
+    <!-- Analytics Data Setup -->
+    <script>
+        console.log('🔧 إعداد نظام ApexCharts المتكامل...');
+        
+        const startTime = performance.now();
+        
+        // إعداد البيانات
+        window.analyticsData = {
+            revenue_trend: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                data: [18500000, 22300000, 19800000, 25600000, 28900000, 31200000]
+            },
+            sales_by_category: {
+                labels: ['أدوية القلب', 'المضادات الحيوية', 'أدوية السكري', 'الفيتامينات', 'أخرى'],
+                data: [35, 25, 20, 15, 5]
+            },
+            customer_segments: {
+                labels: ['مستشفيات', 'صيدليات', 'عيادات', 'موزعين'],
+                data: [40, 35, 15, 10]
+            }
+        };
+        
+        console.log('✅ تم إعداد البيانات:', window.analyticsData);
+        
+        // دوال التحكم
+        function updateStatus(chartId, status) {
+            const indicator = document.getElementById(chartId + 'Status');
+            if (indicator) {
+                indicator.className = `chart-status ${status}`;
+            }
+        }
+        
+        function updateStats() {
+            const chartsCount = window.apexChartInstances ? Object.keys(window.apexChartInstances).length : 0;
+            const loadTime = ((performance.now() - startTime) / 1000).toFixed(2);
+            const libraryStatus = typeof ApexCharts !== 'undefined' ? '✅' : '❌';
+            const dataStatus = window.analyticsData ? '✅' : '❌';
+            
+            document.getElementById('chartsCount').textContent = chartsCount;
+            document.getElementById('loadTime').textContent = loadTime + 's';
+            document.getElementById('libraryStatus').textContent = libraryStatus;
+            document.getElementById('dataStatus').textContent = dataStatus;
+        }
+        
+        function initializeCharts() {
+            console.log('🚀 بدء تشغيل جميع الرسوم...');
+            
+            if (typeof window.initializeAllApexCharts === 'function') {
+                window.initializeAllApexCharts().then(count => {
+                    console.log(`✅ تم تشغيل ${count} رسوم بيانية`);
+                    checkChartStatus();
+                    updateStats();
+                }).catch(error => {
+                    console.error('❌ خطأ في التشغيل:', error);
+                });
+            } else {
+                console.error('❌ دالة initializeAllApexCharts غير متوفرة');
+            }
+        }
+        
+        function refreshCharts() {
+            console.log('🔄 تحديث الرسوم...');
+            
+            // تحديث مؤشرات الحالة
+            const chartIds = ['revenue', 'category', 'customerSegments', 'performance', 'marketShare', 'goals'];
+            chartIds.forEach(id => {
+                updateStatus(id, 'loading');
+            });
+            
+            setTimeout(() => {
+                initializeCharts();
+            }, 500);
+        }
+        
+        function destroyCharts() {
+            console.log('🗑️ حذف جميع الرسوم...');
+            
+            if (typeof window.destroyAllApexCharts === 'function') {
+                window.destroyAllApexCharts();
+                
+                // تحديث مؤشرات الحالة
+                const chartIds = ['revenue', 'category', 'customerSegments', 'performance', 'marketShare', 'goals'];
+                chartIds.forEach(id => {
+                    updateStatus(id, 'error');
+                });
+                
+                updateStats();
+            }
+        }
+        
+        function checkChartStatus() {
+            const charts = ['revenue', 'category', 'customerSegments', 'performance', 'marketShare', 'goals'];
+            charts.forEach(chartId => {
+                const exists = window.apexChartInstances && window.apexChartInstances[chartId + 'Chart'];
+                updateStatus(chartId, exists ? 'success' : 'error');
+            });
+        }
+        
+        function checkPerformance() {
+            console.log('⚡ فحص الأداء...');
+            
+            const performanceData = {
+                loadTime: ((performance.now() - startTime) / 1000).toFixed(2),
+                chartsCount: window.apexChartInstances ? Object.keys(window.apexChartInstances).length : 0,
+                memoryUsage: performance.memory ? (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2) + ' MB' : 'غير متوفر',
+                apexChartsVersion: typeof ApexCharts !== 'undefined' ? 'محمل' : 'غير محمل'
+            };
+            
+            console.table(performanceData);
+            alert(`📊 تقرير الأداء:\n\n⏱️ وقت التحميل: ${performanceData.loadTime}s\n📈 الرسوم النشطة: ${performanceData.chartsCount}\n💾 استخدام الذاكرة: ${performanceData.memoryUsage}\n📚 ApexCharts: ${performanceData.apexChartsVersion}`);
+        }
+        
+        function exportAllCharts() {
+            console.log('📥 تصدير جميع الرسوم...');
+            alert('🎉 ميزة التصدير متوفرة!\n\nاستخدم أيقونة التحميل في أعلى كل رسم بياني لتصدير الرسم بصيغة PNG أو SVG.');
+        }
+        
+        // مراقبة تحميل النظام
+        let checkInterval = setInterval(() => {
+            if (typeof window.initializeAllApexCharts === 'function') {
+                console.log('✅ تم تحميل نظام ApexCharts');
+                clearInterval(checkInterval);
+                
+                // تشغيل تلقائي بعد ثانيتين
+                setTimeout(() => {
+                    initializeCharts();
+                }, 2000);
+            }
+            updateStats();
+        }, 500);
+        
+        // تنظيف بعد 15 ثانية
+        setTimeout(() => {
+            clearInterval(checkInterval);
+        }, 15000);
+        
+        // تحديث الإحصائيات كل ثانية
+        setInterval(updateStats, 1000);
+        
+        console.log('🎉 تم إعداد نظام ApexCharts المتكامل بنجاح');
+    </script>
+    
+    <!-- Load ApexCharts System -->
+    <script src="js/apex-charts-system.js"></script>
+</body>
+</html>

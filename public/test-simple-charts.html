@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار النظام المبسط للرسوم البيانية</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 30px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: white;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+        
+        .status-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        
+        .chart-title {
+            color: #2d3748;
+            margin: 0 0 25px 0;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chart-title i {
+            margin-left: 10px;
+            font-size: 18px;
+        }
+        
+        .status-indicator {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #cbd5e0;
+        }
+        
+        .status-indicator.success { background: #48bb78; }
+        .status-indicator.error { background: #f56565; }
+        .status-indicator.loading { background: #ed8936; animation: pulse 2s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .control-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn.danger { background: #f56565; }
+        .btn.primary { background: #4299e1; }
+        .btn.warning { background: #ed8936; }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-chart-bar"></i>
+            النظام المبسط للرسوم البيانية
+        </h1>
+        
+        <!-- Status Panel -->
+        <div class="status-panel">
+            <h3 style="margin: 0 0 15px 0; color: #2d3748;">حالة النظام</h3>
+            <div id="systemStatus">
+                <div style="color: #718096;">جاري التحقق من حالة النظام...</div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <!-- Revenue Chart -->
+            <div class="chart-container">
+                <div class="status-indicator loading" id="revenueStatus"></div>
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-area" style="color: #667eea;"></i>
+                    اتجاه الإيرادات
+                </h3>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Category Chart -->
+            <div class="chart-container">
+                <div class="status-indicator loading" id="categoryStatus"></div>
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-pie" style="color: #ed8936;"></i>
+                    المبيعات حسب الفئة
+                </h3>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Charts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <!-- Customer Segments -->
+            <div class="chart-container">
+                <div class="status-indicator loading" id="customerSegmentsStatus"></div>
+                <h3 class="chart-title">
+                    <i class="fas fa-users-cog" style="color: #9f7aea;"></i>
+                    شرائح العملاء
+                </h3>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="customerSegmentsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Performance Chart -->
+            <div class="chart-container">
+                <div class="status-indicator loading" id="performanceStatus"></div>
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-area" style="color: #48bb78;"></i>
+                    أداء المؤشرات
+                </h3>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <h3 style="margin: 0 0 15px 0; color: #2d3748;">لوحة التحكم</h3>
+            <button class="btn" onclick="refreshCharts()">
+                <i class="fas fa-sync-alt"></i> تحديث الرسوم
+            </button>
+            <button class="btn danger" onclick="destroyCharts()">
+                <i class="fas fa-trash"></i> حذف الرسوم
+            </button>
+            <button class="btn primary" onclick="checkStatus()">
+                <i class="fas fa-stethoscope"></i> فحص الحالة
+            </button>
+            <button class="btn warning" onclick="showConsole()">
+                <i class="fas fa-terminal"></i> عرض وحدة التحكم
+            </button>
+        </div>
+    </div>
+
+    <!-- Test Data Setup -->
+    <script>
+        console.log('🔧 إعداد بيانات الاختبار...');
+        
+        // إعداد البيانات
+        window.analyticsData = {
+            revenue_trend: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                data: [18500000, 22300000, 19800000, 25600000, 28900000, 31200000]
+            },
+            sales_by_category: {
+                labels: ['أدوية القلب', 'المضادات الحيوية', 'أدوية السكري', 'الفيتامينات', 'أخرى'],
+                data: [35, 25, 20, 15, 5]
+            },
+            customer_segments: {
+                labels: ['مستشفيات', 'صيدليات', 'عيادات', 'موزعين'],
+                data: [40, 35, 15, 10]
+            }
+        };
+        
+        console.log('✅ تم إعداد البيانات:', window.analyticsData);
+        
+        // دوال التحكم
+        function updateStatus(chartId, status) {
+            const indicator = document.getElementById(chartId + 'Status');
+            if (indicator) {
+                indicator.className = `status-indicator ${status}`;
+            }
+        }
+        
+        function updateSystemStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('systemStatus');
+            const timestamp = new Date().toLocaleTimeString('ar-EG');
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+            
+            statusDiv.innerHTML += `
+                <div style="margin: 5px 0; padding: 8px; border-radius: 6px; background: ${
+                    type === 'success' ? '#d4edda' : 
+                    type === 'error' ? '#f8d7da' : 
+                    type === 'warning' ? '#fff3cd' : '#d1ecf1'
+                }; color: ${
+                    type === 'success' ? '#155724' : 
+                    type === 'error' ? '#721c24' : 
+                    type === 'warning' ? '#856404' : '#0c5460'
+                };">
+                    <small>${timestamp}</small> ${icon} ${message}
+                </div>
+            `;
+            statusDiv.scrollTop = statusDiv.scrollHeight;
+        }
+        
+        function refreshCharts() {
+            updateSystemStatus('بدء تحديث الرسوم البيانية...', 'info');
+            
+            // تحديث مؤشرات الحالة
+            ['revenue', 'category', 'customerSegments', 'performance'].forEach(id => {
+                updateStatus(id, 'loading');
+            });
+            
+            if (typeof window.initCharts === 'function') {
+                window.initCharts().then(count => {
+                    updateSystemStatus(`تم تحديث ${count} رسوم بيانية بنجاح`, 'success');
+                    checkChartStatus();
+                }).catch(error => {
+                    updateSystemStatus(`خطأ في التحديث: ${error.message}`, 'error');
+                });
+            } else {
+                updateSystemStatus('دالة initCharts غير متوفرة', 'error');
+            }
+        }
+        
+        function destroyCharts() {
+            updateSystemStatus('حذف جميع الرسوم البيانية...', 'warning');
+            
+            if (typeof window.destroyAllCharts === 'function') {
+                window.destroyAllCharts();
+                updateSystemStatus('تم حذف جميع الرسوم البيانية', 'warning');
+                
+                // تحديث مؤشرات الحالة
+                ['revenue', 'category', 'customerSegments', 'performance'].forEach(id => {
+                    updateStatus(id, 'error');
+                });
+            } else {
+                updateSystemStatus('دالة destroyAllCharts غير متوفرة', 'error');
+            }
+        }
+        
+        function checkStatus() {
+            updateSystemStatus('فحص حالة النظام...', 'info');
+            
+            const chartJSLoaded = typeof Chart !== 'undefined';
+            const dataAvailable = typeof window.analyticsData !== 'undefined';
+            const chartsCount = window.chartInstances ? Object.keys(window.chartInstances).length : 0;
+            
+            updateSystemStatus(`Chart.js: ${chartJSLoaded ? 'محمل' : 'غير محمل'}`, chartJSLoaded ? 'success' : 'error');
+            updateSystemStatus(`البيانات: ${dataAvailable ? 'متوفرة' : 'غير متوفرة'}`, dataAvailable ? 'success' : 'error');
+            updateSystemStatus(`الرسوم النشطة: ${chartsCount}`, chartsCount > 0 ? 'success' : 'warning');
+            
+            checkChartStatus();
+        }
+        
+        function checkChartStatus() {
+            const charts = ['revenue', 'category', 'customerSegments', 'performance'];
+            charts.forEach(chartId => {
+                const exists = window.chartInstances && window.chartInstances[chartId + 'Chart'];
+                updateStatus(chartId, exists ? 'success' : 'error');
+            });
+        }
+        
+        function showConsole() {
+            updateSystemStatus('تحقق من وحدة التحكم للحصول على معلومات مفصلة', 'info');
+            console.log('📊 حالة النظام الحالية:');
+            console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+            console.log('Analytics data:', window.analyticsData);
+            console.log('Chart instances:', window.chartInstances);
+            console.log('Available functions:', {
+                initCharts: typeof window.initCharts,
+                destroyAllCharts: typeof window.destroyAllCharts,
+                destroyChart: typeof window.destroyChart
+            });
+        }
+        
+        // مراقبة تحميل النظام
+        let checkInterval = setInterval(() => {
+            if (typeof window.initCharts === 'function') {
+                updateSystemStatus('تم تحميل النظام المبسط بنجاح', 'success');
+                clearInterval(checkInterval);
+                
+                // فحص الحالة بعد ثانيتين
+                setTimeout(() => {
+                    checkStatus();
+                    checkChartStatus();
+                }, 2000);
+            }
+        }, 500);
+        
+        // تنظيف بعد 10 ثوان
+        setTimeout(() => {
+            clearInterval(checkInterval);
+        }, 10000);
+        
+        // رسالة ترحيب
+        updateSystemStatus('مرحباً بك في النظام المبسط للرسوم البيانية', 'success');
+    </script>
+    
+    <!-- Load Simple Charts Fix -->
+    <script src="js/charts-simple-fix.js"></script>
+</body>
+</html>

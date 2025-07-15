@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القوائم المنسدلة الموحدة - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/custom-select.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #333;
+            direction: rtl;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-50px) translateY(-50px); }
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 2;
+            line-height: 1.6;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .comparison-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid #e2e8f0;
+        }
+
+        .comparison-card.old {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        .comparison-card.new {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%);
+        }
+
+        .comparison-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .comparison-card.old h3 {
+            color: #dc2626;
+        }
+
+        .comparison-card.new h3 {
+            color: #059669;
+        }
+
+        .form-example {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .old-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            color: #374151;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            color: #4b5563;
+        }
+
+        .features-list.new li {
+            color: #065f46;
+        }
+
+        .features-list.old li {
+            color: #7f1d1d;
+        }
+
+        .icon-check {
+            color: #10b981;
+            font-size: 16px;
+        }
+
+        .icon-cross {
+            color: #ef4444;
+            font-size: 16px;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .showcase-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .showcase-card h4 {
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .implementation-guide {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 40px;
+        }
+
+        .implementation-guide h3 {
+            color: #92400e;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .step-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #f59e0b;
+            text-align: center;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 auto 15px auto;
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            color: #92400e;
+            line-height: 1.6;
+        }
+
+        .code-snippet {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .btn-demo {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            font-size: 16px;
+        }
+
+        .btn-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .success-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .success-banner h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-magic"></i> القوائم المنسدلة الموحدة</h1>
+            <p>نظام قوائم منسدلة موحد وعصري لجميع أجزاء النظام مع إمكانية البحث والتخصيص</p>
+        </div>
+
+        <!-- Success Banner -->
+        <div class="success-banner">
+            <h2><i class="fas fa-check-circle"></i> تم تطبيق النظام بنجاح!</h2>
+            <p>جميع القوائم المنسدلة في النظام تستخدم الآن التصميم الموحد الجديد</p>
+        </div>
+
+        <!-- Comparison -->
+        <div class="comparison-grid">
+            <!-- Old System -->
+            <div class="comparison-card old">
+                <h3><i class="fas fa-times-circle"></i> النظام القديم</h3>
+                
+                <div class="form-example">
+                    <div class="form-group">
+                        <label class="form-label">اختر الدولة (النظام القديم):</label>
+                        <select class="old-select">
+                            <option>اختر الدولة</option>
+                            <option>العراق</option>
+                            <option>السعودية</option>
+                            <option>الإمارات</option>
+                        </select>
+                    </div>
+                </div>
+
+                <ul class="features-list old">
+                    <li><i class="fas fa-times icon-cross"></i> تصميم أساسي وقديم</li>
+                    <li><i class="fas fa-times icon-cross"></i> لا يوجد بحث</li>
+                    <li><i class="fas fa-times icon-cross"></i> غير متجاوب مع الجوال</li>
+                    <li><i class="fas fa-times icon-cross"></i> تصميم غير موحد</li>
+                    <li><i class="fas fa-times icon-cross"></i> لا يدعم الاختيار المتعدد</li>
+                    <li><i class="fas fa-times icon-cross"></i> صعوبة في الاستخدام</li>
+                </ul>
+            </div>
+
+            <!-- New System -->
+            <div class="comparison-card new">
+                <h3><i class="fas fa-check-circle"></i> النظام الجديد</h3>
+                
+                <div class="form-example">
+                    <div class="form-group">
+                        <label class="form-label">اختر الدولة (النظام الجديد):</label>
+                        <select data-custom-select data-placeholder="ابحث عن الدولة...">
+                            <option value="">ابحث عن الدولة...</option>
+                            <option value="iraq">العراق</option>
+                            <option value="saudi">السعودية</option>
+                            <option value="uae">الإمارات</option>
+                            <option value="kuwait">الكويت</option>
+                            <option value="qatar">قطر</option>
+                            <option value="bahrain">البحرين</option>
+                            <option value="oman">عمان</option>
+                            <option value="jordan">الأردن</option>
+                            <option value="lebanon">لبنان</option>
+                            <option value="syria">سوريا</option>
+                            <option value="egypt">مصر</option>
+                            <option value="palestine">فلسطين</option>
+                        </select>
+                    </div>
+                </div>
+
+                <ul class="features-list new">
+                    <li><i class="fas fa-check icon-check"></i> تصميم عصري وجذاب</li>
+                    <li><i class="fas fa-check icon-check"></i> بحث فوري وذكي</li>
+                    <li><i class="fas fa-check icon-check"></i> متجاوب مع جميع الأجهزة</li>
+                    <li><i class="fas fa-check icon-check"></i> تصميم موحد في كل النظام</li>
+                    <li><i class="fas fa-check icon-check"></i> دعم الاختيار المتعدد</li>
+                    <li><i class="fas fa-check icon-check"></i> سهولة في الاستخدام</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Showcase Examples -->
+        <div class="showcase-grid">
+            <!-- Basic Select -->
+            <div class="showcase-card">
+                <h4><i class="fas fa-list" style="color: #3b82f6;"></i> قائمة أساسية</h4>
+                <div class="form-group">
+                    <label class="form-label">نوع المستخدم:</label>
+                    <select data-custom-select data-placeholder="اختر نوع المستخدم..." data-searchable="false">
+                        <option value="">اختر نوع المستخدم</option>
+                        <option value="admin">مدير النظام</option>
+                        <option value="manager">مدير</option>
+                        <option value="employee">موظف</option>
+                        <option value="viewer">مشاهد</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Searchable Select -->
+            <div class="showcase-card">
+                <h4><i class="fas fa-search" style="color: #10b981;"></i> قائمة قابلة للبحث</h4>
+                <div class="form-group">
+                    <label class="form-label">اختر المدينة:</label>
+                    <select data-custom-select data-placeholder="ابحث عن المدينة...">
+                        <option value="">ابحث عن المدينة</option>
+                        <option value="baghdad">بغداد</option>
+                        <option value="basra">البصرة</option>
+                        <option value="mosul">الموصل</option>
+                        <option value="erbil">أربيل</option>
+                        <option value="najaf">النجف</option>
+                        <option value="karbala">كربلاء</option>
+                        <option value="sulaymaniyah">السليمانية</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Multiple Select -->
+            <div class="showcase-card">
+                <h4><i class="fas fa-check-double" style="color: #f59e0b;"></i> اختيار متعدد</h4>
+                <div class="form-group">
+                    <label class="form-label">اختر المهارات:</label>
+                    <select data-custom-select multiple data-placeholder="اختر المهارات...">
+                        <option value="php">PHP</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="laravel">Laravel</option>
+                        <option value="react">React</option>
+                        <option value="vue">Vue.js</option>
+                        <option value="mysql">MySQL</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Pre-selected -->
+            <div class="showcase-card">
+                <h4><i class="fas fa-star" style="color: #8b5cf6;"></i> خيارات محددة مسبقاً</h4>
+                <div class="form-group">
+                    <label class="form-label">الأقسام المفضلة:</label>
+                    <select data-custom-select multiple data-placeholder="الأقسام المختارة...">
+                        <option value="sales" selected>المبيعات</option>
+                        <option value="inventory">المخزون</option>
+                        <option value="accounting" selected>المحاسبة</option>
+                        <option value="hr">الموارد البشرية</option>
+                        <option value="analytics">التحليلات</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Guide -->
+        <div class="implementation-guide">
+            <h3><i class="fas fa-rocket"></i> كيفية التطبيق</h3>
+            
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-title">إضافة الملفات</div>
+                    <div class="step-description">تم إضافة ملفات CSS و JavaScript إلى جميع layouts في النظام</div>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-title">تحديث القوائم</div>
+                    <div class="step-description">أضف data-custom-select لأي عنصر select لتحويله تلقائياً</div>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-title">التخصيص</div>
+                    <div class="step-description">استخدم الخصائص الإضافية للتحكم في السلوك والمظهر</div>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-title">الاختبار</div>
+                    <div class="step-description">جرب جميع الوظائف للتأكد من عملها بشكل صحيح</div>
+                </div>
+            </div>
+
+            <div class="code-snippet">
+&lt;!-- مثال على الاستخدام --&gt;
+&lt;select data-custom-select 
+        data-placeholder="اختر خياراً..." 
+        data-searchable="true"
+        data-search-placeholder="البحث..."&gt;
+    &lt;option value="option1"&gt;خيار 1&lt;/option&gt;
+    &lt;option value="option2"&gt;خيار 2&lt;/option&gt;
+&lt;/select&gt;
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn-demo" onclick="showAllValues()">
+                    <i class="fas fa-eye"></i> عرض جميع القيم المختارة
+                </button>
+                <button class="btn-demo" onclick="resetAllSelects()">
+                    <i class="fas fa-redo"></i> إعادة تعيين الكل
+                </button>
+                <a href="/test-custom-selects.html" class="btn-demo" style="text-decoration: none;">
+                    <i class="fas fa-external-link-alt"></i> المزيد من الأمثلة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/custom-select.js"></script>
+    <script>
+        function showAllValues() {
+            const selects = document.querySelectorAll('select[data-custom-select]');
+            let values = 'القيم المختارة:\n\n';
+            
+            selects.forEach((select, index) => {
+                const label = select.closest('.form-group')?.querySelector('.form-label')?.textContent || `قائمة ${index + 1}`;
+                
+                if (select.multiple) {
+                    const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.textContent);
+                    values += `${label}: ${selectedOptions.join(', ') || 'لا يوجد اختيار'}\n`;
+                } else {
+                    values += `${label}: ${select.selectedOptions[0]?.textContent || 'لا يوجد اختيار'}\n`;
+                }
+            });
+            
+            alert(values);
+        }
+        
+        function resetAllSelects() {
+            const selects = document.querySelectorAll('select[data-custom-select]');
+            selects.forEach(select => {
+                // Clear all selections
+                Array.from(select.options).forEach(option => {
+                    option.selected = false;
+                });
+                select.dispatchEvent(new Event('change'));
+            });
+            
+            // Reload to reinitialize
+            setTimeout(() => {
+                location.reload();
+            }, 100);
+        }
+        
+        // Show success message on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Unified Dropdown System loaded successfully!');
+            console.log('📊 Found', document.querySelectorAll('select[data-custom-select]').length, 'custom selects');
+        });
+    </script>
+</body>
+</html>

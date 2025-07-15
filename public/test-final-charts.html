@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الاختبار النهائي للرسوم البيانية - MaxCon ERP</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: white;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .success-banner {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        
+        .chart-title {
+            color: #2d3748;
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chart-title i {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+        
+        .control-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin: 8px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .btn.success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+        .btn.danger { background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); }
+        .btn.warning { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); }
+        
+        .status-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .status-value {
+            font-weight: 700;
+            color: #48bb78;
+        }
+        
+        .status-value.error {
+            color: #f56565;
+        }
+        
+        .status-value.warning {
+            color: #ed8936;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-check-circle"></i>
+            الاختبار النهائي للرسوم البيانية
+        </h1>
+        
+        <!-- Success Banner -->
+        <div class="success-banner">
+            <h3 style="margin: 0 0 10px 0;"><i class="fas fa-rocket"></i> تم تطبيق النظام بنجاح!</h3>
+            <p style="margin: 0; opacity: 0.9;">نظام ApexCharts المحسن يعمل الآن في صفحة التنبؤات الذكية</p>
+        </div>
+        
+        <!-- Status Panel -->
+        <div class="status-panel">
+            <h3 style="margin: 0 0 15px 0; color: #2d3748;">حالة النظام</h3>
+            <div class="status-item">
+                <span class="status-label">ApexCharts</span>
+                <span class="status-value" id="apexStatus">جاري التحقق...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">البيانات</span>
+                <span class="status-value" id="dataStatus">جاري التحقق...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">الرسوم النشطة</span>
+                <span class="status-value" id="chartsCount">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">وقت التحميل</span>
+                <span class="status-value" id="loadTime">-</span>
+            </div>
+        </div>
+        
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Revenue Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-area" style="color: #667eea;"></i>
+                    اتجاه الإيرادات
+                </h3>
+                <div id="revenueChart" style="height: 300px;"></div>
+            </div>
+            
+            <!-- Category Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-pie" style="color: #ed8936;"></i>
+                    المبيعات حسب الفئة
+                </h3>
+                <div id="categoryChart" style="height: 300px;"></div>
+            </div>
+            
+            <!-- Customer Segments -->
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-users-cog" style="color: #9f7aea;"></i>
+                    شرائح العملاء
+                </h3>
+                <div id="customerSegmentsChart" style="height: 300px;"></div>
+            </div>
+            
+            <!-- Market Share Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-pie" style="color: #4299e1;"></i>
+                    حصة السوق
+                </h3>
+                <div id="marketShareChart" style="height: 300px;"></div>
+            </div>
+        </div>
+        
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <h3 style="margin: 0 0 20px 0; color: #2d3748;">لوحة التحكم</h3>
+            <button class="btn success" onclick="initializeCharts()">
+                <i class="fas fa-play"></i> تشغيل الرسوم
+            </button>
+            <button class="btn" onclick="refreshCharts()">
+                <i class="fas fa-sync-alt"></i> تحديث
+            </button>
+            <button class="btn danger" onclick="destroyCharts()">
+                <i class="fas fa-trash"></i> حذف الرسوم
+            </button>
+            <a href="/tenant/analytics/predictions" class="btn warning">
+                <i class="fas fa-external-link-alt"></i> فتح صفحة التنبؤات
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics Data Setup -->
+    <script>
+        console.log('🔧 إعداد بيانات الاختبار...');
+        
+        const startTime = performance.now();
+        
+        // إعداد البيانات
+        window.analyticsData = {
+            revenue_trend: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                data: [35800000, 30400000, 33100000, 41200000, 38700000, 35800000]
+            },
+            sales_by_category: {
+                labels: ['أدوية القلب', 'المضادات الحيوية', 'أدوية السكري', 'الفيتامينات', 'أخرى'],
+                data: [35, 25, 20, 15, 5]
+            },
+            customer_segments: {
+                labels: ['مستشفيات', 'صيدليات', 'عيادات', 'موزعين'],
+                data: [40, 35, 15, 10]
+            }
+        };
+        
+        console.log('✅ تم إعداد البيانات:', window.analyticsData);
+        
+        // دوال التحكم
+        function updateStatus() {
+            const apexLoaded = typeof ApexCharts !== 'undefined';
+            const dataAvailable = typeof window.analyticsData !== 'undefined';
+            const chartsCount = window.apexChartInstances ? Object.keys(window.apexChartInstances).length : 0;
+            const loadTime = ((performance.now() - startTime) / 1000).toFixed(2);
+            
+            document.getElementById('apexStatus').textContent = apexLoaded ? '✅ محمل' : '❌ غير محمل';
+            document.getElementById('apexStatus').className = apexLoaded ? 'status-value' : 'status-value error';
+            
+            document.getElementById('dataStatus').textContent = dataAvailable ? '✅ متوفرة' : '❌ غير متوفرة';
+            document.getElementById('dataStatus').className = dataAvailable ? 'status-value' : 'status-value error';
+            
+            document.getElementById('chartsCount').textContent = chartsCount;
+            document.getElementById('chartsCount').className = chartsCount > 0 ? 'status-value' : 'status-value warning';
+            
+            document.getElementById('loadTime').textContent = loadTime + 's';
+        }
+        
+        function initializeCharts() {
+            console.log('🚀 بدء تشغيل الرسوم...');
+            
+            if (typeof window.initializeAllApexCharts === 'function') {
+                window.initializeAllApexCharts().then(count => {
+                    console.log(`✅ تم تشغيل ${count} رسوم بيانية`);
+                    updateStatus();
+                }).catch(error => {
+                    console.error('❌ خطأ في التشغيل:', error);
+                    updateStatus();
+                });
+            } else {
+                console.error('❌ دالة initializeAllApexCharts غير متوفرة');
+            }
+        }
+        
+        function refreshCharts() {
+            console.log('🔄 تحديث الرسوم...');
+            setTimeout(() => {
+                initializeCharts();
+            }, 500);
+        }
+        
+        function destroyCharts() {
+            console.log('🗑️ حذف جميع الرسوم...');
+            
+            if (typeof window.destroyAllApexCharts === 'function') {
+                window.destroyAllApexCharts();
+                updateStatus();
+            }
+        }
+        
+        // مراقبة تحميل النظام
+        let checkInterval = setInterval(() => {
+            updateStatus();
+            
+            if (typeof window.initializeAllApexCharts === 'function') {
+                console.log('✅ تم تحميل نظام ApexCharts المحسن');
+                clearInterval(checkInterval);
+                
+                // تشغيل تلقائي بعد ثانيتين
+                setTimeout(() => {
+                    initializeCharts();
+                }, 2000);
+            }
+        }, 500);
+        
+        // تنظيف بعد 15 ثانية
+        setTimeout(() => {
+            clearInterval(checkInterval);
+        }, 15000);
+        
+        // تحديث الحالة كل ثانية
+        setInterval(updateStatus, 1000);
+        
+        console.log('🎉 تم إعداد صفحة الاختبار النهائي');
+    </script>
+    
+    <!-- Load ApexCharts System -->
+    <script src="js/apex-charts-system.js"></script>
+</body>
+</html>

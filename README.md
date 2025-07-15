@@ -1,62 +1,228 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MaxCon - Pharmaceutical ERP System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<div align="center">
 
-## About Laravel
+![MaxCon Logo](https://img.shields.io/badge/MaxCon-Pharmaceutical%20ERP-blue?style=for-the-badge)
+![Laravel](https://img.shields.io/badge/Laravel-10+-red?style=for-the-badge&logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**نظام إدارة موارد المؤسسات الدوائية المتكامل**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+[العربية](#العربية) | [English](#english)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+</div>
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## العربية
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 📋 نظرة عامة
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+MaxCon هو نظام إدارة موارد المؤسسات (ERP) متخصص للشركات الدوائية، مطور باستخدام Laravel 10+ مع دعم كامل للغة العربية والسوق العراقي.
 
-## Laravel Sponsors
+### ✨ المميزات الرئيسية
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+#### 🏢 إدارة متعددة المستأجرين (Multi-Tenant)
+- نظام مستأجرين منفصل لكل شركة
+- قواعد بيانات منعزلة لضمان الأمان
+- إدارة مستقلة للمستخدمين والصلاحيات
 
-### Premium Partners
+#### 💊 إدارة المبيعات والمشتريات
+- إدارة شاملة لدورة المبيعات
+- نظام فواتير متقدم مع QR codes
+- إدارة المرتجعات والاستبدالات
+- تتبع المدفوعات والذمم المدينة
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+#### 📦 إدارة المخزون المتقدمة
+- تتبع المخزون في الوقت الفعلي
+- تنبيهات انتهاء الصلاحية والنفاد
+- إدارة الباركود والـ QR codes
+- تقارير حركة المخزون التفصيلية
 
-## Contributing
+#### 👥 إدارة الموارد البشرية
+- ملفات الموظفين الشاملة
+- نظام الحضور والانصراف
+- إدارة الرواتب والبدلات
+- تقارير الأداء والتقييم
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+#### 💰 النظام المحاسبي
+- دليل حسابات هرمي
+- دعم العملات المتعددة
+- القيود اليومية التلقائية
+- التقارير المالية الشاملة
 
-## Code of Conduct
+#### 📊 التقارير والتحليلات
+- أكثر من 50 تقرير ديناميكي
+- لوحات تحكم تفاعلية
+- تصدير للـ Excel و PDF
+- تحليلات الذكاء الاصطناعي
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+#### 🌍 التوطين للسوق العراقي
+- دعم كامل للغة العربية
+- الدينار العراقي كعملة أساسية
+- النظام الضريبي العراقي
+- تكامل مع البنوك العراقية
 
-## Security Vulnerabilities
+### 🛠️ التقنيات المستخدمة
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **Backend**: Laravel 10+, PHP 8.1+
+- **Database**: MySQL/MariaDB, Redis
+- **Frontend**: Blade Templates, Tailwind CSS, Alpine.js
+- **Real-time**: Livewire
+- **Architecture**: Repository Pattern, Service Layer
+- **Security**: RBAC, Multi-tenant isolation
 
-## License
+### 📋 متطلبات النظام
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# MaxCon-V2
+- PHP 8.1 أو أحدث
+- Composer
+- MySQL 8.0+ أو MariaDB 10.3+
+- Redis (اختياري للـ caching)
+- Node.js & NPM (للـ frontend assets)
+
+### 🚀 التثبيت
+
+1. **استنساخ المشروع**
+```bash
+git clone https://github.com/your-username/maxcon-erp.git
+cd maxcon-erp
+```
+
+2. **تثبيت التبعيات**
+```bash
+composer install
+npm install
+```
+
+3. **إعداد البيئة**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. **إعداد قاعدة البيانات**
+```bash
+# تحديث إعدادات قاعدة البيانات في .env
+php artisan migrate
+php artisan db:seed
+```
+
+5. **بناء الـ Assets**
+```bash
+npm run build
+```
+
+6. **تشغيل الخادم**
+```bash
+php artisan serve
+```
+
+### 👤 بيانات الدخول الافتراضية
+
+**السوبر أدمن:**
+- البريد الإلكتروني: `admin@maxcon.com`
+- كلمة المرور: `password123`
+
+### 📁 هيكل المشروع
+
+```
+maxcon-erp/
+├── app/
+│   ├── Http/Controllers/
+│   ├── Models/
+│   ├── Services/
+│   └── Repositories/
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── resources/
+│   ├── views/
+│   └── js/
+├── routes/
+└── public/
+```
+
+### 🔧 الإعدادات
+
+#### إعداد Multi-Tenancy
+```bash
+php artisan tenants:migrate
+php artisan tenants:seed
+```
+
+#### إعداد الصلاحيات
+```bash
+php artisan permissions:sync
+```
+
+### 📖 الوثائق
+
+- [دليل المستخدم](docs/user-guide.md)
+- [دليل المطور](docs/developer-guide.md)
+- [API Documentation](docs/api.md)
+- [دليل النشر](DEPLOYMENT_GUIDE.md)
+
+### 🤝 المساهمة
+
+نرحب بالمساهمات! يرجى قراءة [دليل المساهمة](CONTRIBUTING.md) قبل البدء.
+
+### 📄 الترخيص
+
+هذا المشروع مرخص تحت [MIT License](LICENSE).
+
+### 📞 الدعم
+
+- البريد الإلكتروني: support@maxcon.com
+- الوثائق: [docs.maxcon.com](https://docs.maxcon.com)
+- المجتمع: [community.maxcon.com](https://community.maxcon.com)
+
+---
+
+## English
+
+### 📋 Overview
+
+MaxCon is a comprehensive Enterprise Resource Planning (ERP) system specifically designed for pharmaceutical companies, built with Laravel 10+ and full Arabic language support for the Iraqi market.
+
+### ✨ Key Features
+
+- **Multi-Tenant Architecture**: Isolated databases for each company
+- **Sales & Procurement Management**: Complete sales cycle with QR codes
+- **Advanced Inventory Management**: Real-time tracking with expiry alerts
+- **Human Resources Management**: Employee files, payroll, attendance
+- **Accounting System**: Hierarchical chart of accounts, multi-currency
+- **Dynamic Reporting**: 50+ reports with AI analytics
+- **Iraqi Market Localization**: Arabic support, IQD currency, tax system
+
+### 🛠️ Tech Stack
+
+- Laravel 10+, PHP 8.1+, MySQL/MariaDB, Redis
+- Tailwind CSS, Alpine.js, Livewire
+- Repository Pattern, Service Layer, RBAC
+
+### 🚀 Quick Start
+
+```bash
+git clone https://github.com/your-username/maxcon-erp.git
+cd maxcon-erp
+composer install && npm install
+cp .env.example .env && php artisan key:generate
+php artisan migrate && php artisan db:seed
+npm run build && php artisan serve
+```
+
+### 👤 Default Login
+
+- Email: `admin@maxcon.com`
+- Password: `password123`
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the Pharmaceutical Industry**
+
+[⭐ Star this repo](https://github.com/your-username/maxcon-erp) | [🐛 Report Bug](https://github.com/your-username/maxcon-erp/issues) | [💡 Request Feature](https://github.com/your-username/maxcon-erp/issues)
+
+</div>

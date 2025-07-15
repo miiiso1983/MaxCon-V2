@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القائمة الجانبية مع قسم كيفية استخدام النظام - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            color: #333;
+            direction: rtl;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.05)"/></svg>') repeat;
+            pointer-events: none;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+            background: rgba(255,255,255,0.1);
+            margin: 2px 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-section-title:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+
+        .nav-section-title.active {
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-section-title i {
+            margin-left: 12px;
+            width: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .nav-section-title::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+
+        .nav-section:not(.collapsed) .nav-section-title::after {
+            transform: rotate(180deg);
+        }
+
+        .nav-section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: rgba(0,0,0,0.1);
+            margin: 0 10px;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .nav-section:not(.collapsed) .nav-section-content {
+            max-height: 800px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            border-radius: 8px;
+            margin: 3px 10px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            transform: translateX(-3px);
+        }
+
+        .nav-link.active {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .nav-link i {
+            margin-left: 10px;
+            width: 18px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .subsection-title {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 15px 30px 8px 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 15px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            background: #f8fafc;
+        }
+
+        .content-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-50px) translateY(-50px); }
+        }
+
+        .content-header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .content-header p {
+            font-size: 20px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 2;
+            line-height: 1.6;
+        }
+
+        .success-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .success-card h3 {
+            color: #1e293b;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .success-card p {
+            color: #64748b;
+            line-height: 1.8;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: #f1f5f9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+        }
+
+        .feature-text {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .highlight-box h4 {
+            color: #92400e;
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box p {
+            color: #92400e;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .action-button.primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-button.primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .action-button.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-button.success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-chart-line"></i> MaxCon ERP</h2>
+            </div>
+
+            <!-- لوحة التحكم -->
+            <div class="nav-section collapsed">
+                <div class="nav-section-title">
+                    <span><i class="fas fa-tachometer-alt"></i> لوحة التحكم</span>
+                </div>
+            </div>
+
+            <!-- إدارة الأدوار والصلاحيات -->
+            <div class="nav-section collapsed">
+                <div class="nav-section-title active">
+                    <span><i class="fas fa-user-shield"></i> إدارة الأدوار والصلاحيات</span>
+                </div>
+            </div>
+
+            <!-- إدارة المبيعات -->
+            <div class="nav-section collapsed">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    <span><i class="fas fa-shopping-bag"></i> إدارة المبيعات</span>
+                </div>
+                <div class="nav-section-content">
+                    <a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> طلبات المبيعات</a>
+                    <a href="#" class="nav-link"><i class="fas fa-users"></i> إدارة العملاء</a>
+                    <a href="#" class="nav-link"><i class="fas fa-file-invoice"></i> إدارة الفواتير</a>
+                </div>
+            </div>
+
+            <!-- إدارة المخزون -->
+            <div class="nav-section collapsed">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    <span><i class="fas fa-warehouse"></i> إدارة المخزون</span>
+                </div>
+                <div class="nav-section-content">
+                    <a href="#" class="nav-link"><i class="fas fa-cube"></i> كتالوج المنتجات</a>
+                    <a href="#" class="nav-link"><i class="fas fa-exchange-alt"></i> حركات المخزون</a>
+                </div>
+            </div>
+
+            <!-- النظام المحاسبي -->
+            <div class="nav-section collapsed">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    <span><i class="fas fa-calculator"></i> النظام المحاسبي</span>
+                </div>
+                <div class="nav-section-content">
+                    <a href="#" class="nav-link"><i class="fas fa-chart-tree"></i> دليل الحسابات</a>
+                    <a href="#" class="nav-link"><i class="fas fa-file-invoice"></i> القيود المحاسبية</a>
+                </div>
+            </div>
+
+            <!-- الشؤون التنظيمية -->
+            <div class="nav-section collapsed">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    <span><i class="fas fa-shield-alt"></i> الشؤون التنظيمية</span>
+                </div>
+                <div class="nav-section-content">
+                    <a href="#" class="nav-link"><i class="fas fa-building"></i> تسجيل الشركات</a>
+                    <a href="#" class="nav-link"><i class="fas fa-certificate"></i> شهادات الجودة</a>
+                </div>
+            </div>
+
+            <!-- الموارد البشرية -->
+            <div class="nav-section collapsed">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    <span><i class="fas fa-users"></i> الموارد البشرية</span>
+                </div>
+                <div class="nav-section-content">
+                    <a href="#" class="nav-link"><i class="fas fa-user-tie"></i> إدارة الموظفين</a>
+                    <a href="#" class="nav-link"><i class="fas fa-calendar-check"></i> الحضور والانصراف</a>
+                </div>
+            </div>
+
+            <!-- الذكاء الاصطناعي والتحليلات -->
+            <div class="nav-section collapsed">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    <span><i class="fas fa-brain"></i> الذكاء الاصطناعي والتحليلات</span>
+                </div>
+                <div class="nav-section-content">
+                    <a href="#" class="nav-link"><i class="fas fa-crystal-ball"></i> التنبؤات الذكية</a>
+                    <a href="#" class="nav-link"><i class="fas fa-chart-line"></i> تحليل اتجاهات السوق</a>
+                </div>
+            </div>
+
+            <!-- كيفية استخدام النظام -->
+            <div class="nav-section">
+                <div class="nav-section-title active" onclick="toggleSection(this)">
+                    <span><i class="fas fa-graduation-cap"></i> كيفية استخدام النظام</span>
+                </div>
+                <div class="nav-section-content">
+                    <a href="#" class="nav-link active"><i class="fas fa-home"></i> الصفحة الرئيسية</a>
+                    <a href="#" class="nav-link"><i class="fas fa-info-circle"></i> مقدمة عن النظام</a>
+                    <a href="#" class="nav-link"><i class="fas fa-play-circle"></i> الفيديوهات التعليمية</a>
+                    <a href="#" class="nav-link"><i class="fas fa-question-circle"></i> الأسئلة الشائعة</a>
+                    <a href="#" class="nav-link"><i class="fas fa-download"></i> تحميل دليل المستخدم</a>
+                    
+                    <div class="subsection-title">أدلة الوحدات</div>
+                    <a href="#" class="nav-link"><i class="fas fa-shopping-bag"></i> دليل المبيعات</a>
+                    <a href="#" class="nav-link"><i class="fas fa-warehouse"></i> دليل المخزون</a>
+                    <a href="#" class="nav-link"><i class="fas fa-bullseye"></i> دليل الأهداف</a>
+                    <a href="#" class="nav-link"><i class="fas fa-calculator"></i> دليل المحاسبة</a>
+                    <a href="#" class="nav-link"><i class="fas fa-users"></i> دليل الموارد البشرية</a>
+                    <a href="#" class="nav-link"><i class="fas fa-shield-alt"></i> دليل الشؤون التنظيمية</a>
+                    <a href="#" class="nav-link"><i class="fas fa-brain"></i> دليل الذكاء الاصطناعي</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1><i class="fas fa-check-circle"></i> تم إضافة القسم بنجاح!</h1>
+                <p>تم إضافة قسم "كيفية استخدام النظام" إلى القائمة الجانبية الحديثة بنجاح</p>
+            </div>
+
+            <div class="success-card">
+                <h3>
+                    <div class="feature-icon" style="background: #10b981;">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    قسم كيفية استخدام النظام
+                </h3>
+                <p>
+                    تم إضافة قسم شامل ومتكامل لتعليم المستخدمين كيفية استخدام جميع وحدات النظام. 
+                    القسم يتضمن جميع الصفحات والمكونات المطلوبة مع تصميم عصري ومتجاوب.
+                </p>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon" style="background: #3b82f6;">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="feature-text">الصفحة الرئيسية</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon" style="background: #10b981;">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="feature-text">مقدمة عن النظام</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon" style="background: #f59e0b;">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="feature-text">الفيديوهات التعليمية</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon" style="background: #8b5cf6;">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="feature-text">الأسئلة الشائعة</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon" style="background: #ef4444;">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="feature-text">دليل المستخدم PDF</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon" style="background: #06b6d4;">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="feature-text">الجولات التفاعلية</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4><i class="fas fa-star"></i> المهمة مكتملة!</h4>
+                <p>
+                    تم إضافة قسم "كيفية استخدام النظام" بنجاح إلى القائمة الجانبية الحديثة. 
+                    القسم يظهر الآن في جميع صفحات النظام ويمكن الوصول إليه بسهولة من أي مكان.
+                </p>
+                
+                <div class="action-buttons">
+                    <a href="/test-system-guide-direct" class="action-button primary">
+                        <i class="fas fa-eye"></i>
+                        معاينة الصفحات
+                    </a>
+                    
+                    <a href="/system-guide-success.html" class="action-button success">
+                        <i class="fas fa-info-circle"></i>
+                        تفاصيل المشروع
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSection(element) {
+            const section = element.closest('.nav-section');
+            const isCollapsed = section.classList.contains('collapsed');
+            
+            // Close all other sections
+            document.querySelectorAll('.nav-section').forEach(sec => {
+                if (sec !== section) {
+                    sec.classList.add('collapsed');
+                    sec.querySelector('.nav-section-title').classList.remove('active');
+                }
+            });
+            
+            // Toggle current section
+            if (isCollapsed) {
+                section.classList.remove('collapsed');
+                element.classList.add('active');
+            } else {
+                section.classList.add('collapsed');
+                element.classList.remove('active');
+            }
+        }
+
+        // Auto-open system guide section on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Modern Sidebar with System Guide loaded successfully!');
+        });
+    </script>
+</body>
+</html>

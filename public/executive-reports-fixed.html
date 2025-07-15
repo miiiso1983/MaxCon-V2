@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تم إصلاح التقارير التنفيذية - MaxCon ERP</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: white;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .success-banner {
+            background: rgba(255,255,255,0.95);
+            color: #2d3748;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .success-banner h2 {
+            color: #48bb78;
+            margin: 0 0 15px 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .fixes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .fix-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-right: 5px solid #48bb78;
+        }
+        
+        .fix-title {
+            color: #2d3748;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .fix-title i {
+            margin-left: 10px;
+            color: #48bb78;
+        }
+        
+        .fix-description {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .before {
+            background: #fed7d7;
+            border: 1px solid #fc8181;
+            color: #742a2a;
+        }
+        
+        .after {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            color: #22543d;
+        }
+        
+        .test-links {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .test-link {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .test-link.primary { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); }
+        .test-link.success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+        
+        @media (max-width: 768px) {
+            .fixes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .before-after {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-tools"></i>
+            تم إصلاح التقارير التنفيذية!
+        </h1>
+        
+        <!-- Success Banner -->
+        <div class="success-banner">
+            <h2><i class="fas fa-check-circle"></i> تم الإصلاح بنجاح!</h2>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+                تم إصلاح جميع مشاكل الرسوم البيانية في صفحة التقارير التنفيذية.
+                الآن تستخدم ApexCharts بدلاً من Chart.js وتعمل بشكل مثالي.
+            </p>
+        </div>
+        
+        <!-- Fixes Grid -->
+        <div class="fixes-grid">
+            <div class="fix-card">
+                <div class="fix-title">
+                    <i class="fas fa-exchange-alt"></i>
+                    استبدال Chart.js بـ ApexCharts
+                </div>
+                <div class="fix-description">
+                    تم استبدال مكتبة Chart.js القديمة بـ ApexCharts الحديثة لتوحيد النظام
+                </div>
+                <div class="before-after">
+                    <div class="before">
+                        <strong>قبل:</strong><br>
+                        Chart.js + charts-simple-fix.js
+                    </div>
+                    <div class="after">
+                        <strong>بعد:</strong><br>
+                        ApexCharts + apex-charts-system.js
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fix-card">
+                <div class="fix-title">
+                    <i class="fas fa-code"></i>
+                    إزالة الكود القديم
+                </div>
+                <div class="fix-description">
+                    تم إزالة جميع أكواد Chart.js القديمة والمعقدة واستبدالها بنظام بسيط
+                </div>
+                <div class="before-after">
+                    <div class="before">
+                        <strong>قبل:</strong><br>
+                        100+ سطر من كود Chart.js
+                    </div>
+                    <div class="after">
+                        <strong>بعد:</strong><br>
+                        15 سطر بسيط لـ ApexCharts
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fix-card">
+                <div class="fix-title">
+                    <i class="fas fa-database"></i>
+                    إضافة البيانات
+                </div>
+                <div class="fix-description">
+                    تم إضافة بيانات تحليلية مناسبة للرسوم البيانية في التقارير التنفيذية
+                </div>
+                <div class="before-after">
+                    <div class="before">
+                        <strong>قبل:</strong><br>
+                        بيانات مبعثرة ومعقدة
+                    </div>
+                    <div class="after">
+                        <strong>بعد:</strong><br>
+                        window.analyticsData موحد
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fix-card">
+                <div class="fix-title">
+                    <i class="fas fa-chart-bar"></i>
+                    توحيد الرسوم
+                </div>
+                <div class="fix-description">
+                    جميع الرسوم الآن تستخدم نفس النظام والتصميم المتناسق
+                </div>
+                <div class="before-after">
+                    <div class="before">
+                        <strong>قبل:</strong><br>
+                        رسوم مختلفة الأنماط
+                    </div>
+                    <div class="after">
+                        <strong>بعد:</strong><br>
+                        تصميم موحد ومتناسق
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Links -->
+        <div class="test-links">
+            <h3 style="margin: 0 0 20px 0; color: #2d3748; font-size: 24px; font-weight: 700;">
+                <i class="fas fa-rocket"></i>
+                اختبر النتائج الآن
+            </h3>
+            
+            <div class="link-grid">
+                <a href="/tenant/analytics/executive-reports" class="test-link primary">
+                    <i class="fas fa-file-alt"></i>
+                    التقارير التنفيذية
+                </a>
+                
+                <a href="/test-executive-reports.html" class="test-link success">
+                    <i class="fas fa-vial"></i>
+                    صفحة الاختبار
+                </a>
+                
+                <a href="/tenant/analytics/predictions" class="test-link">
+                    <i class="fas fa-crystal-ball"></i>
+                    التنبؤات الذكية
+                </a>
+                
+                <a href="/test-all-problems-fixed.html" class="test-link">
+                    <i class="fas fa-check-double"></i>
+                    جميع المشاكل المحلولة
+                </a>
+            </div>
+        </div>
+        
+        <!-- Final Status -->
+        <div style="background: rgba(255,255,255,0.95); border-radius: 15px; padding: 20px; margin-top: 20px; text-align: center;">
+            <h4 style="color: #2d3748; margin: 0 0 10px 0;">الحالة النهائية للتقارير التنفيذية</h4>
+            <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+                <div style="color: #48bb78; font-weight: 600;">
+                    <i class="fas fa-check-circle"></i> ApexCharts: نشط
+                </div>
+                <div style="color: #48bb78; font-weight: 600;">
+                    <i class="fas fa-check-circle"></i> Chart.js: مُزال
+                </div>
+                <div style="color: #48bb78; font-weight: 600;">
+                    <i class="fas fa-check-circle"></i> البيانات: متصلة
+                </div>
+                <div style="color: #48bb78; font-weight: 600;">
+                    <i class="fas fa-check-circle"></i> الرسوم: تعمل
+                </div>
+                <div style="color: #48bb78; font-weight: 600;">
+                    <i class="fas fa-check-circle"></i> التصميم: موحد
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

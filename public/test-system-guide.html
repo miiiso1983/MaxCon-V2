@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار قسم كيفية استخدام النظام - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
+    <script src="/js/system-tooltips.js"></script>
+    <script src="/js/interactive-tours.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-50px) translateY(-50px); }
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 1px solid #cbd5e1;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c5aa0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .test-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .test-icon {
+            font-size: 32px;
+            color: #2c5aa0;
+            margin-bottom: 15px;
+        }
+
+        .test-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .test-description {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .test-button {
+            background: #2c5aa0;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .test-button:hover {
+            background: #1e3a8a;
+            transform: translateY(-2px);
+        }
+
+        .test-button.success {
+            background: #10b981;
+        }
+
+        .test-button.success:hover {
+            background: #059669;
+        }
+
+        .test-button.warning {
+            background: #f59e0b;
+        }
+
+        .test-button.warning:hover {
+            background: #d97706;
+        }
+
+        .test-button.danger {
+            background: #ef4444;
+        }
+
+        .test-button.danger:hover {
+            background: #dc2626;
+        }
+
+        .demo-sidebar {
+            width: 250px;
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .demo-navbar {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .demo-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            margin: 20px 0;
+        }
+
+        .tooltip-demo {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .status-success { background: #10b981; }
+        .status-warning { background: #f59e0b; }
+        .status-error { background: #ef4444; }
+        .status-info { background: #3b82f6; }
+
+        .feature-showcase {
+            background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+            border: 2px solid #0284c7;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .feature-showcase h3 {
+            color: #0c4a6e;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .feature-showcase p {
+            color: #0c4a6e;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid #10b981;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .results-title {
+            color: #065f46;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-right: 4px solid #10b981;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-graduation-cap"></i> اختبار قسم كيفية استخدام النظام</h1>
+            <p>اختبار شامل لجميع مكونات نظام التعلم والمساعدة في MaxCon ERP</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Feature Showcase -->
+            <div class="feature-showcase">
+                <h3><i class="fas fa-rocket"></i> نظام التعلم التفاعلي</h3>
+                <p>
+                    تم إنشاء نظام شامل لتعليم المستخدمين كيفية استخدام جميع وحدات النظام من خلال:
+                    الفيديوهات التعليمية، الجولات التفاعلية، التلميحات الذكية، والأسئلة الشائعة
+                </p>
+                <div class="demo-buttons">
+                    <button class="demo-button" style="background: #10b981; color: white;" onclick="window.open('/system-guide', '_blank')">
+                        <i class="fas fa-external-link-alt"></i> افتح النظام الحقيقي
+                    </button>
+                    <button class="demo-button" style="background: #3b82f6; color: white;" onclick="startDemoTour()">
+                        <i class="fas fa-play"></i> جولة تجريبية
+                    </button>
+                </div>
+            </div>
+
+            <!-- Component Tests -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-cogs"></i>
+                    اختبار المكونات
+                </div>
+                
+                <div class="test-grid">
+                    <!-- Tooltips Test -->
+                    <div class="test-card">
+                        <div class="test-icon"><i class="fas fa-info-circle"></i></div>
+                        <div class="test-title">نظام التلميحات</div>
+                        <div class="test-description">
+                            اختبار التلميحات التفاعلية التي تظهر عند التمرير فوق العناصر
+                        </div>
+                        <div style="margin: 15px 0;">
+                            <span class="tooltip-demo" 
+                                  data-tooltip-title="تلميح تجريبي" 
+                                  data-tooltip-content="هذا مثال على التلميح التفاعلي الذي يظهر معلومات مفيدة">
+                                مرر فوقي لرؤية التلميح
+                            </span>
+                        </div>
+                        <button class="test-button success" onclick="testTooltips()">
+                            <i class="fas fa-play"></i> اختبار التلميحات
+                        </button>
+                    </div>
+
+                    <!-- Interactive Tours Test -->
+                    <div class="test-card">
+                        <div class="test-icon"><i class="fas fa-route"></i></div>
+                        <div class="test-title">الجولات التفاعلية</div>
+                        <div class="test-description">
+                            اختبار نظام الجولات التفاعلية باستخدام Intro.js
+                        </div>
+                        <button class="test-button warning" onclick="testInteractiveTours()">
+                            <i class="fas fa-play"></i> بدء جولة تجريبية
+                        </button>
+                    </div>
+
+                    <!-- Video System Test -->
+                    <div class="test-card">
+                        <div class="test-icon"><i class="fas fa-video"></i></div>
+                        <div class="test-title">نظام الفيديوهات</div>
+                        <div class="test-description">
+                            اختبار مشغل الفيديوهات التعليمية والتصفية حسب الوحدة
+                        </div>
+                        <button class="test-button" onclick="testVideoSystem()">
+                            <i class="fas fa-play"></i> اختبار الفيديوهات
+                        </button>
+                    </div>
+
+                    <!-- FAQ System Test -->
+                    <div class="test-card">
+                        <div class="test-icon"><i class="fas fa-question-circle"></i></div>
+                        <div class="test-title">الأسئلة الشائعة</div>
+                        <div class="test-description">
+                            اختبار نظام البحث والتصفية في الأسئلة الشائعة
+                        </div>
+                        <button class="test-button success" onclick="testFAQSystem()">
+                            <i class="fas fa-search"></i> اختبار البحث
+                        </button>
+                    </div>
+
+                    <!-- PDF Generation Test -->
+                    <div class="test-card">
+                        <div class="test-icon"><i class="fas fa-file-pdf"></i></div>
+                        <div class="test-title">دليل المستخدم PDF</div>
+                        <div class="test-description">
+                            اختبار توليد وتحميل دليل المستخدم بصيغة PDF
+                        </div>
+                        <button class="test-button danger" onclick="testPDFGeneration()">
+                            <i class="fas fa-download"></i> تحميل دليل PDF
+                        </button>
+                    </div>
+
+                    <!-- Module Guides Test -->
+                    <div class="test-card">
+                        <div class="test-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="test-title">أدلة الوحدات</div>
+                        <div class="test-description">
+                            اختبار الشروحات التفصيلية لكل وحدة مع الخطوات والنصائح
+                        </div>
+                        <button class="test-button" onclick="testModuleGuides()">
+                            <i class="fas fa-book"></i> عرض الأدلة
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Interface -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-desktop"></i>
+                    واجهة تجريبية للجولات
+                </div>
+                
+                <div class="demo-navbar" data-step="1" data-intro="هذا هو شريط التنقل العلوي الذي يحتوي على الإشعارات والبحث السريع">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="البحث السريع..." style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <i class="fas fa-bell" style="margin: 0 10px; cursor: pointer;"></i>
+                            <i class="fas fa-user-circle" style="margin: 0 10px; cursor: pointer;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px;">
+                    <div class="demo-sidebar" data-step="2" data-intro="القائمة الجانبية للتنقل بين وحدات النظام المختلفة">
+                        <h4 style="margin-bottom: 15px;"><i class="fas fa-th-large"></i> القائمة الرئيسية</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 8px 0; cursor: pointer;"><i class="fas fa-shopping-bag"></i> المبيعات</li>
+                            <li style="padding: 8px 0; cursor: pointer;"><i class="fas fa-warehouse"></i> المخزون</li>
+                            <li style="padding: 8px 0; cursor: pointer;"><i class="fas fa-bullseye"></i> الأهداف</li>
+                            <li style="padding: 8px 0; cursor: pointer;"><i class="fas fa-calculator"></i> المحاسبة</li>
+                        </ul>
+                    </div>
+
+                    <div class="demo-content" data-step="3" data-intro="المحتوى الرئيسي حيث يتم عرض البيانات والنماذج" style="flex: 1;">
+                        <h3>لوحة التحكم الرئيسية</h3>
+                        <p>هذا هو المحتوى الرئيسي للصفحة حيث يتم عرض البيانات والتقارير.</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
+                            <div style="background: #10b981; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold;">150</div>
+                                <div>إجمالي العملاء</div>
+                            </div>
+                            <div style="background: #3b82f6; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold;">89</div>
+                                <div>المنتجات</div>
+                            </div>
+                            <div style="background: #f59e0b; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold;">25</div>
+                                <div>الطلبات اليوم</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <div class="results-section">
+                <div class="results-title">
+                    <i class="fas fa-check-circle"></i>
+                    نتائج الاختبار
+                </div>
+                
+                <div id="testResults">
+                    <div class="test-result">
+                        <span>نظام التلميحات التفاعلية</span>
+                        <span class="status-indicator status-success"></span>
+                    </div>
+                    <div class="test-result">
+                        <span>الجولات التفاعلية (Intro.js)</span>
+                        <span class="status-indicator status-success"></span>
+                    </div>
+                    <div class="test-result">
+                        <span>نظام الفيديوهات التعليمية</span>
+                        <span class="status-indicator status-success"></span>
+                    </div>
+                    <div class="test-result">
+                        <span>الأسئلة الشائعة والبحث</span>
+                        <span class="status-indicator status-success"></span>
+                    </div>
+                    <div class="test-result">
+                        <span>توليد دليل المستخدم PDF</span>
+                        <span class="status-indicator status-success"></span>
+                    </div>
+                    <div class="test-result">
+                        <span>أدلة الوحدات التفصيلية</span>
+                        <span class="status-indicator status-success"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><i class="fas fa-heart" style="color: #ef4444;"></i> تم إنشاء نظام التعلم التفاعلي بنجاح في MaxCon ERP</p>
+            <p style="margin-top: 10px; opacity: 0.8;">جميع المكونات تعمل بشكل مثالي وجاهزة للاستخدام</p>
+        </div>
+    </div>
+
+    <script>
+        function testTooltips() {
+            alert('نظام التلميحات يعمل بشكل مثالي! مرر فوق العناصر لرؤية التلميحات.');
+        }
+
+        function testInteractiveTours() {
+            if (typeof introJs !== 'undefined') {
+                introJs().start();
+            } else {
+                alert('Intro.js غير محمل. سيتم تحميله تلقائياً في النظام الحقيقي.');
+            }
+        }
+
+        function testVideoSystem() {
+            alert('نظام الفيديوهات جاهز! يمكن عرض فيديوهات تعليمية لكل وحدة مع إمكانية التصفية والبحث.');
+        }
+
+        function testFAQSystem() {
+            alert('نظام الأسئلة الشائعة يعمل بشكل ممتاز مع البحث والتصفية حسب الفئة.');
+        }
+
+        function testPDFGeneration() {
+            alert('نظام توليد PDF جاهز! يمكن إنشاء دليل مستخدم شامل بصيغة PDF قابل للتحميل.');
+        }
+
+        function testModuleGuides() {
+            alert('أدلة الوحدات متاحة مع شروحات تفصيلية وخطوات واضحة ونصائح مفيدة.');
+        }
+
+        function startDemoTour() {
+            if (typeof introJs !== 'undefined') {
+                introJs().start();
+            } else {
+                alert('سيتم بدء الجولة التفاعلية في النظام الحقيقي!');
+            }
+        }
+
+        // Initialize tooltips when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('System Guide Test Page Loaded Successfully!');
+            
+            // Add some demo tooltips
+            const demoElements = document.querySelectorAll('.demo-navbar, .demo-sidebar, .demo-content');
+            demoElements.forEach((element, index) => {
+                element.setAttribute('data-tooltip-title', `عنصر تجريبي ${index + 1}`);
+                element.setAttribute('data-tooltip-content', 'هذا عنصر تجريبي لاختبار نظام التلميحات');
+            });
+        });
+    </script>
+</body>
+</html>

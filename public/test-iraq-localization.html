@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار طبقة التخصيص العراقية - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-50px) translateY(-50px); }
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 1px solid #cbd5e1;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c5aa0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            color: #2c5aa0;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 5px 0;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .test-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+        }
+
+        .test-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .test-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: white;
+            color: #1e293b;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .test-link:hover {
+            background: #2c5aa0;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3);
+        }
+
+        .test-link.primary {
+            background: #2c5aa0;
+            color: white;
+        }
+
+        .test-link.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .test-link.warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .implementation-steps {
+            background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+            border: 2px solid #0284c7;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-right: 4px solid #0284c7;
+        }
+
+        .step-number {
+            background: #0284c7;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            color: #0c4a6e;
+            margin-bottom: 5px;
+        }
+
+        .step-content p {
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 1px solid #10b981;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-title {
+            color: #065f46;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-flag"></i> طبقة التخصيص العراقية</h1>
+            <p>نظام تخصيص شامل للسوق العراقي في MaxCon ERP</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Overview Section -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    نظرة عامة
+                </div>
+                <p style="font-size: 16px; line-height: 1.8; color: #475569;">
+                    تم تطوير طبقة تخصيص شاملة للسوق العراقي تتضمن دعماً كاملاً للغة العربية، والدينار العراقي كعملة أساسية، 
+                    والنظام الضريبي العراقي، وقوالب الفواتير الحكومية، وتنسيقات الهاتف العراقية، والبنوك المحلية، 
+                    بالإضافة إلى تقارير جاهزة للجهات الرسمية.
+                </p>
+            </div>
+
+            <!-- Features Section -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-star"></i>
+                    المميزات الرئيسية
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-language"></i></div>
+                        <div class="feature-title">دعم اللغة العربية الكامل</div>
+                        <div class="feature-description">
+                            تكوين شامل للغة العربية مع ملفات الترجمة والتنسيقات المناسبة
+                        </div>
+                        <ul class="feature-list">
+                            <li>ملفات ترجمة عربية شاملة</li>
+                            <li>تنسيق RTL للواجهات</li>
+                            <li>خطوط عربية احترافية</li>
+                            <li>تنسيق التواريخ والأرقام</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-coins"></i></div>
+                        <div class="feature-title">الدينار العراقي</div>
+                        <div class="feature-description">
+                            إعداد الدينار العراقي كعملة افتراضية مع جميع التنسيقات
+                        </div>
+                        <ul class="feature-list">
+                            <li>تنسيق العملة (د.ع)</li>
+                            <li>تحويل المبالغ إلى كلمات</li>
+                            <li>أسعار الصرف</li>
+                            <li>حسابات الفلوس</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-calculator"></i></div>
+                        <div class="feature-title">النظام الضريبي العراقي</div>
+                        <div class="feature-description">
+                            نظام ضريبي متكامل يتوافق مع القوانين العراقية
+                        </div>
+                        <ul class="feature-list">
+                            <li>ضريبة الدخل المتدرجة</li>
+                            <li>ضريبة الشركات 15%</li>
+                            <li>ضريبة الاستقطاع</li>
+                            <li>التحقق من الرقم الضريبي</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-phone"></i></div>
+                        <div class="feature-title">أرقام الهواتف العراقية</div>
+                        <div class="feature-description">
+                            تنسيق والتحقق من أرقام الهواتف العراقية
+                        </div>
+                        <ul class="feature-list">
+                            <li>شركات الاتصالات (زين، آسياسيل، كورك)</li>
+                            <li>أرقام الهاتف الثابت</li>
+                            <li>رموز المدن العراقية</li>
+                            <li>التحقق من صحة الأرقام</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-university"></i></div>
+                        <div class="feature-title">البنوك العراقية</div>
+                        <div class="feature-description">
+                            قاعدة بيانات شاملة للبنوك وأنظمة الدفع العراقية
+                        </div>
+                        <ul class="feature-list">
+                            <li>البنوك الحكومية والخاصة</li>
+                            <li>رموز SWIFT</li>
+                            <li>أنظمة الدفع المحلية</li>
+                            <li>التحقق من IBAN</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="feature-title">التقارير الحكومية</div>
+                        <div class="feature-description">
+                            تقارير جاهزة للجهات الحكومية العراقية
+                        </div>
+                        <ul class="feature-list">
+                            <li>تقارير الهيئة العامة للضرائب</li>
+                            <li>تقارير وزارة الصحة</li>
+                            <li>تقارير وزارة العمل</li>
+                            <li>تقارير الجمارك</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation Steps -->
+            <div class="section implementation-steps">
+                <div class="section-title">
+                    <i class="fas fa-cogs"></i>
+                    خطوات التفعيل
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>تفعيل مقدم الخدمة</h4>
+                        <p>تم تسجيل مقدم الخدمة تلقائياً في bootstrap/providers.php</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>نشر ملفات التكوين</h4>
+                        <div class="code-block">php artisan vendor:publish --tag=iraq-config</div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>نشر ملفات الترجمة</h4>
+                        <div class="code-block">php artisan vendor:publish --tag=iraq-lang</div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>نشر قوالب العرض</h4>
+                        <div class="code-block">php artisan vendor:publish --tag=iraq-views</div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>تحديث متغيرات البيئة</h4>
+                        <div class="code-block">IRAQ_LOCALIZATION_ENABLED=true<br>APP_LOCALE=ar<br>APP_TIMEZONE=Asia/Baghdad</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Examples -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-code"></i>
+                    أمثلة الاستخدام
+                </div>
+                
+                <h4 style="color: #2c5aa0; margin-bottom: 10px;">تنسيق العملة:</h4>
+                <div class="code-block">
+// تنسيق المبلغ بالدينار العراقي<br>
+format_iraqi_currency(1500000); // "1,500,000 د.ع"<br><br>
+// تحويل إلى كلمات<br>
+iraqi_currency_to_words(1500000); // "مليون وخمسمائة ألف دينار عراقي"
+                </div>
+
+                <h4 style="color: #2c5aa0; margin-bottom: 10px;">التحقق من أرقام الهواتف:</h4>
+                <div class="code-block">
+// التحقق من رقم الهاتف<br>
+validate_iraqi_phone('07801234567'); // true<br><br>
+// تنسيق الرقم<br>
+format_iraqi_phone('07801234567'); // "+964 780 123 4567"<br><br>
+// اكتشاف الشركة<br>
+detect_iraqi_operator('07801234567'); // ['name_ar' => 'زين العراق', ...]
+                </div>
+
+                <h4 style="color: #2c5aa0; margin-bottom: 10px;">حساب الضرائب:</h4>
+                <div class="code-block">
+// حساب ضريبة الدخل<br>
+calculate_iraqi_income_tax(2000000);<br><br>
+// حساب ضريبة الشركات<br>
+calculate_iraqi_corporate_tax(5000000, ['expenses' => 1000000]);
+                </div>
+            </div>
+
+            <!-- Test Section -->
+            <div class="section test-section">
+                <div class="section-title">
+                    <i class="fas fa-flask"></i>
+                    اختبار الوظائف
+                </div>
+                <p style="margin-bottom: 20px;">استخدم الروابط التالية لاختبار وظائف طبقة التخصيص العراقية:</p>
+                
+                <div class="test-links">
+                    <a href="/test-currency" class="test-link primary">
+                        <i class="fas fa-coins"></i>
+                        اختبار العملة
+                    </a>
+                    
+                    <a href="/test-tax" class="test-link success">
+                        <i class="fas fa-calculator"></i>
+                        اختبار الضرائب
+                    </a>
+                    
+                    <a href="/test-phone" class="test-link warning">
+                        <i class="fas fa-phone"></i>
+                        اختبار الهواتف
+                    </a>
+                    
+                    <a href="/test-banking" class="test-link">
+                        <i class="fas fa-university"></i>
+                        اختبار البنوك
+                    </a>
+                    
+                    <a href="/test-reports" class="test-link">
+                        <i class="fas fa-file-alt"></i>
+                        اختبار التقارير
+                    </a>
+                    
+                    <a href="/tenant/sales/invoices" class="test-link">
+                        <i class="fas fa-file-invoice"></i>
+                        الفواتير الحكومية
+                    </a>
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <div class="highlight">
+                <div class="highlight-title">
+                    <i class="fas fa-check-circle"></i>
+                    تم إنشاء طبقة التخصيص العراقية بنجاح!
+                </div>
+                <p>
+                    تم إنشاء نظام تخصيص شامل للسوق العراقي يتضمن جميع المتطلبات المحلية. 
+                    النظام جاهز للاستخدام ويمكن تخصيصه حسب احتياجاتك الخاصة.
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><i class="fas fa-heart" style="color: #ef4444;"></i> تم تطوير طبقة التخصيص العراقية بواسطة MaxCon ERP</p>
+            <p style="margin-top: 10px; opacity: 0.8;">نظام إدارة موارد المؤسسات المتكامل للسوق العراقي</p>
+        </div>
+    </div>
+</body>
+</html>

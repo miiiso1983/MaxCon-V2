@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار الرسوم البيانية المحسن</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Charts Styles -->
+    <link rel="stylesheet" href="css/charts-styles.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 30px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: white;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        
+        .chart-title {
+            color: #2d3748;
+            margin: 0 0 25px 0;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chart-title i {
+            margin-left: 10px;
+            font-size: 18px;
+        }
+        
+        .refresh-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #4a5568;
+        }
+        
+        .refresh-btn:hover {
+            background: white;
+            transform: rotate(180deg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-chart-bar"></i>
+            اختبار الرسوم البيانية المحسن
+        </h1>
+        
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <!-- Revenue Chart -->
+            <div class="chart-container">
+                <button class="refresh-btn" onclick="refreshChart('revenueChart')" title="تحديث الرسم البياني">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-area" style="color: #667eea;"></i>
+                    اتجاه الإيرادات
+                </h3>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Category Chart -->
+            <div class="chart-container">
+                <button class="refresh-btn" onclick="refreshChart('categoryChart')" title="تحديث الرسم البياني">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-pie" style="color: #ed8936;"></i>
+                    المبيعات حسب الفئة
+                </h3>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Charts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <!-- Customer Segments -->
+            <div class="chart-container">
+                <button class="refresh-btn" onclick="refreshChart('customerSegmentsChart')" title="تحديث الرسم البياني">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <h3 class="chart-title">
+                    <i class="fas fa-users-cog" style="color: #9f7aea;"></i>
+                    شرائح العملاء
+                </h3>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="customerSegmentsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Performance Chart -->
+            <div class="chart-container">
+                <button class="refresh-btn" onclick="refreshChart('performanceChart')" title="تحديث الرسم البياني">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-area" style="color: #48bb78;"></i>
+                    أداء المؤشرات
+                </h3>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Control Panel -->
+        <div style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; margin-top: 30px; text-align: center;">
+            <h3 style="margin: 0 0 15px 0; color: #2d3748;">لوحة التحكم</h3>
+            <button onclick="refreshAllCharts()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin: 5px; cursor: pointer;">
+                <i class="fas fa-sync-alt"></i> تحديث جميع الرسوم
+            </button>
+            <button onclick="destroyAllCharts()" style="background: #f56565; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin: 5px; cursor: pointer;">
+                <i class="fas fa-trash"></i> حذف جميع الرسوم
+            </button>
+            <button onclick="showDiagnostics()" style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin: 5px; cursor: pointer;">
+                <i class="fas fa-stethoscope"></i> تشخيص
+            </button>
+        </div>
+    </div>
+
+    <!-- Test Data -->
+    <script>
+        console.log('🔧 Setting up enhanced test data...');
+        
+        // Set up comprehensive test data
+        window.analyticsData = {
+            revenue_trend: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                data: [18500000, 22300000, 19800000, 25600000, 28900000, 31200000]
+            },
+            sales_by_category: {
+                labels: ['أدوية القلب', 'المضادات الحيوية', 'أدوية السكري', 'الفيتامينات', 'أخرى'],
+                data: [35, 25, 20, 15, 5]
+            },
+            customer_segments: {
+                labels: ['مستشفيات', 'صيدليات', 'عيادات', 'موزعين'],
+                data: [40, 35, 15, 10]
+            }
+        };
+        
+        console.log('✅ Enhanced test data ready:', window.analyticsData);
+        
+        // Control functions
+        function refreshChart(chartId) {
+            console.log(`🔄 Refreshing chart: ${chartId}`);
+            if (window.destroyChart) {
+                window.destroyChart(chartId);
+            }
+            setTimeout(() => {
+                if (window.initCharts) {
+                    window.initCharts();
+                }
+            }, 100);
+        }
+        
+        function refreshAllCharts() {
+            console.log('🔄 Refreshing all charts...');
+            if (window.destroyAllCharts) {
+                window.destroyAllCharts();
+            }
+            setTimeout(() => {
+                if (window.initCharts) {
+                    window.initCharts();
+                }
+            }, 100);
+        }
+        
+        function showDiagnostics() {
+            if (window.chartsDiagnosticReport) {
+                console.log('📊 Current diagnostic report:', window.chartsDiagnosticReport);
+                alert('تحقق من وحدة التحكم للحصول على تقرير التشخيص الكامل');
+            } else {
+                alert('أداة التشخيص غير متوفرة. اضغط Ctrl+Shift+D لتشغيلها.');
+            }
+        }
+    </script>
+    
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- Load Charts Fix -->
+    <script src="js/charts-universal-fix.js"></script>
+    
+    <!-- Load Diagnostics Tool -->
+    <script src="js/charts-diagnostics.js"></script>
+    
+    <!-- Enhanced Status Indicator -->
+    <script>
+        setTimeout(function() {
+            const statusDiv = document.createElement('div');
+            statusDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: rgba(0,0,0,0.9);
+                color: white;
+                padding: 20px;
+                border-radius: 15px;
+                font-family: 'Cairo', sans-serif;
+                z-index: 1000;
+                min-width: 300px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            `;
+            
+            const chartsCount = Object.keys(window.chartInstances || {}).length;
+            const expectedCharts = 4;
+            const chartJSLoaded = typeof Chart !== 'undefined';
+            const dataAvailable = typeof window.analyticsData !== 'undefined';
+            
+            let status = '✅ ممتاز';
+            let bgColor = 'rgba(72, 187, 120, 0.9)';
+            
+            if (chartsCount < expectedCharts || !chartJSLoaded || !dataAvailable) {
+                status = '⚠️ يحتاج مراجعة';
+                bgColor = 'rgba(245, 101, 101, 0.9)';
+            }
+            
+            statusDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <strong>📊 حالة الرسوم البيانية</strong>
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 6px; font-size: 12px;">${status}</span>
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    ${chartJSLoaded ? '✅' : '❌'} Chart.js: ${chartJSLoaded ? 'محمل' : 'غير محمل'}
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    ${dataAvailable ? '✅' : '❌'} البيانات: ${dataAvailable ? 'متوفرة' : 'غير متوفرة'}
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    ${chartsCount === expectedCharts ? '✅' : '❌'} الرسوم: ${chartsCount}/${expectedCharts}
+                </div>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 12px; opacity: 0.8;">
+                    💡 اضغط Ctrl+Shift+D للتشخيص المتقدم
+                </div>
+            `;
+            
+            statusDiv.style.background = bgColor;
+            document.body.appendChild(statusDiv);
+            
+            // Auto-hide after 8 seconds
+            setTimeout(() => {
+                statusDiv.style.opacity = '0';
+                statusDiv.style.transition = 'opacity 0.5s';
+                setTimeout(() => statusDiv.remove(), 500);
+            }, 8000);
+        }, 2000);
+    </script>
+</body>
+</html>

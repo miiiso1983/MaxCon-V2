@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشخيص سريع للرسوم البيانية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a202c;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2d3748;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .success {
+            background: rgba(72, 187, 120, 0.1);
+            border-color: #48bb78;
+            color: #68d391;
+        }
+        .error {
+            background: rgba(245, 101, 101, 0.1);
+            border-color: #f56565;
+            color: #fc8181;
+        }
+        .warning {
+            background: rgba(237, 137, 54, 0.1);
+            border-color: #ed8936;
+            color: #f6ad55;
+        }
+        pre {
+            background: #1a202c;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3182ce;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص سريع للرسوم البيانية</h1>
+
+        <div id="diagnostics">
+            <div class="status warning">
+                ⏳ جاري التشخيص...
+            </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button onclick="runDiagnostics()">🔄 إعادة التشخيص</button>
+            <button onclick="testChartCreation()">🧪 اختبار إنشاء رسم بياني</button>
+            <button onclick="initializeCharts()">🚀 تشغيل الرسوم البيانية</button>
+            <button onclick="clearResults()">🗑️ مسح النتائج</button>
+        </div>
+
+        <!-- Canvas Elements for Testing -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+            <div style="background: #2d3748; padding: 15px; border-radius: 8px;">
+                <h3 style="margin: 0 0 10px 0; color: #e2e8f0;">اتجاه الإيرادات</h3>
+                <canvas id="revenueChart" width="300" height="200"></canvas>
+            </div>
+            <div style="background: #2d3748; padding: 15px; border-radius: 8px;">
+                <h3 style="margin: 0 0 10px 0; color: #e2e8f0;">المبيعات حسب الفئة</h3>
+                <canvas id="categoryChart" width="300" height="200"></canvas>
+            </div>
+            <div style="background: #2d3748; padding: 15px; border-radius: 8px;">
+                <h3 style="margin: 0 0 10px 0; color: #e2e8f0;">شرائح العملاء</h3>
+                <canvas id="customerSegmentsChart" width="300" height="200"></canvas>
+            </div>
+            <div style="background: #2d3748; padding: 15px; border-radius: 8px;">
+                <h3 style="margin: 0 0 10px 0; color: #e2e8f0;">أداء المؤشرات</h3>
+                <canvas id="performanceChart" width="300" height="200"></canvas>
+            </div>
+        </div>
+
+        <div id="results" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function runDiagnostics() {
+            clearResults();
+            const diagnosticsDiv = document.getElementById('diagnostics');
+            
+            let html = '';
+            let allGood = true;
+
+            // Check Chart.js
+            if (typeof Chart !== 'undefined') {
+                html += '<div class="status success">✅ Chart.js محمل بنجاح</div>';
+                addResult(`📊 Chart.js Version: ${Chart.version || 'غير معروف'}`, 'success');
+            } else {
+                html += '<div class="status error">❌ Chart.js غير محمل</div>';
+                allGood = false;
+            }
+
+            // Check Analytics Data
+            if (typeof window.analyticsData !== 'undefined') {
+                html += '<div class="status success">✅ بيانات التحليلات متوفرة</div>';
+                addResult('<pre>' + JSON.stringify(window.analyticsData, null, 2) + '</pre>', 'success');
+            } else {
+                html += '<div class="status error">❌ بيانات التحليلات غير متوفرة</div>';
+                allGood = false;
+            }
+
+            // Check Canvas Elements
+            const canvases = ['revenueChart', 'categoryChart', 'customerSegmentsChart', 'performanceChart'];
+            let foundCanvases = 0;
+            
+            canvases.forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    foundCanvases++;
+                    addResult(`✅ Canvas موجود: ${id}`, 'success');
+                } else {
+                    addResult(`❌ Canvas مفقود: ${id}`, 'error');
+                    allGood = false;
+                }
+            });
+
+            html += `<div class="status ${foundCanvases === canvases.length ? 'success' : 'warning'}">
+                📊 Canvas Elements: ${foundCanvases}/${canvases.length}
+            </div>`;
+
+            // Check Chart Instances
+            const instances = window.chartInstances ? Object.keys(window.chartInstances).length : 0;
+            if (instances > 0) {
+                html += `<div class="status success">✅ مثيلات الرسوم النشطة: ${instances}</div>`;
+                addResult(`📈 Chart Instances: ${JSON.stringify(Object.keys(window.chartInstances || {}), null, 2)}`, 'success');
+            } else {
+                html += '<div class="status warning">⚠️ لا توجد مثيلات رسوم نشطة</div>';
+            }
+
+            // Overall Status
+            if (allGood && instances > 0) {
+                html += '<div class="status success">🎉 جميع الرسوم البيانية تعمل بشكل مثالي!</div>';
+            } else {
+                html += '<div class="status error">⚠️ توجد مشاكل تحتاج إلى حل</div>';
+            }
+
+            diagnosticsDiv.innerHTML = html;
+        }
+
+        function initializeCharts() {
+            addResult('🚀 بدء تشغيل الرسوم البيانية...', 'warning');
+
+            if (typeof window.initCharts === 'function') {
+                try {
+                    window.initCharts();
+                    addResult('✅ تم تشغيل دالة initCharts بنجاح!', 'success');
+
+                    // Check results after a delay
+                    setTimeout(() => {
+                        runDiagnostics();
+                        const instances = window.chartInstances ? Object.keys(window.chartInstances).length : 0;
+                        if (instances > 0) {
+                            addResult(`🎉 تم إنشاء ${instances} رسم بياني بنجاح!`, 'success');
+                        } else {
+                            addResult('⚠️ لم يتم إنشاء أي رسوم بيانية', 'warning');
+                        }
+                    }, 1000);
+
+                } catch (error) {
+                    addResult(`❌ خطأ في تشغيل الرسوم البيانية: ${error.message}`, 'error');
+                    console.error('Chart initialization error:', error);
+                }
+            } else {
+                addResult('❌ دالة initCharts غير متوفرة', 'error');
+            }
+        }
+
+        function testChartCreation() {
+            addResult('🧪 بدء اختبار إنشاء رسم بياني...', 'warning');
+
+            // Create test canvas
+            const testCanvas = document.createElement('canvas');
+            testCanvas.id = 'testChart';
+            testCanvas.width = 400;
+            testCanvas.height = 200;
+            testCanvas.style.border = '1px solid #4a5568';
+            testCanvas.style.borderRadius = '8px';
+            testCanvas.style.marginTop = '10px';
+
+            const results = document.getElementById('results');
+            results.appendChild(testCanvas);
+
+            if (typeof Chart !== 'undefined') {
+                try {
+                    const testChart = new Chart(testCanvas, {
+                        type: 'line',
+                        data: {
+                            labels: ['نقطة 1', 'نقطة 2', 'نقطة 3'],
+                            datasets: [{
+                                label: 'اختبار',
+                                data: [10, 20, 15],
+                                borderColor: '#48bb78',
+                                backgroundColor: '#48bb7820'
+                            }]
+                        },
+                        options: {
+                            responsive: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'رسم بياني تجريبي'
+                                }
+                            }
+                        }
+                    });
+
+                    addResult('✅ تم إنشاء رسم بياني تجريبي بنجاح!', 'success');
+
+                    // Clean up after 5 seconds
+                    setTimeout(() => {
+                        testChart.destroy();
+                        testCanvas.remove();
+                        addResult('🗑️ تم حذف الرسم التجريبي', 'warning');
+                    }, 5000);
+
+                } catch (error) {
+                    addResult(`❌ فشل في إنشاء الرسم التجريبي: ${error.message}`, 'error');
+                }
+            } else {
+                addResult('❌ لا يمكن إنشاء رسم تجريبي - Chart.js غير محمل', 'error');
+            }
+        }
+
+        // Set up test data
+        window.analyticsData = {
+            revenue_trend: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                data: [18500000, 22300000, 19800000, 25600000, 28900000, 31200000]
+            },
+            sales_by_category: {
+                labels: ['أدوية القلب', 'المضادات الحيوية', 'أدوية السكري', 'الفيتامينات', 'أخرى'],
+                data: [35, 25, 20, 15, 5]
+            },
+            customer_segments: {
+                labels: ['مستشفيات', 'صيدليات', 'عيادات', 'موزعين'],
+                data: [40, 35, 15, 10]
+            }
+        };
+
+        // Auto-run diagnostics when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runDiagnostics, 500);
+        });
+    </script>
+
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- Load Charts Fix -->
+    <script src="js/charts-universal-fix.js"></script>
+</body>
+</html>

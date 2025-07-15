@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعداد وحدة أهداف البيع - MaxCon ERP</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: white;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .setup-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .setup-card h2 {
+            color: #2d3748;
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .setup-card h2 i {
+            margin-left: 10px;
+            color: #48bb78;
+        }
+        
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .step-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-right: 5px solid #48bb78;
+        }
+        
+        .step-number {
+            background: #48bb78;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .step-title {
+            color: #2d3748;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+        
+        .step-description {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .command-box {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-ready {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .checklist {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .checklist h3 {
+            color: #2d3748;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .test-links {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .test-link {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .test-link.primary { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); }
+        .test-link.success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-cogs"></i>
+            إعداد وحدة أهداف البيع
+        </h1>
+        
+        <!-- Setup Instructions -->
+        <div class="setup-card">
+            <h2>
+                <i class="fas fa-list-ol"></i>
+                خطوات الإعداد المطلوبة
+            </h2>
+            
+            <div class="steps-grid">
+                <!-- Step 1: Run Migrations -->
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-title">تشغيل Migrations</div>
+                    <div class="step-description">
+                        إنشاء جداول قاعدة البيانات المطلوبة لوحدة أهداف البيع
+                    </div>
+                    <div class="status-indicator status-pending">
+                        <i class="fas fa-clock"></i>
+                        مطلوب التنفيذ
+                    </div>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+                        php artisan migrate
+                    </div>
+                </div>
+                
+                <!-- Step 2: Seed Data -->
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-title">إضافة البيانات التجريبية</div>
+                    <div class="step-description">
+                        إضافة أهداف تجريبية وبيانات تقدم للاختبار
+                    </div>
+                    <div class="status-indicator status-pending">
+                        <i class="fas fa-clock"></i>
+                        مطلوب التنفيذ
+                    </div>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+                        php artisan db:seed --class=SalesTargetsSeeder
+                    </div>
+                </div>
+                
+                <!-- Step 3: Register Observer -->
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-title">تسجيل Observer</div>
+                    <div class="step-description">
+                        ربط Observer للتحديث التلقائي من الفواتير
+                    </div>
+                    <div class="status-indicator status-ready">
+                        <i class="fas fa-check"></i>
+                        جاهز للاستخدام
+                    </div>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+                        // في AppServiceProvider.php
+                        Invoice::observe(InvoiceObserver::class);
+                    </div>
+                </div>
+                
+                <!-- Step 4: Schedule Commands -->
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-title">جدولة المهام</div>
+                    <div class="step-description">
+                        إعداد المهام المجدولة للإشعارات والتحديثات
+                    </div>
+                    <div class="status-indicator status-ready">
+                        <i class="fas fa-check"></i>
+                        جاهز للاستخدام
+                    </div>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+                        php artisan sales-targets:update --check-notifications
+                    </div>
+                </div>
+                
+                <!-- Step 5: Test Integration -->
+                <div class="step-card">
+                    <div class="step-number">5</div>
+                    <div class="step-title">اختبار التكامل</div>
+                    <div class="step-description">
+                        اختبار الربط مع وحدة المبيعات والإشعارات
+                    </div>
+                    <div class="status-indicator status-ready">
+                        <i class="fas fa-check"></i>
+                        جاهز للاختبار
+                    </div>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+                        // إنشاء فاتورة جديدة لاختبار التحديث التلقائي
+                    </div>
+                </div>
+                
+                <!-- Step 6: Configure Notifications -->
+                <div class="step-card">
+                    <div class="step-number">6</div>
+                    <div class="step-title">إعداد الإشعارات</div>
+                    <div class="step-description">
+                        تخصيص إعدادات الإشعارات والبريد الإلكتروني
+                    </div>
+                    <div class="status-indicator status-ready">
+                        <i class="fas fa-check"></i>
+                        جاهز للتخصيص
+                    </div>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+                        php artisan queue:work
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Checklist -->
+        <div class="setup-card">
+            <h2>
+                <i class="fas fa-tasks"></i>
+                قائمة التحقق
+            </h2>
+            
+            <div class="checklist">
+                <h3>تأكد من إكمال جميع الخطوات:</h3>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check1">
+                    <label for="check1">تم تشغيل migrations وإنشاء الجداول</label>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2">
+                    <label for="check2">تم إضافة البيانات التجريبية</label>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3">
+                    <label for="check3">تم تسجيل InvoiceObserver في AppServiceProvider</label>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4">
+                    <label for="check4">تم إعداد queue worker للإشعارات</label>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5">
+                    <label for="check5">تم اختبار إنشاء هدف جديد</label>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6">
+                    <label for="check6">تم اختبار التحديث التلقائي من الفواتير</label>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7">
+                    <label for="check7">تم اختبار الإشعارات</label>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check8">
+                    <label for="check8">تم اختبار التقارير والرسوم البيانية</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Configuration -->
+        <div class="setup-card">
+            <h2>
+                <i class="fas fa-wrench"></i>
+                إعدادات إضافية
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div>
+                    <h3 style="color: #2d3748; margin: 0 0 10px 0;">إعدادات البريد الإلكتروني</h3>
+                    <p style="color: #4a5568; font-size: 14px; margin-bottom: 10px;">
+                        تأكد من إعداد SMTP في ملف .env لإرسال إشعارات البريد الإلكتروني
+                    </p>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+MAIL_MAILER=smtp
+MAIL_HOST=your-smtp-host
+MAIL_PORT=587
+MAIL_USERNAME=your-email
+MAIL_PASSWORD=your-password
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="color: #2d3748; margin: 0 0 10px 0;">إعدادات Queue</h3>
+                    <p style="color: #4a5568; font-size: 14px; margin-bottom: 10px;">
+                        إعداد queue driver لمعالجة الإشعارات في الخلفية
+                    </p>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+QUEUE_CONNECTION=database
+# أو
+QUEUE_CONNECTION=redis
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="color: #2d3748; margin: 0 0 10px 0;">Cron Jobs</h3>
+                    <p style="color: #4a5568; font-size: 14px; margin-bottom: 10px;">
+                        إضافة cron job للتحديثات الدورية
+                    </p>
+                    <div class="command-box">
+                        <button class="copy-btn" onclick="copyCommand(this)">نسخ</button>
+# في crontab
+0 9 * * * php /path/to/artisan sales-targets:update
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Links -->
+        <div class="test-links">
+            <h3 style="margin: 0 0 20px 0; color: #2d3748; font-size: 24px; font-weight: 700;">
+                <i class="fas fa-rocket"></i>
+                اختبر الوحدة بعد الإعداد
+            </h3>
+            
+            <div class="link-grid">
+                <a href="/tenant/sales/targets" class="test-link primary">
+                    <i class="fas fa-list"></i>
+                    قائمة الأهداف
+                </a>
+                
+                <a href="/tenant/sales/targets/create" class="test-link success">
+                    <i class="fas fa-plus"></i>
+                    إنشاء هدف جديد
+                </a>
+                
+                <a href="/tenant/sales/targets/dashboard/overview" class="test-link">
+                    <i class="fas fa-chart-line"></i>
+                    لوحة التحكم
+                </a>
+                
+                <a href="/tenant/sales/targets/reports/analytics" class="test-link">
+                    <i class="fas fa-chart-bar"></i>
+                    التقارير والتحليلات
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCommand(button) {
+            const commandBox = button.parentElement;
+            const command = commandBox.textContent.replace('نسخ', '').trim();
+            
+            navigator.clipboard.writeText(command).then(function() {
+                button.textContent = 'تم النسخ!';
+                button.style.background = '#48bb78';
+                
+                setTimeout(() => {
+                    button.textContent = 'نسخ';
+                    button.style.background = '#4299e1';
+                }, 2000);
+            });
+        }
+        
+        // Auto-check completed items based on localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            for (let i = 1; i <= 8; i++) {
+                const checkbox = document.getElementById(`check${i}`);
+                const saved = localStorage.getItem(`setup_check_${i}`);
+                if (saved === 'true') {
+                    checkbox.checked = true;
+                }
+                
+                checkbox.addEventListener('change', function() {
+                    localStorage.setItem(`setup_check_${i}`, this.checked);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحسينات صفحة تسجيل الدخول - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #333;
+            direction: rtl;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-50px) translateY(-50px); }
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .improvements-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .improvements-banner h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .comparison-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .comparison-section h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .comparison-item {
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid;
+        }
+
+        .comparison-item.old {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .comparison-item.new {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: #667eea;
+        }
+
+        .comparison-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comparison-item.old .comparison-title {
+            color: #6b7280;
+        }
+
+        .comparison-item.new .comparison-title {
+            color: #1e40af;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .old .feature-list li::before {
+            content: '•';
+            color: #9ca3af;
+        }
+
+        .demo-inputs {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .demo-inputs h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-demo {
+            margin-bottom: 25px;
+        }
+
+        .input-demo label {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .input-demo label i {
+            margin-left: 10px;
+            color: #667eea;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-demo input {
+            width: 100%;
+            padding: 18px 55px 18px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .input-demo input:focus {
+            outline: none;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            right: 18px;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .demo-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
+        .demo-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .demo-button:hover::before {
+            left: 100%;
+        }
+
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .custom-checkbox input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .custom-checkbox input[type="checkbox"]:checked {
+            background: #667eea;
+            border-color: #667eea;
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
+            background-size: 14px;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .custom-checkbox input[type="checkbox"]:hover {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .custom-checkbox label {
+            font-size: 15px;
+            color: #2d3748;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .security-notice {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            color: #92400e;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .security-notice h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-lock"></i> تحسينات صفحة تسجيل الدخول</h1>
+            <p>تم تحسين تصميم الـ inputs وإخفاء معلومات الدخول للأدمن</p>
+        </div>
+
+        <!-- Improvements Banner -->
+        <div class="improvements-banner">
+            <h2><i class="fas fa-check-circle"></i> التحسينات المطبقة بنجاح!</h2>
+            <p style="margin-bottom: 20px;">تم تحسين تصميم صفحة تسجيل الدخول وتعزيز الأمان</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; backdrop-filter: blur(10px);">
+                    <i class="fas fa-paint-brush" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                    <div style="font-weight: 600;">تصميم محسن</div>
+                    <div style="font-size: 14px; opacity: 0.9;">Inputs أكثر تناسقاً</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; backdrop-filter: blur(10px);">
+                    <i class="fas fa-shield-alt" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                    <div style="font-weight: 600;">أمان محسن</div>
+                    <div style="font-size: 14px; opacity: 0.9;">إخفاء معلومات الأدمن</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; backdrop-filter: blur(10px);">
+                    <i class="fas fa-mobile-alt" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                    <div style="font-weight: 600;">تجربة أفضل</div>
+                    <div style="font-size: 14px; opacity: 0.9;">تأثيرات تفاعلية</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="security-notice">
+            <h4>
+                <i class="fas fa-exclamation-triangle"></i>
+                تحسين الأمان
+            </h4>
+            <p>تم إخفاء معلومات تسجيل الدخول للأدمن من صفحة تسجيل الدخول لتعزيز الأمان ومنع الوصول غير المصرح به.</p>
+        </div>
+
+        <!-- Demo Inputs -->
+        <div class="demo-inputs">
+            <h3>
+                <i class="fas fa-keyboard" style="color: #667eea;"></i>
+                معاينة الـ Inputs المحسنة
+            </h3>
+            
+            <div class="input-demo">
+                <label for="demo-email">
+                    <i class="fas fa-envelope"></i>
+                    البريد الإلكتروني
+                </label>
+                <div class="input-wrapper">
+                    <input type="email" id="demo-email" placeholder="أدخل بريدك الإلكتروني">
+                    <i class="fas fa-envelope input-icon"></i>
+                </div>
+            </div>
+
+            <div class="input-demo">
+                <label for="demo-password">
+                    <i class="fas fa-lock"></i>
+                    كلمة المرور
+                </label>
+                <div class="input-wrapper">
+                    <input type="password" id="demo-password" placeholder="أدخل كلمة المرور">
+                    <i class="fas fa-lock input-icon"></i>
+                    <button type="button" class="password-toggle" onclick="toggleDemoPassword()">
+                        <i id="demo-password-icon" class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox" id="demo-remember">
+                <label for="demo-remember">تذكرني</label>
+            </div>
+
+            <button class="demo-button">
+                <i class="fas fa-sign-in-alt"></i>
+                تسجيل الدخول
+            </button>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+            <h3>
+                <i class="fas fa-balance-scale" style="color: #667eea;"></i>
+                مقارنة قبل وبعد التحسينات
+            </h3>
+
+            <div class="comparison-grid">
+                <div class="comparison-item old">
+                    <div class="comparison-title">
+                        <i class="fas fa-times-circle"></i>
+                        قبل التحسينات
+                    </div>
+                    <ul class="feature-list">
+                        <li>Padding أصغر في الـ inputs</li>
+                        <li>Border radius أقل</li>
+                        <li>تأثيرات hover بسيطة</li>
+                        <li>معلومات الأدمن ظاهرة</li>
+                        <li>Checkbox تصميم افتراضي</li>
+                        <li>زر بسيط بدون تأثيرات</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-item new">
+                    <div class="comparison-title">
+                        <i class="fas fa-check-circle"></i>
+                        بعد التحسينات
+                    </div>
+                    <ul class="feature-list">
+                        <li>Padding أكبر ومريح أكثر (18px)</li>
+                        <li>Border radius محسن (15px)</li>
+                        <li>تأثيرات hover متقدمة مع cubic-bezier</li>
+                        <li>معلومات الأدمن مخفية للأمان</li>
+                        <li>Checkbox مخصص بتصميم حديث</li>
+                        <li>زر مع تأثيرات shimmer وhover</li>
+                        <li>Box shadows محسنة</li>
+                        <li>Transform effects للتفاعل</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/" class="btn-demo">
+                <i class="fas fa-home"></i> العودة للرئيسية
+            </a>
+            <a href="/login" class="btn-demo">
+                <i class="fas fa-sign-in-alt"></i> تجربة صفحة تسجيل الدخول
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function toggleDemoPassword() {
+            const passwordInput = document.getElementById('demo-password');
+            const passwordIcon = document.getElementById('demo-password-icon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.className = 'fas fa-eye';
+            }
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Login Improvements Demo loaded successfully!');
+            
+            // Add entrance animations
+            const elements = document.querySelectorAll('.input-demo, .demo-button, .custom-checkbox');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'all 0.6s ease';
+
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+</body>
+</html>

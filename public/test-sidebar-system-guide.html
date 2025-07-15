@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار القائمة الجانبية - قسم كيفية استخدام النظام</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            color: #333;
+            direction: rtl;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #1e293b;
+            color: white;
+            padding: 20px 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .menu-section {
+            margin-bottom: 5px;
+        }
+
+        .menu-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: right;
+        }
+
+        .menu-toggle:hover {
+            background: #334155;
+            color: white;
+        }
+
+        .menu-toggle.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .menu-toggle i {
+            margin-left: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #0f172a;
+        }
+
+        .submenu.open {
+            max-height: 500px;
+        }
+
+        .submenu-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px 10px 40px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .submenu-item:hover {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding-right: 45px;
+        }
+
+        .submenu-item.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .submenu-item i {
+            margin-left: 8px;
+            width: 16px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .submenu-section {
+            padding: 8px 20px 5px 40px;
+        }
+
+        .submenu-title {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        .content-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .content-header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .content-header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .demo-section h3 {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .demo-section p {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .status-success {
+            background: #dcfce7;
+            color: #065f46;
+        }
+
+        .status-info {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .test-button:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .highlight-box h4 {
+            color: #92400e;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box p {
+            color: #92400e;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-building"></i> MaxCon ERP</h2>
+            </div>
+
+            <!-- لوحة التحكم -->
+            <div class="menu-section">
+                <a href="#" class="menu-toggle">
+                    <span><i class="fas fa-tachometer-alt"></i> لوحة التحكم</span>
+                </a>
+            </div>
+
+            <!-- إدارة المبيعات -->
+            <div class="menu-section">
+                <button class="menu-toggle" onclick="toggleSubmenu(this)">
+                    <span><i class="fas fa-shopping-bag"></i> إدارة المبيعات</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </button>
+                <ul class="submenu">
+                    <li><a href="#" class="submenu-item"><i class="fas fa-users"></i> إدارة العملاء</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-shopping-cart"></i> طلبات المبيعات</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-file-invoice"></i> الفواتير</a></li>
+                </ul>
+            </div>
+
+            <!-- إدارة المخزون -->
+            <div class="menu-section">
+                <button class="menu-toggle" onclick="toggleSubmenu(this)">
+                    <span><i class="fas fa-warehouse"></i> إدارة المخزون</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </button>
+                <ul class="submenu">
+                    <li><a href="#" class="submenu-item"><i class="fas fa-boxes"></i> كتالوج المنتجات</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-exchange-alt"></i> حركات المخزون</a></li>
+                </ul>
+            </div>
+
+            <!-- كيفية استخدام النظام -->
+            <div class="menu-section">
+                <button class="menu-toggle active" onclick="toggleSubmenu(this)">
+                    <span><i class="fas fa-graduation-cap"></i> كيفية استخدام النظام</span>
+                    <i class="fas fa-chevron-down toggle-icon rotated"></i>
+                </button>
+                <ul class="submenu open">
+                    <li><a href="#" class="submenu-item active"><i class="fas fa-home"></i> الصفحة الرئيسية</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-info-circle"></i> مقدمة عن النظام</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-play-circle"></i> الفيديوهات التعليمية</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-question-circle"></i> الأسئلة الشائعة</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-download"></i> تحميل دليل المستخدم</a></li>
+                    
+                    <li class="submenu-section">
+                        <span class="submenu-title">أدلة الوحدات</span>
+                    </li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-shopping-bag"></i> دليل المبيعات</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-warehouse"></i> دليل المخزون</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-bullseye"></i> دليل الأهداف</a></li>
+                    <li><a href="#" class="submenu-item"><i class="fas fa-calculator"></i> دليل المحاسبة</a></li>
+                </ul>
+            </div>
+
+            <!-- الإعدادات -->
+            <div class="menu-section">
+                <a href="#" class="menu-toggle">
+                    <span><i class="fas fa-cog"></i> الإعدادات</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1><i class="fas fa-graduation-cap"></i> قسم كيفية استخدام النظام</h1>
+                <p>تم إضافة القسم بنجاح إلى القائمة الجانبية مع جميع الروابط والأقسام الفرعية</p>
+            </div>
+
+            <div class="demo-section">
+                <h3><i class="fas fa-check-circle" style="color: #10b981;"></i> حالة التطبيق</h3>
+                <p>تم إنشاء قسم "كيفية استخدام النظام" بنجاح وإضافته إلى القائمة الجانبية مع جميع المكونات التالية:</p>
+                
+                <div style="margin: 20px 0;">
+                    <div class="status-indicator status-success">
+                        <i class="fas fa-check"></i>
+                        الصفحة الرئيسية للدليل
+                    </div>
+                    <div class="status-indicator status-success">
+                        <i class="fas fa-check"></i>
+                        مقدمة عن النظام
+                    </div>
+                    <div class="status-indicator status-success">
+                        <i class="fas fa-check"></i>
+                        الفيديوهات التعليمية
+                    </div>
+                    <div class="status-indicator status-success">
+                        <i class="fas fa-check"></i>
+                        الأسئلة الشائعة
+                    </div>
+                    <div class="status-indicator status-success">
+                        <i class="fas fa-check"></i>
+                        دليل المستخدم PDF
+                    </div>
+                    <div class="status-indicator status-success">
+                        <i class="fas fa-check"></i>
+                        أدلة الوحدات المختلفة
+                    </div>
+                    <div class="status-indicator status-success">
+                        <i class="fas fa-check"></i>
+                        نظام التلميحات التفاعلية
+                    </div>
+                    <div class="status-indicator status-success">
+                        <i class="fas fa-check"></i>
+                        الجولات التفاعلية (Intro.js)
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h3><i class="fas fa-link" style="color: #3b82f6;"></i> الروابط المتاحة</h3>
+                <p>يمكنك الوصول إلى قسم "كيفية استخدام النظام" من خلال الروابط التالية:</p>
+                
+                <div style="margin: 20px 0;">
+                    <button class="test-button" onclick="window.open('/system-guide', '_blank')">
+                        <i class="fas fa-external-link-alt"></i> الصفحة الرئيسية
+                    </button>
+                    <button class="test-button" onclick="window.open('/system-guide/introduction', '_blank')">
+                        <i class="fas fa-info-circle"></i> مقدمة عن النظام
+                    </button>
+                    <button class="test-button" onclick="window.open('/system-guide/videos', '_blank')">
+                        <i class="fas fa-play-circle"></i> الفيديوهات التعليمية
+                    </button>
+                    <button class="test-button" onclick="window.open('/system-guide/faq', '_blank')">
+                        <i class="fas fa-question-circle"></i> الأسئلة الشائعة
+                    </button>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4><i class="fas fa-lightbulb"></i> ملاحظة مهمة</h4>
+                <p>
+                    لرؤية القائمة الجانبية الكاملة مع قسم "كيفية استخدام النظام" في النظام الحقيقي، 
+                    تحتاج إلى تسجيل الدخول أولاً. هذه الصفحة هي مجرد عرض توضيحي لكيفية ظهور القائمة.
+                </p>
+            </div>
+
+            <div class="demo-section">
+                <h3><i class="fas fa-cogs" style="color: #8b5cf6;"></i> المكونات التقنية</h3>
+                <p>تم إنشاء النظام باستخدام المكونات التالية:</p>
+                
+                <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                    <li style="padding: 8px 0; color: #475569;"><i class="fas fa-code" style="color: #3b82f6; margin-left: 8px;"></i> Laravel Controller: SystemGuideController</li>
+                    <li style="padding: 8px 0; color: #475569;"><i class="fas fa-eye" style="color: #10b981; margin-left: 8px;"></i> Blade Templates: صفحات عرض متكاملة</li>
+                    <li style="padding: 8px 0; color: #475569;"><i class="fas fa-route" style="color: #f59e0b; margin-left: 8px;"></i> Routes: نظام روابط شامل</li>
+                    <li style="padding: 8px 0; color: #475569;"><i class="fas fa-magic" style="color: #8b5cf6; margin-left: 8px;"></i> JavaScript: تلميحات وجولات تفاعلية</li>
+                    <li style="padding: 8px 0; color: #475569;"><i class="fas fa-file-pdf" style="color: #ef4444; margin-left: 8px;"></i> PDF Generation: دليل مستخدم قابل للتحميل</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSubmenu(element) {
+            const submenu = element.nextElementSibling;
+            const icon = element.querySelector('.toggle-icon');
+            
+            if (submenu.classList.contains('open')) {
+                submenu.classList.remove('open');
+                icon.classList.remove('rotated');
+                element.classList.remove('active');
+            } else {
+                submenu.classList.add('open');
+                icon.classList.add('rotated');
+                element.classList.add('active');
+            }
+        }
+
+        // Auto-open system guide menu on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('System Guide Sidebar Test Loaded Successfully!');
+        });
+    </script>
+</body>
+</html>
