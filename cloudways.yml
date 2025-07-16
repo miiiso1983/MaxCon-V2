@@ -1,0 +1,133 @@
+# Cloudways Deployment Configuration for MaxCon ERP
+# This file contains deployment settings and environment variables
+
+# Application Settings
+app:
+  name: "MaxCon ERP"
+  type: "php"
+  version: "8.2"
+  framework: "laravel"
+  
+# Server Requirements
+server:
+  min_ram: "2GB"
+  recommended_ram: "4GB"
+  php_version: "8.2"
+  mysql_version: "8.0"
+  redis: true
+  ssl: true
+
+# Environment Variables for Production
+environment:
+  APP_NAME: "MaxCon ERP"
+  APP_ENV: "production"
+  APP_DEBUG: "false"
+  APP_LOCALE: "ar"
+  APP_FALLBACK_LOCALE: "en"
+  
+  # Database (to be configured during deployment)
+  DB_CONNECTION: "mysql"
+  DB_HOST: "localhost"
+  DB_PORT: "3306"
+  # DB_DATABASE: "your_database_name"
+  # DB_USERNAME: "your_database_user"
+  # DB_PASSWORD: "your_database_password"
+  
+  # Central Database for Multi-Tenancy
+  CENTRAL_DB_CONNECTION: "mysql"
+  CENTRAL_DB_HOST: "localhost"
+  CENTRAL_DB_PORT: "3306"
+  # CENTRAL_DB_DATABASE: "your_central_database_name"
+  # CENTRAL_DB_USERNAME: "your_database_user"
+  # CENTRAL_DB_PASSWORD: "your_database_password"
+  
+  # Cache Configuration
+  CACHE_STORE: "redis"
+  REDIS_HOST: "127.0.0.1"
+  REDIS_PORT: "6379"
+  
+  # Session Configuration
+  SESSION_DRIVER: "database"
+  SESSION_LIFETIME: "120"
+  
+  # Queue Configuration
+  QUEUE_CONNECTION: "database"
+  
+  # Mail Configuration (to be configured)
+  MAIL_MAILER: "smtp"
+  # MAIL_HOST: "smtp.gmail.com"
+  # MAIL_PORT: "587"
+  # MAIL_USERNAME: "your_email@gmail.com"
+  # MAIL_PASSWORD: "your_app_password"
+  # MAIL_ENCRYPTION: "tls"
+
+# Deployment Commands
+deployment:
+  pre_deploy:
+    - "php artisan down --retry=60"
+    - "composer install --no-dev --optimize-autoloader"
+    - "npm ci"
+    - "npm run build"
+    
+  deploy:
+    - "php artisan config:clear"
+    - "php artisan config:cache"
+    - "php artisan route:clear"
+    - "php artisan route:cache"
+    - "php artisan view:clear"
+    - "php artisan view:cache"
+    - "php artisan migrate --force"
+    - "php artisan queue:restart"
+    
+  post_deploy:
+    - "chmod -R 755 storage bootstrap/cache"
+    - "php artisan up"
+
+# Security Settings
+security:
+  force_https: true
+  hide_server_signature: true
+  enable_security_headers: true
+  
+# Performance Settings
+performance:
+  enable_gzip: true
+  enable_browser_caching: true
+  enable_opcache: true
+  
+# Backup Settings
+backup:
+  database: true
+  files: true
+  frequency: "daily"
+  retention: "30 days"
+
+# Monitoring
+monitoring:
+  enable_logs: true
+  log_level: "error"
+  enable_uptime_monitoring: true
+
+# Custom PHP Settings
+php:
+  memory_limit: "512M"
+  max_execution_time: "300"
+  upload_max_filesize: "100M"
+  post_max_size: "100M"
+
+# Cron Jobs
+cron:
+  - command: "cd /applications/maxcon-erp/public_html && php artisan schedule:run"
+    schedule: "* * * * *"
+    description: "Laravel Task Scheduler"
+
+# Notes for Deployment
+notes: |
+  1. Update database credentials in environment variables
+  2. Configure mail settings for your SMTP provider
+  3. Set up SSL certificate using Let's Encrypt
+  4. Configure domain DNS to point to server IP
+  5. Run initial database seeding after first deployment
+  6. Test all functionality after deployment
+  7. Set up monitoring and backups
+  8. Configure firewall rules if needed
