@@ -81,12 +81,12 @@ MaxCon هو نظام إدارة موارد المؤسسات (ERP) متخصص ل�
 - Redis (اختياري للـ caching)
 - Node.js & NPM (للـ frontend assets)
 
-### 🚀 التثبيت
+### 🚀 التثبيت المحلي
 
 1. **استنساخ المشروع**
 ```bash
-git clone https://github.com/your-username/maxcon-erp.git
-cd maxcon-erp
+git clone https://github.com/miiiso1983/MaxCon-V2.git
+cd MaxCon-V2
 ```
 
 2. **تثبيت التبعيات**
@@ -103,6 +103,11 @@ php artisan key:generate
 
 4. **إعداد قاعدة البيانات**
 ```bash
+# إنشاء قواعد البيانات
+mysql -u root -p
+CREATE DATABASE maxcon_central;
+CREATE DATABASE maxcon_erp;
+
 # تحديث إعدادات قاعدة البيانات في .env
 php artisan migrate
 php artisan db:seed
@@ -117,6 +122,43 @@ npm run build
 ```bash
 php artisan serve
 ```
+
+### 🌐 النشر على Cloudways
+
+للنشر على Cloudways، راجع الأدلة التفصيلية:
+
+- **[دليل النشر الشامل](CLOUDWAYS_DEPLOYMENT_GUIDE.md)** - دليل مفصل خطوة بخطوة
+- **[الإعداد السريع](cloudways-setup.md)** - خطوات سريعة للنشر
+- **[سكريبت النشر التلقائي](deploy.sh)** - أتمتة عملية النشر
+
+#### خطوات النشر السريعة:
+
+1. **إنشاء خادم على Cloudways**
+   - اختر DigitalOcean أو AWS
+   - PHP 8.2، MySQL 8.0
+   - حجم الخادم: 2GB RAM أو أكثر
+
+2. **ربط GitHub Repository**
+   ```
+   Repository: https://github.com/miiiso1983/MaxCon-V2.git
+   Branch: main
+   ```
+
+3. **إعداد قواعد البيانات**
+   ```sql
+   CREATE DATABASE maxcon_central;
+   CREATE DATABASE maxcon_erp;
+   ```
+
+4. **تشغيل سكريبت النشر**
+   ```bash
+   chmod +x deploy.sh
+   ./deploy.sh
+   ```
+
+5. **إعداد SSL والدومين**
+   - تفعيل Let's Encrypt SSL
+   - ربط اسم النطاق
 
 ### 👤 بيانات الدخول الافتراضية
 
