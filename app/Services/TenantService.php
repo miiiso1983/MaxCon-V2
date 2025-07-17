@@ -29,7 +29,7 @@ class TenantService
      */
     public function getAllTenants(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->tenantRepository->with(['users'])->paginate($perPage);
+        return Tenant::orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     /**
@@ -46,6 +46,7 @@ class TenantService
             // Set default values
             $data = array_merge([
                 'status' => 'active',
+                'is_active' => true,
                 'plan' => 'basic',
                 'max_users' => 10,
                 'storage_limit' => 1073741824, // 1GB

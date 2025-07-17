@@ -61,9 +61,9 @@ class LoginController extends Controller
             ]);
         }
 
-        // Check tenant context
+        // Check tenant context (only if we're in a multi-tenant environment)
         $tenant = tenant();
-        if ($tenant && $user->tenant_id !== $tenant->id) {
+        if ($tenant && $user->tenant_id && $user->tenant_id !== $tenant->id) {
             throw ValidationException::withMessages([
                 'email' => ['Access denied for this tenant.'],
             ]);

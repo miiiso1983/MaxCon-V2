@@ -50,6 +50,7 @@ class Tenant extends Model
         'database_name',
         'settings',
         'status',
+        'is_active',
         'trial_ends_at',
         'license_expires_at',
         'subscription_ends_at',

@@ -70,7 +70,7 @@
 
                 <!-- الرمز المختصر -->
                 <div>
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; opacity: 0.9;">الرمز المختصر</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; opacity: 0.9;">الرمز المختصر (اختياري)</label>
                     <input type="text" name="slug" value="{{ old('slug') }}"
                            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 14px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);"
                            placeholder="pharmacy-name">
@@ -79,9 +79,20 @@
                     @enderror
                 </div>
 
+                <!-- النطاق -->
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; opacity: 0.9;">النطاق (اختياري)</label>
+                    <input type="text" name="domain" value="{{ old('domain') }}"
+                           style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 14px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);"
+                           placeholder="pharmacy.com">
+                    @error('domain')
+                        <div style="color: #fbbf24; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <!-- النطاق الفرعي -->
                 <div>
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; opacity: 0.9;">النطاق الفرعي</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; opacity: 0.9;">النطاق الفرعي (اختياري)</label>
                     <input type="text" name="subdomain" value="{{ old('subdomain') }}"
                            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 14px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);"
                            placeholder="pharmacy">

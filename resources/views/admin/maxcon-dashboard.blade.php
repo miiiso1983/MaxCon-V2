@@ -74,7 +74,7 @@
                     <i class="fas fa-check-circle" style="font-size: 24px;"></i>
                 </div>
                 <div style="text-align: left;">
-                    <div style="font-size: 36px; font-weight: 800; line-height: 1;">{{ \App\Models\Tenant::where('is_active', true)->count() }}</div>
+                    <div style="font-size: 36px; font-weight: 800; line-height: 1;">{{ \App\Models\Tenant::where('status', 'active')->count() }}</div>
                     <div style="font-size: 12px; opacity: 0.8; margin-top: 5px;">من الإجمالي</div>
                 </div>
             </div>

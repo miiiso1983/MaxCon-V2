@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\Admin\UserController;
@@ -189,6 +191,32 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/tenants-maxcon', function () {
         return view('admin.tenants.maxcon-index');
     })->name('tenants.maxcon');
+    Route::get('/tenants-test-create', function () {
+        return view('admin.tenants.test-create');
+    })->name('tenants.test-create');
+    Route::get('/tenants-login-info', function () {
+        return view('admin.tenants.login-info');
+    })->name('tenants.login-info');
+    Route::get('/test-login', function () {
+        return view('admin.tenants.test-login');
+    })->name('test-login');
+    Route::post('/test-login-attempt', function (Request $request) {
+        try {
+            $credentials = $request->only('email', 'password');
+
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+                return redirect()->back()->with('success',
+                    "✅ تم تسجيل الدخول بنجاح! مرحباً {$user->name}");
+            } else {
+                return redirect()->back()->with('error',
+                    '❌ فشل تسجيل الدخول. تحقق من البيانات.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error',
+                '❌ خطأ: ' . $e->getMessage());
+        }
+    })->name('admin.test-login.attempt');
     Route::post('/tenants/{tenant}/suspend', [TenantController::class, 'suspend'])->name('tenants.suspend');
     Route::post('/tenants/{tenant}/activate', [TenantController::class, 'activate'])->name('tenants.activate');
 

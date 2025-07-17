@@ -75,12 +75,12 @@ class TenantController extends Controller
             // إنشاء المستأجر
             $tenantData = [
                 'name' => $validated['name'],
-                'slug' => $validated['slug'],
-                'domain' => $validated['domain'],
-                'subdomain' => $validated['subdomain'],
+                'slug' => $validated['slug'] ?? null,
+                'domain' => $validated['domain'] ?? null,
+                'subdomain' => $validated['subdomain'] ?? null,
                 'plan' => $validated['plan'],
                 'max_users' => $validated['max_users'],
-                'storage_limit' => $validated['storage_limit'],
+                'storage_limit' => $validated['storage_limit'] * 1073741824, // Convert GB to bytes
                 'is_active' => $validated['is_active'] ?? true,
             ];
 
