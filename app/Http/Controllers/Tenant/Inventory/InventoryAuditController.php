@@ -135,7 +135,7 @@ class InventoryAuditController extends Controller
             abort(403, 'Unauthorized access');
         }
 
-        $audit->load(['warehouse', 'createdBy', 'auditItems.inventory.product']);
+        $audit->load(['warehouse', 'createdBy', 'auditItems.product', 'auditItems.location']);
 
         return view('tenant.inventory.audits.show', compact('audit'));
     }

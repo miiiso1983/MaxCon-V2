@@ -127,7 +127,8 @@ class InventoryAudit extends Model
     public function getDiscrepancies()
     {
         return $this->auditItems()
-            ->whereRaw('counted_quantity != system_quantity')
+            ->whereRaw('counted_quantity != expected_quantity')
+            ->whereNotNull('counted_quantity')
             ->count();
     }
 }
