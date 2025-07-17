@@ -69,7 +69,7 @@ class CostCenter extends Model
      */
     public function accounts(): HasMany
     {
-        return $this->hasMany(ChartOfAccount::class);
+        return $this->hasMany(ChartOfAccount::class, 'cost_center_id');
     }
 
     /**
