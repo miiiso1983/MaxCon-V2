@@ -28,7 +28,7 @@
             </div>
             
             <div style="display: flex; gap: 15px;">
-                <a href="{{ route('tenant.accounting.journal-entries.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                <a href="{{ route('tenant.inventory.accounting.journal-entries.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-arrow-right"></i>
                     العودة للقيود
                 </a>
@@ -39,7 +39,7 @@
 
 <!-- Create Form -->
 <div class="content-card">
-    <form method="POST" action="{{ route('tenant.accounting.journal-entries.store') }}" id="journalForm">
+    <form method="POST" action="{{ route('tenant.inventory.accounting.journal-entries.store') }}" id="journalForm">
         @csrf
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
@@ -208,7 +208,7 @@
         
         <!-- Form Actions -->
         <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; display: flex; gap: 15px; justify-content: flex-end;">
-            <a href="{{ route('tenant.accounting.journal-entries.index') }}" 
+            <a href="{{ route('tenant.inventory.accounting.journal-entries.index') }}" 
                style="background: #6b7280; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-times"></i>
                 إلغاء

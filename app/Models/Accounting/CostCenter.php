@@ -12,22 +12,25 @@ class CostCenter extends Model
 {
     use SoftDeletes, BelongsToTenant;
 
+    protected $table = 'cost_centers';
+
     protected $fillable = [
         'tenant_id',
         'code',
         'name',
         'name_en',
         'description',
-        'parent_cost_center_id',
+        'parent_id',
         'level',
         'is_active',
-        'manager_name',
-        'manager_email',
+        'is_parent',
+        'manager_id',
         'budget_amount',
         'actual_amount',
-        'currency_code',
-        'created_by',
-        'updated_by'
+        'variance_amount',
+        'notes',
+        'sort_order',
+        'created_by'
     ];
 
     protected $casts = [
@@ -42,7 +45,7 @@ class CostCenter extends Model
      */
     public function parentCostCenter(): BelongsTo
     {
-        return $this->belongsTo(CostCenter::class, 'parent_cost_center_id');
+        return $this->belongsTo(CostCenter::class, 'parent_id');
     }
 
     /**
@@ -50,7 +53,7 @@ class CostCenter extends Model
      */
     public function childCostCenters(): HasMany
     {
-        return $this->hasMany(CostCenter::class, 'parent_cost_center_id');
+        return $this->hasMany(CostCenter::class, 'parent_id');
     }
 
     /**

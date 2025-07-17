@@ -39,11 +39,11 @@
             </div>
             
             <div style="display: flex; gap: 15px;">
-                <a href="{{ route('tenant.accounting.chart-of-accounts.edit', $chartOfAccount) }}" style="background: rgba(245, 158, 11, 0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.edit', $chartOfAccount) }}" style="background: rgba(245, 158, 11, 0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-edit"></i>
                     تعديل الحساب
                 </a>
-                <a href="{{ route('tenant.accounting.chart-of-accounts.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-arrow-right"></i>
                     العودة للقائمة
                 </a>
@@ -93,7 +93,7 @@
             @if($chartOfAccount->parentAccount)
             <div style="display: flex; justify-content: space-between; padding: 12px; background: #f8fafc; border-radius: 8px;">
                 <span style="font-weight: 600; color: #4a5568;">الحساب الأب:</span>
-                <a href="{{ route('tenant.accounting.chart-of-accounts.show', $chartOfAccount->parentAccount) }}" style="color: #3b82f6; text-decoration: none;">
+                <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.show', $chartOfAccount->parentAccount) }}" style="color: #3b82f6; text-decoration: none;">
                     {{ $chartOfAccount->parentAccount->account_name }}
                 </a>
             </div>
@@ -191,7 +191,7 @@
                             {{ number_format($child->current_balance, 2) }} {{ $child->currency_code }}
                         </td>
                         <td style="padding: 15px; text-align: center;">
-                            <a href="{{ route('tenant.accounting.chart-of-accounts.show', $child) }}" 
+                            <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.show', $child) }}" 
                                style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                 <i class="fas fa-eye"></i>
                             </a>
@@ -228,7 +228,7 @@
                     <tr style="border-bottom: 1px solid #e2e8f0;">
                         <td style="padding: 15px; color: #6b7280;">{{ $entry->journalEntry->entry_date->format('Y-m-d') }}</td>
                         <td style="padding: 15px; font-weight: 600; color: #4a5568;">
-                            <a href="{{ route('tenant.accounting.journal-entries.show', $entry->journalEntry) }}" style="color: #3b82f6; text-decoration: none;">
+                            <a href="{{ route('tenant.inventory.accounting.journal-entries.show', $entry->journalEntry) }}" style="color: #3b82f6; text-decoration: none;">
                                 {{ $entry->journalEntry->journal_number }}
                             </a>
                         </td>
@@ -246,7 +246,7 @@
     </div>
     
     <div style="margin-top: 20px; text-align: center;">
-        <a href="{{ route('tenant.accounting.reports.account-ledger', ['account_id' => $chartOfAccount->id]) }}" 
+        <a href="{{ route('tenant.inventory.accounting.reports.account-ledger', ['account_id' => $chartOfAccount->id]) }}" 
            style="background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
             <i class="fas fa-book" style="margin-left: 8px;"></i>
             عرض دفتر الأستاذ الكامل

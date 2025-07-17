@@ -39,7 +39,7 @@
             </div>
             
             <div style="display: flex; gap: 15px;">
-                <a href="{{ route('tenant.accounting.cost-centers.create') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                <a href="{{ route('tenant.inventory.accounting.cost-centers.create') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-plus"></i>
                     إضافة مركز تكلفة
                 </a>
@@ -50,7 +50,7 @@
 
 <!-- Filters -->
 <div class="content-card" style="margin-bottom: 30px;">
-    <form method="GET" action="{{ route('tenant.accounting.cost-centers.index') }}">
+    <form method="GET" action="{{ route('tenant.inventory.accounting.cost-centers.index') }}">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الحالة:</label>
@@ -73,7 +73,7 @@
                 <i class="fas fa-search" style="margin-left: 8px;"></i>
                 بحث
             </button>
-            <a href="{{ route('tenant.accounting.cost-centers.index') }}" style="background: #6b7280; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            <a href="{{ route('tenant.inventory.accounting.cost-centers.index') }}" style="background: #6b7280; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
                 <i class="fas fa-times" style="margin-left: 8px;"></i>
                 إلغاء
             </a>
@@ -132,17 +132,17 @@
                         </td>
                         <td style="padding: 15px; text-align: center;">
                             <div style="display: flex; gap: 8px; justify-content: center;">
-                                <a href="{{ route('tenant.accounting.cost-centers.show', $costCenter) }}" 
+                                <a href="{{ route('tenant.inventory.accounting.cost-centers.show', $costCenter) }}"
                                    style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('tenant.accounting.cost-centers.edit', $costCenter) }}" 
+                                <a href="{{ route('tenant.inventory.accounting.cost-centers.edit', $costCenter) }}"
                                    style="background: #f59e0b; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 @if($costCenter->accounts()->count() == 0 && $costCenter->journalEntries()->count() == 0 && $costCenter->childCostCenters()->count() == 0)
-                                    <form method="POST" action="{{ route('tenant.accounting.cost-centers.destroy', $costCenter) }}" 
-                                          style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف مركز التكلفة؟')">
+                                    <form method="POST" action="{{ route('tenant.inventory.accounting.cost-centers.destroy', $costCenter) }}"
+                                          style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف مركز التكلفة؟')"
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" style="background: #ef4444; color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">
@@ -162,7 +162,7 @@
                                     <h3 style="margin: 0 0 8px 0; color: #374151;">لا توجد مراكز تكلفة</h3>
                                     <p style="margin: 0; color: #6b7280;">ابدأ بإضافة مراكز تكلفة جديدة</p>
                                 </div>
-                                <a href="{{ route('tenant.accounting.cost-centers.create') }}" 
+                                <a href="{{ route('tenant.inventory.accounting.cost-centers.create') }}"
                                    style="background: #8b5cf6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
                                     <i class="fas fa-plus" style="margin-left: 8px;"></i>
                                     إضافة مركز تكلفة

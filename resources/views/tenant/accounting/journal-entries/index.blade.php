@@ -43,7 +43,7 @@
             </div>
             
             <div style="display: flex; gap: 15px;">
-                <a href="{{ route('tenant.accounting.journal-entries.create') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                <a href="{{ route('tenant.inventory.accounting.journal-entries.create') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-plus"></i>
                     إضافة قيد جديد
                 </a>
@@ -54,7 +54,7 @@
 
 <!-- Filters -->
 <div class="content-card" style="margin-bottom: 30px;">
-    <form method="GET" action="{{ route('tenant.accounting.journal-entries.index') }}">
+    <form method="GET" action="{{ route('tenant.inventory.accounting.journal-entries.index') }}">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الحالة:</label>
@@ -100,7 +100,7 @@
                 <i class="fas fa-search" style="margin-left: 8px;"></i>
                 بحث
             </button>
-            <a href="{{ route('tenant.accounting.journal-entries.index') }}" style="background: #6b7280; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            <a href="{{ route('tenant.inventory.accounting.journal-entries.index') }}" style="background: #6b7280; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
                 <i class="fas fa-times" style="margin-left: 8px;"></i>
                 إلغاء
             </a>
@@ -130,7 +130,7 @@
                         onmouseover="this.style.backgroundColor='#f8fafc'" 
                         onmouseout="this.style.backgroundColor='transparent'">
                         <td style="padding: 15px; font-weight: 600; color: #4a5568;">
-                            <a href="{{ route('tenant.accounting.journal-entries.show', $entry) }}" style="color: #ec4899; text-decoration: none;">
+                            <a href="{{ route('tenant.inventory.accounting.journal-entries.show', $entry) }}" style="color: #ec4899; text-decoration: none;">
                                 {{ $entry->journal_number }}
                             </a>
                         </td>
@@ -168,20 +168,20 @@
                         </td>
                         <td style="padding: 15px; text-align: center;">
                             <div style="display: flex; gap: 8px; justify-content: center;">
-                                <a href="{{ route('tenant.accounting.journal-entries.show', $entry) }}" 
+                                <a href="{{ route('tenant.inventory.accounting.journal-entries.show', $entry) }}" 
                                    style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 
                                 @if($entry->canBeEdited())
-                                    <a href="{{ route('tenant.accounting.journal-entries.edit', $entry) }}" 
+                                    <a href="{{ route('tenant.inventory.accounting.journal-entries.edit', $entry) }}" 
                                        style="background: #f59e0b; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 @endif
                                 
                                 @if($entry->status === 'draft')
-                                    <form method="POST" action="{{ route('tenant.accounting.journal-entries.submit', $entry) }}" style="display: inline;">
+                                    <form method="POST" action="{{ route('tenant.inventory.accounting.journal-entries.submit', $entry) }}" style="display: inline;">
                                         @csrf
                                         <button type="submit" style="background: #10b981; color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;" title="إرسال للاعتماد">
                                             <i class="fas fa-paper-plane"></i>
@@ -190,7 +190,7 @@
                                 @endif
                                 
                                 @if($entry->canBeApproved())
-                                    <form method="POST" action="{{ route('tenant.accounting.journal-entries.approve', $entry) }}" style="display: inline;">
+                                    <form method="POST" action="{{ route('tenant.inventory.accounting.journal-entries.approve', $entry) }}" style="display: inline;">
                                         @csrf
                                         <button type="submit" style="background: #059669; color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;" title="اعتماد">
                                             <i class="fas fa-check"></i>
@@ -199,7 +199,7 @@
                                 @endif
                                 
                                 @if($entry->status === 'pending')
-                                    <form method="POST" action="{{ route('tenant.accounting.journal-entries.reject', $entry) }}" style="display: inline;">
+                                    <form method="POST" action="{{ route('tenant.inventory.accounting.journal-entries.reject', $entry) }}" style="display: inline;">
                                         @csrf
                                         <button type="submit" style="background: #dc2626; color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;" title="رفض">
                                             <i class="fas fa-times"></i>
@@ -208,7 +208,7 @@
                                 @endif
                                 
                                 @if($entry->canBePosted())
-                                    <form method="POST" action="{{ route('tenant.accounting.journal-entries.post', $entry) }}" style="display: inline;">
+                                    <form method="POST" action="{{ route('tenant.inventory.accounting.journal-entries.post', $entry) }}" style="display: inline;">
                                         @csrf
                                         <button type="submit" style="background: #8b5cf6; color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;" title="ترحيل">
                                             <i class="fas fa-upload"></i>
@@ -217,7 +217,7 @@
                                 @endif
                                 
                                 @if($entry->canBeEdited())
-                                    <form method="POST" action="{{ route('tenant.accounting.journal-entries.destroy', $entry) }}" 
+                                    <form method="POST" action="{{ route('tenant.inventory.accounting.journal-entries.destroy', $entry) }}" 
                                           style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا القيد؟')">
                                         @csrf
                                         @method('DELETE')
@@ -238,7 +238,7 @@
                                     <h3 style="margin: 0 0 8px 0; color: #374151;">لا توجد قيود محاسبية</h3>
                                     <p style="margin: 0; color: #6b7280;">ابدأ بإضافة قيود محاسبية جديدة</p>
                                 </div>
-                                <a href="{{ route('tenant.accounting.journal-entries.create') }}" 
+                                <a href="{{ route('tenant.inventory.accounting.journal-entries.create') }}" 
                                    style="background: #ec4899; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
                                     <i class="fas fa-plus" style="margin-left: 8px;"></i>
                                     إضافة قيد جديد
