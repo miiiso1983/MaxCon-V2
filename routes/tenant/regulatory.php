@@ -74,6 +74,7 @@ Route::get('certificates/renewal', [App\Http\Controllers\Tenant\Regulatory\Certi
 // Product Recalls Routes
 Route::get('recalls', [App\Http\Controllers\Tenant\Regulatory\ProductRecallController::class, 'index'])->name('recalls.index');
 Route::get('recalls/create', [App\Http\Controllers\Tenant\Regulatory\ProductRecallController::class, 'create'])->name('recalls.create');
+Route::get('recalls/high-priority', [App\Http\Controllers\Tenant\Regulatory\ProductRecallController::class, 'highPriority'])->name('recalls.high-priority');
 Route::post('recalls', [App\Http\Controllers\Tenant\Regulatory\ProductRecallController::class, 'store'])->name('recalls.store');
 Route::get('recalls/import', [App\Http\Controllers\Tenant\Regulatory\ProductRecallController::class, 'showImportForm'])->name('recalls.import.form');
 Route::post('recalls/import', [App\Http\Controllers\Tenant\Regulatory\ProductRecallController::class, 'importFromExcel'])->name('recalls.import');

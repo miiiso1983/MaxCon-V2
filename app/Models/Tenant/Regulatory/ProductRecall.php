@@ -5,15 +5,20 @@ namespace App\Models\Tenant\Regulatory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use App\Traits\HasTenant;
 
 class ProductRecall extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;
 
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'tenant_id',
         'product_id',
+        'product_name',
         'recall_number',
         'recall_type',
         'recall_class',
@@ -72,6 +77,17 @@ class ProductRecall extends Model
         'healthcare_notification' => 'boolean',
         'follow_up_required' => 'boolean'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
 
     // Recall Types
     const RECALL_TYPES = [

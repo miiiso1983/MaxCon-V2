@@ -108,6 +108,19 @@ class ProductRecallController extends Controller
     }
 
     /**
+     * Display high priority recalls
+     */
+    public function highPriority()
+    {
+        $recalls = ProductRecall::where('tenant_id', Auth::user()->tenant_id)
+            ->highPriority()
+            ->orderBy('initiated_date', 'desc')
+            ->get();
+
+        return view('tenant.regulatory.recalls.high-priority', compact('recalls'));
+    }
+
+    /**
      * Show import form
      */
     public function showImportForm()
