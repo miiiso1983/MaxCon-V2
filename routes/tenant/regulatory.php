@@ -42,12 +42,13 @@ Route::get('products', function() {
 // Laboratory Tests Routes
 Route::get('laboratory-tests', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'index'])->name('laboratory-tests.index');
 Route::get('laboratory-tests/create', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'create'])->name('laboratory-tests.create');
+Route::get('laboratory-tests/overdue', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'overdue'])->name('laboratory-tests.overdue');
+Route::get('laboratory-tests/schedule', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'showSchedule'])->name('laboratory-tests.schedule');
 Route::post('laboratory-tests', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'store'])->name('laboratory-tests.store');
 Route::get('laboratory-tests/import', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'showImportForm'])->name('laboratory-tests.import.form');
 Route::post('laboratory-tests/import', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'importFromExcel'])->name('laboratory-tests.import');
 Route::get('laboratory-tests/export', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'exportToExcel'])->name('laboratory-tests.export');
 Route::get('laboratory-tests/download-template', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'downloadTemplate'])->name('laboratory-tests.download-template');
-Route::get('laboratory-tests/schedule', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'showSchedule'])->name('laboratory-tests.schedule');
 
 // Inspections Routes
 Route::get('inspections', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'index'])->name('inspections.index');

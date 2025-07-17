@@ -91,6 +91,19 @@ class LaboratoryTestController extends Controller
     }
 
     /**
+     * Display overdue tests
+     */
+    public function overdue()
+    {
+        $tests = LaboratoryTest::where('tenant_id', Auth::user()->tenant_id)
+            ->overdue()
+            ->orderBy('test_date', 'asc')
+            ->get();
+
+        return view('tenant.regulatory.laboratory-tests.overdue', compact('tests'));
+    }
+
+    /**
      * Show import form
      */
     public function showImportForm()

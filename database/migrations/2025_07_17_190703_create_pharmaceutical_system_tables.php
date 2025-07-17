@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Create laboratory_tests table
-        Schema::create('laboratory_tests', function (Blueprint $table) {
+        // Create laboratory_tests table (if not exists)
+        if (!Schema::hasTable('laboratory_tests')) {
+            Schema::create('laboratory_tests', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('tenant_id');
             $table->string('test_code', 50);
@@ -38,7 +39,8 @@ return new class extends Migration
             $table->index('tenant_id');
             $table->index('category');
             $table->index('is_active');
-        });
+            });
+        }
 
         // Create patients table
         Schema::create('patients', function (Blueprint $table) {
