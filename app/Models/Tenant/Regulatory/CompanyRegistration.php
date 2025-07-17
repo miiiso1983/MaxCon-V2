@@ -6,10 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasTenant;
+use Illuminate\Support\Str;
 
 class CompanyRegistration extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;
+
+    /**
+     * Indicates if the model's ID is auto-incrementing.
+     */
+    public $incrementing = false;
+
+    /**
+     * The data type of the auto-incrementing ID.
+     */
+    protected $keyType = 'string';
 
     protected $fillable = [
         'tenant_id',
@@ -37,15 +48,29 @@ class CompanyRegistration extends Model
     ];
 
     protected $casts = [
-        'registration_date' => 'date',
-        'license_issue_date' => 'date',
-        'license_expiry_date' => 'date',
-        'last_inspection_date' => 'date',
-        'next_inspection_date' => 'date',
+        'registration_date' => 'datetime',
+        'license_issue_date' => 'datetime',
+        'license_expiry_date' => 'datetime',
+        'last_inspection_date' => 'datetime',
+        'next_inspection_date' => 'datetime',
         'business_activities' => 'array',
         'authorized_products' => 'array',
         'documents' => 'array'
     ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
 
     // License Types
     const LICENSE_TYPES = [

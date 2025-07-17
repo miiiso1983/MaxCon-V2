@@ -18,14 +18,16 @@ use App\Http\Controllers\Tenant\Regulatory\RegulatoryDashboardController;
 // Regulatory Dashboard
 Route::get('dashboard', [RegulatoryDashboardController::class, 'index'])->name('dashboard');
 
-// Company Registrations - Basic routes for testing
-Route::get('companies', function() {
-    return view('tenant.regulatory.companies.index');
-})->name('companies.index');
-
-Route::get('companies/create', function() {
-    return view('tenant.regulatory.companies.create');
-})->name('companies.create');
+// Company Registrations Routes
+Route::get('companies', [CompanyRegistrationController::class, 'index'])->name('companies.index');
+Route::get('companies/create', [CompanyRegistrationController::class, 'create'])->name('companies.create');
+Route::get('companies/expiring-soon', [CompanyRegistrationController::class, 'expiringSoon'])->name('companies.expiring-soon');
+Route::post('companies', [CompanyRegistrationController::class, 'store'])->name('companies.store');
+Route::get('companies/{company}', [CompanyRegistrationController::class, 'show'])->name('companies.show');
+Route::get('companies/{company}/edit', [CompanyRegistrationController::class, 'edit'])->name('companies.edit');
+Route::put('companies/{company}', [CompanyRegistrationController::class, 'update'])->name('companies.update');
+Route::delete('companies/{company}', [CompanyRegistrationController::class, 'destroy'])->name('companies.destroy');
+Route::post('companies/{company}/renew', [CompanyRegistrationController::class, 'renew'])->name('companies.renew');
 
 // Company Export/Import Routes
 Route::get('companies/export', [App\Http\Controllers\Tenant\Regulatory\CompanyExportImportController::class, 'exportToExcel'])->name('companies.export');

@@ -140,7 +140,7 @@
                                    style="background: #f59e0b; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                @if($costCenter->accounts()->count() == 0 && $costCenter->journalEntries()->count() == 0 && $costCenter->childCostCenters()->count() == 0)
+                                @if(($costCenter->safeAccountsCount ?? 0) == 0 && ($costCenter->safeJournalEntriesCount ?? 0) == 0 && $costCenter->childCostCenters()->count() == 0)
                                     <form method="POST" action="{{ route('tenant.inventory.accounting.cost-centers.destroy', $costCenter) }}"
                                           style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف مركز التكلفة؟')"
                                         @csrf

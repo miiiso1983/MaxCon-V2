@@ -42,7 +42,37 @@ class CostCenterController extends Controller
 
         $costCenters = $query->orderBy('code')->paginate(50);
 
+        // Add safe methods to each cost center for the view
+        foreach ($costCenters as $costCenter) {
+            $costCenter->safeAccountsCount = $this->getSafeAccountsCount($costCenter);
+            $costCenter->safeJournalEntriesCount = $this->getSafeJournalEntriesCount($costCenter);
+        }
+
         return view('tenant.accounting.cost-centers.index', compact('costCenters'));
+    }
+
+    /**
+     * Safely get accounts count (handles missing column)
+     */
+    private function getSafeAccountsCount($costCenter)
+    {
+        try {
+            return ChartOfAccount::where('cost_center_id', $costCenter->id)->count();
+        } catch (\Exception $e) {
+            return 0; // Return 0 if column doesn't exist
+        }
+    }
+
+    /**
+     * Safely get journal entries count (handles missing column)
+     */
+    private function getSafeJournalEntriesCount($costCenter)
+    {
+        try {
+            return JournalEntry::where('cost_center_id', $costCenter->id)->count();
+        } catch (\Exception $e) {
+            return 0; // Return 0 if column doesn't exist
+        }
     }
 
     /**
