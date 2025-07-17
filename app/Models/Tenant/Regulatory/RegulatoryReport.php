@@ -5,11 +5,15 @@ namespace App\Models\Tenant\Regulatory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use App\Traits\HasTenant;
 
 class RegulatoryReport extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'tenant_id',
@@ -68,6 +72,17 @@ class RegulatoryReport extends Model
         'attachments' => 'array',
         'follow_up_required' => 'boolean'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
 
     // Report Types
     const REPORT_TYPES = [

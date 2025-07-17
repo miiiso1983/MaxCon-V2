@@ -94,13 +94,14 @@ Route::get('product-recalls/statistics', [App\Http\Controllers\Tenant\Regulatory
 // Regulatory Reports Routes
 Route::get('reports', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'index'])->name('reports.index');
 Route::get('reports/create', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'create'])->name('reports.create');
+Route::get('reports/overdue', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'overdue'])->name('reports.overdue');
+Route::get('reports/templates', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'showTemplates'])->name('reports.templates');
+Route::get('reports/templates/{templateId}/create', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'createFromTemplate'])->name('reports.create-from-template');
 Route::post('reports', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'store'])->name('reports.store');
 Route::get('reports/import', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'showImportForm'])->name('reports.import.form');
 Route::post('reports/import', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'importFromExcel'])->name('reports.import');
 Route::get('reports/export', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'exportToExcel'])->name('reports.export');
 Route::get('reports/download-template', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'downloadTemplate'])->name('reports.download-template');
-Route::get('reports/templates', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'showTemplates'])->name('reports.templates');
-Route::get('reports/templates/{templateId}/create', [App\Http\Controllers\Tenant\Regulatory\RegulatoryReportController::class, 'createFromTemplate'])->name('reports.create-from-template');
 
 Route::get('documents', function() {
     return view('tenant.regulatory.documents.index');

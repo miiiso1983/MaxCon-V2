@@ -93,6 +93,19 @@ class RegulatoryReportController extends Controller
     }
 
     /**
+     * Display overdue reports
+     */
+    public function overdue()
+    {
+        $reports = RegulatoryReport::where('tenant_id', Auth::user()->tenant_id)
+            ->overdue()
+            ->orderBy('due_date', 'asc')
+            ->get();
+
+        return view('tenant.regulatory.reports.overdue', compact('reports'));
+    }
+
+    /**
      * Show import form
      */
     public function showImportForm()

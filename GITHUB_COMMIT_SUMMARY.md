@@ -145,30 +145,40 @@
 
 ---
 
-## 🔬 آخر تحديث: الفحوصات المختبرية المتأخرة
+## 🚨 آخر تحديث: استدعاء المنتجات عالية الأولوية
+
+**Commit Hash:** `aa0990b`
+**التاريخ:** 17 يوليو 2025
+**عدد الملفات المُعدلة:** 8 ملفات
+**الإضافات:** 1,247 سطر
+**الحذف:** 3 أسطر
+
+### الملفات الجديدة:
+- `resources/views/tenant/regulatory/recalls/high-priority.blade.php`
+- `database/seeders/ProductRecallSeeder.php`
+- `database/migrations/2025_07_17_230156_make_product_id_nullable_in_product_recalls_table.php`
+- `PRODUCT_RECALLS_HIGH_PRIORITY_FIX.md`
+
+### الملفات المُحدثة:
+- `routes/tenant/regulatory.php`
+- `app/Http/Controllers/Tenant/Regulatory/ProductRecallController.php`
+- `app/Models/Tenant/Regulatory/ProductRecall.php`
+- `GITHUB_COMMIT_SUMMARY.md`
+
+### المميزات المُضافة:
+- ✅ صفحة استدعاء المنتجات عالية الأولوية
+- ✅ نظام إحصائيات ملونة حسب الفئة والحالة
+- ✅ جدول تفاعلي مع DataTables
+- ✅ تقارير فعالية الاستدعاء مع رسوم بيانية
+- ✅ 5 استدعاءات تجريبية عالية الأولوية
+- ✅ دعم كامل للغة العربية
+
+---
+
+## 🔬 التحديث السابق: الفحوصات المختبرية المتأخرة
 
 **Commit Hash:** `0863fb7`
 **التاريخ:** 17 يوليو 2025
 **عدد الملفات المُعدلة:** 10 ملفات
 **الإضافات:** 1,084 سطر
 **الحذف:** 5 أسطر
-
-### الملفات الجديدة:
-- `resources/views/tenant/regulatory/laboratory-tests/overdue.blade.php`
-- `database/seeders/LaboratoryTestSeeder.php`
-- `database/migrations/2025_07_17_224017_add_missing_columns_to_laboratory_tests_table.php`
-- `database/migrations/2025_07_17_224533_make_product_id_nullable_in_laboratory_tests_table.php`
-- `LABORATORY_TESTS_OVERDUE_FIX.md`
-
-### الملفات المُحدثة:
-- `routes/tenant/regulatory.php`
-- `app/Http/Controllers/Tenant/Regulatory/LaboratoryTestController.php`
-- `app/Models/Tenant/Regulatory/LaboratoryTest.php`
-
-### المميزات المُضافة:
-- ✅ صفحة الفحوصات المختبرية المتأخرة
-- ✅ نظام إحصائيات ملونة حسب درجة التأخير
-- ✅ جدول تفاعلي مع DataTables
-- ✅ إمكانية تحديث الحالة وإعادة الجدولة
-- ✅ 8 فحوصات تجريبية متأخرة
-- ✅ دعم كامل للغة العربية
