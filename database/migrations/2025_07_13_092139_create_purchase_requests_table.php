@@ -24,7 +24,7 @@ return new class extends Migration
 
             // Requester Information
             $table->foreignId('requested_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('department_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedBigInteger('department_id')->nullable(); // Remove constraint temporarily
             $table->date('required_date');
             $table->text('justification')->nullable();
 

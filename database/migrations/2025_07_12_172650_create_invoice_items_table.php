@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('invoice_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->foreignId('sales_order_item_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedBigInteger('product_id'); // Remove constraint temporarily
+            $table->unsignedBigInteger('sales_order_item_id')->nullable(); // Remove constraint temporarily
             $table->string('product_name'); // Store name at time of invoice
             $table->string('product_code'); // Store code at time of invoice
             $table->string('batch_number')->nullable();

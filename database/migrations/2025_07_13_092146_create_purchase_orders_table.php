@@ -17,8 +17,8 @@ return new class extends Migration
 
             // Order Information
             $table->string('po_number')->unique();
-            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
-            $table->foreignId('purchase_request_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedBigInteger('supplier_id'); // Remove constraint temporarily
+            $table->unsignedBigInteger('purchase_request_id')->nullable(); // Remove constraint temporarily
             $table->enum('status', ['draft', 'sent', 'confirmed', 'partially_received', 'completed', 'cancelled'])->default('draft');
 
             // Dates

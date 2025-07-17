@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
             $table->string('invoice_number')->unique();
-            $table->foreignId('sales_order_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('sales_order_id')->nullable(); // Remove constraint temporarily
+            $table->unsignedBigInteger('customer_id'); // Remove constraint temporarily
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->date('invoice_date');
             $table->date('due_date');

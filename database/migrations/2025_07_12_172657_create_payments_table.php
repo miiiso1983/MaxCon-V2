@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
             $table->string('payment_number')->unique();
             $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('customer_id'); // Remove constraint temporarily
             $table->foreignId('received_by')->constrained('users')->onDelete('cascade');
             $table->date('payment_date');
             $table->decimal('amount', 15, 2);

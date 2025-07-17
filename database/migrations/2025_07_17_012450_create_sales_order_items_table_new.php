@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('sales_order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sales_order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('sales_order_id');
+            $table->unsignedBigInteger('product_id');
             $table->string('product_name'); // Store name at time of order
             $table->string('product_code'); // Store code at time of order
             $table->string('batch_number')->nullable();

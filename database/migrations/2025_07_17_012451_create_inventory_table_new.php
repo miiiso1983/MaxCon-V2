@@ -13,25 +13,26 @@ return new class extends Migration
     {
         Schema::create('inventory', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
-            $table->foreignId('warehouse_id')->constrained()->onDelete('cascade');
-            $table->foreignId('location_id')->nullable()->constrained('warehouse_locations')->onDelete('set null');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('tenant_id');
+            $table->unsignedBigInteger('warehouse_id');
+            $table->unsignedBigInteger('location_id')->nullable();
+            $table->unsignedBigInteger('product_id');
             $table->string('batch_number')->nullable();
             $table->string('serial_number')->nullable();
-            $table->date('manufacture_date')->nullable();
+            $table->integer('quantity_on_hand')->default(0);
+            $table->integer('quantity_reserved')->default(0);
+            $table->integer('quantity_available')->default(0);
+            $table->decimal('unit_cost', 15, 2)->default(0);
+            $table->decimal('total_value', 15, 2)->default(0);
+            $table->date('received_date')->nullable();
             $table->date('expiry_date')->nullable();
-            $table->decimal('quantity', 15, 3)->default(0);
-            $table->decimal('reserved_quantity', 15, 3)->default(0); // for pending orders
-            $table->decimal('available_quantity', 15, 3)->default(0); // quantity - reserved
-            $table->decimal('cost_price', 10, 2)->nullable();
-            $table->decimal('selling_price', 10, 2)->nullable();
+            $table->date('manufacture_date')->nullable();
             $table->enum('status', ['active', 'quarantine', 'damaged', 'expired', 'recalled'])->default('active');
             $table->text('notes')->nullable();
             $table->json('properties')->nullable(); // temperature, humidity logs, etc.
             $table->timestamps();
 
-            $table->unique(['warehouse_id', 'product_id', 'batch_number', 'serial_number']);
+            // Simple indexes only
             $table->index(['tenant_id', 'warehouse_id']);
             $table->index(['tenant_id', 'product_id']);
             $table->index(['tenant_id', 'expiry_date']);
