@@ -91,6 +91,109 @@ class InspectionController extends Controller
     }
 
     /**
+     * Display the specified inspection
+     */
+    public function show($id)
+    {
+        $inspection = Inspection::where('tenant_id', Auth::user()->tenant_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return view('tenant.regulatory.inspections.show', compact('inspection'));
+    }
+
+    /**
+     * Show the form for editing the specified inspection
+     */
+    public function edit($id)
+    {
+        $inspection = Inspection::where('tenant_id', Auth::user()->tenant_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return view('tenant.regulatory.inspections.edit', compact('inspection'));
+    }
+
+    /**
+     * Update the specified inspection in storage
+     */
+    public function update(Request $request, $id)
+    {
+        $inspection = Inspection::where('tenant_id', Auth::user()->tenant_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $validator = Validator::make($request->all(), [
+            'inspection_title' => 'required|string|max:255',
+            'inspection_type' => 'required|in:routine,complaint,follow_up,pre_approval,post_market',
+            'inspector_name' => 'required|string|max:255',
+            'inspection_authority' => 'required|string|max:255',
+            'scheduled_date' => 'required|date',
+            'completion_date' => 'nullable|date|after_or_equal:scheduled_date',
+            'inspection_status' => 'required|in:scheduled,in_progress,completed,cancelled,postponed',
+            'facility_name' => 'required|string|max:255',
+            'facility_address' => 'required|string',
+            'scope_of_inspection' => 'nullable|string',
+            'findings' => 'nullable|string',
+            'recommendations' => 'nullable|string',
+            'compliance_rating' => 'nullable|in:excellent,good,satisfactory,needs_improvement,non_compliant',
+            'follow_up_date' => 'nullable|date|after:today',
+            'notes' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            $inspection->update([
+                'inspection_title' => $request->inspection_title,
+                'inspection_type' => $request->inspection_type,
+                'inspector_name' => $request->inspector_name,
+                'inspection_authority' => $request->inspection_authority,
+                'scheduled_date' => $request->scheduled_date,
+                'completion_date' => $request->completion_date,
+                'inspection_status' => $request->inspection_status,
+                'facility_name' => $request->facility_name,
+                'facility_address' => $request->facility_address,
+                'scope_of_inspection' => $request->scope_of_inspection,
+                'findings' => $request->findings,
+                'recommendations' => $request->recommendations,
+                'compliance_rating' => $request->compliance_rating,
+                'follow_up_required' => $request->has('follow_up_required'),
+                'follow_up_date' => $request->follow_up_date,
+                'notes' => $request->notes
+            ]);
+
+            return redirect()->route('tenant.inventory.regulatory.inspections.index')
+                ->with('success', 'تم تحديث التفتيش بنجاح');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'حدث خطأ أثناء تحديث التفتيش: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Remove the specified inspection from storage
+     */
+    public function destroy($id)
+    {
+        $inspection = Inspection::where('tenant_id', Auth::user()->tenant_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        try {
+            $inspection->delete();
+
+            return redirect()->route('tenant.inventory.regulatory.inspections.index')
+                ->with('success', 'تم حذف التفتيش بنجاح');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'حدث خطأ أثناء حذف التفتيش: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Show import form
      */
     public function showImportForm()

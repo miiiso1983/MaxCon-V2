@@ -53,13 +53,17 @@ Route::get('laboratory-tests/download-template', [App\Http\Controllers\Tenant\Re
 // Inspections Routes
 Route::get('inspections', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'index'])->name('inspections.index');
 Route::get('inspections/create', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'create'])->name('inspections.create');
-Route::post('inspections', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'store'])->name('inspections.store');
-Route::get('inspections/import', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'showImportForm'])->name('inspections.import.form');
-Route::post('inspections/import', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'importFromExcel'])->name('inspections.import');
-Route::get('inspections/export', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'exportToExcel'])->name('inspections.export');
-Route::get('inspections/download-template', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'downloadTemplate'])->name('inspections.download-template');
 Route::get('inspections/schedule', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'showSchedule'])->name('inspections.schedule');
 Route::get('inspections/calendar', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'showCalendar'])->name('inspections.calendar');
+Route::get('inspections/import', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'showImportForm'])->name('inspections.import.form');
+Route::get('inspections/export', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'exportToExcel'])->name('inspections.export');
+Route::get('inspections/download-template', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'downloadTemplate'])->name('inspections.download-template');
+Route::post('inspections', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'store'])->name('inspections.store');
+Route::post('inspections/import', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'importFromExcel'])->name('inspections.import');
+Route::get('inspections/{inspection}', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'show'])->name('inspections.show');
+Route::get('inspections/{inspection}/edit', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'edit'])->name('inspections.edit');
+Route::put('inspections/{inspection}', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'update'])->name('inspections.update');
+Route::delete('inspections/{inspection}', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'destroy'])->name('inspections.destroy');
 
 // Certificates Routes
 Route::get('certificates', [App\Http\Controllers\Tenant\Regulatory\CertificateController::class, 'index'])->name('certificates.index');
