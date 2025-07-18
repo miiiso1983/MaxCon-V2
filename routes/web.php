@@ -526,3 +526,6 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::get('api/chart/{chartType}', [AnalyticsController::class, 'getChartData'])->name('api.chart');
     });
 });
+
+// Include customer routes
+require __DIR__.'/customer.php';
