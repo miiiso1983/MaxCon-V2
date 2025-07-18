@@ -153,7 +153,7 @@ Email: admin@maxcon.app
 Password: password
 
 Tenant Admin:
-Email: tenant@example.com
+Email: tenant@maxcon.app
 Password: password
 ```
 

@@ -3,7 +3,7 @@
 ## 🔧 المشكلة الأصلية
 ```
 404 not found
-https://phpstack-1492540-5695982.cloudwaysapps.com/tenant/system-guide/module/regulatory
+https://maxcon.app/tenant/system-guide/module/regulatory
 ```
 
 **السبب:** الوحدة `regulatory` غير معرّفة في نظام دليل النظام، مما يسبب خطأ 404 عند محاولة الوصول إليها.

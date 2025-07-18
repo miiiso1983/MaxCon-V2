@@ -256,7 +256,7 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 $user = User::create([
     'name' => 'Super Admin',
-    'email' => 'admin@maxcon.com',
+    'email' => 'admin@maxcon.app',
     'password' => bcrypt('your-secure-password'),
     'email_verified_at' => now(),
 ]);

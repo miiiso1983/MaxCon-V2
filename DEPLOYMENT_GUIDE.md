@@ -374,7 +374,7 @@ php artisan db:seed --class=RolePermissionSeeder
 
 # Create super admin (if needed)
 php artisan tinker
-# Then run: User::factory()->create(['email' => 'admin@maxcon.com', 'password' => bcrypt('your-secure-password')]);
+# Then run: User::factory()->create(['email' => 'admin@maxcon.app', 'password' => bcrypt('your-secure-password')]);
 ```
 
 ### Step 8: Domain & SSL Setup
