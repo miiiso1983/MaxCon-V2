@@ -667,13 +667,13 @@
                     </a>
                 </li>
 
-                <!-- الإعدادات -->
-                <li>
+                <!-- الإعدادات - مخفي مؤقتاً -->
+                {{-- <li>
                     <a href="{{ route('tenant.settings.index') }}">
                         <i class="fas fa-cog"></i>
                         الإعدادات
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </aside>
         
