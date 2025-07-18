@@ -13,6 +13,7 @@ use App\Models\Tenant\Regulatory\RegulatoryReport;
 use App\Models\Tenant\Regulatory\RegulatoryDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
 class RegulatoryDashboardController extends Controller
@@ -299,9 +300,19 @@ class RegulatoryDashboardController extends Controller
                                                ->count();
 
         $totalInspections = RegulatoryInspection::where('tenant_id', $tenantId)->count();
-        $passedInspections = RegulatoryInspection::where('tenant_id', $tenantId)
-                                               ->whereIn('overall_rating', ['excellent', 'good', 'satisfactory'])
-                                               ->count();
+
+        // Check if overall_rating column exists before using it
+        $passedInspections = 0;
+        try {
+            if (Schema::hasColumn('regulatory_inspections', 'overall_rating')) {
+                $passedInspections = RegulatoryInspection::where('tenant_id', $tenantId)
+                                                       ->whereIn('overall_rating', ['excellent', 'good', 'satisfactory'])
+                                                       ->count();
+            }
+        } catch (\Exception $e) {
+            // If column doesn't exist or query fails, default to 0
+            $passedInspections = 0;
+        }
 
         return [
             'company_compliance_rate' => $totalCompanies > 0 ? round(($compliantCompanies / $totalCompanies) * 100, 1) : 0,
