@@ -47,6 +47,7 @@ class Report extends Model
     const TYPE_DETAILED = 'detailed';
     const TYPE_ANALYTICAL = 'analytical';
     const TYPE_COMPARATIVE = 'comparative';
+    const TYPE_ALERT = 'alert';
 
     public function creator()
     {
@@ -107,6 +108,7 @@ class Report extends Model
             self::TYPE_DETAILED => 'تقرير مفصل',
             self::TYPE_ANALYTICAL => 'تقرير تحليلي',
             self::TYPE_COMPARATIVE => 'تقرير مقارن',
+            self::TYPE_ALERT => 'تقرير تنبيهات',
         ];
     }
 }
