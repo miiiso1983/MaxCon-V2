@@ -188,9 +188,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Tenant management
     Route::resource('tenants', TenantController::class);
-    Route::get('/tenants-maxcon', function () {
-        return view('admin.tenants.maxcon-index');
-    })->name('tenants.maxcon');
+    Route::get('/tenants-maxcon', [TenantController::class, 'maxconIndex'])->name('tenants.maxcon');
     Route::get('/tenants-test-create', function () {
         return view('admin.tenants.test-create');
     })->name('tenants.test-create');

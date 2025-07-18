@@ -3,6 +3,69 @@
 @section('page-title', 'إدارة المستأجرين')
 @section('page-description', 'إدارة شاملة لجميع المستأجرين في النظام')
 
+@push('styles')
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 100px;
+        height: 100px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 50%;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-number {
+        font-size: 36px;
+        font-weight: 800;
+        color: #2d3748;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+
+    .stat-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #4a5568;
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
@@ -57,6 +120,52 @@
     </a>
 </div>
 
+<!-- Statistics Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="fas fa-building"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-number">{{ $statistics['total'] ?? $tenants->total() }}</div>
+            <div class="stat-label">إجمالي المستأجرين</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-number">{{ $statistics['active'] ?? $tenants->where('is_active', true)->count() }}</div>
+            <div class="stat-label">المستأجرين النشطين</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);">
+            <i class="fas fa-pause-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-number">{{ $statistics['inactive'] ?? $tenants->where('is_active', false)->count() }}</div>
+            <div class="stat-label">المستأجرين المعطلين</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-number">{{ $statistics['expiring_soon'] ?? 0 }}</div>
+            <div class="stat-label">تنتهي قريباً</div>
+            <div style="font-size: 12px; color: #718096; margin-top: 5px;">
+                <span style="font-size: 14px;">خلال 30 يوم</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="content-card">
 
     <!-- Search and Filters -->
@@ -94,20 +203,21 @@
             </tr>
         </thead>
         <tbody>
+            @forelse($tenants as $tenant)
             <tr>
                 <td>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <a href="{{ route('admin.tenants.show', 1) }}"
+                        <a href="{{ route('admin.tenants.show', $tenant->id) }}"
                            style="color: #4299e1; text-decoration: none; padding: 4px;"
                            title="عرض">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a href="{{ route('admin.tenants.edit', 1) }}"
+                        <a href="{{ route('admin.tenants.edit', $tenant->id) }}"
                            style="color: #4299e1; text-decoration: none; padding: 4px;"
                            title="تعديل">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <button onclick="deleteTenant(1)"
+                        <button onclick="deleteTenant({{ $tenant->id }})"
                                 style="background: none; border: none; color: #e53e3e; cursor: pointer; padding: 4px;"
                                 title="حذف">
                             <i class="fas fa-trash"></i>
@@ -115,65 +225,54 @@
                     </div>
                 </td>
                 <td>
-                    <span class="status-badge status-active">نشط</span>
+                    <span class="status-badge {{ $tenant->is_active ? 'status-active' : 'status-inactive' }}">
+                        {{ $tenant->is_active ? 'نشط' : 'معطل' }}
+                    </span>
                 </td>
-                <td>1/10</td>
-                <td>صيدلية</td>
-                <td>2026-07-09<br><small style="color: #48bb78;">يوم متبقي 361 4793878903</small></td>
+                <td>{{ $tenant->users_count ?? $tenant->users()->count() }}/{{ $tenant->max_users ?? 10 }}</td>
+                <td>{{ $tenant->business_type ?? 'صيدلية' }}</td>
+                <td>
+                    {{ $tenant->trial_ends_at ? $tenant->trial_ends_at->format('Y-m-d') : 'غير محدد' }}<br>
+                    @if($tenant->trial_ends_at)
+                        <small style="color: {{ $tenant->trial_ends_at->isFuture() ? '#48bb78' : '#e53e3e' }};">
+                            @if($tenant->trial_ends_at->isFuture())
+                                {{ $tenant->trial_ends_at->diffInDays(now()) }} يوم متبقي
+                            @else
+                                منتهي الصلاحية
+                            @endif
+                        </small>
+                    @endif
+                </td>
                 <td>
                     <div>
-                        <strong>mustafa</strong><br>
-                        <small style="color: #718096;">أربيل أربيل</small>
+                        <strong>{{ $tenant->name }}</strong><br>
+                        <small style="color: #718096;">{{ $tenant->city ?? 'غير محدد' }}, {{ $tenant->country ?? 'العراق' }}</small>
                     </div>
                 </td>
                 <td>
                     <div>
-                        <strong>Mustafa</strong><br>
-                        <small style="color: #718096;">x@s.com</small>
+                        <strong>{{ $tenant->admin_name ?? $tenant->name }}</strong><br>
+                        <small style="color: #718096;">{{ $tenant->admin_email ?? $tenant->email ?? 'غير محدد' }}</small>
                     </div>
                 </td>
             </tr>
+            @empty
             <tr>
-                <td>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <a href="{{ route('admin.tenants.show', 2) }}"
-                           style="color: #4299e1; text-decoration: none; padding: 4px;"
-                           title="عرض">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{{ route('admin.tenants.edit', 2) }}"
-                           style="color: #4299e1; text-decoration: none; padding: 4px;"
-                           title="تعديل">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <button onclick="deleteTenant(2)"
-                                style="background: none; border: none; color: #e53e3e; cursor: pointer; padding: 4px;"
-                                title="حذف">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-                <td>
-                    <span class="status-badge status-inactive">معطل</span>
-                </td>
-                <td>0/10</td>
-                <td>صيدلية</td>
-                <td>2026-07-09<br><small style="color: #48bb78;">يوم متبقي 361 61956146897</small></td>
-                <td>
-                    <div>
-                        <strong>test</strong><br>
-                        <small style="color: #718096;">Baghdad, Baghdad</small>
-                    </div>
-                </td>
-                <td>
-                    <div>
-                        <strong>Test Pharmacy</strong><br>
-                        <small style="color: #718096;">test@pharmacy.com</small>
-                    </div>
+                <td colspan="7" style="text-align: center; padding: 40px; color: #718096;">
+                    <i class="fas fa-building" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i><br>
+                    لا توجد مستأجرين مسجلين حالياً
                 </td>
             </tr>
+            @endforelse
         </tbody>
     </table>
+
+    <!-- Pagination -->
+    @if($tenants->hasPages())
+    <div style="margin-top: 30px; display: flex; justify-content: center;">
+        {{ $tenants->links() }}
+    </div>
+    @endif
 </div>
 
 <!-- Statistics Cards -->

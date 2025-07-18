@@ -41,6 +41,28 @@ class TenantController extends Controller
     }
 
     /**
+     * Display MaxCon style tenants listing
+     */
+    public function maxconIndex(Request $request): View
+    {
+        $search = $request->get('search');
+        $status = $request->get('status');
+        $type = $request->get('type');
+
+        // Get tenants with filters
+        $tenants = $this->tenantService->getAllTenants(50); // Get more tenants for the listing
+
+        // Apply filters if provided
+        if ($search) {
+            $tenants = $this->tenantService->searchTenants($search, 50);
+        }
+
+        $statistics = $this->tenantService->getTenantStatistics();
+
+        return view('admin.tenants.maxcon-index', compact('tenants', 'statistics', 'search', 'status', 'type'));
+    }
+
+    /**
      * Show the form for creating a new tenant
      */
     public function create(): View
