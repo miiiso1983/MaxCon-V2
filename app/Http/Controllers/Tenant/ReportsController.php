@@ -80,6 +80,9 @@ class ReportsController extends Controller
      */
     public function generate(Request $request, string $reportType)
     {
+        // Decode URL-encoded Arabic text
+        $reportType = urldecode($reportType);
+
         // If GET request, show the report parameters form
         if ($request->isMethod('GET')) {
             return $this->showReportForm($reportType);
@@ -97,7 +100,20 @@ class ReportsController extends Controller
 
         foreach ($predefinedReports as $category => $reports) {
             foreach ($reports as $config) {
-                if (str_replace(' ', '_', strtolower($config['name'])) === $reportType) {
+                // Check multiple variations of the report name
+                $reportName = $config['name'];
+
+                // Create different variations to match
+                $variations = [
+                    $reportName, // Original name: "تقرير العملاء الأكثر شراءً"
+                    str_replace('تقرير ', '', $reportName), // Without "تقرير ": "العملاء الأكثر شراءً"
+                    str_replace(' ', '_', $reportName), // With underscores: "تقرير_العملاء_الأكثر_شراءً"
+                    str_replace(' ', '_', str_replace('تقرير ', '', $reportName)), // Without "تقرير " and with underscores: "العملاء_الأكثر_شراءً"
+                    str_replace(' ', '_', strtolower($reportName)), // Lowercase with underscores
+                    strtolower($reportName), // Just lowercase
+                ];
+
+                if (in_array($reportType, $variations)) {
                     $reportConfig = $config;
                     break 2;
                 }
@@ -108,10 +124,10 @@ class ReportsController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'تقرير غير موجود'
+                    'error' => 'تقرير غير موجود: ' . $reportType
                 ], 404);
             }
-            abort(404, 'تقرير غير موجود');
+            abort(404, 'تقرير غير موجود: ' . $reportType);
         }
 
         // Create temporary report instance
@@ -162,7 +178,20 @@ class ReportsController extends Controller
 
         foreach ($predefinedReports as $category => $reports) {
             foreach ($reports as $config) {
-                if (str_replace(' ', '_', strtolower($config['name'])) === $reportType) {
+                // Check multiple variations of the report name
+                $reportName = $config['name'];
+
+                // Create different variations to match
+                $variations = [
+                    $reportName, // Original name: "تقرير العملاء الأكثر شراءً"
+                    str_replace('تقرير ', '', $reportName), // Without "تقرير ": "العملاء الأكثر شراءً"
+                    str_replace(' ', '_', $reportName), // With underscores: "تقرير_العملاء_الأكثر_شراءً"
+                    str_replace(' ', '_', str_replace('تقرير ', '', $reportName)), // Without "تقرير " and with underscores: "العملاء_الأكثر_شراءً"
+                    str_replace(' ', '_', strtolower($reportName)), // Lowercase with underscores
+                    strtolower($reportName), // Just lowercase
+                ];
+
+                if (in_array($reportType, $variations)) {
                     $reportConfig = $config;
                     break 2;
                 }
@@ -170,7 +199,7 @@ class ReportsController extends Controller
         }
 
         if (!$reportConfig) {
-            abort(404, 'تقرير غير موجود');
+            abort(404, 'تقرير غير موجود: ' . $reportType);
         }
 
         return view('tenant.reports.form', [
