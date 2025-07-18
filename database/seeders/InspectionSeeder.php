@@ -23,14 +23,14 @@ class InspectionSeeder extends Seeder
 
         $this->command->info("Creating inspections for tenant: {$tenant->name}");
 
-        // Create sample inspections
+        // Create sample inspections (including overdue ones)
         $inspections = [
             [
                 'inspection_title' => 'تفتيش دوري للجودة - مصنع الأدوية المتقدمة',
                 'inspection_type' => 'routine',
                 'inspector_name' => 'د. أحمد محمد علي',
                 'inspection_authority' => 'وزارة الصحة العراقية',
-                'scheduled_date' => Carbon::now()->addDays(7),
+                'scheduled_date' => Carbon::now()->subDays(45), // 45 days overdue
                 'completion_date' => null,
                 'inspection_status' => 'scheduled',
                 'facility_name' => 'مصنع الأدوية المتقدمة',
@@ -120,9 +120,9 @@ class InspectionSeeder extends Seeder
                 'inspection_type' => 'complaint',
                 'inspector_name' => 'م. زينب علي الحسني',
                 'inspection_authority' => 'وزارة الصحة العراقية',
-                'scheduled_date' => Carbon::now()->subDays(2),
+                'scheduled_date' => Carbon::now()->subDays(20), // 20 days overdue
                 'completion_date' => null,
-                'inspection_status' => 'postponed',
+                'inspection_status' => 'scheduled',
                 'facility_name' => 'مصنع التعبئة والتغليف الدوائي',
                 'facility_address' => 'النجف - المنطقة الصناعية - شارع الصناعات الطبية',
                 'scope_of_inspection' => 'فحص عاجل لخط التعبئة بعد تقارير عن مشاكل في الختم',
@@ -131,7 +131,43 @@ class InspectionSeeder extends Seeder
                 'compliance_rating' => null,
                 'follow_up_required' => false,
                 'follow_up_date' => null,
-                'notes' => 'تم تأجيل التفتيش بناءً على طلب المصنع لإجراء صيانة طارئة'
+                'notes' => 'تفتيش عاجل متأخر - يحتاج إجراء فوري'
+            ],
+            [
+                'inspection_title' => 'تفتيش GMP - مختبر التحليل الكيميائي',
+                'inspection_type' => 'routine',
+                'inspector_name' => 'د. سعد الدين محمود',
+                'inspection_authority' => 'هيئة الدواء والرقابة الصحية',
+                'scheduled_date' => Carbon::now()->subDays(10), // 10 days overdue
+                'completion_date' => null,
+                'inspection_status' => 'scheduled',
+                'facility_name' => 'مختبر التحليل الكيميائي المتقدم',
+                'facility_address' => 'بغداد - الجادرية - مجمع المختبرات الطبية',
+                'scope_of_inspection' => 'فحص معايير GMP للمختبر وأجهزة التحليل',
+                'findings' => null,
+                'recommendations' => null,
+                'compliance_rating' => null,
+                'follow_up_required' => false,
+                'follow_up_date' => null,
+                'notes' => 'تفتيش GMP دوري متأخر'
+            ],
+            [
+                'inspection_title' => 'تفتيش متابعة - مستودع الأدوية المبردة',
+                'inspection_type' => 'follow_up',
+                'inspector_name' => 'م. ليلى أحمد الكاظمي',
+                'inspection_authority' => 'وزارة الصحة العراقية',
+                'scheduled_date' => Carbon::now()->subDays(35), // 35 days overdue
+                'completion_date' => null,
+                'inspection_status' => 'scheduled',
+                'facility_name' => 'مستودع الأدوية المبردة المركزي',
+                'facility_address' => 'البصرة - المنطقة الصناعية - مجمع التبريد',
+                'scope_of_inspection' => 'متابعة تنفيذ التوصيات من التفتيش السابق',
+                'findings' => null,
+                'recommendations' => null,
+                'compliance_rating' => null,
+                'follow_up_required' => true,
+                'follow_up_date' => Carbon::now()->addDays(7),
+                'notes' => 'تفتيش متابعة متأخر - أولوية عالية'
             ]
         ];
 
@@ -142,10 +178,12 @@ class InspectionSeeder extends Seeder
         }
 
         $this->command->info('Inspections created successfully!');
-        $this->command->info('Created 6 sample inspections:');
-        $this->command->info('- 2 Scheduled inspections');
+        $this->command->info('Created 9 sample inspections:');
+        $this->command->info('- 5 Scheduled inspections (4 overdue)');
         $this->command->info('- 2 Completed inspections');
         $this->command->info('- 1 In progress inspection');
         $this->command->info('- 1 Postponed inspection');
+        $this->command->info('- 4 Overdue inspections (45, 35, 20, 10 days)');
+        $this->command->info('- Average overdue: 27.5 days');
     }
 }

@@ -53,6 +53,7 @@ Route::get('laboratory-tests/download-template', [App\Http\Controllers\Tenant\Re
 // Inspections Routes
 Route::get('inspections', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'index'])->name('inspections.index');
 Route::get('inspections/create', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'create'])->name('inspections.create');
+Route::get('inspections/overdue', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'overdue'])->name('inspections.overdue');
 Route::get('inspections/schedule', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'showSchedule'])->name('inspections.schedule');
 Route::get('inspections/calendar', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'showCalendar'])->name('inspections.calendar');
 Route::get('inspections/import', [App\Http\Controllers\Tenant\Regulatory\InspectionController::class, 'showImportForm'])->name('inspections.import.form');

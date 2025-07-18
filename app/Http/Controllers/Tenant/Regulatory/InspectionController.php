@@ -91,6 +91,19 @@ class InspectionController extends Controller
     }
 
     /**
+     * Display overdue inspections
+     */
+    public function overdue()
+    {
+        $inspections = Inspection::where('tenant_id', Auth::user()->tenant_id)
+            ->overdue()
+            ->orderBy('scheduled_date', 'asc')
+            ->get();
+
+        return view('tenant.regulatory.inspections.overdue', compact('inspections'));
+    }
+
+    /**
      * Display the specified inspection
      */
     public function show($id)
