@@ -74,6 +74,21 @@
             font-weight: 700;
             color: white;
         }
+
+        .logo-container {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 15px !important;
+        }
+
+        .logo-container img {
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .logo-container img:hover {
+            transform: scale(1.05);
+        }
         
         .sidebar-menu {
             list-style: none;
@@ -377,7 +392,11 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2><i class="fas fa-chart-line"></i> MaxCon ERP</h2>
+                <!-- MaxCon Logo -->
+                <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
+                    <img src="{{ asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" style="width: 120px; height: 120px; margin: 0 auto; display: block;">
+                </div>
+                <h2 style="text-align: center; margin-top: 10px;"><i class="fas fa-chart-line"></i> MaxCon ERP</h2>
             </div>
             
             <ul class="sidebar-menu">
