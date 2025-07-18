@@ -587,7 +587,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- كيفية استخدام النظام -->
                 <li class="menu-section">
@@ -692,10 +692,13 @@
                     <div class="user-avatar">
                         {{ substr(auth()->user()->name ?? 'M', 0, 1) }}
                     </div>
-                    <a href="{{ route('logout.confirm') }}" class="btn btn-danger" style="padding: 8px 15px; font-size: 14px;">
-                        <i class="fas fa-sign-out-alt"></i>
-                        خروج
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-danger" style="padding: 8px 15px; font-size: 14px; border: none; cursor: pointer;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            خروج
+                        </button>
+                    </form>
                 </div>
             </nav>
             
