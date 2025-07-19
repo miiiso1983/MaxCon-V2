@@ -28,6 +28,7 @@ class CostCenter extends Model
         'budget_amount',
         'actual_amount',
         'variance_amount',
+        'currency_code',
         'notes',
         'sort_order',
         'created_by'

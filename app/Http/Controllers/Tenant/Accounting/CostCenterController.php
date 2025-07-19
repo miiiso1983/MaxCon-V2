@@ -32,7 +32,7 @@ class CostCenterController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = $request->get('search');
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('code', 'like', "%{$search}%")
@@ -114,14 +114,12 @@ class CostCenterController extends Controller
         try {
             CostCenter::create([
                 'tenant_id' => $tenantId,
-                'name' => $request->name,
-                'name_en' => $request->name_en,
-                'description' => $request->description,
-                'parent_cost_center_id' => $request->parent_cost_center_id,
-                'manager_name' => $request->manager_name,
-                'manager_email' => $request->manager_email,
-                'budget_amount' => $request->budget_amount ?? 0,
-                'currency_code' => $request->currency_code,
+                'name' => $request->get('name'),
+                'name_en' => $request->get('name_en'),
+                'description' => $request->get('description'),
+                'parent_id' => $request->get('parent_cost_center_id'),
+                'budget_amount' => $request->get('budget_amount', 0),
+                'currency_code' => $request->get('currency_code', 'IQD'),
                 'is_active' => $request->boolean('is_active', true),
                 'created_by' => $user->id
             ]);
@@ -224,16 +222,13 @@ class CostCenterController extends Controller
 
         try {
             $costCenter->update([
-                'name' => $request->name,
-                'name_en' => $request->name_en,
-                'description' => $request->description,
-                'parent_cost_center_id' => $request->parent_cost_center_id,
-                'manager_name' => $request->manager_name,
-                'manager_email' => $request->manager_email,
-                'budget_amount' => $request->budget_amount ?? 0,
-                'currency_code' => $request->currency_code,
-                'is_active' => $request->boolean('is_active', true),
-                'updated_by' => $user->id
+                'name' => $request->get('name'),
+                'name_en' => $request->get('name_en'),
+                'description' => $request->get('description'),
+                'parent_id' => $request->get('parent_cost_center_id'),
+                'budget_amount' => $request->get('budget_amount', 0),
+                'currency_code' => $request->get('currency_code', 'IQD'),
+                'is_active' => $request->boolean('is_active', true)
             ]);
 
             return redirect()->route('tenant.accounting.cost-centers.index')
@@ -338,8 +333,8 @@ class CostCenterController extends Controller
             abort(403);
         }
 
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
 
         $actualAmount = $costCenter->calculateActualAmount($startDate, $endDate);
         $budgetAmount = $costCenter->budget_amount;
@@ -351,10 +346,10 @@ class CostCenterController extends Controller
             'actual_amount' => $actualAmount,
             'variance' => $variance,
             'variance_percentage' => $variancePercentage,
-            'formatted_budget' => number_format($budgetAmount, 2),
-            'formatted_actual' => number_format($actualAmount, 2),
-            'formatted_variance' => number_format($variance, 2),
-            'currency' => $costCenter->currency_code
+            'formatted_budget' => number_format((float)$budgetAmount, 2),
+            'formatted_actual' => number_format((float)$actualAmount, 2),
+            'formatted_variance' => number_format((float)$variance, 2),
+            'currency' => $costCenter->currency_code ?? 'IQD'
         ]);
     }
 }
