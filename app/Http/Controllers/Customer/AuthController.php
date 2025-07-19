@@ -103,13 +103,13 @@ class AuthController extends Controller
         ]);
 
         $customer = Customer::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'company_name' => $request->company_name,
-            'address' => $request->address,
-            'city' => $request->city,
+            'name' => $request->get('name'),
+            'email' => $request->get('email'),
+            'phone' => $request->get('phone'),
+            'password' => Hash::make($request->get('password')),
+            'company_name' => $request->get('company_name'),
+            'address' => $request->get('address'),
+            'city' => $request->get('city'),
             'tenant_id' => 1, // Default tenant or get from subdomain
             'is_active' => false, // Requires admin approval
             'currency' => 'IQD',

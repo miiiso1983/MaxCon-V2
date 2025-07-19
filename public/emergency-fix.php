@@ -12,9 +12,6 @@ if (!isset($_GET['fix']) || $_GET['fix'] !== 'database') {
 echo "<h1>🔧 Emergency Database Fix</h1>";
 echo "<pre>";
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-
 try {
     // Load Laravel
     require_once '../vendor/autoload.php';
@@ -23,13 +20,13 @@ try {
     $kernel->bootstrap();
 
     echo "✅ Laravel loaded successfully\n";
-    
+
     // Test database connection
-    $pdo = DB::connection()->getPdo();
+    $pdo = \Illuminate\Support\Facades\DB::connection()->getPdo();
     echo "✅ Database connected: " . $pdo->getAttribute(PDO::ATTR_SERVER_VERSION) . "\n";
     
     // Check if purchase_requests table exists
-    $tableExists = DB::select("SHOW TABLES LIKE 'purchase_requests'");
+    $tableExists = \Illuminate\Support\Facades\DB::select("SHOW TABLES LIKE 'purchase_requests'");
     
     if (empty($tableExists)) {
         echo "❌ Table 'purchase_requests' does not exist. Creating...\n";
@@ -72,23 +69,23 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ";
         
-        DB::statement($sql);
+        \Illuminate\Support\Facades\DB::statement($sql);
         echo "✅ Table 'purchase_requests' created successfully\n";
-        
+
         // Add foreign key constraints (if tables exist)
         try {
-            $tenantExists = DB::select("SHOW TABLES LIKE 'tenants'");
-            $usersExists = DB::select("SHOW TABLES LIKE 'users'");
-            
+            $tenantExists = \Illuminate\Support\Facades\DB::select("SHOW TABLES LIKE 'tenants'");
+            $usersExists = \Illuminate\Support\Facades\DB::select("SHOW TABLES LIKE 'users'");
+
             if (!empty($tenantExists)) {
-                DB::statement("ALTER TABLE `purchase_requests` ADD CONSTRAINT `purchase_requests_tenant_id_foreign` FOREIGN KEY (`tenant_id`) REFERENCES `tenants` (`id`) ON DELETE CASCADE");
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE `purchase_requests` ADD CONSTRAINT `purchase_requests_tenant_id_foreign` FOREIGN KEY (`tenant_id`) REFERENCES `tenants` (`id`) ON DELETE CASCADE");
                 echo "✅ Added foreign key constraint for tenant_id\n";
             }
-            
+
             if (!empty($usersExists)) {
-                DB::statement("ALTER TABLE `purchase_requests` ADD CONSTRAINT `purchase_requests_requested_by_foreign` FOREIGN KEY (`requested_by`) REFERENCES `users` (`id`) ON DELETE CASCADE");
-                DB::statement("ALTER TABLE `purchase_requests` ADD CONSTRAINT `purchase_requests_approved_by_foreign` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL");
-                DB::statement("ALTER TABLE `purchase_requests` ADD CONSTRAINT `purchase_requests_rejected_by_foreign` FOREIGN KEY (`rejected_by`) REFERENCES `users` (`id`) ON DELETE SET NULL");
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE `purchase_requests` ADD CONSTRAINT `purchase_requests_requested_by_foreign` FOREIGN KEY (`requested_by`) REFERENCES `users` (`id`) ON DELETE CASCADE");
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE `purchase_requests` ADD CONSTRAINT `purchase_requests_approved_by_foreign` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL");
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE `purchase_requests` ADD CONSTRAINT `purchase_requests_rejected_by_foreign` FOREIGN KEY (`rejected_by`) REFERENCES `users` (`id`) ON DELETE SET NULL");
                 echo "✅ Added foreign key constraints for user references\n";
             }
         } catch (Exception $e) {
@@ -100,7 +97,7 @@ try {
     }
     
     // Create purchase_request_items table
-    $itemsTableExists = DB::select("SHOW TABLES LIKE 'purchase_request_items'");
+    $itemsTableExists = \Illuminate\Support\Facades\DB::select("SHOW TABLES LIKE 'purchase_request_items'");
     
     if (empty($itemsTableExists)) {
         echo "❌ Table 'purchase_request_items' does not exist. Creating...\n";
@@ -132,12 +129,12 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ";
         
-        DB::statement($sql);
+        \Illuminate\Support\Facades\DB::statement($sql);
         echo "✅ Table 'purchase_request_items' created successfully\n";
-        
+
         // Add foreign key constraint
         try {
-            DB::statement("ALTER TABLE `purchase_request_items` ADD CONSTRAINT `purchase_request_items_purchase_request_id_foreign` FOREIGN KEY (`purchase_request_id`) REFERENCES `purchase_requests` (`id`) ON DELETE CASCADE");
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE `purchase_request_items` ADD CONSTRAINT `purchase_request_items_purchase_request_id_foreign` FOREIGN KEY (`purchase_request_id`) REFERENCES `purchase_requests` (`id`) ON DELETE CASCADE");
             echo "✅ Added foreign key constraint for purchase_request_items\n";
         } catch (Exception $e) {
             echo "⚠️  Warning: Could not add foreign key constraint: " . $e->getMessage() . "\n";
@@ -148,10 +145,10 @@ try {
     
     // Check if is_active column exists in tenants table
     try {
-        $columns = DB::select("SHOW COLUMNS FROM tenants LIKE 'is_active'");
+        $columns = \Illuminate\Support\Facades\DB::select("SHOW COLUMNS FROM tenants LIKE 'is_active'");
         if (empty($columns)) {
             echo "❌ Column 'is_active' missing from tenants table. Adding...\n";
-            DB::statement("ALTER TABLE `tenants` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `status`");
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE `tenants` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `status`");
             echo "✅ Column 'is_active' added to tenants table\n";
         } else {
             echo "✅ Column 'is_active' already exists in tenants table\n";
@@ -162,13 +159,13 @@ try {
     
     // Test the fix
     echo "\n🧪 Testing the fix...\n";
-    $count = DB::table('purchase_requests')->count();
+    $count = \Illuminate\Support\Facades\DB::table('purchase_requests')->count();
     echo "✅ purchase_requests table test successful: {$count} records\n";
-    
+
     // Show all tables
     echo "\n📋 Current tables:\n";
-    $tables = DB::select("SHOW TABLES");
-    $tableColumn = 'Tables_in_' . DB::getDatabaseName();
+    $tables = \Illuminate\Support\Facades\DB::select("SHOW TABLES");
+    $tableColumn = 'Tables_in_' . \Illuminate\Support\Facades\DB::getDatabaseName();
     foreach ($tables as $table) {
         if (strpos($table->$tableColumn, 'purchase') !== false || 
             strpos($table->$tableColumn, 'tenant') !== false ||

@@ -14,10 +14,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:customer');
-    }
+    // Middleware is handled in routes
 
     /**
      * Display customer dashboard
