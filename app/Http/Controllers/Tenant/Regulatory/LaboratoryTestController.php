@@ -64,22 +64,22 @@ class LaboratoryTestController extends Controller
             LaboratoryTest::create([
                 'id' => Str::uuid(),
                 'tenant_id' => Auth::user()->tenant_id,
-                'test_name' => $request->test_name,
-                'test_type' => $request->test_type,
-                'product_name' => $request->product_name,
-                'batch_number' => $request->batch_number,
-                'laboratory_name' => $request->laboratory_name,
-                'test_date' => $request->test_date,
-                'completion_date' => $request->completion_date,
-                'test_status' => $request->test_status,
-                'test_method' => $request->test_method,
-                'specifications' => $request->specifications,
-                'results' => $request->results,
-                'conclusion' => $request->conclusion,
-                'technician_name' => $request->technician_name,
-                'supervisor_name' => $request->supervisor_name,
-                'cost' => $request->cost,
-                'notes' => $request->notes
+                'test_name' => $request->get('test_name'),
+                'test_type' => $request->get('test_type'),
+                'product_name' => $request->get('product_name'),
+                'batch_number' => $request->get('batch_number'),
+                'laboratory_name' => $request->get('laboratory_name'),
+                'test_date' => $request->get('test_date'),
+                'completion_date' => $request->get('completion_date'),
+                'test_status' => $request->get('test_status'),
+                'test_method' => $request->get('test_method'),
+                'specifications' => $request->get('specifications'),
+                'results' => $request->get('results'),
+                'conclusion' => $request->get('conclusion'),
+                'technician_name' => $request->get('technician_name'),
+                'supervisor_name' => $request->get('supervisor_name'),
+                'cost' => $request->get('cost'),
+                'notes' => $request->get('notes')
             ]);
 
             return redirect()->route('tenant.inventory.regulatory.laboratory-tests.index')

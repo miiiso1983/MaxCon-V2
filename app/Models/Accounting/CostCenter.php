@@ -60,7 +60,7 @@ class CostCenter extends Model
     /**
      * All descendants (recursive)
      */
-    public function descendants(): HasMany
+    public function descendants()
     {
         return $this->childCostCenters()->with('descendants');
     }
@@ -68,7 +68,7 @@ class CostCenter extends Model
     /**
      * Accounts relationship (with fallback for missing column)
      */
-    public function accounts(): HasMany
+    public function accounts()
     {
         try {
             // Check if cost_center_id column exists
@@ -79,11 +79,11 @@ class CostCenter extends Model
                 return $this->hasMany(ChartOfAccount::class, 'cost_center_id');
             } else {
                 // Return empty relationship if column doesn't exist
-                return $this->hasMany(ChartOfAccount::class, 'id')->whereRaw('1 = 0');
+                return $this->newQuery()->whereRaw('1 = 0');
             }
         } catch (\Exception $e) {
             // Fallback: return empty relationship
-            return $this->hasMany(ChartOfAccount::class, 'id')->whereRaw('1 = 0');
+            return $this->newQuery()->whereRaw('1 = 0');
         }
     }
 

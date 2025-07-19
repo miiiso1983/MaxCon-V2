@@ -12,15 +12,15 @@ if (!isset($_GET['fix']) || $_GET['fix'] !== 'database') {
 echo "<h1>🔧 Emergency Database Fix</h1>";
 echo "<pre>";
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
 try {
     // Load Laravel
     require_once '../vendor/autoload.php';
     $app = require_once '../bootstrap/app.php';
     $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
     $kernel->bootstrap();
-
-    use Illuminate\Support\Facades\DB;
-    use Illuminate\Support\Facades\Schema;
 
     echo "✅ Laravel loaded successfully\n";
     

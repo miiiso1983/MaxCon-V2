@@ -29,8 +29,8 @@ class Project extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
         'budget_amount' => 'decimal:2',
         'actual_amount' => 'decimal:2',
         'is_active' => 'boolean',
@@ -59,9 +59,9 @@ class Project extends Model
         return $this->hasMany(\App\Models\Accounting\ChartOfAccount::class);
     }
 
-    public function journalEntryLines(): HasMany
+    public function journalEntryDetails(): HasMany
     {
-        return $this->hasMany(\App\Models\Accounting\JournalEntryLine::class);
+        return $this->hasMany(\App\Models\Accounting\JournalEntryDetail::class);
     }
 
     // Scopes
@@ -91,7 +91,7 @@ class Project extends Model
             self::STATUS_CANCELLED => 'ملغي',
         ];
 
-        return $statuses[$this->status] ?? $this->status;
+        return $statuses[$this->getAttribute('status')] ?? $this->getAttribute('status');
     }
 
     public function getStatusColor()
@@ -104,7 +104,7 @@ class Project extends Model
             self::STATUS_CANCELLED => 'danger',
         ];
 
-        return $colors[$this->status] ?? 'secondary';
+        return $colors[$this->getAttribute('status')] ?? 'secondary';
     }
 
     public function getBudgetVariance()

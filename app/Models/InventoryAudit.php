@@ -77,7 +77,7 @@ class InventoryAudit extends Model
             'spot' => 'جرد فوري',
         ];
 
-        return $types[$this->audit_type] ?? $this->audit_type;
+        return $types[$this->getAttribute('audit_type')] ?? $this->getAttribute('audit_type');
     }
 
     public function getStatusLabel()
@@ -89,7 +89,7 @@ class InventoryAudit extends Model
             'cancelled' => 'ملغي',
         ];
 
-        return $statuses[$this->status] ?? $this->status;
+        return $statuses[$this->getAttribute('status')] ?? $this->getAttribute('status');
     }
 
     public function getStatusColor()
@@ -101,7 +101,7 @@ class InventoryAudit extends Model
             'cancelled' => 'danger',
         ];
 
-        return $colors[$this->status] ?? 'secondary';
+        return $colors[$this->getAttribute('status')] ?? 'secondary';
     }
 
     public function getTotalItems()
