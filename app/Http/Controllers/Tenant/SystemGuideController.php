@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Mpdf\Mpdf;
 
 /**
  * System Guide Controller
@@ -747,7 +748,7 @@ class SystemGuideController extends Controller
     }
 
     /**
-     * Generate user manual PDF
+     * Generate user manual PDF using mPDF (better Arabic support)
      */
     private function generateUserManualPDF()
     {
@@ -757,25 +758,177 @@ class SystemGuideController extends Controller
         $faqs = $this->getFAQs();
 
         // Create PDF content
+        $html = view('tenant.system-guide.pdf.user-manual-mpdf', compact(
+            'modules', 'systemFeatures', 'userTypes', 'faqs'
+        ))->render();
+
+        try {
+            // Initialize mPDF with Arabic support
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'orientation' => 'P',
+                'margin_left' => 15,
+                'margin_right' => 15,
+                'margin_top' => 16,
+                'margin_bottom' => 16,
+                'margin_header' => 9,
+                'margin_footer' => 9,
+                'default_font_size' => 12,
+                'default_font' => 'dejavusans',
+                'dir' => 'rtl',
+                'autoScriptToLang' => true,
+                'autoLangToFont' => true,
+                'fontDir' => [
+                    storage_path('fonts/'),
+                    public_path('fonts/'),
+                ],
+                'fontdata' => [
+                    'amiri' => [
+                        'R' => 'Amiri-Regular.ttf',
+                        'B' => 'Amiri-Bold.ttf',
+                        'useOTL' => 0xFF,
+                        'useKashida' => 75,
+                    ],
+                    'noto' => [
+                        'R' => 'NotoSansArabic-Regular.ttf',
+                        'B' => 'NotoSansArabic-Bold.ttf',
+                        'useOTL' => 0xFF,
+                        'useKashida' => 75,
+                    ],
+                ],
+            ]);
+
+            // Set document properties
+            $mpdf->SetTitle('دليل المستخدم - MaxCon ERP');
+            $mpdf->SetAuthor('MaxCon ERP System');
+            $mpdf->SetSubject('دليل استخدام نظام MaxCon ERP');
+            $mpdf->SetKeywords('MaxCon, ERP, دليل المستخدم, نظام إدارة');
+
+            // Write HTML content
+            $mpdf->WriteHTML($html);
+
+            $filename = 'دليل_المستخدم_MaxCon_' . date('Y-m-d') . '.pdf';
+            $path = storage_path("app/public/manuals/{$filename}");
+
+            // Ensure directory exists
+            if (!file_exists(dirname($path))) {
+                mkdir(dirname($path), 0755, true);
+            }
+
+            // Save PDF
+            $mpdf->Output($path, 'F');
+
+            return $path;
+
+        } catch (\Exception $e) {
+            // Fallback to DomPDF if mPDF fails
+            return $this->generateUserManualPDFWithDomPDF($modules, $systemFeatures, $userTypes, $faqs);
+        }
+    }
+
+    /**
+     * Fallback PDF generation using DomPDF
+     */
+    private function generateUserManualPDFWithDomPDF($modules, $systemFeatures, $userTypes, $faqs)
+    {
         $html = view('tenant.system-guide.pdf.user-manual', compact(
             'modules', 'systemFeatures', 'userTypes', 'faqs'
         ))->render();
 
-        // Generate PDF using DomPDF or similar
         $pdf = app('dompdf.wrapper');
         $pdf->loadHTML($html);
         $pdf->setPaper('A4', 'portrait');
 
         $filename = 'دليل_المستخدم_MaxCon_' . date('Y-m-d') . '.pdf';
-        $path = storage_path('app/public/manuals/' . $filename);
+        $path = storage_path("app/public/manuals/{$filename}");
 
-        // Ensure directory exists
         if (!file_exists(dirname($path))) {
             mkdir(dirname($path), 0755, true);
         }
 
         $pdf->save($path);
+        return $path;
+    }
 
+    /**
+     * Generate module guide PDF using mPDF (better Arabic support)
+     */
+    private function generateModuleGuidePDF($moduleSlug)
+    {
+        $modules = $this->getSystemModules();
+        $module = $modules[$moduleSlug] ?? null;
+
+        if (!$module) {
+            throw new \Exception('Module not found');
+        }
+
+        // Create PDF content
+        $html = view('tenant.system-guide.pdf.module-guide-mpdf', compact('module', 'moduleSlug'))->render();
+
+        try {
+            // Initialize mPDF with Arabic support
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'orientation' => 'P',
+                'margin_left' => 15,
+                'margin_right' => 15,
+                'margin_top' => 16,
+                'margin_bottom' => 16,
+                'default_font_size' => 12,
+                'default_font' => 'dejavusans',
+                'dir' => 'rtl',
+                'autoScriptToLang' => true,
+                'autoLangToFont' => true,
+            ]);
+
+            // Set document properties
+            $mpdf->SetTitle('دليل وحدة ' . $module['name'] . ' - MaxCon ERP');
+            $mpdf->SetAuthor('MaxCon ERP System');
+            $mpdf->SetSubject('دليل استخدام وحدة ' . $module['name']);
+
+            // Write HTML content
+            $mpdf->WriteHTML($html);
+
+            $filename = 'دليل_وحدة_' . $module['name'] . '_' . date('Y-m-d') . '.pdf';
+            $path = storage_path("app/public/manuals/{$filename}");
+
+            // Ensure directory exists
+            if (!file_exists(dirname($path))) {
+                mkdir(dirname($path), 0755, true);
+            }
+
+            // Save PDF
+            $mpdf->Output($path, 'F');
+
+            return $path;
+
+        } catch (\Exception $e) {
+            // Fallback to DomPDF if mPDF fails
+            return $this->generateModuleGuidePDFWithDomPDF($module, $moduleSlug);
+        }
+    }
+
+    /**
+     * Fallback module PDF generation using DomPDF
+     */
+    private function generateModuleGuidePDFWithDomPDF($module, $moduleSlug)
+    {
+        $html = view('tenant.system-guide.pdf.module-guide', compact('module', 'moduleSlug'))->render();
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadHTML($html);
+        $pdf->setPaper('A4', 'portrait');
+
+        $filename = 'دليل_وحدة_' . $module['name'] . '_' . date('Y-m-d') . '.pdf';
+        $path = storage_path("app/public/manuals/{$filename}");
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+
+        $pdf->save($path);
         return $path;
     }
 
