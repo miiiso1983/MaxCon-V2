@@ -160,12 +160,6 @@ php artisan serve
    - تفعيل Let's Encrypt SSL
    - ربط اسم النطاق
 
-### 👤 بيانات الدخول الافتراضية
-
-**السوبر أدمن:**
-- البريد الإلكتروني: `admin@maxcon.app`
-- كلمة المرور: `password123`
-
 ### 📁 هيكل المشروع
 
 ```
@@ -254,10 +248,6 @@ php artisan migrate && php artisan db:seed
 npm run build && php artisan serve
 ```
 
-### 👤 Default Login
-
-- Email: `admin@maxcon.com`
-- Password: `password123`
 
 ---
 
