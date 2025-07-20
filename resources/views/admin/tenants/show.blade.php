@@ -35,7 +35,12 @@
 
                     <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
                         <i class="fas fa-users" style="margin-left: 8px;"></i>
-                        <span style="font-size: 14px;">10 مستخدم</span>
+                        <span style="font-size: 14px;">{{ $tenant->users->count() ?? 0 }} مستخدم</span>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
+                        <i class="fas fa-user-friends" style="margin-left: 8px;"></i>
+                        <span style="font-size: 14px;">{{ $tenant->customers->count() ?? 0 }} عميل</span>
                     </div>
                 </div>
             </div>
@@ -182,6 +187,13 @@
                     {{ $tenant->max_users ?? 'غير محدد' }} مستخدم
                 </p>
             </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; color: #4a5568; display: block; margin-bottom: 5px;">الحد الأقصى للعملاء:</label>
+                <p style="color: #2d3748; font-size: 16px; margin: 0; padding: 8px 12px; background: #f7fafc; border-radius: 8px;">
+                    {{ $tenant->max_customers ?? 100 }} عميل
+                </p>
+            </div>
         </div>
     </div>
 </div>
@@ -202,9 +214,35 @@
         </p>
     </div>
 
-    <!-- Storage Usage -->
+    <!-- Customers Statistics -->
     <div class="content-card" style="text-align: center;">
         <div style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+            <i class="fas fa-user-friends" style="font-size: 30px; margin-bottom: 10px;"></i>
+            <h4 style="margin: 0; font-size: 18px;">العملاء</h4>
+        </div>
+        <p style="font-size: 24px; font-weight: 700; color: #2d3748; margin: 0;">
+            {{ $tenant->customers->count() ?? 0 }}
+        </p>
+        <p style="color: #718096; font-size: 14px; margin: 5px 0 0 0;">
+            من أصل {{ $tenant->max_customers ?? 100 }}
+        </p>
+        @if($tenant->max_customers > 0)
+            @php
+                $customerUsage = ($tenant->customers->count() / $tenant->max_customers) * 100;
+                $progressColor = $customerUsage >= 80 ? '#e53e3e' : ($customerUsage >= 60 ? '#dd6b20' : '#38a169');
+            @endphp
+            <div style="width: 100%; background: #e2e8f0; border-radius: 10px; height: 8px; margin-top: 10px; overflow: hidden;">
+                <div style="width: {{ min(100, $customerUsage) }}%; background: {{ $progressColor }}; height: 100%; border-radius: 10px; transition: width 0.3s ease;"></div>
+            </div>
+            <p style="color: #718096; font-size: 12px; margin: 5px 0 0 0;">
+                {{ number_format($customerUsage, 1) }}% مستخدم
+            </p>
+        @endif
+    </div>
+
+    <!-- Storage Usage -->
+    <div class="content-card" style="text-align: center;">
+        <div style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
             <i class="fas fa-hdd" style="font-size: 30px; margin-bottom: 10px;"></i>
             <h4 style="margin: 0; font-size: 18px;">التخزين</h4>
         </div>
@@ -314,7 +352,13 @@
 @endif
 
 <!-- Action Buttons -->
-<div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+<div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
+    <a href="{{ route('admin.customers.index', $tenant) }}"
+       style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: transform 0.2s;">
+        <i class="fas fa-user-friends"></i>
+        إدارة العملاء
+    </a>
+
     <a href="{{ route('admin.tenants.edit', $tenant) }}"
        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: transform 0.2s;">
         <i class="fas fa-edit"></i>

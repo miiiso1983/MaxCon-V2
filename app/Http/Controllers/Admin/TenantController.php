@@ -83,6 +83,7 @@ class TenantController extends Controller
             'subdomain' => 'nullable|string|max:255|unique:tenants,subdomain',
             'plan' => 'required|string|in:basic,premium,enterprise',
             'max_users' => 'required|integer|min:1',
+            'max_customers' => 'required|integer|min:1',
             'storage_limit' => 'required|integer|min:1',
             'is_active' => 'boolean',
 
@@ -102,6 +103,7 @@ class TenantController extends Controller
                 'subdomain' => $validated['subdomain'] ?? null,
                 'plan' => $validated['plan'],
                 'max_users' => $validated['max_users'],
+                'max_customers' => $validated['max_customers'],
                 'storage_limit' => $validated['storage_limit'] * 1073741824, // Convert GB to bytes
                 'is_active' => $validated['is_active'] ?? true,
             ];
@@ -164,6 +166,7 @@ class TenantController extends Controller
             'subdomain' => 'nullable|string|max:255|unique:tenants,subdomain,' . $id,
             'plan' => 'required|string|in:basic,premium,enterprise',
             'max_users' => 'required|integer|min:1',
+            'max_customers' => 'required|integer|min:1',
             'storage_limit' => 'required|integer|min:1',
             'status' => 'required|string|in:active,inactive,suspended',
             'trial_ends_at' => 'nullable|date',

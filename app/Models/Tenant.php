@@ -57,6 +57,8 @@ class Tenant extends Model
         'plan',
         'features',
         'max_users',
+        'max_customers',
+        'current_customers_count',
         'storage_limit',
         'contact_info',
     ];
@@ -151,5 +153,89 @@ class Tenant extends Model
     public function scopeOnTrial($query)
     {
         return $query->where('trial_ends_at', '>', now());
+    }
+
+    /**
+     * Customer relationship
+     */
+    public function customers()
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    /**
+     * Check if tenant can add more customers
+     */
+    public function canAddCustomers(): bool
+    {
+        return $this->current_customers_count < $this->max_customers;
+    }
+
+    /**
+     * Get remaining customer slots
+     */
+    public function getRemainingCustomerSlotsAttribute(): int
+    {
+        return max(0, $this->max_customers - $this->current_customers_count);
+    }
+
+    /**
+     * Get customer usage percentage
+     */
+    public function getCustomerUsagePercentageAttribute(): float
+    {
+        if ($this->max_customers == 0) {
+            return 0;
+        }
+        return ($this->current_customers_count / $this->max_customers) * 100;
+    }
+
+    /**
+     * Update customer count
+     */
+    public function updateCustomerCount(): void
+    {
+        $this->current_customers_count = $this->customers()->count();
+        $this->save();
+    }
+
+    /**
+     * Check if customer limit is reached
+     */
+    public function isCustomerLimitReached(): bool
+    {
+        return $this->current_customers_count >= $this->max_customers;
+    }
+
+    /**
+     * Get customer limit status
+     */
+    public function getCustomerLimitStatusAttribute(): string
+    {
+        $percentage = $this->customer_usage_percentage;
+
+        if ($percentage >= 100) {
+            return 'limit_reached';
+        } elseif ($percentage >= 80) {
+            return 'near_limit';
+        } elseif ($percentage >= 50) {
+            return 'moderate';
+        } else {
+            return 'low';
+        }
+    }
+
+    /**
+     * Get customer limit status color
+     */
+    public function getCustomerLimitColorAttribute(): string
+    {
+        return match($this->customer_limit_status) {
+            'limit_reached' => 'danger',
+            'near_limit' => 'warning',
+            'moderate' => 'info',
+            'low' => 'success',
+            default => 'secondary'
+        };
     }
 }

@@ -109,10 +109,25 @@
             <!-- الحد الأقصى للمستخدمين -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">الحد الأقصى للمستخدمين *</label>
-                <input type="number" name="max_users" value="{{ old('max_users', $tenant->max_users ?? 10) }}" 
+                <input type="number" name="max_users" value="{{ old('max_users', $tenant->max_users ?? 10) }}"
                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;"
                        min="1" required>
                 @error('max_users')
+                    <div style="color: #e53e3e; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- الحد الأقصى للعملاء -->
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">الحد الأقصى للعملاء *</label>
+                <input type="number" name="max_customers" value="{{ old('max_customers', $tenant->max_customers ?? 100) }}"
+                       style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;"
+                       min="1" required>
+                <div style="color: #718096; font-size: 12px; margin-top: 4px;">
+                    <i class="fas fa-info-circle" style="margin-left: 4px;"></i>
+                    عدد العملاء الذين يمكن للمستأجر إضافتهم للنظام
+                </div>
+                @error('max_customers')
                     <div style="color: #e53e3e; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
                 @enderror
             </div>

@@ -188,6 +188,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Tenant management
     Route::resource('tenants', TenantController::class);
+
+    // Customer management for tenants
+    Route::prefix('tenants/{tenant}/customers')->name('customers.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\CustomerManagementController::class, 'index'])->name('index');
+        Route::get('/{customer}', [App\Http\Controllers\Admin\CustomerManagementController::class, 'show'])->name('show');
+        Route::patch('/limits', [App\Http\Controllers\Admin\CustomerManagementController::class, 'updateLimits'])->name('update-limits');
+        Route::patch('/{customer}/toggle-status', [App\Http\Controllers\Admin\CustomerManagementController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{customer}', [App\Http\Controllers\Admin\CustomerManagementController::class, 'destroy'])->name('destroy');
+        Route::get('/statistics/data', [App\Http\Controllers\Admin\CustomerManagementController::class, 'statistics'])->name('statistics');
+    });
     Route::get('/tenants-maxcon', [TenantController::class, 'maxconIndex'])->name('tenants.maxcon');
     Route::get('/tenants-test-create', function () {
         return view('admin.tenants.test-create');
