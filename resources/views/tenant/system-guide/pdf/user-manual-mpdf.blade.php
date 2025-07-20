@@ -281,14 +281,18 @@
         <div class="toc-item toc-section">مميزات النظام الرئيسية</div>
         
         <div class="toc-item toc-chapter">الفصل الثاني: أنواع المستخدمين</div>
+        @if(isset($userTypes) && is_array($userTypes))
         @foreach($userTypes as $userType)
-        <div class="toc-item toc-section">{{ $userType['title'] }}</div>
+        <div class="toc-item toc-section">{{ $userType['title'] ?? 'نوع مستخدم' }}</div>
         @endforeach
+        @endif
         
         <div class="toc-item toc-chapter">الفصل الثالث: وحدات النظام</div>
+        @if(isset($modules) && is_array($modules))
         @foreach($modules as $slug => $module)
-        <div class="toc-item toc-section">{{ $module['name'] }}</div>
+        <div class="toc-item toc-section">{{ $module['name'] ?? 'وحدة النظام' }}</div>
         @endforeach
+        @endif
         
         <div class="toc-item toc-chapter">الفصل الرابع: الأسئلة الشائعة</div>
         <div class="toc-item toc-section">أسئلة عامة حول النظام</div>
@@ -322,10 +326,16 @@
         </div>
         
         <div class="section-title">المميزات الرئيسية للنظام</div>
-        @if(isset($systemFeatures))
+        @if(isset($systemFeatures) && is_array($systemFeatures))
         <ul class="feature-list">
-            @foreach($systemFeatures as $feature)
-            <li>{{ $feature }}</li>
+            @foreach($systemFeatures as $featureKey => $feature)
+            <li>
+                @if(is_array($feature) && isset($feature['title']))
+                    <strong>{{ $feature['title'] }}:</strong> {{ $feature['description'] ?? '' }}
+                @else
+                    {{ is_string($feature) ? $feature : 'ميزة النظام' }}
+                @endif
+            </li>
             @endforeach
         </ul>
         @endif
@@ -340,19 +350,23 @@
             تتناسب مع دوره في المؤسسة. هذا التصميم يضمن الأمان والكفاءة في استخدام النظام.
         </div>
 
+        @if(isset($userTypes) && is_array($userTypes))
         @foreach($userTypes as $userType)
         <div class="user-type-card">
-            <div class="user-type-title" style="color: {{ $userType['color'] }};">{{ $userType['title'] }}</div>
-            <div class="content-text">{{ $userType['description'] }}</div>
+            <div class="user-type-title" style="color: {{ $userType['color'] ?? '#667eea' }};">{{ $userType['title'] ?? 'نوع مستخدم' }}</div>
+            <div class="content-text">{{ $userType['description'] ?? 'وصف نوع المستخدم' }}</div>
 
             <div class="subsection-title">الصلاحيات الرئيسية:</div>
             <ul class="feature-list">
+                @if(isset($userType['permissions']) && is_array($userType['permissions']))
                 @foreach($userType['permissions'] as $permission)
-                <li>{{ $permission }}</li>
+                <li>{{ is_string($permission) ? $permission : 'صلاحية' }}</li>
                 @endforeach
+                @endif
             </ul>
         </div>
         @endforeach
+        @endif
     </div>
 
     <!-- Chapter 3: System Modules -->
@@ -364,26 +378,30 @@
             لتعمل بشكل مستقل أو متكامل مع الوحدات الأخرى حسب احتياجات مؤسستك.
         </div>
 
+        @if(isset($modules) && is_array($modules))
         @foreach($modules as $slug => $module)
-        <div class="section-title">{{ $module['name'] }}</div>
-        <div class="content-text">{{ $module['description'] }}</div>
+        <div class="section-title">{{ $module['name'] ?? 'وحدة النظام' }}</div>
+        <div class="content-text">{{ $module['description'] ?? 'وصف الوحدة' }}</div>
 
         <div class="subsection-title">المميزات الرئيسية:</div>
         <ul class="feature-list">
+            @if(isset($module['features']) && is_array($module['features']))
             @foreach($module['features'] as $feature)
-            <li>{{ $feature }}</li>
+            <li>{{ is_string($feature) ? $feature : 'ميزة' }}</li>
             @endforeach
+            @endif
         </ul>
 
         <div class="info-box">
             <div class="info-title">معلومات الوحدة:</div>
             <div>
-                <strong>مستوى الصعوبة:</strong> {{ $module['difficulty'] }}<br>
-                <strong>مدة الفيديو التعليمي:</strong> {{ $module['video_duration'] }}<br>
-                <strong>عدد الميزات:</strong> {{ count($module['features']) }} ميزة
+                <strong>مستوى الصعوبة:</strong> {{ $module['difficulty'] ?? 'متوسط' }}<br>
+                <strong>مدة الفيديو التعليمي:</strong> {{ $module['video_duration'] ?? '5-7 دقائق' }}<br>
+                <strong>عدد الميزات:</strong> {{ isset($module['features']) && is_array($module['features']) ? count($module['features']) : 0 }} ميزة
             </div>
         </div>
         @endforeach
+        @endif
     </div>
 
     <!-- Chapter 4: FAQ -->
@@ -394,16 +412,20 @@
             فيما يلي مجموعة من الأسئلة الأكثر شيوعاً حول استخدام نظام MaxCon ERP مع إجاباتها التفصيلية.
         </div>
 
+        @if(isset($faqs) && is_array($faqs))
         @foreach($faqs as $category => $categoryFaqs)
-        <div class="section-title">{{ $category }}</div>
+        <div class="section-title">{{ is_string($category) ? $category : 'فئة الأسئلة' }}</div>
 
+        @if(is_array($categoryFaqs))
         @foreach($categoryFaqs as $faq)
         <div class="faq-item">
-            <div class="faq-question">س: {{ $faq['question'] }}</div>
-            <div class="faq-answer">ج: {{ $faq['answer'] }}</div>
+            <div class="faq-question">س: {{ $faq['question'] ?? 'سؤال' }}</div>
+            <div class="faq-answer">ج: {{ $faq['answer'] ?? 'إجابة' }}</div>
         </div>
         @endforeach
+        @endif
         @endforeach
+        @endif
     </div>
 
     <!-- Chapter 5: Contact and Support -->
