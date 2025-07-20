@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار التصميم المتجاوب - MaxCon ERP</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Responsive CSS -->
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/mobile-enhancements.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .test-section {
+            margin: 2rem 0;
+            padding: 0 1rem;
+        }
+        
+        .test-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+        
+        .device-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        
+        .demo-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .demo-sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .demo-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        
+        .demo-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .demo-content {
+            margin-right: 0;
+            transition: margin-right 0.3s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .demo-content {
+                margin-right: 280px;
+            }
+            
+            .demo-sidebar {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Device Indicator -->
+    <div class="device-indicator" id="deviceIndicator">
+        <i class="fas fa-mobile-alt"></i> Mobile
+    </div>
+    
+    <!-- Demo Sidebar -->
+    <div class="demo-sidebar" id="demoSidebar">
+        <h3><i class="fas fa-chart-line"></i> MaxCon ERP</h3>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    الرئيسية
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    المبيعات
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-boxes"></i>
+                    المخزون
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    العملاء
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    التقارير
+                </a>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Demo Overlay -->
+    <div class="demo-overlay" id="demoOverlay"></div>
+    
+    <!-- Main Content -->
+    <div class="demo-content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <button class="mobile-menu-toggle" id="mobileToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h4 class="page-title">اختبار التصميم المتجاوب</h4>
+            <div class="header-right">
+                <button class="btn btn-primary">
+                    <i class="fas fa-user"></i>
+                    <span class="hidden-mobile">المستخدم</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Test Header -->
+        <div class="test-header">
+            <h1>اختبار التصميم المتجاوب</h1>
+            <p>نظام MaxCon ERP - متوافق مع جميع الأجهزة</p>
+        </div>
+        
+        <!-- Test Section: Grid -->
+        <div class="test-section">
+            <h2 class="test-title">اختبار الشبكة (Grid)</h2>
+            <div class="grid grid-cols-4 lg:grid-cols-4 md:grid-cols-2">
+                <div class="stat-card">
+                    <i class="fas fa-shopping-cart icon" style="color: #3b82f6;"></i>
+                    <div class="value">1,234</div>
+                    <div class="label">إجمالي المبيعات</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users icon" style="color: #10b981;"></i>
+                    <div class="value">567</div>
+                    <div class="label">العملاء</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-boxes icon" style="color: #f59e0b;"></i>
+                    <div class="value">890</div>
+                    <div class="label">المنتجات</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line icon" style="color: #ef4444;"></i>
+                    <div class="value">12.5%</div>
+                    <div class="label">النمو</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Section: Cards -->
+        <div class="test-section">
+            <h2 class="test-title">اختبار البطاقات (Cards)</h2>
+            <div class="grid grid-cols-2 lg:grid-cols-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>بطاقة تجريبية 1</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>هذا نص تجريبي لاختبار عرض البطاقات على الأجهزة المختلفة.</p>
+                        <button class="btn btn-primary">إجراء</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>بطاقة تجريبية 2</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>هذا نص تجريبي آخر لاختبار التصميم المتجاوب.</p>
+                        <button class="btn btn-secondary">إجراء آخر</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>بطاقة تجريبية 3</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>بطاقة ثالثة لاختبار العرض على الشاشات الكبيرة.</p>
+                        <button class="btn btn-success">حفظ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Section: Forms -->
+        <div class="test-section">
+            <h2 class="test-title">اختبار النماذج (Forms)</h2>
+            <div class="card">
+                <div class="card-header">
+                    <h3>نموذج تجريبي</h3>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="grid grid-cols-2">
+                            <div class="form-group">
+                                <label class="form-label">الاسم الأول</label>
+                                <input type="text" class="form-control" placeholder="أدخل الاسم الأول">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الاسم الأخير</label>
+                                <input type="text" class="form-control" placeholder="أدخل الاسم الأخير">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">البريد الإلكتروني</label>
+                            <input type="email" class="form-control" placeholder="أدخل البريد الإلكتروني">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الرسالة</label>
+                            <textarea class="form-control" rows="4" placeholder="أدخل رسالتك هنا"></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="btn btn-primary">إرسال</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Section: Table -->
+        <div class="test-section">
+            <h2 class="test-title">اختبار الجداول (Tables)</h2>
+            <div class="card">
+                <div class="card-header">
+                    <h3>جدول تجريبي</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>الرقم</th>
+                                    <th>الاسم</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>الهاتف</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>أحمد محمد</td>
+                                    <td>ahmed@example.com</td>
+                                    <td>+964 123 456 789</td>
+                                    <td><span class="badge badge-success">نشط</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary">تعديل</button>
+                                        <button class="btn btn-sm btn-danger">حذف</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>فاطمة علي</td>
+                                    <td>fatima@example.com</td>
+                                    <td>+964 987 654 321</td>
+                                    <td><span class="badge badge-warning">معلق</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary">تعديل</button>
+                                        <button class="btn btn-sm btn-danger">حذف</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Section: Alerts -->
+        <div class="test-section">
+            <h2 class="test-title">اختبار التنبيهات (Alerts)</h2>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                تم حفظ البيانات بنجاح!
+            </div>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                تحذير: يرجى مراجعة البيانات المدخلة.
+            </div>
+            <div class="alert alert-danger">
+                <i class="fas fa-times-circle"></i>
+                خطأ: فشل في حفظ البيانات.
+            </div>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                معلومة: يمكنك الآن استخدام الميزة الجديدة.
+            </div>
+        </div>
+    </div>
+    
+    <!-- Responsive JavaScript -->
+    <script src="js/responsive.js"></script>
+    
+    <script>
+        // Device indicator
+        function updateDeviceIndicator() {
+            const indicator = document.getElementById('deviceIndicator');
+            const width = window.innerWidth;
+            
+            if (width <= 767) {
+                indicator.innerHTML = '<i class="fas fa-mobile-alt"></i> Mobile (' + width + 'px)';
+            } else if (width <= 1023) {
+                indicator.innerHTML = '<i class="fas fa-tablet-alt"></i> Tablet (' + width + 'px)';
+            } else {
+                indicator.innerHTML = '<i class="fas fa-desktop"></i> Desktop (' + width + 'px)';
+            }
+        }
+        
+        // Update on load and resize
+        updateDeviceIndicator();
+        window.addEventListener('resize', updateDeviceIndicator);
+        
+        // Demo sidebar toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const demoSidebar = document.getElementById('demoSidebar');
+        const demoOverlay = document.getElementById('demoOverlay');
+        
+        mobileToggle.addEventListener('click', () => {
+            demoSidebar.classList.toggle('open');
+            demoOverlay.classList.toggle('show');
+        });
+        
+        demoOverlay.addEventListener('click', () => {
+            demoSidebar.classList.remove('open');
+            demoOverlay.classList.remove('show');
+        });
+        
+        // Close sidebar on window resize to desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                demoSidebar.classList.remove('open');
+                demoOverlay.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

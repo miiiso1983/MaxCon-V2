@@ -18,6 +18,10 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
+    <!-- Responsive CSS -->
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/mobile-enhancements.css') }}">
+
     <!-- Custom Styles -->
     <style>
         /* Reset and hide any conflicting elements */
@@ -388,6 +392,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay"></div>
+
     <div class="main-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -701,13 +708,14 @@
             <!-- Top Navbar -->
             <nav class="top-navbar">
                 <div>
-                    <button onclick="toggleSidebar()" class="btn" style="background: #f3f4f6; color: #374151;">
+                    <button onclick="toggleSidebar()" class="btn mobile-menu-toggle" style="background: #f3f4f6; color: #374151;" aria-label="فتح القائمة">
                         <i class="fas fa-bars"></i>
                     </button>
+                    <h4 style="margin: 0; color: #1f2937; font-weight: 600;" class="page-title hidden-mobile">@yield('page-title', 'لوحة التحكم')</h4>
                 </div>
-                
+
                 <div class="user-info">
-                    <span>مرحباً، {{ auth()->user()->name ?? 'المستخدم' }}</span>
+                    <span class="hidden-mobile">مرحباً، {{ auth()->user()->name ?? 'المستخدم' }}</span>
                     <div class="user-avatar">
                         {{ substr(auth()->user()->name ?? 'M', 0, 1) }}
                     </div>
@@ -715,7 +723,7 @@
                         @csrf
                         <button type="submit" class="btn btn-danger" style="padding: 8px 15px; font-size: 14px; border: none; cursor: pointer;">
                             <i class="fas fa-sign-out-alt"></i>
-                            خروج
+                            <span class="hidden-mobile">خروج</span>
                         </button>
                     </form>
                 </div>
@@ -850,6 +858,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
     <script src="{{ asset('js/system-tooltips.js') }}"></script>
     <script src="{{ asset('js/interactive-tours.js') }}"></script>
+
+    <!-- Responsive Scripts -->
+    <script src="{{ asset('js/responsive.js') }}"></script>
 
     @stack('scripts')
 </body>

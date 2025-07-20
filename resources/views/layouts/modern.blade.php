@@ -27,6 +27,9 @@
     <!-- Charts Styles -->
     <link rel="stylesheet" href="{{ asset('css/charts-styles.css') }}">
 
+    <!-- Responsive Styles -->
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+
     <!-- Scripts -->
     <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
 
