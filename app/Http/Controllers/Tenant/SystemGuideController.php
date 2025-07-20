@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Mpdf\Mpdf;
+use TCPDF;
 
 /**
  * System Guide Controller
@@ -748,7 +749,7 @@ class SystemGuideController extends Controller
     }
 
     /**
-     * Generate user manual PDF using mPDF (better Arabic support)
+     * Generate user manual PDF using TCPDF (best Arabic support)
      */
     private function generateUserManualPDF()
     {
@@ -757,63 +758,133 @@ class SystemGuideController extends Controller
         $userTypes = $this->getUserTypes();
         $faqs = $this->getFAQs();
 
+        try {
+            // Try TCPDF first (best Arabic support)
+            return $this->generateUserManualPDFWithTCPDF($modules, $systemFeatures, $userTypes, $faqs);
+        } catch (\Exception $e) {
+            try {
+                // Fallback to mPDF
+                return $this->generateUserManualPDFWithMPDF($modules, $systemFeatures, $userTypes, $faqs);
+            } catch (\Exception $e2) {
+                // Final fallback to DomPDF
+                return $this->generateUserManualPDFWithDomPDF($modules, $systemFeatures, $userTypes, $faqs);
+            }
+        }
+    }
+
+    /**
+     * Generate PDF using TCPDF (best Arabic support)
+     */
+    private function generateUserManualPDFWithTCPDF($modules, $systemFeatures, $userTypes, $faqs)
+    {
+        // Create new TCPDF document
+        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+        // Set document information
+        $pdf->SetCreator('MaxCon ERP');
+        $pdf->SetAuthor('MaxCon ERP System');
+        $pdf->SetTitle('دليل المستخدم - MaxCon ERP');
+        $pdf->SetSubject('دليل استخدام نظام MaxCon ERP');
+        $pdf->SetKeywords('MaxCon, ERP, دليل المستخدم');
+
+        // Set default header data
+        $pdf->SetHeaderData('', 0, 'دليل المستخدم - MaxCon ERP', 'نظام إدارة موارد المؤسسات');
+
+        // Set header and footer fonts
+        $pdf->setHeaderFont(['dejavusans', '', 10]);
+        $pdf->setFooterFont(['dejavusans', '', 8]);
+
+        // Set margins
+        $pdf->SetMargins(15, 27, 15);
+        $pdf->SetHeaderMargin(5);
+        $pdf->SetFooterMargin(10);
+
+        // Set auto page breaks
+        $pdf->SetAutoPageBreak(TRUE, 25);
+
+        // Set font
+        $pdf->SetFont('dejavusans', '', 12);
+
+        // Set language direction
+        $pdf->setRTL(true);
+
+        // Generate content
+        $this->addCoverPageTCPDF($pdf);
+        $this->addSystemFeaturesPageTCPDF($pdf, $systemFeatures);
+        $this->addUserTypesPageTCPDF($pdf, $userTypes);
+        $this->addModulesPageTCPDF($pdf, $modules);
+        $this->addFAQPageTCPDF($pdf, $faqs);
+
+        $filename = 'دليل_المستخدم_MaxCon_' . date('Y-m-d') . '.pdf';
+        $path = storage_path("app/public/manuals/{$filename}");
+
+        // Ensure directory exists
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+
+        // Save PDF
+        $pdf->Output($path, 'F');
+
+        return $path;
+    }
+
+    /**
+     * Generate PDF using mPDF (fallback)
+     */
+    private function generateUserManualPDFWithMPDF($modules, $systemFeatures, $userTypes, $faqs)
+    {
         // Create PDF content
         $html = view('tenant.system-guide.pdf.user-manual-mpdf', compact(
             'modules', 'systemFeatures', 'userTypes', 'faqs'
         ))->render();
 
-        try {
-            // Initialize mPDF with enhanced Arabic support
-            $mpdf = new Mpdf([
-                'mode' => 'utf-8',
-                'format' => 'A4',
-                'orientation' => 'P',
-                'margin_left' => 15,
-                'margin_right' => 15,
-                'margin_top' => 16,
-                'margin_bottom' => 16,
-                'margin_header' => 9,
-                'margin_footer' => 9,
-                'default_font_size' => 12,
-                'default_font' => 'dejavusans',
-                'dir' => 'rtl',
-                'autoScriptToLang' => true,
-                'autoLangToFont' => true,
-                'useSubstitutions' => true,
-                'debug' => false,
-                'fontDir' => [
-                    storage_path('fonts/'),
-                    public_path('fonts/'),
-                ],
-                'tempDir' => storage_path('app/temp/'),
-            ]);
+        // Initialize mPDF with enhanced Arabic support
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'orientation' => 'P',
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 16,
+            'margin_bottom' => 16,
+            'margin_header' => 9,
+            'margin_footer' => 9,
+            'default_font_size' => 12,
+            'default_font' => 'dejavusans',
+            'dir' => 'rtl',
+            'autoScriptToLang' => true,
+            'autoLangToFont' => true,
+            'useSubstitutions' => true,
+            'debug' => false,
+            'fontDir' => [
+                storage_path('fonts/'),
+                public_path('fonts/'),
+            ],
+            'tempDir' => storage_path('app/temp/'),
+        ]);
 
-            // Set document properties
-            $mpdf->SetTitle('دليل المستخدم - MaxCon ERP');
-            $mpdf->SetAuthor('MaxCon ERP System');
-            $mpdf->SetSubject('دليل استخدام نظام MaxCon ERP');
-            $mpdf->SetKeywords('MaxCon, ERP, دليل المستخدم, نظام إدارة');
+        // Set document properties
+        $mpdf->SetTitle('دليل المستخدم - MaxCon ERP');
+        $mpdf->SetAuthor('MaxCon ERP System');
+        $mpdf->SetSubject('دليل استخدام نظام MaxCon ERP');
+        $mpdf->SetKeywords('MaxCon, ERP, دليل المستخدم, نظام إدارة');
 
-            // Write HTML content
-            $mpdf->WriteHTML($html);
+        // Write HTML content
+        $mpdf->WriteHTML($html);
 
-            $filename = 'دليل_المستخدم_MaxCon_' . date('Y-m-d') . '.pdf';
-            $path = storage_path("app/public/manuals/{$filename}");
+        $filename = 'دليل_المستخدم_MaxCon_' . date('Y-m-d') . '.pdf';
+        $path = storage_path("app/public/manuals/{$filename}");
 
-            // Ensure directory exists
-            if (!file_exists(dirname($path))) {
-                mkdir(dirname($path), 0755, true);
-            }
-
-            // Save PDF
-            $mpdf->Output($path, 'F');
-
-            return $path;
-
-        } catch (\Exception $e) {
-            // Fallback to DomPDF if mPDF fails
-            return $this->generateUserManualPDFWithDomPDF($modules, $systemFeatures, $userTypes, $faqs);
+        // Ensure directory exists
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
         }
+
+        // Save PDF
+        $mpdf->Output($path, 'F');
+
+        return $path;
     }
 
     /**
@@ -971,6 +1042,150 @@ class SystemGuideController extends Controller
         ];
 
         return $tours[$tourType] ?? [];
+    }
+
+    /**
+     * Add cover page using TCPDF
+     */
+    private function addCoverPageTCPDF($pdf)
+    {
+        $pdf->AddPage();
+
+        $html = '
+        <style>
+            .cover { text-align: center; padding: 50px 20px; }
+            .title { font-size: 28pt; font-weight: bold; color: #667eea; margin-bottom: 20px; }
+            .subtitle { font-size: 18pt; margin-bottom: 30px; }
+            .version { font-size: 12pt; margin-top: 40px; }
+        </style>
+        <div class="cover">
+            <div class="title">دليل المستخدم</div>
+            <div class="subtitle">نظام MaxCon ERP</div>
+            <div>نظام إدارة موارد المؤسسات الشامل</div>
+            <div class="version">الإصدار 2.0 - ' . date('Y/m/d') . '</div>
+        </div>';
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+    }
+
+    /**
+     * Add system features page using TCPDF
+     */
+    private function addSystemFeaturesPageTCPDF($pdf, $systemFeatures)
+    {
+        $pdf->AddPage();
+
+        $html = '<div style="font-size: 20pt; font-weight: bold; color: #667eea; margin-bottom: 20px; text-align: center;">مميزات النظام</div>';
+
+        if (is_array($systemFeatures)) {
+            foreach ($systemFeatures as $feature) {
+                if (is_array($feature) && isset($feature['title'])) {
+                    $html .= '
+                    <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <div style="font-size: 16pt; font-weight: bold; color: #2d3748; margin-bottom: 10px;">' . $feature['title'] . '</div>
+                        <div style="font-size: 12pt; line-height: 1.6;">' . ($feature['description'] ?? '') . '</div>
+                    </div>';
+                }
+            }
+        }
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+    }
+
+    /**
+     * Add user types page using TCPDF
+     */
+    private function addUserTypesPageTCPDF($pdf, $userTypes)
+    {
+        $pdf->AddPage();
+
+        $html = '<div style="font-size: 20pt; font-weight: bold; color: #667eea; margin-bottom: 20px; text-align: center;">أنواع المستخدمين</div>';
+
+        if (is_array($userTypes)) {
+            foreach ($userTypes as $userType) {
+                if (is_array($userType) && isset($userType['title'])) {
+                    $html .= '
+                    <div style="margin-bottom: 25px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <div style="font-size: 16pt; font-weight: bold; color: ' . ($userType['color'] ?? '#667eea') . '; margin-bottom: 10px;">' . $userType['title'] . '</div>
+                        <div style="font-size: 12pt; line-height: 1.6; margin-bottom: 10px;">' . ($userType['description'] ?? '') . '</div>';
+
+                    if (isset($userType['permissions']) && is_array($userType['permissions'])) {
+                        $html .= '<div style="font-size: 14pt; font-weight: bold; margin-bottom: 8px;">الصلاحيات:</div><ul>';
+                        foreach ($userType['permissions'] as $permission) {
+                            $html .= '<li style="margin-bottom: 5px;">' . $permission . '</li>';
+                        }
+                        $html .= '</ul>';
+                    }
+
+                    $html .= '</div>';
+                }
+            }
+        }
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+    }
+
+    /**
+     * Add modules page using TCPDF
+     */
+    private function addModulesPageTCPDF($pdf, $modules)
+    {
+        $pdf->AddPage();
+
+        $html = '<div style="font-size: 20pt; font-weight: bold; color: #667eea; margin-bottom: 20px; text-align: center;">وحدات النظام</div>';
+
+        if (is_array($modules)) {
+            foreach ($modules as $module) {
+                if (is_array($module) && isset($module['name'])) {
+                    $html .= '
+                    <div style="margin-bottom: 25px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <div style="font-size: 16pt; font-weight: bold; color: #2d3748; margin-bottom: 10px;">' . $module['name'] . '</div>
+                        <div style="font-size: 12pt; line-height: 1.6; margin-bottom: 10px;">' . ($module['description'] ?? '') . '</div>';
+
+                    if (isset($module['features']) && is_array($module['features'])) {
+                        $html .= '<div style="font-size: 14pt; font-weight: bold; margin-bottom: 8px;">المميزات:</div><ul>';
+                        foreach ($module['features'] as $feature) {
+                            $html .= '<li style="margin-bottom: 5px;">' . $feature . '</li>';
+                        }
+                        $html .= '</ul>';
+                    }
+
+                    $html .= '</div>';
+                }
+            }
+        }
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+    }
+
+    /**
+     * Add FAQ page using TCPDF
+     */
+    private function addFAQPageTCPDF($pdf, $faqs)
+    {
+        $pdf->AddPage();
+
+        $html = '<div style="font-size: 20pt; font-weight: bold; color: #667eea; margin-bottom: 20px; text-align: center;">الأسئلة الشائعة</div>';
+
+        if (is_array($faqs)) {
+            foreach ($faqs as $category => $categoryFaqs) {
+                $html .= '<div style="font-size: 16pt; font-weight: bold; color: #2d3748; margin: 20px 0 10px 0;">' . $category . '</div>';
+
+                if (is_array($categoryFaqs)) {
+                    foreach ($categoryFaqs as $faq) {
+                        if (is_array($faq)) {
+                            $html .= '
+                            <div style="margin-bottom: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">س: ' . ($faq['question'] ?? '') . '</div>
+                                <div>ج: ' . ($faq['answer'] ?? '') . '</div>
+                            </div>';
+                        }
+                    }
+                }
+            }
+        }
+
+        $pdf->writeHTML($html, true, false, true, false, '');
     }
 
     /**
