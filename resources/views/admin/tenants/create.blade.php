@@ -191,6 +191,20 @@
                     @enderror
                 </div>
 
+                <!-- عدد العملاء الأقصى -->
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; opacity: 0.9;">عدد العملاء الأقصى *</label>
+                    <input type="number" name="max_customers" value="{{ old('max_customers', 100) }}" min="1" required
+                           style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 14px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);">
+                    <div style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 4px;">
+                        <i class="fas fa-info-circle" style="margin-left: 4px;"></i>
+                        عدد العملاء الذين يمكن للمستأجر إضافتهم للنظام
+                    </div>
+                    @error('max_customers')
+                        <div style="color: #fbbf24; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <!-- حد التخزين -->
                 <div>
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; opacity: 0.9;">حد التخزين (GB) *</label>

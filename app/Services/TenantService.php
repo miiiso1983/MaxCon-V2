@@ -49,6 +49,8 @@ class TenantService
                 'is_active' => true,
                 'plan' => 'basic',
                 'max_users' => 10,
+                'max_customers' => 100,
+                'current_customers_count' => 0,
                 'storage_limit' => 1073741824, // 1GB
                 'trial_ends_at' => now()->addDays(14), // 14-day trial
             ], $data);
