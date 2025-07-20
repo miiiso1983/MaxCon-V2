@@ -13,12 +13,10 @@ try {
     $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
     $kernel->bootstrap();
 
-    use Illuminate\Support\Facades\DB;
-
     echo "✅ Laravel loaded\n";
     
     // Test connection
-    DB::connection()->getPdo();
+    \Illuminate\Support\Facades\DB::connection()->getPdo();
     echo "✅ Database connected\n";
     
     // Quick fix for purchase_requests table
@@ -59,7 +57,7 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ";
     
-    DB::statement($sql);
+    \Illuminate\Support\Facades\DB::statement($sql);
     echo "✅ purchase_requests table created/verified\n";
     
     // Create items table
@@ -90,19 +88,19 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ";
     
-    DB::statement($sql2);
+    \Illuminate\Support\Facades\DB::statement($sql2);
     echo "✅ purchase_request_items table created/verified\n";
     
     // Add is_active to tenants if not exists
     try {
-        DB::statement("ALTER TABLE `tenants` ADD COLUMN IF NOT EXISTS `is_active` tinyint(1) NOT NULL DEFAULT 1");
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `tenants` ADD COLUMN IF NOT EXISTS `is_active` tinyint(1) NOT NULL DEFAULT 1");
         echo "✅ is_active column added to tenants\n";
     } catch (Exception $e) {
         echo "⚠️  is_active column may already exist\n";
     }
     
     // Test the fix
-    $count = DB::table('purchase_requests')->count();
+    $count = \Illuminate\Support\Facades\DB::table('purchase_requests')->count();
     echo "✅ Test successful: {$count} records in purchase_requests\n";
     
     echo "\n🎉 Quick fix completed!\n";
