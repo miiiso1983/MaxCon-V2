@@ -763,7 +763,7 @@ class SystemGuideController extends Controller
         ))->render();
 
         try {
-            // Initialize mPDF with Arabic support
+            // Initialize mPDF with enhanced Arabic support
             $mpdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => 'A4',
@@ -779,24 +779,13 @@ class SystemGuideController extends Controller
                 'dir' => 'rtl',
                 'autoScriptToLang' => true,
                 'autoLangToFont' => true,
+                'useSubstitutions' => true,
+                'debug' => false,
                 'fontDir' => [
                     storage_path('fonts/'),
                     public_path('fonts/'),
                 ],
-                'fontdata' => [
-                    'amiri' => [
-                        'R' => 'Amiri-Regular.ttf',
-                        'B' => 'Amiri-Bold.ttf',
-                        'useOTL' => 0xFF,
-                        'useKashida' => 75,
-                    ],
-                    'noto' => [
-                        'R' => 'NotoSansArabic-Regular.ttf',
-                        'B' => 'NotoSansArabic-Bold.ttf',
-                        'useOTL' => 0xFF,
-                        'useKashida' => 75,
-                    ],
-                ],
+                'tempDir' => storage_path('app/temp/'),
             ]);
 
             // Set document properties

@@ -15,7 +15,7 @@
         }
 
         body {
-            font-family: 'amiri', 'noto', 'dejavusans', sans-serif;
+            font-family: dejavusans, arial, sans-serif;
             font-size: 12pt;
             line-height: 1.6;
             color: #333;
