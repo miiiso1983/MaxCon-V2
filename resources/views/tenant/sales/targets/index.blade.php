@@ -1,3 +1,4 @@
+
 @extends('layouts.tenant')
 
 @section('title', 'أهداف البيع')
@@ -202,7 +203,8 @@
                                         @php
                                             $progressClass = $target->progress_percentage >= 100 ? 'success' : ($target->progress_percentage >= 80 ? 'warning' : 'info');
                                         @endphp
-                                        <div class="progress-fill {{ $progressClass }}" style="width: {{ min(100, $target->progress_percentage) }}%;"></div>
+                                        @php $progressWidth = intval(min(100, $target->progress_percentage)); @endphp
+                                        <div class="progress-fill {{ $progressClass }}" style="--progress-width: {{ $progressWidth }}%; width: var(--progress-width);"></div>
                                     </div>
                                 </td>
                                 <td style="text-align: center;">
