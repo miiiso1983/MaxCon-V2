@@ -18,7 +18,6 @@ class ReportService
     {
         $execution = ReportExecution::create([
             'user_id' => Auth::id(),
-            'user_id' => auth()->id(),
             'parameters' => $parameters,
             'status' => ReportExecution::STATUS_RUNNING,
             'export_format' => $format,
