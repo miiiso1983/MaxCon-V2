@@ -7,6 +7,7 @@ use App\Models\InventoryAudit;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryAuditController extends Controller
 {
@@ -15,7 +16,7 @@ class InventoryAuditController extends Controller
      */
     public function index(Request $request): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -69,7 +70,7 @@ class InventoryAuditController extends Controller
      */
     public function create(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -86,7 +87,7 @@ class InventoryAuditController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -129,9 +130,9 @@ class InventoryAuditController extends Controller
      */
     public function show(InventoryAudit $audit): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
-        if ($audit->tenant_id !== $user->tenant_id) {
+        if ($audit->getAttribute('tenant_id') !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
         }
 

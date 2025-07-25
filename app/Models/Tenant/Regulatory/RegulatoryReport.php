@@ -148,7 +148,7 @@ class RegulatoryReport extends Model
      */
     public function getReportTypeNameAttribute()
     {
-        return self::REPORT_TYPES[$this->report_type] ?? $this->report_type;
+        return self::REPORT_TYPES[$this->getAttribute('report_type')] ?? $this->getAttribute('report_type');
     }
 
     /**
@@ -156,7 +156,7 @@ class RegulatoryReport extends Model
      */
     public function getReportCategoryNameAttribute()
     {
-        return self::REPORT_CATEGORIES[$this->report_category] ?? $this->report_category;
+        return self::REPORT_CATEGORIES[$this->getAttribute('report_category')] ?? $this->getAttribute('report_category');
     }
 
     /**
@@ -164,7 +164,7 @@ class RegulatoryReport extends Model
      */
     public function getStatusNameAttribute()
     {
-        return self::STATUS_TYPES[$this->status] ?? $this->status;
+        return self::STATUS_TYPES[$this->getAttribute('status')] ?? $this->getAttribute('status');
     }
 
     /**
@@ -172,7 +172,7 @@ class RegulatoryReport extends Model
      */
     public function getPriorityNameAttribute()
     {
-        return self::PRIORITY_LEVELS[$this->priority] ?? $this->priority;
+        return self::PRIORITY_LEVELS[$this->getAttribute('priority')] ?? $this->getAttribute('priority');
     }
 
     /**

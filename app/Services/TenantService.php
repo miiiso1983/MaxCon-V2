@@ -77,7 +77,7 @@ class TenantService
             $tenant = $this->tenantRepository->findOrFail($tenantId);
 
             // Validate slug uniqueness if changed
-            if (isset($data['slug']) && $data['slug'] !== $tenant->slug) {
+            if (isset($data['slug']) && $data['slug'] !== $tenant->getAttribute('slug')) {
                 if (!$this->tenantRepository->isSlugAvailable($data['slug'], $tenantId)) {
                     throw new \Exception('Slug is already taken');
                 }

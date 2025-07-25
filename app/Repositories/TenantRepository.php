@@ -135,7 +135,8 @@ class TenantRepository extends BaseRepository
      */
     public function suspendTenant(int $tenantId): bool
     {
-        return $this->update($tenantId, ['status' => 'suspended']);
+        $result = $this->update($tenantId, ['status' => 'suspended']);
+        return $result !== null;
     }
 
     /**
@@ -143,7 +144,8 @@ class TenantRepository extends BaseRepository
      */
     public function activateTenant(int $tenantId): bool
     {
-        return $this->update($tenantId, ['status' => 'active']);
+        $result = $this->update($tenantId, ['status' => 'active']);
+        return $result !== null;
     }
 
     /**
@@ -151,10 +153,11 @@ class TenantRepository extends BaseRepository
      */
     public function updatePlan(int $tenantId, string $plan, array $features = []): bool
     {
-        return $this->update($tenantId, [
+        $result = $this->update($tenantId, [
             'plan' => $plan,
             'features' => $features,
         ]);
+        return $result !== null;
     }
 
     /**
@@ -162,7 +165,8 @@ class TenantRepository extends BaseRepository
      */
     public function extendSubscription(int $tenantId, \Carbon\Carbon $endDate): bool
     {
-        return $this->update($tenantId, ['subscription_ends_at' => $endDate]);
+        $result = $this->update($tenantId, ['subscription_ends_at' => $endDate]);
+        return $result !== null;
     }
 
     /**

@@ -16,7 +16,7 @@ class ReportService
     public function executeReport(Report $report, array $parameters = [], string $format = 'html')
     {
         $execution = ReportExecution::create([
-            'report_id' => $report->id,
+            'report_id' => $report->getAttribute('id'),
             'user_id' => auth()->id(),
             'parameters' => $parameters,
             'status' => ReportExecution::STATUS_RUNNING,
