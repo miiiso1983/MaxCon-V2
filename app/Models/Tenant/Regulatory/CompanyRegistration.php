@@ -137,8 +137,8 @@ class CompanyRegistration extends Model
      */
     public function getExpiresSoonAttribute()
     {
-        return $this->license_expiry_date && 
-               $this->license_expiry_date->isFuture() && 
+        return $this->license_expiry_date &&
+               $this->license_expiry_date->isFuture() &&
                $this->license_expiry_date->diffInDays(now()) <= 30;
     }
 

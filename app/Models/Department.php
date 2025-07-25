@@ -58,7 +58,7 @@ class Department extends Model
 
     public function journalEntryLines(): HasMany
     {
-        return $this->hasMany(\App\Models\Accounting\JournalEntryLine::class);
+        return $this->hasMany(\App\Models\Accounting\JournalEntryDetail::class);
     }
 
     public function employees(): HasMany

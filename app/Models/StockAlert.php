@@ -237,30 +237,30 @@ class StockAlert extends Model
 
     public function getTimeSinceTriggered()
     {
-        return $this->triggered_at->diffForHumans();
+        return $this->created_at ? $this->triggered_at->diffForHumans() : '';
     }
 
     public function getDaysToExpiry()
     {
         if ($this->expiry_date) {
-            return now()->diffInDays($this->expiry_date, false);
+            return now()->diffInDays(\Carbon\Carbon::parse($this->expiry_date), false);
         }
         return null;
     }
 
     public function isExpired()
     {
-        return $this->expiry_date && $this->expiry_date->isPast();
+        return $this->expiry_date && \Carbon\Carbon::parse($this->expiry_date)->isPast();
     }
 
     public function isExpiringToday()
     {
-        return $this->expiry_date && $this->expiry_date->isToday();
+        return $this->expiry_date && \Carbon\Carbon::parse($this->expiry_date)->isToday();
     }
 
     public function isExpiringThisWeek()
     {
-        return $this->expiry_date && $this->expiry_date->isBetween(now(), now()->addWeek());
+        return $this->expiry_date && \Carbon\Carbon::parse($this->expiry_date)->isBetween(now(), now()->addWeek());
     }
 
     public function markNotificationSent()

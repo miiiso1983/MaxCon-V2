@@ -145,7 +145,7 @@ class LaboratoryTest extends Model
      */
     public function getIsOverdueAttribute()
     {
-        return $this->test_date && $this->test_date->isPast() && 
+        return $this->test_date && $this->test_date->isPast() &&
                !in_array($this->status, ['completed', 'passed', 'failed', 'cancelled']);
     }
 

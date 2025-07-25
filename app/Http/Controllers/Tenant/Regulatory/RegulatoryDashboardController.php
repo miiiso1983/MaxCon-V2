@@ -276,7 +276,7 @@ class RegulatoryDashboardController extends Controller
                 'title' => 'شهادة تنتهي',
                 'description' => $certificate->certificate_type_name,
                 'date' => $certificate->expiry_date,
-                'days_remaining' => Carbon::parse($certificate->expiry_date)->diffInDays(now()),
+                'days_remaining' => $certificate->expiry_date ? Carbon::parse($certificate->expiry_date)->diffInDays(now()) : 0,
                 'url' => route('tenant.inventory.regulatory.certificates.show', $certificate)
             ];
         }

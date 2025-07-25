@@ -188,7 +188,7 @@ class RegulatoryReport extends Model
      */
     public function getIsOverdueAttribute()
     {
-        return $this->due_date && $this->due_date->isPast() && 
+        return $this->due_date && \Carbon\Carbon::createFromFormat('Y-m-d', $this->due_date)->isPast() &&
                !in_array($this->status, ['submitted', 'accepted', 'closed']);
     }
 
@@ -197,8 +197,8 @@ class RegulatoryReport extends Model
      */
     public function getFollowUpDueAttribute()
     {
-        return $this->follow_up_required && $this->follow_up_date && 
-               $this->follow_up_date->isPast() && $this->status !== 'closed';
+        return $this->follow_up_required && $this->follow_up_date &&
+               \Carbon\Carbon::createFromFormat('Y-m-d', $this->follow_up_date)->isPast() && $this->status !== 'closed';
     }
 
     /**
@@ -208,7 +208,7 @@ class RegulatoryReport extends Model
     {
         if (!$this->due_date) return null;
         
-        return $this->due_date->diffInDays(now(), false);
+        return \Carbon\Carbon::createFromFormat('Y-m-d', $this->due_date)->diffInDays(now(), false);
     }
 
     /**

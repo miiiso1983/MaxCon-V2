@@ -175,7 +175,7 @@ class ProductRecall extends Model
      */
     public function getIsOverdueAttribute()
     {
-        return $this->completion_date && $this->completion_date->isPast() && 
+        return $this->completion_date && $this->completion_date->isPast() &&
                !in_array($this->status, ['completed', 'closed', 'terminated']);
     }
 
@@ -184,7 +184,7 @@ class ProductRecall extends Model
      */
     public function getFollowUpDueAttribute()
     {
-        return $this->follow_up_required && $this->follow_up_date && 
+        return $this->follow_up_required && $this->follow_up_date &&
                $this->follow_up_date->isPast() && $this->status !== 'closed';
     }
 

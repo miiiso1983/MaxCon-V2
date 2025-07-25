@@ -122,20 +122,20 @@ class InventoryAuditItem extends Model
     public function calculateDifference()
     {
         if ($this->counted_quantity !== null && $this->expected_quantity !== null) {
-            $this->difference_quantity = $this->counted_quantity - $this->expected_quantity;
+            $this->difference_quantity = number_format($this->counted_quantity - $this->expected_quantity, 3, '.', '');
             $this->variance = $this->difference_quantity;
 
             if ($this->unit_cost > 0) {
-                $this->value_difference = $this->difference_quantity * $this->unit_cost;
+                $this->value_difference = number_format($this->difference_quantity * $this->unit_cost, 2, '.', '');
                 $this->variance_value = $this->value_difference;
             }
 
             if ($this->expected_quantity > 0) {
-                $this->variance_percentage = ($this->difference_quantity / $this->expected_quantity) * 100;
+                $this->variance_percentage = number_format(($this->difference_quantity / $this->expected_quantity) * 100, 2, '.', '');
             }
 
             // Determine if adjustment is required
-            $this->adjustment_required = abs($this->difference_quantity) > 0;
+            $this->adjustment_required = abs((float) $this->difference_quantity) > 0;
         }
     }
 
@@ -216,12 +216,12 @@ class InventoryAuditItem extends Model
 
     public function getAbsoluteVariance()
     {
-        return abs($this->difference_quantity);
+        return abs((float) $this->difference_quantity);
     }
 
     public function getAbsoluteVarianceValue()
     {
-        return abs($this->value_difference);
+        return abs((float) $this->value_difference);
     }
 
     public function markAsCounted($quantity, $userId = null)

@@ -59,10 +59,10 @@ class Report extends Model
         return $this->hasMany(ReportExecution::class);
     }
 
-    public function schedules()
-    {
-        return $this->hasMany(ReportSchedule::class);
-    }
+    // public function schedules()
+    // {
+    //     return $this->hasMany(ReportSchedule::class);
+    // }
 
     public function getFormattedFiltersAttribute()
     {
