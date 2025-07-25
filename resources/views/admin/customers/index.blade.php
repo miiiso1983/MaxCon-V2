@@ -1,7 +1,139 @@
 @extends('layouts.modern')
 
-@section('page-title', 'إدارة عملاء ' . $tenant->name)
+@section('page-title', "إدارة عملاء {$tenant->name}")
 @section('page-description', 'عرض وإدارة عملاء المستأجر مع الحدود المسموحة')
+
+@push('styles')
+<style>
+    .progress-bar-container {
+        width: 100%;
+        background: #e2e8f0;
+        border-radius: 10px;
+        height: 12px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+
+    .status-toggle-btn {
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-deactivate {
+        background-color: #e53e3e;
+    }
+
+    .btn-deactivate:hover {
+        background-color: #c53030;
+        transform: translateY(-1px);
+    }
+
+    .btn-activate {
+        background-color: #38a169;
+    }
+
+    .btn-activate:hover {
+        background-color: #2f855a;
+        transform: translateY(-1px);
+    }
+
+    /* Responsive improvements for mobile */
+    @media (max-width: 767px) {
+        .table-responsive {
+            font-size: 14px;
+            margin: 0 8px;
+        }
+
+        .table th,
+        .table td {
+            padding: 8px 4px;
+            font-size: 12px;
+        }
+
+        .status-toggle-btn {
+            padding: 8px 12px;
+            font-size: 14px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .btn {
+            min-height: 44px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            margin: 8px;
+            border-radius: 12px;
+        }
+
+        .card-header,
+        .card-body {
+            padding: 16px;
+        }
+
+        /* Hide some columns on mobile */
+        .hidden-mobile {
+            display: none !important;
+        }
+
+        /* Stack action buttons vertically on mobile */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .action-buttons form {
+            width: 100%;
+        }
+
+        .action-buttons button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Tablet improvements */
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .table th,
+        .table td {
+            padding: 10px 8px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 14px;
+        }
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply progress bar styles
+    const progressBars = document.querySelectorAll('.progress-bar-fill');
+    progressBars.forEach(bar => {
+        const width = bar.getAttribute('data-width');
+        const color = bar.getAttribute('data-color');
+        bar.style.width = width + '%';
+        bar.style.backgroundColor = color;
+    });
+});
+</script>
+@endpush
 
 @section('content')
 <!-- Page Header -->
@@ -103,8 +235,10 @@
         @php
             $progressColor = $statistics['usage_percentage'] >= 80 ? '#e53e3e' : ($statistics['usage_percentage'] >= 60 ? '#dd6b20' : '#38a169');
         @endphp
-        <div style="width: 100%; background: #e2e8f0; border-radius: 10px; height: 12px; overflow: hidden;">
-            <div style="width: {{ min(100, $statistics['usage_percentage']) }}%; background: {{ $progressColor }}; height: 100%; border-radius: 10px; transition: width 0.3s ease;"></div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill"
+                 data-width="{{ min(100, $statistics['usage_percentage']) }}"
+                 data-color="{{ $progressColor }}"></div>
         </div>
     </div>
     
@@ -168,15 +302,15 @@
     </div>
     
     @if($customers->count() > 0)
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse;">
+        <div class="table-responsive">
+            <table class="table">
                 <thead>
                     <tr style="background: #f7fafc;">
                         <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">العميل</th>
-                        <th style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">كود العميل</th>
-                        <th style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">الهاتف</th>
+                        <th class="hidden-mobile" style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">كود العميل</th>
+                        <th class="hidden-mobile" style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">الهاتف</th>
                         <th style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">الحالة</th>
-                        <th style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">تاريخ التسجيل</th>
+                        <th class="hidden-mobile" style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">تاريخ التسجيل</th>
                         <th style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #4a5568;">الإجراءات</th>
                     </tr>
                 </thead>
@@ -194,10 +328,10 @@
                                 </div>
                             </div>
                         </td>
-                        <td style="padding: 12px; text-align: center; color: #4a5568; font-family: monospace;">
+                        <td class="hidden-mobile" style="padding: 12px; text-align: center; color: #4a5568; font-family: monospace;">
                             {{ $customer->customer_code ?? 'غير محدد' }}
                         </td>
-                        <td style="padding: 12px; text-align: center; color: #4a5568;">
+                        <td class="hidden-mobile" style="padding: 12px; text-align: center; color: #4a5568;">
                             {{ $customer->phone ?? 'غير محدد' }}
                         </td>
                         <td style="padding: 12px; text-align: center;">
@@ -213,11 +347,11 @@
                                 </span>
                             @endif
                         </td>
-                        <td style="padding: 12px; text-align: center; color: #4a5568; font-size: 14px;">
+                        <td class="hidden-mobile" style="padding: 12px; text-align: center; color: #4a5568; font-size: 14px;">
                             {{ $customer->created_at->format('Y-m-d') }}
                         </td>
                         <td style="padding: 12px; text-align: center;">
-                            <div style="display: flex; gap: 8px; justify-content: center;">
+                            <div class="action-buttons" style="display: flex; gap: 8px; justify-content: center;">
                                 <a href="{{ route('admin.customers.show', [$tenant, $customer]) }}" 
                                    style="background: #667eea; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     <i class="fas fa-eye"></i>
@@ -226,8 +360,8 @@
                                 <form method="POST" action="{{ route('admin.customers.toggle-status', [$tenant, $customer]) }}" style="display: inline;">
                                     @csrf
                                     @method('PATCH')
-                                    <button type="submit" 
-                                            style="background: {{ $customer->is_active ? '#e53e3e' : '#38a169' }}; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                                    <button type="submit"
+                                            class="status-toggle-btn {{ $customer->is_active ? 'btn-deactivate' : 'btn-activate' }}">
                                         <i class="fas fa-{{ $customer->is_active ? 'ban' : 'check' }}"></i>
                                     </button>
                                 </form>
