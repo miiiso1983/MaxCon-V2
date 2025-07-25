@@ -1,5 +1,120 @@
 /* Custom Select Dropdown Styles - MaxCon ERP */
 
+/* Custom Dropdown Structure */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    font-family: 'Cairo', sans-serif;
+}
+
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 45px;
+    direction: rtl;
+}
+
+.dropdown-header:hover {
+    border-color: #cbd5e0;
+}
+
+.dropdown-header.active {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.dropdown-placeholder {
+    color: #4a5568;
+    font-size: 14px;
+    flex: 1;
+    text-align: right;
+}
+
+.dropdown-arrow {
+    color: #a0aec0;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.dropdown-header.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.dropdown-search {
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+    direction: rtl;
+    text-align: right;
+    outline: none;
+}
+
+.dropdown-search:focus {
+    background: #f7fafc;
+}
+
+.dropdown-options {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.dropdown-option {
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f7fafc;
+    direction: rtl;
+    text-align: right;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.dropdown-option:hover {
+    background-color: #f7fafc;
+}
+
+.dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.dropdown-option.selected {
+    background-color: #667eea;
+    color: white;
+}
+
+.dropdown-option.hidden {
+    display: none;
+}
+
 /* Base Select Styling */
 .custom-select-wrapper {
     position: relative;
