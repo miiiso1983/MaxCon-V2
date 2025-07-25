@@ -97,12 +97,18 @@
             <!-- الدور -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">الدور</label>
-                <select name="role" data-custom-select data-placeholder="اختر الدور..." data-searchable="false">
+                <select name="role" data-custom-select data-placeholder="اختر الدور..." data-searchable="true">
                     <option value="">اختر الدور</option>
                     <option value="super-admin" {{ old('role') == 'super-admin' ? 'selected' : '' }}>مدير عام</option>
                     <option value="tenant-admin" {{ old('role') == 'tenant-admin' ? 'selected' : '' }}>مدير مستأجر</option>
                     <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>مدير</option>
                     <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>موظف</option>
+                    <option value="accountant" {{ old('role') == 'accountant' ? 'selected' : '' }}>محاسب</option>
+                    <option value="pharmacist" {{ old('role') == 'pharmacist' ? 'selected' : '' }}>صيدلاني</option>
+                    <option value="sales-rep" {{ old('role') == 'sales-rep' ? 'selected' : '' }}>مندوب مبيعات</option>
+                    <option value="warehouse-manager" {{ old('role') == 'warehouse-manager' ? 'selected' : '' }}>مدير مستودع</option>
+                    <option value="quality-manager" {{ old('role') == 'quality-manager' ? 'selected' : '' }}>مدير جودة</option>
+                    <option value="hr-manager" {{ old('role') == 'hr-manager' ? 'selected' : '' }}>مدير موارد بشرية</option>
                 </select>
                 @error('role')
                     <div style="color: #e53e3e; font-size: 12px; margin-top: 4px;">{{ $message }}</div>

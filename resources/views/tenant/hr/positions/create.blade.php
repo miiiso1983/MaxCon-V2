@@ -186,16 +186,20 @@
                     <!-- Education Level -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">المستوى التعليمي المطلوب</label>
-                        <select name="education_level" 
+                        <select name="education_level" data-custom-select data-placeholder="اختر المستوى التعليمي..." data-searchable="false"
                                 style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='#9f7aea'" 
+                                onfocus="this.style.borderColor='#9f7aea'"
                                 onblur="this.style.borderColor='#e2e8f0'">
                             <option value="">غير محدد</option>
+                            <option value="elementary">ابتدائية</option>
+                            <option value="middle_school">متوسطة</option>
                             <option value="high_school">الثانوية العامة</option>
+                            <option value="vocational">مهني</option>
                             <option value="diploma">دبلوم</option>
                             <option value="bachelor">بكالوريوس</option>
                             <option value="master">ماجستير</option>
                             <option value="phd">دكتوراه</option>
+                            <option value="postdoc">ما بعد الدكتوراه</option>
                         </select>
                     </div>
 

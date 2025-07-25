@@ -174,9 +174,10 @@
                             <input type="number" name="target_value" value="{{ old('target_value') }}" step="0.01" min="0"
                                    style="flex: 1; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;"
                                    placeholder="0.00">
-                            <select name="currency" style="width: 100px; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
+                            <select name="currency" data-custom-select data-placeholder="العملة" data-searchable="false" style="width: 100px; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
                                 <option value="IQD" {{ old('currency') == 'IQD' ? 'selected' : '' }}>IQD</option>
                                 <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD</option>
+                                <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>EUR</option>
                                 <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>EUR</option>
                             </select>
                         </div>

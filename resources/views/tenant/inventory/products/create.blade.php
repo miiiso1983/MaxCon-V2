@@ -164,13 +164,27 @@
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">
                             وحدة القياس <span style="color: #ef4444;">*</span>
                         </label>
-                        <select name="base_unit" required
+                        <select name="base_unit" required data-custom-select data-placeholder="اختر وحدة القياس..." data-searchable="true"
                                 style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border-color 0.3s;"
                                 onfocus="this.style.borderColor='#3b82f6'"
                                 onblur="this.style.borderColor='#e2e8f0'">
+                            <option value="">اختر وحدة القياس</option>
                             <option value="piece" {{ old('base_unit', 'piece') === 'piece' ? 'selected' : '' }}>قطعة</option>
                             <option value="box" {{ old('base_unit') === 'box' ? 'selected' : '' }}>علبة</option>
                             <option value="bottle" {{ old('base_unit') === 'bottle' ? 'selected' : '' }}>زجاجة</option>
+                            <option value="pack" {{ old('base_unit') === 'pack' ? 'selected' : '' }}>حزمة</option>
+                            <option value="tube" {{ old('base_unit') === 'tube' ? 'selected' : '' }}>أنبوب</option>
+                            <option value="vial" {{ old('base_unit') === 'vial' ? 'selected' : '' }}>قارورة</option>
+                            <option value="ampoule" {{ old('base_unit') === 'ampoule' ? 'selected' : '' }}>أمبولة</option>
+                            <option value="capsule" {{ old('base_unit') === 'capsule' ? 'selected' : '' }}>كبسولة</option>
+                            <option value="tablet" {{ old('base_unit') === 'tablet' ? 'selected' : '' }}>قرص</option>
+                            <option value="sachet" {{ old('base_unit') === 'sachet' ? 'selected' : '' }}>كيس</option>
+                            <option value="strip" {{ old('base_unit') === 'strip' ? 'selected' : '' }}>شريط</option>
+                            <option value="blister" {{ old('base_unit') === 'blister' ? 'selected' : '' }}>بليستر</option>
+                            <option value="ml" {{ old('base_unit') === 'ml' ? 'selected' : '' }}>مليلتر</option>
+                            <option value="liter" {{ old('base_unit') === 'liter' ? 'selected' : '' }}>لتر</option>
+                            <option value="gram" {{ old('base_unit') === 'gram' ? 'selected' : '' }}>جرام</option>
+                            <option value="kg" {{ old('base_unit') === 'kg' ? 'selected' : '' }}>كيلوجرام</option>
                             <option value="tube" {{ old('base_unit') === 'tube' ? 'selected' : '' }}>أنبوب</option>
                             <option value="vial" {{ old('base_unit') === 'vial' ? 'selected' : '' }}>قارورة</option>
                             <option value="pack" {{ old('base_unit') === 'pack' ? 'selected' : '' }}>عبوة</option>

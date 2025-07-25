@@ -277,10 +277,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         <div>
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">الحالة</label>
-            <select name="status" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+            <select name="status" data-custom-select data-placeholder="اختر الحالة..." data-searchable="false" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
                 <option value="">جميع الحالات</option>
                 <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>نشط</option>
                 <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>غير نشط</option>
+                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>في الانتظار</option>
+                <option value="suspended" {{ request('status') === 'suspended' ? 'selected' : '' }}>معلق</option>
             </select>
         </div>
         

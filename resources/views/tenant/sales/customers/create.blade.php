@@ -184,13 +184,26 @@
             <!-- Country -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الدولة *</label>
-                <select name="country" required data-custom-select data-placeholder="اختر الدولة..." data-search-placeholder="ابحث عن الدولة...">
+                <select name="country" required data-custom-select data-placeholder="اختر الدولة..." data-search-placeholder="ابحث عن الدولة..." data-searchable="true">
                     <option value="">اختر الدولة</option>
                     <option value="IQ" {{ old('country', 'IQ') === 'IQ' ? 'selected' : '' }}>العراق</option>
                     <option value="SA" {{ old('country') === 'SA' ? 'selected' : '' }}>السعودية</option>
                     <option value="AE" {{ old('country') === 'AE' ? 'selected' : '' }}>الإمارات</option>
                     <option value="KW" {{ old('country') === 'KW' ? 'selected' : '' }}>الكويت</option>
                     <option value="QA" {{ old('country') === 'QA' ? 'selected' : '' }}>قطر</option>
+                    <option value="BH" {{ old('country') === 'BH' ? 'selected' : '' }}>البحرين</option>
+                    <option value="OM" {{ old('country') === 'OM' ? 'selected' : '' }}>عمان</option>
+                    <option value="JO" {{ old('country') === 'JO' ? 'selected' : '' }}>الأردن</option>
+                    <option value="LB" {{ old('country') === 'LB' ? 'selected' : '' }}>لبنان</option>
+                    <option value="SY" {{ old('country') === 'SY' ? 'selected' : '' }}>سوريا</option>
+                    <option value="EG" {{ old('country') === 'EG' ? 'selected' : '' }}>مصر</option>
+                    <option value="LY" {{ old('country') === 'LY' ? 'selected' : '' }}>ليبيا</option>
+                    <option value="TN" {{ old('country') === 'TN' ? 'selected' : '' }}>تونس</option>
+                    <option value="DZ" {{ old('country') === 'DZ' ? 'selected' : '' }}>الجزائر</option>
+                    <option value="MA" {{ old('country') === 'MA' ? 'selected' : '' }}>المغرب</option>
+                    <option value="SD" {{ old('country') === 'SD' ? 'selected' : '' }}>السودان</option>
+                    <option value="YE" {{ old('country') === 'YE' ? 'selected' : '' }}>اليمن</option>
+                    <option value="PS" {{ old('country') === 'PS' ? 'selected' : '' }}>فلسطين</option>
                     <option value="BH" {{ old('country') === 'BH' ? 'selected' : '' }}>البحرين</option>
                     <option value="OM" {{ old('country') === 'OM' ? 'selected' : '' }}>عمان</option>
                     <option value="JO" {{ old('country') === 'JO' ? 'selected' : '' }}>الأردن</option>

@@ -94,7 +94,7 @@
             
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">السنة</label>
-                <select name="year" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
+                <select name="year" data-custom-select data-placeholder="اختر السنة..." data-searchable="false" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
                     <option value="">جميع السنوات</option>
                     @for($year = date('Y'); $year >= date('Y') - 3; $year--)
                         <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>

@@ -40,13 +40,20 @@
             
             <div>
                 <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">القسم</label>
-                <select name="department_id" style="width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                <select name="department_id" data-custom-select data-placeholder="اختر القسم..." data-searchable="true" style="width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     <option value="">جميع الأقسام</option>
                     <option value="1">الإدارة العامة</option>
                     <option value="2">الموارد البشرية</option>
                     <option value="3">المالية والمحاسبة</option>
                     <option value="4">المبيعات والتسويق</option>
                     <option value="5">تقنية المعلومات</option>
+                    <option value="6">الإنتاج والتصنيع</option>
+                    <option value="7">ضمان الجودة</option>
+                    <option value="8">البحث والتطوير</option>
+                    <option value="9">الشؤون التنظيمية</option>
+                    <option value="10">المشتريات والتوريد</option>
+                    <option value="11">المستودعات والتوزيع</option>
+                    <option value="12">خدمة العملاء</option>
                 </select>
             </div>
             

@@ -88,7 +88,7 @@
             
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">اختر الفئة:</label>
-                <select id="categorySelect" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                <select id="categorySelect" data-custom-select data-placeholder="اختر فئة..." data-searchable="true" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
                     <option value="">اختر فئة...</option>
                     @foreach($categories as $category)
                         <option value="{{ $category->id }}" data-count="{{ $category->products_count }}">

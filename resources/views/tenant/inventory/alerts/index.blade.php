@@ -59,7 +59,7 @@
     <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
         <div>
             <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #4a5568;">المستودع</label>
-            <select name="warehouse_id" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <select name="warehouse_id" data-custom-select data-placeholder="اختر المستودع..." data-searchable="true" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
                 <option value="">جميع المستودعات</option>
                 @foreach($warehouses as $warehouse)
                     <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>

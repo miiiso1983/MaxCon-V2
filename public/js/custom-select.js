@@ -353,20 +353,93 @@ class CustomSelect {
 
 // Auto-initialize all select elements with data-custom-select attribute
 document.addEventListener('DOMContentLoaded', function() {
-    const selects = document.querySelectorAll('select[data-custom-select]');
-    
-    selects.forEach(select => {
-        const options = {
-            searchable: select.dataset.searchable !== 'false',
-            multiple: select.hasAttribute('multiple'),
-            placeholder: select.dataset.placeholder || 'اختر خياراً...',
-            searchPlaceholder: select.dataset.searchPlaceholder || 'البحث...',
-            noResultsText: select.dataset.noResultsText || 'لا توجد نتائج',
-        };
-        
-        new CustomSelect(select, options);
-    });
+    initializeAllSelects();
 });
+
+// Function to initialize all selects (both with and without data-custom-select)
+function initializeAllSelects() {
+    // Initialize custom selects first
+    const customSelects = document.querySelectorAll('select[data-custom-select]');
+    customSelects.forEach(select => {
+        if (!select.dataset.initialized) {
+            const options = {
+                searchable: select.dataset.searchable !== 'false',
+                multiple: select.hasAttribute('multiple'),
+                placeholder: select.dataset.placeholder || 'اختر خياراً...',
+                searchPlaceholder: select.dataset.searchPlaceholder || 'البحث...',
+                noResultsText: select.dataset.noResultsText || 'لا توجد نتائج',
+            };
+
+            new CustomSelect(select, options);
+            select.dataset.initialized = 'true';
+        }
+    });
+
+    // Initialize all other selects that don't have data-custom-select
+    const allSelects = document.querySelectorAll('select:not([data-custom-select]):not([data-no-search])');
+    allSelects.forEach(select => {
+        if (!select.dataset.initialized && !isSelectIgnored(select)) {
+            // Add data-custom-select attribute
+            select.setAttribute('data-custom-select', '');
+
+            // Determine if should be searchable based on number of options
+            const optionCount = select.options.length;
+            const shouldBeSearchable = optionCount > 5;
+
+            const options = {
+                searchable: shouldBeSearchable,
+                multiple: select.hasAttribute('multiple'),
+                placeholder: getSelectPlaceholder(select),
+                searchPlaceholder: 'البحث...',
+                noResultsText: 'لا توجد نتائج',
+            };
+
+            new CustomSelect(select, options);
+            select.dataset.initialized = 'true';
+        }
+    });
+}
+
+// Function to check if select should be ignored
+function isSelectIgnored(select) {
+    // Ignore selects in certain contexts
+    const ignoredParents = [
+        '.dataTables_length',
+        '.pagination',
+        '.dt-buttons',
+        '[data-no-custom-select]'
+    ];
+
+    for (let selector of ignoredParents) {
+        if (select.closest(selector)) {
+            return true;
+        }
+    }
+
+    // Ignore very small selects (like pagination)
+    if (select.options.length <= 2) {
+        return true;
+    }
+
+    return false;
+}
+
+// Function to get appropriate placeholder for select
+function getSelectPlaceholder(select) {
+    // Check if first option is a placeholder
+    const firstOption = select.options[0];
+    if (firstOption && (firstOption.value === '' || firstOption.textContent.includes('اختر') || firstOption.textContent.includes('جميع'))) {
+        return firstOption.textContent;
+    }
+
+    // Generate placeholder based on context
+    const label = select.closest('.form-group, div')?.querySelector('label')?.textContent?.trim();
+    if (label) {
+        return `اختر ${label.replace('*', '').trim()}...`;
+    }
+
+    return 'اختر خياراً...';
+}
 
 // Global function to initialize custom select
 window.initCustomSelect = function(element, options = {}) {
@@ -375,20 +448,89 @@ window.initCustomSelect = function(element, options = {}) {
 
 // Global function to initialize all selects in a container
 window.initCustomSelects = function(container = document) {
-    const selects = container.querySelectorAll('select[data-custom-select]');
     const instances = [];
-    
-    selects.forEach(select => {
-        const options = {
-            searchable: select.dataset.searchable !== 'false',
-            multiple: select.hasAttribute('multiple'),
-            placeholder: select.dataset.placeholder || 'اختر خياراً...',
-            searchPlaceholder: select.dataset.searchPlaceholder || 'البحث...',
-            noResultsText: select.dataset.noResultsText || 'لا توجد نتائج',
-        };
-        
-        instances.push(new CustomSelect(select, options));
+
+    // Initialize custom selects first
+    const customSelects = container.querySelectorAll('select[data-custom-select]');
+    customSelects.forEach(select => {
+        if (!select.dataset.initialized) {
+            const options = {
+                searchable: select.dataset.searchable !== 'false',
+                multiple: select.hasAttribute('multiple'),
+                placeholder: select.dataset.placeholder || 'اختر خياراً...',
+                searchPlaceholder: select.dataset.searchPlaceholder || 'البحث...',
+                noResultsText: select.dataset.noResultsText || 'لا توجد نتائج',
+            };
+
+            instances.push(new CustomSelect(select, options));
+            select.dataset.initialized = 'true';
+        }
     });
-    
+
+    // Initialize all other selects
+    const allSelects = container.querySelectorAll('select:not([data-custom-select]):not([data-no-search])');
+    allSelects.forEach(select => {
+        if (!select.dataset.initialized && !isSelectIgnored(select)) {
+            select.setAttribute('data-custom-select', '');
+
+            const optionCount = select.options.length;
+            const shouldBeSearchable = optionCount > 5;
+
+            const options = {
+                searchable: shouldBeSearchable,
+                multiple: select.hasAttribute('multiple'),
+                placeholder: getSelectPlaceholder(select),
+                searchPlaceholder: 'البحث...',
+                noResultsText: 'لا توجد نتائج',
+            };
+
+            instances.push(new CustomSelect(select, options));
+            select.dataset.initialized = 'true';
+        }
+    });
+
     return instances;
 };
+
+// Function to reinitialize selects after dynamic content load
+window.reinitializeSelects = function(container = document) {
+    // Remove existing custom select wrappers in container
+    const existingWrappers = container.querySelectorAll('.custom-select-wrapper');
+    existingWrappers.forEach(wrapper => {
+        const originalSelect = wrapper.querySelector('select');
+        if (originalSelect) {
+            originalSelect.dataset.initialized = '';
+            wrapper.parentNode.insertBefore(originalSelect, wrapper);
+            wrapper.remove();
+        }
+    });
+
+    // Reinitialize all selects
+    return window.initCustomSelects(container);
+};
+
+// Auto-reinitialize on common dynamic content events
+document.addEventListener('DOMContentLoaded', function() {
+    // Listen for common AJAX/dynamic content events
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        const newSelects = node.querySelectorAll ? node.querySelectorAll('select:not([data-initialized])') : [];
+                        if (newSelects.length > 0 || (node.tagName === 'SELECT' && !node.dataset.initialized)) {
+                            setTimeout(() => {
+                                window.initCustomSelects(node.parentNode || document);
+                            }, 100);
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});

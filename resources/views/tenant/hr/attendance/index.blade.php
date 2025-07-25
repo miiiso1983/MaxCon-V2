@@ -302,12 +302,18 @@ function addAttendanceRecord() {
             <form id="attendanceForm">
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الموظف</label>
-                    <select required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    <select required data-custom-select data-placeholder="اختر الموظف..." data-searchable="true" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                         <option value="">اختر الموظف</option>
-                        <option value="1">أحمد محمد</option>
-                        <option value="2">سارة أحمد</option>
-                        <option value="3">محمد علي</option>
-                        <option value="4">فاطمة حسن</option>
+                        <option value="1">أحمد محمد - مطور برمجيات</option>
+                        <option value="2">سارة أحمد - محاسبة</option>
+                        <option value="3">محمد علي - مدير مبيعات</option>
+                        <option value="4">فاطمة حسن - صيدلانية</option>
+                        <option value="5">علي حسين - مندوب مبيعات</option>
+                        <option value="6">نور الدين - مدير مستودع</option>
+                        <option value="7">ليلى عبدالله - مسؤولة جودة</option>
+                        <option value="8">خالد أحمد - مدير إنتاج</option>
+                        <option value="9">مريم سالم - مسؤولة موارد بشرية</option>
+                        <option value="10">يوسف محمود - مدير تسويق</option>
                     </select>
                 </div>
 

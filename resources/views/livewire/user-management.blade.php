@@ -36,7 +36,7 @@
             <!-- Role Filter -->
             <div>
                 <label class="form-label">تصفية حسب الدور</label>
-                <select wire:model.live="selectedRole" class="form-input">
+                <select wire:model.live="selectedRole" class="form-input" data-custom-select data-placeholder="اختر الدور..." data-searchable="true">
                     <option value="">جميع الأدوار</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->name }}">
@@ -46,6 +46,12 @@
                                 @case('manager') مدير @break
                                 @case('employee') موظف @break
                                 @case('customer') عميل @break
+                                @case('accountant') محاسب @break
+                                @case('pharmacist') صيدلاني @break
+                                @case('sales-rep') مندوب مبيعات @break
+                                @case('warehouse-manager') مدير مستودع @break
+                                @case('quality-manager') مدير جودة @break
+                                @case('hr-manager') مدير موارد بشرية @break
                                 @default {{ ucfirst($role->name) }}
                             @endswitch
                         </option>

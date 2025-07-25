@@ -22,6 +22,9 @@
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
     <link rel="stylesheet" href="{{ asset('css/mobile-enhancements.css') }}">
 
+    <!-- Custom Select CSS -->
+    <link rel="stylesheet" href="{{ asset('css/custom-select.css') }}">
+
     <!-- Custom Styles -->
     <style>
         /* Reset and hide any conflicting elements */
@@ -861,6 +864,11 @@
 
     <!-- Responsive Scripts -->
     <script src="{{ asset('js/responsive.js') }}"></script>
+
+    <!-- Custom Select Scripts -->
+    <script src="{{ asset('js/custom-select.js') }}"></script>
+    <script src="{{ asset('js/universal-dropdowns.js') }}"></script>
+    <script src="{{ asset('js/dropdown-initializer.js') }}"></script>
 
     @stack('scripts')
 </body>

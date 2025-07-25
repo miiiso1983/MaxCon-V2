@@ -217,7 +217,7 @@ function addOrderItem() {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                 <div>
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
-                    <select name="items[${itemCounter}][product_id]" required onchange="updateProductInfo(${itemCounter})" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                    <select name="items[${itemCounter}][product_id]" required data-custom-select data-placeholder="اختر المنتج..." data-searchable="true" onchange="updateProductInfo(${itemCounter})" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
                         <option value="">اختر المنتج</option>
                         ${products.map(product => `<option value="${product.id}" data-price="${product.selling_price}" data-tax="${product.tax_rate}">${product.name} (${product.product_code})</option>`).join('')}
                     </select>

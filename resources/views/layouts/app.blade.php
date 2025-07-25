@@ -114,6 +114,8 @@
 
     <!-- Custom Select JavaScript -->
     <script src="{{ asset('js/custom-select.js') }}"></script>
+    <script src="{{ asset('js/universal-dropdowns.js') }}"></script>
+    <script src="{{ asset('js/dropdown-initializer.js') }}"></script>
 
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
