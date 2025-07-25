@@ -39,11 +39,11 @@ class OrderController extends Controller
 
         // Apply filters
         if ($request->filled('status')) {
-            $query->withStatus($request->status);
+            $query->withStatus($request->input('status'));
         }
 
         if ($request->filled('date_from') && $request->filled('date_to')) {
-            $query->dateRange($request->date_from, $request->date_to);
+            $query->dateRange($request->input('date_from'), $request->input('date_to'));
         }
 
         $orders = $query->paginate(15);
@@ -66,7 +66,7 @@ class OrderController extends Controller
         $customer = Auth::guard('customer')->user();
         
         // Check if order belongs to customer
-        if ($order->customer_id !== $customer->id) {
+        if ($order->getAttribute('customer_id') !== $customer->id) {
             abort(403, 'ليس لديك صلاحية لعرض هذا الطلب');
         }
 
@@ -78,7 +78,7 @@ class OrderController extends Controller
     /**
      * Show create order form
      */
-    public function create(): View
+    public function create(): View|\Illuminate\Http\RedirectResponse
     {
         $customer = Auth::guard('customer')->user();
         
@@ -135,25 +135,25 @@ class OrderController extends Controller
                 'customer_id' => $customer->id,
                 'tenant_id' => $customer->tenant_id,
                 'status' => CustomerOrder::STATUS_PENDING,
-                'required_date' => $request->required_date,
-                'delivery_address' => $request->delivery_address,
-                'delivery_city' => $request->delivery_city,
-                'delivery_phone' => $request->delivery_phone,
-                'notes' => $request->notes,
-                'priority' => $request->priority,
+                'required_date' => $request->input('required_date'),
+                'delivery_address' => $request->input('delivery_address'),
+                'delivery_city' => $request->input('delivery_city'),
+                'delivery_phone' => $request->input('delivery_phone'),
+                'notes' => $request->input('notes'),
+                'priority' => $request->input('priority'),
                 'currency' => 'IQD',
                 'payment_status' => CustomerOrder::PAYMENT_PENDING,
             ]);
 
             // Create order items
-            foreach ($request->items as $itemData) {
+            foreach ($request->input('items', []) as $itemData) {
                 $product = Product::find($itemData['product_id']);
                 
                 CustomerOrderItem::create([
-                    'customer_order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'product_name' => $product->name,
-                    'product_code' => $product->code,
+                    'customer_order_id' => $order->getAttribute('id'),
+                    'product_id' => $product->getAttribute('id'),
+                    'product_name' => $product->getAttribute('name'),
+                    'product_code' => $product->getAttribute('code'),
                     'quantity' => $itemData['quantity'],
                     'unit_price' => $itemData['unit_price'],
                     'notes' => $itemData['notes'] ?? null,
@@ -180,12 +180,12 @@ class OrderController extends Controller
     /**
      * Show edit order form
      */
-    public function edit(CustomerOrder $order): View
+    public function edit(CustomerOrder $order): View|\Illuminate\Http\RedirectResponse
     {
         $customer = Auth::guard('customer')->user();
         
         // Check if order belongs to customer
-        if ($order->customer_id !== $customer->id) {
+        if ($order->getAttribute('customer_id') !== $customer->id) {
             abort(403, 'ليس لديك صلاحية لتعديل هذا الطلب');
         }
 
@@ -213,7 +213,7 @@ class OrderController extends Controller
         $customer = Auth::guard('customer')->user();
         
         // Check if order belongs to customer
-        if ($order->customer_id !== $customer->id) {
+        if ($order->getAttribute('customer_id') !== $customer->id) {
             abort(403, 'ليس لديك صلاحية لتعديل هذا الطلب');
         }
 
@@ -292,7 +292,7 @@ class OrderController extends Controller
         $customer = Auth::guard('customer')->user();
         
         // Check if order belongs to customer
-        if ($order->customer_id !== $customer->id) {
+        if ($order->getAttribute('customer_id') !== $customer->id) {
             abort(403, 'ليس لديك صلاحية لإلغاء هذا الطلب');
         }
 
@@ -300,7 +300,7 @@ class OrderController extends Controller
             'cancellation_reason' => 'required|string|max:500',
         ]);
 
-        if ($order->cancel($request->cancellation_reason)) {
+        if ($order->cancel($request->input('cancellation_reason'))) {
             return redirect()->route('customer.orders.index')
                 ->with('success', 'تم إلغاء الطلب بنجاح');
         }

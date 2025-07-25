@@ -27,23 +27,23 @@ class InventoryAuditController extends Controller
 
         // Apply filters
         if ($request->filled('warehouse_id')) {
-            $query->where('warehouse_id', $request->warehouse_id);
+            $query->where('warehouse_id', $request->input('warehouse_id'));
         }
 
         if ($request->filled('audit_type')) {
-            $query->where('audit_type', $request->audit_type);
+            $query->where('audit_type', $request->input('audit_type'));
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $request->input('status'));
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('scheduled_date', '>=', $request->date_from);
+            $query->whereDate('scheduled_date', '>=', $request->input('date_from'));
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('scheduled_date', '<=', $request->date_to);
+            $query->whereDate('scheduled_date', '<=', $request->input('date_to'));
         }
 
         $audits = $query->orderBy('scheduled_date', 'desc')
@@ -112,11 +112,11 @@ class InventoryAuditController extends Controller
         InventoryAudit::create([
             'tenant_id' => $tenantId,
             'audit_number' => $auditNumber,
-            'warehouse_id' => $request->warehouse_id,
-            'audit_type' => $request->audit_type,
-            'status' => $request->status,
-            'scheduled_date' => $request->scheduled_date,
-            'notes' => $request->notes,
+            'warehouse_id' => $request->input('warehouse_id'),
+            'audit_type' => $request->input('audit_type'),
+            'status' => $request->input('status'),
+            'scheduled_date' => $request->input('scheduled_date'),
+            'notes' => $request->input('notes'),
             'created_by' => $user->id,
         ]);
 

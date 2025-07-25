@@ -140,7 +140,7 @@ class CostCenterController extends Controller
     {
         $user = Auth::user();
         
-        if ($costCenter->tenant_id !== $user->tenant_id) {
+        if ($costCenter->getAttribute('tenant_id') !== $user->tenant_id) {
             abort(403);
         }
 
