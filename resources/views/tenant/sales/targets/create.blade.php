@@ -222,12 +222,19 @@
 </div>
 
 <!-- JavaScript -->
+<script type="text/javascript">
+    window.entitiesData = {
+        product: {!! json_encode($products ?? []) !!},
+        vendor: {!! json_encode($vendors ?? []) !!},
+        sales_rep: {!! json_encode($salesReps ?? []) !!}
+    };
+</script>
 <script>
 // Data for entities
-const entitiesData = {
-    product: @json($products ?? []),
-    vendor: @json($vendors ?? []),
-    sales_rep: @json($salesReps ?? [])
+const entitiesData = window.entitiesData || {
+    product: [],
+    vendor: [],
+    sales_rep: []
 };
 
 // Update entity options based on target type

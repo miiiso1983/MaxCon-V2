@@ -195,10 +195,24 @@
 function exportToExcel() {
     // Create a simple CSV export
     let csv = 'المنتج,الكود,الكمية الإجمالية,الكمية المتاحة,الكمية المحجوزة,القيمة الإجمالية\n';
-    
-    @foreach($stockData as $data)
-        csv += '"{{ $data['product']->name }}","{{ $data['product']->code }}",{{ $data['total_quantity'] }},{{ $data['available_quantity'] }},{{ $data['reserved_quantity'] }},{{ $data['total_value'] }}\n';
-    @endforeach
+
+    // Get data from table
+    const table = document.querySelector('.table tbody');
+    const rows = table.querySelectorAll('tr');
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 6) {
+            const productName = cells[0].textContent.trim();
+            const productCode = cells[1].textContent.trim();
+            const totalQty = cells[2].textContent.trim();
+            const availableQty = cells[3].textContent.trim();
+            const reservedQty = cells[4].textContent.trim();
+            const totalValue = cells[5].textContent.trim();
+
+            csv += `"${productName}","${productCode}","${totalQty}","${availableQty}","${reservedQty}","${totalValue}"\n`;
+        }
+    });
     
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');

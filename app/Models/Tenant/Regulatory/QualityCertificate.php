@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasTenant;
 
+/**
+ * @property \Carbon\Carbon $expiry_date
+ * @property \Carbon\Carbon $issue_date
+ * @property \Carbon\Carbon $renewal_date
+ */
 class QualityCertificate extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;

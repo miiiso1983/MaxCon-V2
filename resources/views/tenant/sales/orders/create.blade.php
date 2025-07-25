@@ -202,9 +202,13 @@
 </form>
 
 @push('scripts')
+<script type="text/javascript">
+    window.productsData = {!! json_encode($products) !!};
+</script>
 <script>
 let itemCounter = 0;
-const products = @json($products);
+// Products data will be loaded from server
+const products = window.productsData || [];
 
 function addOrderItem() {
     itemCounter++;

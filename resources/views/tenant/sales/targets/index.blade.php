@@ -138,6 +138,11 @@
                     </thead>
                     <tbody>
                         @foreach($targets as $target)
+                            @php
+                                $progressColor = $target->progress_percentage >= 100 ? '#10b981' : ($target->progress_percentage >= 80 ? '#f59e0b' : '#3b82f6');
+                                $statusBg = $target->status_color === 'success' ? '#dcfce7' : ($target->status_color === 'danger' ? '#fef2f2' : ($target->status_color === 'warning' ? '#fef3c7' : '#f3f4f6'));
+                                $statusColor = $target->status_color === 'success' ? '#166534' : ($target->status_color === 'danger' ? '#dc2626' : ($target->status_color === 'warning' ? '#d97706' : '#374151'));
+                            @endphp
                             <tr style="border-bottom: 1px solid #f3f4f6;">
                                 <td style="padding: 15px;">
                                     <div>
@@ -192,13 +197,11 @@
                                         <span style="font-weight: 600; color: #374151;">{{ $target->progress_percentage }}%</span>
                                     </div>
                                     <div style="background: #e5e7eb; border-radius: 10px; height: 8px; overflow: hidden;">
-                                        <div style="background: {{ $target->progress_percentage >= 100 ? '#10b981' : ($target->progress_percentage >= 80 ? '#f59e0b' : '#3b82f6') }}; height: 100%; width: {{ min(100, $target->progress_percentage) }}%; transition: width 0.3s ease;"></div>
+                                        <div style="background: {{ $progressColor }}; height: 100%; width: {{ min(100, $target->progress_percentage) }}%; transition: width 0.3s ease;"></div>
                                     </div>
                                 </td>
                                 <td style="padding: 15px; text-align: center;">
-                                    <span style="background: {{ $target->status_color === 'success' ? '#dcfce7' : ($target->status_color === 'danger' ? '#fef2f2' : ($target->status_color === 'warning' ? '#fef3c7' : '#f3f4f6')) }}; 
-                                                 color: {{ $target->status_color === 'success' ? '#166534' : ($target->status_color === 'danger' ? '#dc2626' : ($target->status_color === 'warning' ? '#d97706' : '#374151')) }}; 
-                                                 padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                    <span style="background: {{ $statusBg }}; color: {{ $statusColor }}; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
                                         {{ $target->status_text }}
                                     </span>
                                 </td>
