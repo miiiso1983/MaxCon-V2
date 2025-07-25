@@ -81,7 +81,8 @@ class Shift extends Model
         $totalMinutes = $end->diffInMinutes($start);
         $totalMinutes -= $this->break_duration;
         
-        $this->total_hours = round($totalMinutes / 60, 2);
+        $hours = round($totalMinutes / 60, 2);
+        $this->setAttribute('total_hours', $hours);
         return $this->total_hours;
     }
 

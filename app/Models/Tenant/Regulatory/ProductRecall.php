@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use App\Traits\HasTenant;
 
+/**
+ * @property \Carbon\Carbon $completion_date
+ * @property \Carbon\Carbon $follow_up_date
+ * @property \Carbon\Carbon $initiated_date
+ */
 class ProductRecall extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;

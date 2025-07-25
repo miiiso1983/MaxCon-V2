@@ -62,8 +62,8 @@ class InventoryAdjustmentItem extends Model
 
     public function calculateTotalCostImpact()
     {
-        $impact = $this->adjustment_quantity * $this->unit_cost;
-        $this->total_cost_impact = $impact;
+        $impact = (float) ($this->adjustment_quantity * $this->unit_cost);
+        $this->setAttribute('total_cost_impact', $impact);
         return $this->total_cost_impact;
     }
 

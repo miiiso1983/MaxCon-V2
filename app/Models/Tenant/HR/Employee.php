@@ -75,11 +75,11 @@ class Employee extends Model
     ];
 
     protected $casts = [
-        'date_of_birth' => 'date',
-        'hire_date' => 'date',
-        'probation_end_date' => 'date',
-        'contract_start_date' => 'date',
-        'contract_end_date' => 'date',
+        'date_of_birth' => 'datetime',
+        'hire_date' => 'datetime',
+        'probation_end_date' => 'datetime',
+        'contract_start_date' => 'datetime',
+        'contract_end_date' => 'datetime',
         'termination_date' => 'date',
         'basic_salary' => 'decimal:2',
         'hourly_rate' => 'decimal:2',

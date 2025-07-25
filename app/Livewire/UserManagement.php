@@ -132,7 +132,7 @@ class UserManagement extends Component
         $this->userId = $user->id;
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->role = $user->roles->first()?->name ?? '';
+        $this->role = $user->getAttribute('roles')->first()?->name ?? '';
         $this->is_active = $user->is_active;
 
         $this->editMode = true;

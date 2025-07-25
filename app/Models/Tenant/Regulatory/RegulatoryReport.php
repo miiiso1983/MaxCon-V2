@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use App\Traits\HasTenant;
 
+/**
+ * @property \Carbon\Carbon $due_date
+ * @property \Carbon\Carbon $follow_up_date
+ * @property \Carbon\Carbon $submission_date
+ */
 class RegulatoryReport extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;

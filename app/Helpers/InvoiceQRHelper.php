@@ -56,7 +56,7 @@ class InvoiceQRHelper
                     'id' => $product->id,
                     'name' => $product->name,
                     'code' => $product->code ?? $product->product_code,
-                    'price' => number_format($product->selling_price, 2),
+                    'price' => number_format((float) $product->selling_price, 2),
                     'currency' => $product->currency ?? 'IQD',
                     'brand' => $product->brand,
                     'category' => $product->category ? $product->category->name : null,

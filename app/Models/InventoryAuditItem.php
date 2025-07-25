@@ -122,23 +122,23 @@ class InventoryAuditItem extends Model
     public function calculateDifference()
     {
         if ($this->counted_quantity !== null && $this->expected_quantity !== null) {
-            $diffQty = $this->counted_quantity - $this->expected_quantity;
-            $this->difference_quantity = $diffQty;
-            $this->variance = $diffQty;
+            $diffQty = (float) ($this->counted_quantity - $this->expected_quantity);
+            $this->setAttribute('difference_quantity', $diffQty);
+            $this->setAttribute('variance', $diffQty);
 
             if ($this->unit_cost > 0) {
-                $valueDiff = $diffQty * $this->unit_cost;
-                $this->value_difference = $valueDiff;
-                $this->variance_value = $valueDiff;
+                $valueDiff = (float) ($diffQty * $this->unit_cost);
+                $this->setAttribute('value_difference', $valueDiff);
+                $this->setAttribute('variance_value', $valueDiff);
             }
 
             if ($this->expected_quantity > 0) {
-                $varPercent = ($diffQty / $this->expected_quantity) * 100;
-                $this->variance_percentage = $varPercent;
+                $varPercent = (float) (($diffQty / $this->expected_quantity) * 100);
+                $this->setAttribute('variance_percentage', $varPercent);
             }
 
             // Determine if adjustment is required
-            $this->adjustment_required = abs((float) $diffQty) > 0;
+            $this->adjustment_required = abs($diffQty) > 0;
         }
     }
 

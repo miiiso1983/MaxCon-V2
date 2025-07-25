@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property \Carbon\Carbon $expiry_date
+ * @property \Carbon\Carbon $triggered_at
+ * @property \Carbon\Carbon $acknowledged_at
+ */
 class StockAlert extends Model
 {
     use HasFactory;

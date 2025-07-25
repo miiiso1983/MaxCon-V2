@@ -41,11 +41,11 @@ class QualityCertificate extends Model
     ];
 
     protected $casts = [
-        'issue_date' => 'date',
-        'expiry_date' => 'date',
-        'manufacturing_date' => 'date',
-        'expiry_date_product' => 'date',
-        'renewal_date' => 'date',
+        'issue_date' => 'datetime',
+        'expiry_date' => 'datetime',
+        'manufacturing_date' => 'datetime',
+        'expiry_date_product' => 'datetime',
+        'renewal_date' => 'datetime',
         'quality_parameters' => 'array',
         'test_results' => 'array',
         'specifications_met' => 'array',

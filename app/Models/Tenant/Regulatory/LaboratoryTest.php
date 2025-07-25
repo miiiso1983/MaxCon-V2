@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use App\Traits\HasTenant;
 
+/**
+ * @property \Carbon\Carbon $test_date
+ * @property \Carbon\Carbon $retest_date
+ * @property \Carbon\Carbon $completion_date
+ */
 class LaboratoryTest extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;
