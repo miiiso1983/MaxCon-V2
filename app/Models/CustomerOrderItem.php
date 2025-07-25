@@ -88,7 +88,8 @@ class CustomerOrderItem extends Model
      */
     public function getFormattedUnitPriceAttribute(): string
     {
-        return number_format((float) $this->unit_price, 2) . ' د.ع';
+        $price = $this->unit_price;
+        return number_format((float) $price, 2) . ' د.ع';
     }
 
     /**
@@ -96,7 +97,8 @@ class CustomerOrderItem extends Model
      */
     public function getFormattedTotalPriceAttribute(): string
     {
-        return number_format((float) $this->total_price, 2) . ' د.ع';
+        $total = $this->total_price;
+        return number_format((float) $total, 2) . ' د.ع';
     }
 
     /**

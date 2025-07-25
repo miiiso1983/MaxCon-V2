@@ -78,7 +78,7 @@ class OrderController extends Controller
     /**
      * Show create order form
      */
-    public function create(): View|\Illuminate\Http\RedirectResponse
+    public function create(): View|RedirectResponse
     {
         $customer = Auth::guard('customer')->user();
         
@@ -180,7 +180,7 @@ class OrderController extends Controller
     /**
      * Show edit order form
      */
-    public function edit(CustomerOrder $order): View|\Illuminate\Http\RedirectResponse
+    public function edit(CustomerOrder $order): View|RedirectResponse
     {
         $customer = Auth::guard('customer')->user();
         

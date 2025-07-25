@@ -25,7 +25,7 @@ class TenantRepository extends BaseRepository
     /**
      * Get all tenants with default ordering
      */
-    public function getAllWithPagination(int $perPage = 15): \Illuminate\Pagination\LengthAwarePaginator
+    public function getAllWithPagination(int $perPage = 15): LengthAwarePaginator
     {
         return Tenant::orderBy('created_at', 'desc')->paginate($perPage);
     }

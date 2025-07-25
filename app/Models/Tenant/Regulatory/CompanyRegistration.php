@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasTenant;
 use Illuminate\Support\Str;
 
+/**
+ * @property \Carbon\Carbon $license_expiry_date
+ * @property \Carbon\Carbon $registration_date
+ */
 class CompanyRegistration extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;

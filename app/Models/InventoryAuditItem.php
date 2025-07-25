@@ -138,7 +138,7 @@ class InventoryAuditItem extends Model
             }
 
             // Determine if adjustment is required
-            $this->adjustment_required = abs((float) $this->difference_quantity) > 0;
+            $this->adjustment_required = abs((float) $diffQty) > 0;
         }
     }
 

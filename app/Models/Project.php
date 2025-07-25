@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\BelongsToTenant;
 
+/**
+ * @property \Carbon\Carbon $start_date
+ * @property \Carbon\Carbon $end_date
+ */
 class Project extends Model
 {
     use SoftDeletes, BelongsToTenant;

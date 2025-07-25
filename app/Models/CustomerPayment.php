@@ -166,7 +166,8 @@ class CustomerPayment extends Model
      */
     public function getFormattedAmountAttribute(): string
     {
-        return number_format((float) $this->amount, 2) . ' ' . ($this->currency ?? 'د.ع');
+        $amount = $this->amount;
+        return number_format((float) $amount, 2) . ' ' . ($this->currency ?? 'د.ع');
     }
 
     /**
