@@ -30,6 +30,9 @@
     <!-- Responsive Styles -->
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 
+    <!-- Page Specific Styles -->
+    @stack('styles')
+
     <!-- Scripts -->
     <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
 
