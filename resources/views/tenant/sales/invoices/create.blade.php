@@ -861,8 +861,9 @@
 <script>
 let itemIndex = 1;
 
-// Handle ignore stock check warning
+// Main DOMContentLoaded event handler
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle ignore stock check warning
     const ignoreStockCheckbox = document.getElementById('ignore_stock_check');
     if (ignoreStockCheckbox) {
         ignoreStockCheckbox.addEventListener('change', function() {
@@ -873,6 +874,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Initialize custom dropdowns
+    console.log('Initializing custom dropdowns...');
+    initializeCustomDropdowns();
+
+    // Initialize calculations
+    calculateTotals();
+
+    // Add event listeners for currency changes
+    const currencyField = document.getElementById('currencyField');
+    if (currencyField) {
+        currencyField.addEventListener('change', calculateTotals);
+    }
+
+    console.log('Page initialization complete');
 });
 
 // Update customer information when customer is selected
@@ -1162,13 +1178,6 @@ function loadOrderItems() {
     }
 }
 
-// Initialize calculations on page load
-document.addEventListener('DOMContentLoaded', function() {
-    calculateTotals();
-
-    // Add event listeners for currency changes
-    document.getElementById('currencyField').addEventListener('change', calculateTotals);
-
     // Add form validation before submit
     document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         // Check if at least one item exists (excluding template)
@@ -1209,13 +1218,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return true;
     });
-
-    // Initialize custom dropdowns
-    initializeCustomDropdowns();
 });
 
 // Custom Dropdown Functions
 function toggleDropdown(header) {
+    console.log('toggleDropdown called');
     const dropdown = header.closest('.custom-dropdown');
     const content = dropdown.querySelector('.dropdown-content');
     const arrow = header.querySelector('.dropdown-arrow');
@@ -1311,8 +1318,12 @@ function filterOptions(searchInput) {
 }
 
 function initializeCustomDropdowns() {
+    console.log('initializeCustomDropdowns called');
+    const dropdowns = document.querySelectorAll('.custom-dropdown');
+    console.log('Found', dropdowns.length, 'custom dropdowns');
+
     // Set initial selected values based on data-selected attribute
-    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+    dropdowns.forEach(dropdown => {
         const selectedOption = dropdown.querySelector('.dropdown-option[data-selected="true"]');
         if (selectedOption) {
             const header = dropdown.querySelector('.dropdown-header');
@@ -1320,6 +1331,7 @@ function initializeCustomDropdowns() {
             placeholder.textContent = selectedOption.textContent.trim();
             placeholder.classList.remove('dropdown-placeholder');
             selectedOption.classList.add('selected');
+            console.log('Initialized dropdown with selected value:', selectedOption.textContent.trim());
         }
     });
 
