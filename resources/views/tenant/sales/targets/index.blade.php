@@ -2,6 +2,10 @@
 
 @section('title', 'أهداف البيع')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/sales-targets.css') }}">
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <!-- Page Header -->
@@ -123,17 +127,17 @@
     <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
         @if($targets->count() > 0)
             <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="background: #f8fafc;">
+                <table class="targets-table">
+                    <thead>
                         <tr>
-                            <th style="padding: 15px; text-align: right; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">الهدف</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">النوع</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">الفترة</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">الهدف المطلوب</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">المحقق</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">التقدم</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">الحالة</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">الإجراءات</th>
+                            <th style="text-align: right;">الهدف</th>
+                            <th>النوع</th>
+                            <th>الفترة</th>
+                            <th>الهدف المطلوب</th>
+                            <th>المحقق</th>
+                            <th>التقدم</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -143,18 +147,18 @@
                                 $statusBg = $target->status_color === 'success' ? '#dcfce7' : ($target->status_color === 'danger' ? '#fef2f2' : ($target->status_color === 'warning' ? '#fef3c7' : '#f3f4f6'));
                                 $statusColor = $target->status_color === 'success' ? '#166534' : ($target->status_color === 'danger' ? '#dc2626' : ($target->status_color === 'warning' ? '#d97706' : '#374151'));
                             @endphp
-                            <tr style="border-bottom: 1px solid #f3f4f6;">
-                                <td style="padding: 15px;">
-                                    <div>
-                                        <div style="font-weight: 600; color: #1f2937; margin-bottom: 5px;">{{ $target->title }}</div>
-                                        <div style="font-size: 14px; color: #6b7280;">{{ $target->target_entity_name }}</div>
+                            <tr>
+                                <td>
+                                    <div class="target-info">
+                                        <div class="target-title">{{ $target->title }}</div>
+                                        <div class="target-entity">{{ $target->target_entity_name }}</div>
                                         @if($target->description)
-                                            <div style="font-size: 12px; color: #9ca3af; margin-top: 3px;">{{ Str::limit($target->description, 50) }}</div>
+                                            <div class="target-description">{{ Str::limit($target->description, 50) }}</div>
                                         @endif
                                     </div>
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <span style="background: #e0f2fe; color: #0277bd; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                <td style="text-align: center;">
+                                    <span class="type-badge">
                                         @switch($target->target_type)
                                             @case('product') منتج @break
                                             @case('vendor') شركة @break
@@ -164,62 +168,64 @@
                                         @endswitch
                                     </span>
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <div style="font-size: 14px; color: #374151;">
+                                <td style="text-align: center;">
+                                    <div class="period-info">
                                         @switch($target->period_type)
                                             @case('monthly') شهري @break
                                             @case('quarterly') فصلي @break
                                             @case('yearly') سنوي @break
                                         @endswitch
                                     </div>
-                                    <div style="font-size: 12px; color: #6b7280;">
+                                    <div class="period-dates">
                                         {{ $target->start_date->format('Y-m-d') }} - {{ $target->end_date->format('Y-m-d') }}
                                     </div>
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
+                                <td style="text-align: center;">
                                     @if($target->measurement_type === 'quantity' || $target->measurement_type === 'both')
-                                        <div style="font-size: 14px; color: #374151;">{{ number_format($target->target_quantity) }} {{ $target->unit }}</div>
+                                        <div class="target-values">{{ number_format($target->target_quantity) }} {{ $target->unit }}</div>
                                     @endif
                                     @if($target->measurement_type === 'value' || $target->measurement_type === 'both')
-                                        <div style="font-size: 14px; color: #374151;">{{ number_format($target->target_value) }} {{ $target->currency }}</div>
+                                        <div class="target-values">{{ number_format($target->target_value) }} {{ $target->currency }}</div>
                                     @endif
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
+                                <td style="text-align: center;">
                                     @if($target->measurement_type === 'quantity' || $target->measurement_type === 'both')
-                                        <div style="font-size: 14px; color: #059669;">{{ number_format($target->achieved_quantity) }} {{ $target->unit }}</div>
+                                        <div class="achieved-values">{{ number_format($target->achieved_quantity) }} {{ $target->unit }}</div>
                                     @endif
                                     @if($target->measurement_type === 'value' || $target->measurement_type === 'both')
-                                        <div style="font-size: 14px; color: #059669;">{{ number_format($target->achieved_value) }} {{ $target->currency }}</div>
+                                        <div class="achieved-values">{{ number_format($target->achieved_value) }} {{ $target->currency }}</div>
                                     @endif
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <div style="margin-bottom: 5px;">
-                                        <span style="font-weight: 600; color: #374151;">{{ $target->progress_percentage }}%</span>
-                                    </div>
-                                    <div style="background: #e5e7eb; border-radius: 10px; height: 8px; overflow: hidden;">
-                                        <div style="background: {{ $progressColor }}; height: 100%; width: {{ min(100, $target->progress_percentage) }}%; transition: width 0.3s ease;"></div>
+                                <td class="progress-container">
+                                    <div class="progress-percentage">{{ $target->progress_percentage }}%</div>
+                                    <div class="progress-bar">
+                                        @php
+                                            $progressClass = $target->progress_percentage >= 100 ? 'success' : ($target->progress_percentage >= 80 ? 'warning' : 'info');
+                                        @endphp
+                                        <div class="progress-fill {{ $progressClass }}" style="width: {{ min(100, $target->progress_percentage) }}%;"></div>
                                     </div>
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <span style="background: {{ $statusBg }}; color: {{ $statusColor }}; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                <td style="text-align: center;">
+                                    @php
+                                        $statusClass = $target->status_color === 'success' ? 'success' : ($target->status_color === 'danger' ? 'danger' : ($target->status_color === 'warning' ? 'warning' : 'default'));
+                                    @endphp
+                                    <span class="status-badge {{ $statusClass }}">
                                         {{ $target->status_text }}
                                     </span>
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <div style="display: flex; gap: 5px; justify-content: center;">
-                                        <a href="{{ route('tenant.sales.targets.show', $target) }}" 
-                                           style="background: #3b82f6; color: white; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+                                <td style="text-align: center;">
+                                    <div class="action-buttons">
+                                        <a href="{{ route('tenant.sales.targets.show', $target) }}" class="btn btn-primary">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('tenant.sales.targets.edit', $target) }}" 
-                                           style="background: #f59e0b; color: white; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+                                        <a href="{{ route('tenant.sales.targets.edit', $target) }}" class="btn btn-success">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form method="POST" action="{{ route('tenant.sales.targets.destroy', $target) }}" style="display: inline;" 
+                                        <form method="POST" action="{{ route('tenant.sales.targets.destroy', $target) }}" style="display: inline;"
                                               onsubmit="return confirm('هل أنت متأكد من حذف هذا الهدف؟')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" style="background: #ef4444; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                                            <button type="submit" class="btn btn-danger">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -236,12 +242,11 @@
                 {{ $targets->appends(request()->query())->links() }}
             </div>
         @else
-            <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+            <div class="empty-state">
                 <i class="fas fa-bullseye" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
-                <h3 style="margin: 0 0 10px 0; color: #374151;">لا توجد أهداف</h3>
-                <p style="margin: 0 0 20px 0;">لم يتم إنشاء أي أهداف بيع بعد</p>
-                <a href="{{ route('tenant.sales.targets.create') }}" 
-                   style="background: #4299e1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                <h3>لا توجد أهداف</h3>
+                <p>لم يتم إنشاء أي أهداف بيع بعد</p>
+                <a href="{{ route('tenant.sales.targets.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> إنشاء هدف جديد
                 </a>
             </div>
