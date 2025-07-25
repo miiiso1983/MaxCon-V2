@@ -1,7 +1,92 @@
 @extends('layouts.modern')
 
-@section('page-title', 'تفاصيل العميل: ' . $customer->name)
-@section('page-description', 'عرض تفاصيل العميل في مؤسسة ' . $tenant->name)
+@section('page-title', "تفاصيل العميل: {$customer->name}")
+@section('page-description', "عرض تفاصيل العميل في مؤسسة {$tenant->name}")
+
+@push('styles')
+<style>
+    .customer-status-badge {
+        background: rgba(255,255,255,0.15);
+        border-radius: 25px;
+        padding: 8px 16px;
+        backdrop-filter: blur(10px);
+    }
+
+    .status-icon-active {
+        color: #4ade80;
+    }
+
+    .status-icon-inactive {
+        color: #f87171;
+    }
+
+    .toggle-status-btn {
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.2s;
+    }
+
+    .toggle-status-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-deactivate-customer {
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    }
+
+    .btn-activate-customer {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    }
+
+    /* Remove space-y unknown property warnings */
+    .space-y-4 > * + * {
+        margin-top: 1rem;
+    }
+
+    .space-y-6 > * + * {
+        margin-top: 1.5rem;
+    }
+
+    /* Responsive improvements */
+    @media (max-width: 767px) {
+        .customer-status-badge {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .toggle-status-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 16px 20px;
+            font-size: 16px;
+            min-height: 44px;
+        }
+
+        .card {
+            margin: 8px;
+            border-radius: 12px;
+        }
+
+        .card-header,
+        .card-body {
+            padding: 16px;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .toggle-status-btn {
+            padding: 14px 22px;
+        }
+    }
+</style>
+@endpush
 
 @section('content')
 <!-- Page Header -->
@@ -34,8 +119,8 @@
                             <span style="font-size: 14px;">{{ $customer->phone }}</span>
                         </div>
                         @endif
-                        <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
-                            <i class="fas fa-{{ $customer->is_active ? 'check-circle' : 'times-circle' }}" style="margin-left: 8px; color: {{ $customer->is_active ? '#4ade80' : '#f87171' }};"></i>
+                        <div class="customer-status-badge">
+                            <i class="fas fa-{{ $customer->is_active ? 'check-circle' : 'times-circle' }} {{ $customer->is_active ? 'status-icon-active' : 'status-icon-inactive' }}" style="margin-left: 8px;"></i>
                             <span style="font-size: 14px;">{{ $customer->is_active ? 'نشط' : 'غير نشط' }}</span>
                         </div>
                     </div>
@@ -62,7 +147,7 @@
             المعلومات الأساسية
         </h3>
         
-        <div style="space-y: 15px;">
+        <div class="space-y-4">
             <div style="margin-bottom: 15px;">
                 <label style="font-weight: 600; color: #4a5568; display: block; margin-bottom: 5px;">الاسم الكامل:</label>
                 <p style="color: #2d3748; font-size: 16px; margin: 0; padding: 8px 12px; background: #f7fafc; border-radius: 8px;">
@@ -111,7 +196,7 @@
             الحالة والتواريخ
         </h3>
         
-        <div style="space-y: 15px;">
+        <div class="space-y-4">
             <div style="margin-bottom: 15px;">
                 <label style="font-weight: 600; color: #4a5568; display: block; margin-bottom: 5px;">الحالة:</label>
                 <div style="padding: 8px 12px; background: #f7fafc; border-radius: 8px;">
@@ -217,8 +302,8 @@
     <form method="POST" action="{{ route('admin.customers.toggle-status', [$tenant, $customer]) }}" style="display: inline;">
         @csrf
         @method('PATCH')
-        <button type="submit" 
-                style="background: linear-gradient(135deg, {{ $customer->is_active ? '#e53e3e' : '#48bb78' }} 0%, {{ $customer->is_active ? '#c53030' : '#38a169' }} 100%); color: white; padding: 12px 25px; border: none; border-radius: 25px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s;">
+        <button type="submit"
+                class="toggle-status-btn {{ $customer->is_active ? 'btn-deactivate-customer' : 'btn-activate-customer' }}">
             <i class="fas fa-{{ $customer->is_active ? 'ban' : 'check' }}"></i>
             {{ $customer->is_active ? 'إلغاء التفعيل' : 'تفعيل العميل' }}
         </button>

@@ -3,6 +3,63 @@
 @section('page-title', 'عرض المستأجر')
 @section('page-description', 'تفاصيل المستأجر')
 
+@push('styles')
+<style>
+    .tenant-progress-container {
+        width: 100%;
+        background: #e2e8f0;
+        border-radius: 10px;
+        height: 8px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+
+    .tenant-progress-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+
+    /* Responsive improvements */
+    @media (max-width: 767px) {
+        .card {
+            margin: 8px;
+            border-radius: 12px;
+        }
+
+        .card-header,
+        .card-body {
+            padding: 16px;
+        }
+
+        .tenant-progress-container {
+            height: 10px;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .tenant-progress-container {
+            height: 9px;
+        }
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply tenant progress bar styles
+    const progressBars = document.querySelectorAll('.tenant-progress-fill');
+    progressBars.forEach(bar => {
+        const width = bar.getAttribute('data-width');
+        const color = bar.getAttribute('data-color');
+        bar.style.width = width + '%';
+        bar.style.backgroundColor = color;
+    });
+});
+</script>
+@endpush
+
 @section('content')
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
@@ -231,8 +288,10 @@
                 $customerUsage = ($tenant->customers->count() / $tenant->max_customers) * 100;
                 $progressColor = $customerUsage >= 80 ? '#e53e3e' : ($customerUsage >= 60 ? '#dd6b20' : '#38a169');
             @endphp
-            <div style="width: 100%; background: #e2e8f0; border-radius: 10px; height: 8px; margin-top: 10px; overflow: hidden;">
-                <div style="width: {{ min(100, $customerUsage) }}%; background: {{ $progressColor }}; height: 100%; border-radius: 10px; transition: width 0.3s ease;"></div>
+            <div class="tenant-progress-container">
+                <div class="tenant-progress-fill"
+                     data-width="{{ min(100, $customerUsage) }}"
+                     data-color="{{ $progressColor }}"></div>
             </div>
             <p style="color: #718096; font-size: 12px; margin: 5px 0 0 0;">
                 {{ number_format($customerUsage, 1) }}% مستخدم
