@@ -174,12 +174,12 @@
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">العميل *</label>
                 <div class="custom-dropdown" data-name="customer_id" data-required="true" data-onchange="updateCustomerInfo">
-                    <div class="dropdown-header" onclick="toggleDropdown(this)">
+                    <div class="dropdown-header">
                         <span class="dropdown-placeholder">اختر العميل</span>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </div>
                     <div class="dropdown-content">
-                        <input type="text" class="dropdown-search" placeholder="البحث عن عميل..." onkeyup="filterOptions(this)">
+                        <input type="text" class="dropdown-search" placeholder="البحث عن عميل...">
                         <div class="dropdown-options">
                             <div class="dropdown-option" data-value="" data-payment-terms="" data-currency="" data-credit-limit="0" data-current-balance="0">
                                 اختر العميل
@@ -191,7 +191,6 @@
                                      data-currency="{{ $customer->currency }}"
                                      data-credit-limit="{{ $customer->credit_limit ?? 0 }}"
                                      data-current-balance="{{ $customer->current_balance ?? 0 }}"
-                                     onclick="selectOption(this)"
                                      {{ old('customer_id') == $customer->id ? 'data-selected="true"' : '' }}>
                                     {{ $customer->name }} ({{ $customer->customer_code }})
                                 </div>
@@ -1218,7 +1217,6 @@ function loadOrderItems() {
 
         return true;
     });
-});
 
 // Custom Dropdown Functions
 function toggleDropdown(header) {
@@ -1333,17 +1331,51 @@ function initializeCustomDropdowns() {
             selectedOption.classList.add('selected');
             console.log('Initialized dropdown with selected value:', selectedOption.textContent.trim());
         }
-    });
 
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.custom-dropdown')) {
-            document.querySelectorAll('.dropdown-content.show').forEach(content => {
-                content.classList.remove('show');
-                content.closest('.custom-dropdown').querySelector('.dropdown-header').classList.remove('active');
+        // Add click event listener to dropdown header
+        const header = dropdown.querySelector('.dropdown-header');
+        if (header && !header.hasAttribute('data-initialized')) {
+            header.setAttribute('data-initialized', 'true');
+            header.addEventListener('click', function() {
+                toggleDropdown(this);
+            });
+        }
+
+        // Add click event listeners to dropdown options
+        const options = dropdown.querySelectorAll('.dropdown-option');
+        options.forEach(option => {
+            if (!option.hasAttribute('data-initialized')) {
+                option.setAttribute('data-initialized', 'true');
+                option.addEventListener('click', function() {
+                    selectOption(this);
+                });
+            }
+        });
+
+        // Add keyup event listener to search input
+        const searchInput = dropdown.querySelector('.dropdown-search');
+        if (searchInput && !searchInput.hasAttribute('data-initialized')) {
+            searchInput.setAttribute('data-initialized', 'true');
+            searchInput.addEventListener('keyup', function() {
+                filterOptions(this);
             });
         }
     });
+
+    // Close dropdowns when clicking outside (only add once)
+    if (!document.hasAttribute('data-dropdown-listener-added')) {
+        document.setAttribute('data-dropdown-listener-added', 'true');
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-dropdown')) {
+                document.querySelectorAll('.dropdown-content.show').forEach(content => {
+                    content.classList.remove('show');
+                    content.closest('.custom-dropdown').querySelector('.dropdown-header').classList.remove('active');
+                });
+            }
+        });
+    }
+
+    console.log('Custom dropdowns initialization complete');
 }
 
 // Update addItem function to initialize dropdowns for new items
