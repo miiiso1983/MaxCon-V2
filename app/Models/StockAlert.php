@@ -38,7 +38,7 @@ class StockAlert extends Model
     protected $casts = [
         'current_quantity' => 'decimal:3',
         'threshold_quantity' => 'decimal:3',
-        'expiry_date' => 'date',
+        'expiry_date' => 'datetime',
         'triggered_at' => 'datetime',
         'acknowledged_at' => 'datetime',
         'resolved_at' => 'datetime',
@@ -243,24 +243,24 @@ class StockAlert extends Model
     public function getDaysToExpiry()
     {
         if ($this->expiry_date) {
-            return now()->diffInDays(\Carbon\Carbon::parse($this->expiry_date), false);
+            return now()->diffInDays($this->expiry_date, false);
         }
         return null;
     }
 
     public function isExpired()
     {
-        return $this->expiry_date && \Carbon\Carbon::parse($this->expiry_date)->isPast();
+        return $this->expiry_date && $this->expiry_date->isPast();
     }
 
     public function isExpiringToday()
     {
-        return $this->expiry_date && \Carbon\Carbon::parse($this->expiry_date)->isToday();
+        return $this->expiry_date && $this->expiry_date->isToday();
     }
 
     public function isExpiringThisWeek()
     {
-        return $this->expiry_date && \Carbon\Carbon::parse($this->expiry_date)->isBetween(now(), now()->addWeek());
+        return $this->expiry_date && $this->expiry_date->isBetween(now(), now()->addWeek());
     }
 
     public function markNotificationSent()

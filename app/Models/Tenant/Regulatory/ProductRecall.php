@@ -57,11 +57,11 @@ class ProductRecall extends Model
     ];
 
     protected $casts = [
-        'initiated_date' => 'date',
-        'notification_date' => 'date',
-        'completion_date' => 'date',
-        'follow_up_date' => 'date',
-        'closure_date' => 'date',
+        'initiated_date' => 'datetime',
+        'notification_date' => 'datetime',
+        'completion_date' => 'datetime',
+        'follow_up_date' => 'datetime',
+        'closure_date' => 'datetime',
         'affected_batches' => 'array',
         'countries_affected' => 'array',
         'recall_strategy' => 'array',

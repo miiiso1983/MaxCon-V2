@@ -56,11 +56,11 @@ class LaboratoryTest extends Model
     ];
 
     protected $casts = [
-        'sample_date' => 'date',
-        'test_date' => 'date',
-        'completion_date' => 'date',
-        'expected_completion_date' => 'date',
-        'retest_date' => 'date',
+        'sample_date' => 'datetime',
+        'test_date' => 'datetime',
+        'completion_date' => 'datetime',
+        'expected_completion_date' => 'datetime',
+        'retest_date' => 'datetime',
         'test_parameters' => 'array',
         'specifications' => 'array',
         'results' => 'array',

@@ -55,12 +55,12 @@ class RegulatoryReport extends Model
     ];
 
     protected $casts = [
-        'submission_date' => 'date',
-        'due_date' => 'date',
-        'approval_date' => 'date',
-        'reporting_period_start' => 'date',
-        'reporting_period_end' => 'date',
-        'follow_up_date' => 'date',
+        'submission_date' => 'datetime',
+        'due_date' => 'datetime',
+        'approval_date' => 'datetime',
+        'reporting_period_start' => 'datetime',
+        'reporting_period_end' => 'datetime',
+        'follow_up_date' => 'datetime',
         'data_sources' => 'array',
         'findings' => 'array',
         'conclusions' => 'array',
@@ -188,7 +188,7 @@ class RegulatoryReport extends Model
      */
     public function getIsOverdueAttribute()
     {
-        return $this->due_date && \Carbon\Carbon::createFromFormat('Y-m-d', $this->due_date)->isPast() &&
+        return $this->due_date && $this->due_date->isPast() &&
                !in_array($this->status, ['submitted', 'accepted', 'closed']);
     }
 
@@ -198,7 +198,7 @@ class RegulatoryReport extends Model
     public function getFollowUpDueAttribute()
     {
         return $this->follow_up_required && $this->follow_up_date &&
-               \Carbon\Carbon::createFromFormat('Y-m-d', $this->follow_up_date)->isPast() && $this->status !== 'closed';
+               $this->follow_up_date->isPast() && $this->status !== 'closed';
     }
 
     /**
@@ -208,7 +208,7 @@ class RegulatoryReport extends Model
     {
         if (!$this->due_date) return null;
         
-        return \Carbon\Carbon::createFromFormat('Y-m-d', $this->due_date)->diffInDays(now(), false);
+        return $this->due_date->diffInDays(now(), false);
     }
 
     /**

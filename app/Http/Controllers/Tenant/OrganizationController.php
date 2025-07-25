@@ -224,7 +224,7 @@ class OrganizationController extends Controller
     /**
      * Download organization report
      */
-    public function downloadReport(): \Illuminate\Http\Response
+    public function downloadReport()
     {
         $user = Auth::user();
         $tenant = $user->tenant;
