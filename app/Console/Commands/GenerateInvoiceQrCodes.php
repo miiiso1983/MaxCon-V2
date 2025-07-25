@@ -54,7 +54,7 @@ class GenerateInvoiceQrCodes extends Command
                 $invoice->generateQrCode();
                 $success++;
             } catch (\Exception $e) {
-                $this->error("\nFailed to generate QR code for invoice {$invoice->id}: " . $e->getMessage());
+                $this->error("\nFailed to generate QR code for invoice {$invoice->getAttribute('id')}: " . $e->getMessage());
                 $failed++;
             }
 

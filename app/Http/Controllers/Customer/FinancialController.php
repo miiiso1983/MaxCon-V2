@@ -55,17 +55,17 @@ class FinancialController extends Controller
         // Apply filters
         if ($request->filled('date_from') && $request->filled('date_to')) {
             $query->whereBetween('payment_date', [
-                $request->date_from,
-                $request->date_to
+                $request->input('date_from'),
+                $request->input('date_to')
             ]);
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $request->input('status'));
         }
 
         if ($request->filled('payment_method')) {
-            $query->where('payment_method', $request->payment_method);
+            $query->where('payment_method', $request->input('payment_method'));
         }
 
         $payments = $query->paginate(15);
@@ -119,14 +119,18 @@ class FinancialController extends Controller
             abort(403, 'ليس لديك صلاحية لعرض الحد الائتماني');
         }
 
+        $creditLimit = $customer->getAttribute('credit_limit') ?? 0;
+        $totalDebt = $customer->getAttribute('total_debt') ?? 0;
+        $availableCredit = max(0, $creditLimit - $totalDebt);
+
         $creditData = [
-            'credit_limit' => $customer->credit_limit ?? 0,
-            'current_debt' => $customer->total_debt,
-            'available_credit' => $customer->available_credit,
-            'credit_usage_percentage' => $customer->credit_limit > 0 
-                ? ($customer->total_debt / $customer->credit_limit) * 100 
+            'credit_limit' => $creditLimit,
+            'current_debt' => $totalDebt,
+            'available_credit' => $availableCredit,
+            'credit_usage_percentage' => $creditLimit > 0
+                ? ($totalDebt / $creditLimit) * 100
                 : 0,
-            'is_over_limit' => $customer->isOverCreditLimit(),
+            'is_over_limit' => $totalDebt > $creditLimit,
             'recent_orders_total' => $customer->salesOrders()
                 ->where('created_at', '>=', now()->subDays(30))
                 ->sum('total_amount'),
@@ -154,13 +158,13 @@ class FinancialController extends Controller
         // Apply filters
         if ($request->filled('date_from') && $request->filled('date_to')) {
             $query->whereBetween('invoice_date', [
-                $request->date_from,
-                $request->date_to
+                $request->input('date_from'),
+                $request->input('date_to')
             ]);
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $request->input('status'));
         }
 
         $invoices = $query->paginate(15);
@@ -190,7 +194,7 @@ class FinancialController extends Controller
         $customer = Auth::guard('customer')->user();
         
         // Check if invoice belongs to customer
-        if ($invoice->customer_id !== $customer->id) {
+        if ($invoice->getAttribute('customer_id') !== $customer->id) {
             abort(403, 'ليس لديك صلاحية لتحميل هذه الفاتورة');
         }
 
@@ -202,8 +206,8 @@ class FinancialController extends Controller
         // Generate PDF and return download
         // This would integrate with your existing PDF generation logic
         return response()->download(
-            storage_path("app/invoices/invoice_{$invoice->id}.pdf"),
-            "invoice_{$invoice->invoice_number}.pdf"
+            storage_path("app/invoices/invoice_{$invoice->getAttribute('id')}.pdf"),
+            "invoice_{$invoice->getAttribute('invoice_number')}.pdf"
         );
     }
 

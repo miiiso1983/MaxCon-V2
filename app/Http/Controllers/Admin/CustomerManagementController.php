@@ -47,13 +47,18 @@ class CustomerManagementController extends Controller
         $customers = $query->orderBy('created_at', 'desc')->paginate(15);
 
         // Calculate statistics
+        $totalCustomers = Customer::where('tenant_id', $tenant->id)->count();
+        $maxCustomers = $tenant->max_customers ?? 100;
+        $remainingSlots = max(0, $maxCustomers - $totalCustomers);
+        $usagePercentage = $maxCustomers > 0 ? ($totalCustomers / $maxCustomers) * 100 : 0;
+
         $statistics = [
-            'total_customers' => Customer::where('tenant_id', $tenant->id)->count(),
+            'total_customers' => $totalCustomers,
             'active_customers' => Customer::where('tenant_id', $tenant->id)->where('is_active', true)->count(),
             'inactive_customers' => Customer::where('tenant_id', $tenant->id)->where('is_active', false)->count(),
-            'max_customers' => $tenant->max_customers ?? 100,
-            'remaining_slots' => $tenant->remaining_customer_slots,
-            'usage_percentage' => $tenant->customer_usage_percentage,
+            'max_customers' => $maxCustomers,
+            'remaining_slots' => $remainingSlots,
+            'usage_percentage' => $usagePercentage,
         ];
 
         return view('admin.customers.index', compact('tenant', 'customers', 'statistics'));
@@ -65,7 +70,7 @@ class CustomerManagementController extends Controller
     public function show(Tenant $tenant, Customer $customer): View
     {
         // Ensure customer belongs to tenant
-        if ($customer->tenant_id !== $tenant->id) {
+        if ($customer->getAttribute('tenant_id') !== $tenant->id) {
             abort(404);
         }
 
@@ -109,7 +114,7 @@ class CustomerManagementController extends Controller
     public function toggleStatus(Tenant $tenant, Customer $customer): RedirectResponse
     {
         // Ensure customer belongs to tenant
-        if ($customer->tenant_id !== $tenant->id) {
+        if ($customer->getAttribute('tenant_id') !== $tenant->id) {
             abort(404);
         }
 
@@ -118,8 +123,8 @@ class CustomerManagementController extends Controller
         ]);
 
         $status = $customer->is_active ? 'تم تفعيل' : 'تم إلغاء تفعيل';
-        
-        return back()->with('success', "{$status} العميل {$customer->name} بنجاح");
+
+        return back()->with('success', "{$status} العميل {$customer->getAttribute('name')} بنجاح");
     }
 
     /**
@@ -128,11 +133,11 @@ class CustomerManagementController extends Controller
     public function destroy(Tenant $tenant, Customer $customer): RedirectResponse
     {
         // Ensure customer belongs to tenant
-        if ($customer->tenant_id !== $tenant->id) {
+        if ($customer->getAttribute('tenant_id') !== $tenant->id) {
             abort(404);
         }
 
-        $customerName = $customer->name;
+        $customerName = $customer->getAttribute('name');
         $customer->delete();
 
         return back()->with('success', "تم حذف العميل {$customerName} بنجاح");
@@ -143,15 +148,31 @@ class CustomerManagementController extends Controller
      */
     public function statistics(Tenant $tenant)
     {
+        $totalCustomers = $tenant->customers()->count();
+        $maxCustomers = $tenant->max_customers ?? 100;
+        $remainingSlots = max(0, $maxCustomers - $totalCustomers);
+        $usagePercentage = $maxCustomers > 0 ? ($totalCustomers / $maxCustomers) * 100 : 0;
+
+        // Determine limit status and color
+        $limitStatus = 'جيد';
+        $limitColor = '#38a169';
+        if ($usagePercentage >= 90) {
+            $limitStatus = 'ممتلئ تقريباً';
+            $limitColor = '#e53e3e';
+        } elseif ($usagePercentage >= 75) {
+            $limitStatus = 'مرتفع';
+            $limitColor = '#dd6b20';
+        }
+
         $statistics = [
-            'total_customers' => $tenant->customers()->count(),
+            'total_customers' => $totalCustomers,
             'active_customers' => $tenant->customers()->where('is_active', true)->count(),
             'inactive_customers' => $tenant->customers()->where('is_active', false)->count(),
-            'max_customers' => $tenant->max_customers ?? 100,
-            'remaining_slots' => $tenant->remaining_customer_slots,
-            'usage_percentage' => $tenant->customer_usage_percentage,
-            'limit_status' => $tenant->customer_limit_status,
-            'limit_color' => $tenant->customer_limit_color,
+            'max_customers' => $maxCustomers,
+            'remaining_slots' => $remainingSlots,
+            'usage_percentage' => $usagePercentage,
+            'limit_status' => $limitStatus,
+            'limit_color' => $limitColor,
             'recent_customers' => $tenant->customers()
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
