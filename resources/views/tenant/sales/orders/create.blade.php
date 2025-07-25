@@ -203,7 +203,8 @@
 
 @push('scripts')
 <script type="text/javascript">
-    window.productsData = {!! json_encode($products) !!};
+    // Products data for order creation
+    window.productsData = <?php echo json_encode($products); ?>;
 </script>
 <script>
 let itemCounter = 0;

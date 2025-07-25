@@ -80,7 +80,7 @@ class LeaveType extends Model
 
         // Check employment duration
         if ($this->applicable_after_months > 0) {
-            $employmentMonths = $employee->hire_date->diffInMonths(now());
+            $employmentMonths = $employee->hire_date ? $employee->hire_date->diffInMonths(now()) : 0;
             if ($employmentMonths < $this->applicable_after_months) {
                 return false;
             }

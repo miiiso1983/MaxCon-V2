@@ -223,10 +223,11 @@
 
 <!-- JavaScript -->
 <script type="text/javascript">
+    // Entities data for target creation
     window.entitiesData = {
-        product: {!! json_encode($products ?? []) !!},
-        vendor: {!! json_encode($vendors ?? []) !!},
-        sales_rep: {!! json_encode($salesReps ?? []) !!}
+        product: <?php echo json_encode($products ?? []); ?>,
+        vendor: <?php echo json_encode($vendors ?? []); ?>,
+        sales_rep: <?php echo json_encode($salesReps ?? []); ?>
     };
 </script>
 <script>

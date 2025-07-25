@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
+/**
+ * @property \Carbon\Carbon $probation_end_date
+ * @property \Carbon\Carbon $contract_end_date
+ * @property \Carbon\Carbon $hire_date
+ * @property \Carbon\Carbon $birth_date
+ */
 class Employee extends Model
 {
     use HasFactory, SoftDeletes;
