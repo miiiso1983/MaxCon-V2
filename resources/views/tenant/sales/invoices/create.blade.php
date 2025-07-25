@@ -220,17 +220,20 @@
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع الفاتورة *</label>
                 <div class="custom-dropdown" data-name="type" data-required="true">
-                    <div class="dropdown-header" onclick="toggleDropdown(this)">
-                        <span class="dropdown-placeholder">{{ old('type') === 'proforma' ? 'فاتورة أولية' : 'فاتورة مبيعات' }}</span>
+                    <div class="dropdown-header">
+                        <span class="dropdown-placeholder">اختر نوع الفاتورة</span>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </div>
                     <div class="dropdown-content">
-                        <input type="text" class="dropdown-search" placeholder="البحث..." onkeyup="filterOptions(this)">
+                        <input type="text" class="dropdown-search" placeholder="البحث عن نوع الفاتورة...">
                         <div class="dropdown-options">
-                            <div class="dropdown-option" data-value="sales" onclick="selectOption(this)" {{ old('type', 'sales') === 'sales' ? 'data-selected="true"' : '' }}>
+                            <div class="dropdown-option" data-value="" >
+                                اختر نوع الفاتورة
+                            </div>
+                            <div class="dropdown-option" data-value="sales" {{ old('type', 'sales') === 'sales' ? 'data-selected="true"' : '' }}>
                                 فاتورة مبيعات
                             </div>
-                            <div class="dropdown-option" data-value="proforma" onclick="selectOption(this)" {{ old('type') === 'proforma' ? 'data-selected="true"' : '' }}>
+                            <div class="dropdown-option" data-value="proforma" {{ old('type') === 'proforma' ? 'data-selected="true"' : '' }}>
                                 فاتورة أولية
                             </div>
                         </div>
@@ -269,38 +272,29 @@
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">العملة *</label>
                 <div class="custom-dropdown" data-name="currency" data-required="true" data-id="currencyField">
-                    <div class="dropdown-header" onclick="toggleDropdown(this)">
-                        <span class="dropdown-placeholder">
-                            @if(old('currency') === 'USD')
-                                دولار أمريكي (USD)
-                            @elseif(old('currency') === 'SAR')
-                                ريال سعودي (SAR)
-                            @elseif(old('currency') === 'AED')
-                                درهم إماراتي (AED)
-                            @elseif(old('currency') === 'EUR')
-                                يورو (EUR)
-                            @else
-                                دينار عراقي (IQD)
-                            @endif
-                        </span>
+                    <div class="dropdown-header">
+                        <span class="dropdown-placeholder">اختر العملة</span>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </div>
                     <div class="dropdown-content">
-                        <input type="text" class="dropdown-search" placeholder="البحث عن عملة..." onkeyup="filterOptions(this)">
+                        <input type="text" class="dropdown-search" placeholder="البحث عن عملة...">
                         <div class="dropdown-options">
-                            <div class="dropdown-option" data-value="IQD" onclick="selectOption(this)" {{ old('currency', 'IQD') === 'IQD' ? 'data-selected="true"' : '' }}>
+                            <div class="dropdown-option" data-value="">
+                                اختر العملة
+                            </div>
+                            <div class="dropdown-option" data-value="IQD" {{ old('currency', 'IQD') === 'IQD' ? 'data-selected="true"' : '' }}>
                                 دينار عراقي (IQD)
                             </div>
-                            <div class="dropdown-option" data-value="USD" onclick="selectOption(this)" {{ old('currency') === 'USD' ? 'data-selected="true"' : '' }}>
+                            <div class="dropdown-option" data-value="USD" {{ old('currency') === 'USD' ? 'data-selected="true"' : '' }}>
                                 دولار أمريكي (USD)
                             </div>
-                            <div class="dropdown-option" data-value="SAR" onclick="selectOption(this)" {{ old('currency') === 'SAR' ? 'data-selected="true"' : '' }}>
+                            <div class="dropdown-option" data-value="SAR" {{ old('currency') === 'SAR' ? 'data-selected="true"' : '' }}>
                                 ريال سعودي (SAR)
                             </div>
-                            <div class="dropdown-option" data-value="AED" onclick="selectOption(this)" {{ old('currency') === 'AED' ? 'data-selected="true"' : '' }}>
+                            <div class="dropdown-option" data-value="AED" {{ old('currency') === 'AED' ? 'data-selected="true"' : '' }}>
                                 درهم إماراتي (AED)
                             </div>
-                            <div class="dropdown-option" data-value="EUR" onclick="selectOption(this)" {{ old('currency') === 'EUR' ? 'data-selected="true"' : '' }}>
+                            <div class="dropdown-option" data-value="EUR" {{ old('currency') === 'EUR' ? 'data-selected="true"' : '' }}>
                                 يورو (EUR)
                             </div>
                         </div>
@@ -333,38 +327,26 @@
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">طلب المبيعات (اختياري)</label>
                 <div class="custom-dropdown" data-name="sales_order_id" data-onchange="loadOrderItems">
-                    <div class="dropdown-header" onclick="toggleDropdown(this)">
-                        <span class="dropdown-placeholder">
-                            @if(old('sales_order_id'))
-                                @foreach($salesOrders as $order)
-                                    @if($order->id == old('sales_order_id'))
-                                        {{ $order->order_number }} - {{ $order->customer->name }}
-                                        @break
-                                    @endif
-                                @endforeach
-                            @else
-                                اختر طلب مبيعات
-                            @endif
-                        </span>
+                    <div class="dropdown-header">
+                        <span class="dropdown-placeholder">اختر طلب مبيعات</span>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </div>
                     <div class="dropdown-content">
-                        <input type="text" class="dropdown-search" placeholder="البحث عن طلب مبيعات..." onkeyup="filterOptions(this)">
+                        <input type="text" class="dropdown-search" placeholder="البحث عن طلب مبيعات...">
                         <div class="dropdown-options">
-                            <div class="dropdown-option" data-value="" onclick="selectOption(this)">
+                            <div class="dropdown-option" data-value="">
                                 اختر طلب مبيعات
                             </div>
                             @foreach($salesOrders as $order)
                                 <div class="dropdown-option"
                                      data-value="{{ $order->id }}"
-                                     onclick="selectOption(this)"
                                      {{ old('sales_order_id') == $order->id ? 'data-selected="true"' : '' }}>
                                     {{ $order->order_number }} - {{ $order->customer->name }}
                                 </div>
                             @endforeach
                         </div>
                     </div>
-                    <select name="sales_order_id" style="display: none;" onchange="loadOrderItems()">
+                    <select name="sales_order_id" style="display: none;">
                         <option value="">اختر طلب مبيعات</option>
                         @foreach($salesOrders as $order)
                             <option value="{{ $order->id }}" {{ old('sales_order_id') == $order->id ? 'selected' : '' }}>
@@ -459,14 +441,14 @@
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
                             <div class="custom-dropdown" data-name="items[INDEX][product_id]" data-required="true" data-onchange="updateProductInfo">
-                                <div class="dropdown-header" onclick="toggleDropdown(this)">
+                                <div class="dropdown-header">
                                     <span class="dropdown-placeholder">اختر المنتج</span>
                                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                                 </div>
                                 <div class="dropdown-content">
-                                    <input type="text" class="dropdown-search" placeholder="البحث عن منتج..." onkeyup="filterOptions(this)">
+                                    <input type="text" class="dropdown-search" placeholder="البحث عن منتج...">
                                     <div class="dropdown-options">
-                                        <div class="dropdown-option" data-value="" data-price="" data-stock="" data-unit="" onclick="selectOption(this)">
+                                        <div class="dropdown-option" data-value="" data-price="" data-stock="" data-unit="">
                                             اختر المنتج
                                         </div>
                                         @foreach($products as $product)
@@ -474,8 +456,7 @@
                                                  data-value="{{ $product->id }}"
                                                  data-price="{{ $product->selling_price }}"
                                                  data-stock="{{ $product->current_stock }}"
-                                                 data-unit="{{ $product->unit }}"
-                                                 onclick="selectOption(this)">
+                                                 data-unit="{{ $product->unit }}">
                                                 {{ $product->name }} ({{ $product->current_stock }} {{ $product->unit }})
                                             </div>
                                         @endforeach
@@ -519,21 +500,25 @@
                                        style="flex: 1; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;"
                                        placeholder="0.00" onchange="calculateItemTotal(this)">
                                 <div class="custom-dropdown" data-name="items[INDEX][discount_type]" style="width: 80px;">
-                                    <div class="dropdown-header" onclick="toggleDropdown(this)" style="padding: 10px 8px;">
-                                        <span class="dropdown-placeholder">ثابت</span>
+                                    <div class="dropdown-header" style="padding: 10px 8px;">
+                                        <span class="dropdown-placeholder">اختر نوع الخصم</span>
                                         <i class="fas fa-chevron-down dropdown-arrow" style="font-size: 10px;"></i>
                                     </div>
                                     <div class="dropdown-content">
+                                        <input type="text" class="dropdown-search" placeholder="البحث عن نوع الخصم...">
                                         <div class="dropdown-options">
-                                            <div class="dropdown-option" data-value="fixed" onclick="selectOption(this)" data-selected="true">
+                                            <div class="dropdown-option" data-value="">
+                                                اختر نوع الخصم
+                                            </div>
+                                            <div class="dropdown-option" data-value="fixed" data-selected="true">
                                                 ثابت
                                             </div>
-                                            <div class="dropdown-option" data-value="percentage" onclick="selectOption(this)">
+                                            <div class="dropdown-option" data-value="percentage">
                                                 %
                                             </div>
                                         </div>
                                     </div>
-                                    <select name="items[INDEX][discount_type]" style="display: none;" onchange="calculateItemTotal(this)">
+                                    <select name="items[INDEX][discount_type]" style="display: none;">
                                         <option value="fixed">ثابت</option>
                                         <option value="percentage">%</option>
                                     </select>
@@ -571,14 +556,14 @@
                     <div>
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
                         <div class="custom-dropdown" data-name="items[0][product_id]" data-required="true" data-onchange="updateProductInfo">
-                            <div class="dropdown-header" onclick="toggleDropdown(this)">
+                            <div class="dropdown-header">
                                 <span class="dropdown-placeholder">اختر المنتج</span>
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </div>
                             <div class="dropdown-content">
-                                <input type="text" class="dropdown-search" placeholder="البحث عن منتج..." onkeyup="filterOptions(this)">
+                                <input type="text" class="dropdown-search" placeholder="البحث عن منتج...">
                                 <div class="dropdown-options">
-                                    <div class="dropdown-option" data-value="" data-price="" data-stock="" data-unit="" onclick="selectOption(this)">
+                                    <div class="dropdown-option" data-value="" data-price="" data-stock="" data-unit="">
                                         اختر المنتج
                                     </div>
                                     @foreach($products as $product)
@@ -586,8 +571,7 @@
                                              data-value="{{ $product->id }}"
                                              data-price="{{ $product->selling_price }}"
                                              data-stock="{{ $product->current_stock }}"
-                                             data-unit="{{ $product->unit }}"
-                                             onclick="selectOption(this)">
+                                             data-unit="{{ $product->unit }}">
                                             {{ $product->name }} ({{ $product->current_stock }} {{ $product->unit }})
                                         </div>
                                     @endforeach
@@ -631,21 +615,25 @@
                                    style="flex: 1; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;"
                                    placeholder="0.00" onchange="calculateItemTotal(this)">
                             <div class="custom-dropdown" data-name="items[0][discount_type]" style="width: 80px;">
-                                <div class="dropdown-header" onclick="toggleDropdown(this)" style="padding: 10px 8px;">
-                                    <span class="dropdown-placeholder">ثابت</span>
+                                <div class="dropdown-header" style="padding: 10px 8px;">
+                                    <span class="dropdown-placeholder">اختر نوع الخصم</span>
                                     <i class="fas fa-chevron-down dropdown-arrow" style="font-size: 10px;"></i>
                                 </div>
                                 <div class="dropdown-content">
+                                    <input type="text" class="dropdown-search" placeholder="البحث عن نوع الخصم...">
                                     <div class="dropdown-options">
-                                        <div class="dropdown-option" data-value="fixed" onclick="selectOption(this)" data-selected="true">
+                                        <div class="dropdown-option" data-value="">
+                                            اختر نوع الخصم
+                                        </div>
+                                        <div class="dropdown-option" data-value="fixed" data-selected="true">
                                             ثابت
                                         </div>
-                                        <div class="dropdown-option" data-value="percentage" onclick="selectOption(this)">
+                                        <div class="dropdown-option" data-value="percentage">
                                             %
                                         </div>
                                     </div>
                                 </div>
-                                <select name="items[0][discount_type]" style="display: none;" onchange="calculateItemTotal(this)">
+                                <select name="items[0][discount_type]" style="display: none;">
                                     <option value="fixed">ثابت</option>
                                     <option value="percentage">%</option>
                                 </select>
@@ -713,21 +701,25 @@
                                style="flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;"
                                placeholder="0.00" onchange="calculateTotals()">
                         <div class="custom-dropdown" data-name="discount_type" style="width: 100px;">
-                            <div class="dropdown-header" onclick="toggleDropdown(this)" style="padding: 12px 8px;">
-                                <span class="dropdown-placeholder">{{ old('discount_type') === 'percentage' ? '%' : 'ثابت' }}</span>
+                            <div class="dropdown-header" style="padding: 12px 8px;">
+                                <span class="dropdown-placeholder">اختر نوع الخصم</span>
                                 <i class="fas fa-chevron-down dropdown-arrow" style="font-size: 10px;"></i>
                             </div>
                             <div class="dropdown-content">
+                                <input type="text" class="dropdown-search" placeholder="البحث عن نوع الخصم...">
                                 <div class="dropdown-options">
-                                    <div class="dropdown-option" data-value="fixed" onclick="selectOption(this)" {{ old('discount_type', 'fixed') === 'fixed' ? 'data-selected="true"' : '' }}>
+                                    <div class="dropdown-option" data-value="">
+                                        اختر نوع الخصم
+                                    </div>
+                                    <div class="dropdown-option" data-value="fixed" {{ old('discount_type', 'fixed') === 'fixed' ? 'data-selected="true"' : '' }}>
                                         ثابت
                                     </div>
-                                    <div class="dropdown-option" data-value="percentage" onclick="selectOption(this)" {{ old('discount_type') === 'percentage' ? 'data-selected="true"' : '' }}>
+                                    <div class="dropdown-option" data-value="percentage" {{ old('discount_type') === 'percentage' ? 'data-selected="true"' : '' }}>
                                         %
                                     </div>
                                 </div>
                             </div>
-                            <select name="discount_type" style="display: none;" onchange="calculateTotals()">
+                            <select name="discount_type" style="display: none;">
                                 <option value="fixed" {{ old('discount_type', 'fixed') === 'fixed' ? 'selected' : '' }}>ثابت</option>
                                 <option value="percentage" {{ old('discount_type') === 'percentage' ? 'selected' : '' }}>%</option>
                             </select>
