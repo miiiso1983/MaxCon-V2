@@ -23,7 +23,17 @@ namespace App\Models;
  * 
  * @method bool hasPermissionTo(string $permission)
  * @method bool isOverCreditLimit()
+ * @method bool canPlaceOrders()
+ * @method float getAvailableCredit()
+ * @method float getTotalDebt()
+ * @method string getCreditLimitStatus()
+ * @method string getCreditLimitColor()
+ * @method void updateCreditUsage()
+ * @method void calculateTotals()
+ * @method bool canViewFinancialInfo()
  * @method \Illuminate\Database\Eloquent\Relations\HasMany salesOrders()
+ * @method \Illuminate\Database\Eloquent\Relations\HasMany invoices()
+ * @method \Illuminate\Database\Eloquent\Relations\BelongsTo tenant()
  */
 class Customer extends \Illuminate\Database\Eloquent\Model
 {
@@ -48,6 +58,7 @@ class Tenant extends \Illuminate\Database\Eloquent\Model
 {
     // This class is for documentation purposes only
 }
+
 
 /**
  * @property int $id
