@@ -252,6 +252,9 @@ Route::prefix('test')->name('test.')->group(function () {
     Route::get('settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('reports', [ReportsController::class, 'index'])->name('reports');
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics');
+    Route::get('dropdown', function () {
+        return view('test-dropdown');
+    })->name('dropdown');
 });
 
 // Tenant-specific routes (للـ Tenant Admin)
