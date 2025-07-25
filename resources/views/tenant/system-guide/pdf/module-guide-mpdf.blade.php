@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>دليل وحدة {{ $module['name'] }} - MaxCon ERP</title>
     <style>
+        :root {
+            --module-color: {{ $module['color'] ?? '#667eea' }};
+        }
+
         @page {
             margin: 15mm;
             margin-header: 9mm;
@@ -25,7 +29,7 @@
             text-align: center;
             padding: 50px 20px;
             page-break-after: always;
-            background: linear-gradient(135deg, {{ $module['color'] ?? '#667eea' }} 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--module-color) 0%, #764ba2 100%);
             color: white;
             height: 250mm;
             display: table-cell;
@@ -58,10 +62,10 @@
         .chapter-title {
             font-size: 18pt;
             font-weight: bold;
-            color: {{ $module['color'] ?? '#667eea' }};
+            color: var(--module-color);
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 3px solid {{ $module['color'] ?? '#667eea' }};
+            border-bottom: 3px solid var(--module-color);
         }
 
         .section-title {
@@ -105,7 +109,7 @@
         }
 
         .step-number {
-            background-color: {{ $module['color'] ?? '#667eea' }};
+            background-color: var(--module-color);
             color: white;
             border-radius: 50%;
             width: 25px;
@@ -343,7 +347,7 @@
     <!-- Final Page -->
     <div class="chapter">
         <div style="text-align: center; padding: 50px 20px;">
-            <div style="font-size: 20pt; font-weight: bold; color: {{ $module['color'] ?? '#667eea' }}; margin-bottom: 20px;">
+            <div style="font-size: 20pt; font-weight: bold; color: var(--module-color); margin-bottom: 20px;">
                 انتهى دليل وحدة {{ $module['name'] }}
             </div>
             <div style="font-size: 12pt; line-height: 1.8; color: #4a5568;">

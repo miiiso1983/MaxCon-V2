@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>دليل المستخدم - MaxCon ERP</title>
     <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+        }
         @page {
             margin: 15mm;
             margin-header: 9mm;
@@ -353,7 +357,7 @@
         @if(isset($userTypes) && is_array($userTypes))
         @foreach($userTypes as $userType)
         <div class="user-type-card">
-            <div class="user-type-title" style="color: {{ $userType['color'] ?? '#667eea' }};">{{ $userType['title'] ?? 'نوع مستخدم' }}</div>
+            <div class="user-type-title" style="color: var(--primary-color);">{{ $userType['title'] ?? 'نوع مستخدم' }}</div>
             <div class="content-text">{{ $userType['description'] ?? 'وصف نوع المستخدم' }}</div>
 
             <div class="subsection-title">الصلاحيات الرئيسية:</div>
