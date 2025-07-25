@@ -333,14 +333,47 @@
             <!-- Sales Order (Optional) -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">طلب المبيعات (اختياري)</label>
-                <select name="sales_order_id" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="loadOrderItems()">
-                    <option value="">اختر طلب مبيعات</option>
-                    @foreach($salesOrders as $order)
-                        <option value="{{ $order->id }}" {{ old('sales_order_id') == $order->id ? 'selected' : '' }}>
-                            {{ $order->order_number }} - {{ $order->customer->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="custom-dropdown" data-name="sales_order_id" data-onchange="loadOrderItems">
+                    <div class="dropdown-header" onclick="toggleDropdown(this)">
+                        <span class="dropdown-placeholder">
+                            @if(old('sales_order_id'))
+                                @foreach($salesOrders as $order)
+                                    @if($order->id == old('sales_order_id'))
+                                        {{ $order->order_number }} - {{ $order->customer->name }}
+                                        @break
+                                    @endif
+                                @endforeach
+                            @else
+                                اختر طلب مبيعات
+                            @endif
+                        </span>
+                        <i class="fas fa-chevron-down dropdown-arrow"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <input type="text" class="dropdown-search" placeholder="البحث عن طلب مبيعات..." onkeyup="filterOptions(this)">
+                        <div class="dropdown-options">
+                            <div class="dropdown-option" data-value="" onclick="selectOption(this)">
+                                اختر طلب مبيعات
+                            </div>
+                            @foreach($salesOrders as $order)
+                                <div class="dropdown-option"
+                                     data-value="{{ $order->id }}"
+                                     onclick="selectOption(this)"
+                                     {{ old('sales_order_id') == $order->id ? 'data-selected="true"' : '' }}>
+                                    {{ $order->order_number }} - {{ $order->customer->name }}
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <select name="sales_order_id" style="display: none;" onchange="loadOrderItems()">
+                        <option value="">اختر طلب مبيعات</option>
+                        @foreach($salesOrders as $order)
+                            <option value="{{ $order->id }}" {{ old('sales_order_id') == $order->id ? 'selected' : '' }}>
+                                {{ $order->order_number }} - {{ $order->customer->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 @error('sales_order_id')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
