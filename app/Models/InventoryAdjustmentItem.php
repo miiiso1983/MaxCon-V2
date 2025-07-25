@@ -62,7 +62,7 @@ class InventoryAdjustmentItem extends Model
 
     public function calculateTotalCostImpact()
     {
-        $this->total_cost_impact = $this->adjustment_quantity * $this->unit_cost;
+        $this->total_cost_impact = round($this->adjustment_quantity * $this->unit_cost, 2);
         return $this->total_cost_impact;
     }
 
@@ -99,12 +99,12 @@ class InventoryAdjustmentItem extends Model
 
     public function getAbsoluteAdjustment()
     {
-        return abs($this->adjustment_quantity);
+        return abs((float) $this->adjustment_quantity);
     }
 
     public function getAbsoluteCostImpact()
     {
-        return abs($this->total_cost_impact);
+        return abs((float) $this->total_cost_impact);
     }
 
     public function processAdjustment()

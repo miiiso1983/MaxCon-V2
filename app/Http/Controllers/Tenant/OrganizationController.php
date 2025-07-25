@@ -224,7 +224,7 @@ class OrganizationController extends Controller
     /**
      * Download organization report
      */
-    public function downloadReport(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function downloadReport(): \Illuminate\Http\Response
     {
         $user = Auth::user();
         $tenant = $user->tenant;

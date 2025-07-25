@@ -6,6 +6,7 @@ use App\Models\Report;
 use App\Models\ReportExecution;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class ReportService
@@ -16,7 +17,7 @@ class ReportService
     public function executeReport(Report $report, array $parameters = [], string $format = 'html')
     {
         $execution = ReportExecution::create([
-            'report_id' => $report->getAttribute('id'),
+            'user_id' => Auth::id(),
             'user_id' => auth()->id(),
             'parameters' => $parameters,
             'status' => ReportExecution::STATUS_RUNNING,

@@ -131,9 +131,6 @@ class FinancialController extends Controller
                 ? ($totalDebt / $creditLimit) * 100
                 : 0,
             'is_over_limit' => $totalDebt > $creditLimit,
-            'recent_orders_total' => $customer->salesOrders()
-                ->where('created_at', '>=', now()->subDays(30))
-                ->sum('total_amount'),
         ];
 
         return view('customer.financial.credit-limit', compact('creditData'));
