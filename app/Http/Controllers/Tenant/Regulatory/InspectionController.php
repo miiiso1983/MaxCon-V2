@@ -64,22 +64,22 @@ class InspectionController extends Controller
             Inspection::create([
                 'id' => Str::uuid(),
                 'tenant_id' => Auth::user()->tenant_id,
-                'inspection_title' => $request->inspection_title,
-                'inspection_type' => $request->inspection_type,
-                'inspector_name' => $request->inspector_name,
-                'inspection_authority' => $request->inspection_authority,
-                'scheduled_date' => $request->scheduled_date,
-                'completion_date' => $request->completion_date,
-                'inspection_status' => $request->inspection_status,
-                'facility_name' => $request->facility_name,
-                'facility_address' => $request->facility_address,
-                'scope_of_inspection' => $request->scope_of_inspection,
-                'findings' => $request->findings,
-                'recommendations' => $request->recommendations,
-                'compliance_rating' => $request->compliance_rating,
+                'inspection_title' => $request->input('inspection_title'),
+                'inspection_type' => $request->input('inspection_type'),
+                'inspector_name' => $request->input('inspector_name'),
+                'inspection_authority' => $request->input('inspection_authority'),
+                'scheduled_date' => $request->input('scheduled_date'),
+                'completion_date' => $request->input('completion_date'),
+                'inspection_status' => $request->input('inspection_status'),
+                'facility_name' => $request->input('facility_name'),
+                'facility_address' => $request->input('facility_address'),
+                'scope_of_inspection' => $request->input('scope_of_inspection'),
+                'findings' => $request->input('findings'),
+                'recommendations' => $request->input('recommendations'),
+                'compliance_rating' => $request->input('compliance_rating'),
                 'follow_up_required' => $request->has('follow_up_required'),
-                'follow_up_date' => $request->follow_up_date,
-                'notes' => $request->notes
+                'follow_up_date' => $request->input('follow_up_date'),
+                'notes' => $request->input('notes')
             ]);
 
             return redirect()->route('tenant.inventory.regulatory.inspections.index')
@@ -160,22 +160,22 @@ class InspectionController extends Controller
 
         try {
             $inspection->update([
-                'inspection_title' => $request->inspection_title,
-                'inspection_type' => $request->inspection_type,
-                'inspector_name' => $request->inspector_name,
-                'inspection_authority' => $request->inspection_authority,
-                'scheduled_date' => $request->scheduled_date,
-                'completion_date' => $request->completion_date,
-                'inspection_status' => $request->inspection_status,
-                'facility_name' => $request->facility_name,
-                'facility_address' => $request->facility_address,
-                'scope_of_inspection' => $request->scope_of_inspection,
-                'findings' => $request->findings,
-                'recommendations' => $request->recommendations,
-                'compliance_rating' => $request->compliance_rating,
+                'inspection_title' => $request->input('inspection_title'),
+                'inspection_type' => $request->input('inspection_type'),
+                'inspector_name' => $request->input('inspector_name'),
+                'inspection_authority' => $request->input('inspection_authority'),
+                'scheduled_date' => $request->input('scheduled_date'),
+                'completion_date' => $request->input('completion_date'),
+                'inspection_status' => $request->input('inspection_status'),
+                'facility_name' => $request->input('facility_name'),
+                'facility_address' => $request->input('facility_address'),
+                'scope_of_inspection' => $request->input('scope_of_inspection'),
+                'findings' => $request->input('findings'),
+                'recommendations' => $request->input('recommendations'),
+                'compliance_rating' => $request->input('compliance_rating'),
                 'follow_up_required' => $request->has('follow_up_required'),
-                'follow_up_date' => $request->follow_up_date,
-                'notes' => $request->notes
+                'follow_up_date' => $request->input('follow_up_date'),
+                'notes' => $request->input('notes')
             ]);
 
             return redirect()->route('tenant.inventory.regulatory.inspections.index')
