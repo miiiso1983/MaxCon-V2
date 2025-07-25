@@ -3,6 +3,10 @@
 @section('page-title', 'تنبيهات المخزون')
 @section('page-description', 'إدارة تنبيهات وإشعارات المخزون')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/inventory-alerts.css') }}">
+@endpush
+
 @section('content')
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
@@ -129,20 +133,28 @@
     @if($alerts->count() > 0)
         <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
             @foreach($alerts as $alert)
-                <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; border-right: 4px solid {{ $alert->getPriorityColor() === 'danger' ? '#ef4444' : ($alert->getPriorityColor() === 'warning' ? '#f59e0b' : '#3b82f6') }}; transition: all 0.3s ease;"
-                     onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
-                     onmouseout="this.style.boxShadow='none'">
+                @php
+                    $priorityColor = $alert->getPriorityColor();
+                    $statusColor = $alert->getStatusColor();
+                    $borderColor = $priorityColor === 'danger' ? '#ef4444' : ($priorityColor === 'warning' ? '#f59e0b' : '#3b82f6');
+                    $iconColor = $priorityColor === 'danger' ? '#ef4444' : ($priorityColor === 'warning' ? '#f59e0b' : '#3b82f6');
+                    $badgeBackground = $priorityColor === 'danger' ? '#fee2e2' : ($priorityColor === 'warning' ? '#fef3c7' : '#dbeafe');
+                    $badgeColor = $priorityColor === 'danger' ? '#991b1b' : ($priorityColor === 'warning' ? '#92400e' : '#1e40af');
+                    $statusBackground = $statusColor === 'success' ? '#d1fae5' : ($statusColor === 'warning' ? '#fef3c7' : ($statusColor === 'danger' ? '#fee2e2' : '#f1f5f9'));
+                    $statusTextColor = $statusColor === 'success' ? '#065f46' : ($statusColor === 'warning' ? '#92400e' : ($statusColor === 'danger' ? '#991b1b' : '#374151'));
+                @endphp
+                <div class="alert-card priority-{{ $priorityColor }}"
                     
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                                <i class="{{ $alert->getAlertIcon() }}" style="color: {{ $alert->getPriorityColor() === 'danger' ? '#ef4444' : ($alert->getPriorityColor() === 'warning' ? '#f59e0b' : '#3b82f6') }}; font-size: 18px;"></i>
-                                <h4 style="font-size: 18px; font-weight: 700; color: #2d3748; margin: 0;">{{ $alert->title }}</h4>
+                    <div class="alert-header">
+                        <div class="alert-content">
+                            <div class="alert-title-row">
+                                <i class="{{ $alert->getAlertIcon() }} alert-icon {{ $priorityColor }}"></i>
+                                <h4 class="alert-title">{{ $alert->title }}</h4>
                             </div>
                             
-                            <p style="color: #4a5568; margin: 0 0 10px 0; line-height: 1.5;">{{ $alert->message }}</p>
-                            
-                            <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 14px; color: #6b7280;">
+                            <p class="alert-message">{{ $alert->message }}</p>
+
+                            <div class="alert-details">
                                 @if($alert->warehouse)
                                     <div style="display: flex; align-items: center; gap: 5px;">
                                         <i class="fas fa-warehouse"></i>
@@ -164,23 +176,19 @@
                             </div>
                         </div>
                         
-                        <div style="display: flex; flex-direction: column; gap: 10px; align-items: end;">
+                        <div class="alert-badges">
                             <!-- Priority Badge -->
-                            <span style="background: {{ $alert->getPriorityColor() === 'danger' ? '#fee2e2' : ($alert->getPriorityColor() === 'warning' ? '#fef3c7' : '#dbeafe') }}; 
-                                         color: {{ $alert->getPriorityColor() === 'danger' ? '#991b1b' : ($alert->getPriorityColor() === 'warning' ? '#92400e' : '#1e40af') }}; 
-                                         padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            <span class="badge priority-{{ $priorityColor }}">
                                 {{ $alert->getPriorityLabel() }}
                             </span>
-                            
+
                             <!-- Status Badge -->
-                            <span style="background: {{ $alert->getStatusColor() === 'success' ? '#d1fae5' : ($alert->getStatusColor() === 'warning' ? '#fef3c7' : ($alert->getStatusColor() === 'danger' ? '#fee2e2' : '#f1f5f9')) }}; 
-                                         color: {{ $alert->getStatusColor() === 'success' ? '#065f46' : ($alert->getStatusColor() === 'warning' ? '#92400e' : ($alert->getStatusColor() === 'danger' ? '#991b1b' : '#374151')) }}; 
-                                         padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            <span class="badge status-{{ $statusColor }}">
                                 {{ $alert->getStatusLabel() }}
                             </span>
                             
                             <!-- Type Badge -->
-                            <span style="background: #f3e8ff; color: #7c3aed; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            <span class="badge" style="background: #f3e8ff; color: #7c3aed;">
                                 {{ $alert->getAlertTypeLabel() }}
                             </span>
                         </div>
@@ -188,45 +196,42 @@
                     
                     <!-- Actions -->
                     @if($alert->status === 'active')
-                        <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                            <a href="{{ route('tenant.inventory.alerts.show', $alert) }}" 
-                               style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                        <div class="alert-actions">
+                            <a href="{{ route('tenant.inventory.alerts.show', $alert) }}" class="btn btn-primary">
                                 <i class="fas fa-eye"></i> عرض
                             </a>
-                            
+
                             <form method="POST" action="{{ route('tenant.inventory.alerts.acknowledge', $alert) }}" style="display: inline;">
                                 @csrf
-                                <button type="submit" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                <button type="submit" class="btn btn-warning">
                                     <i class="fas fa-check"></i> تأكيد
                                 </button>
                             </form>
-                            
-                            <button onclick="showResolveModal({{ $alert->id }})" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+
+                            <button onclick="showResolveModal('{{ $alert->id }}')" class="btn btn-success">
                                 <i class="fas fa-check-circle"></i> حل
                             </button>
-                            
+
                             <form method="POST" action="{{ route('tenant.inventory.alerts.dismiss', $alert) }}" style="display: inline;">
                                 @csrf
-                                <button type="submit" style="background: #6b7280; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;" onclick="return confirm('هل أنت متأكد من تجاهل هذا التنبيه؟')">
+                                <button type="submit" class="btn btn-secondary" onclick="return confirm('هل أنت متأكد من تجاهل هذا التنبيه؟')">
                                     <i class="fas fa-times"></i> تجاهل
                                 </button>
                             </form>
                         </div>
                     @elseif($alert->status === 'acknowledged')
-                        <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                            <a href="{{ route('tenant.inventory.alerts.show', $alert) }}" 
-                               style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                        <div class="alert-actions">
+                            <a href="{{ route('tenant.inventory.alerts.show', $alert) }}" class="btn btn-primary">
                                 <i class="fas fa-eye"></i> عرض
                             </a>
-                            
-                            <button onclick="showResolveModal({{ $alert->id }})" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+
+                            <button onclick="showResolveModal('{{ $alert->id }}')" class="btn btn-success">
                                 <i class="fas fa-check-circle"></i> حل
                             </button>
                         </div>
                     @else
-                        <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                            <a href="{{ route('tenant.inventory.alerts.show', $alert) }}" 
-                               style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                        <div class="alert-actions">
+                            <a href="{{ route('tenant.inventory.alerts.show', $alert) }}" class="btn btn-primary">
                                 <i class="fas fa-eye"></i> عرض
                             </a>
                         </div>
@@ -249,20 +254,23 @@
 </div>
 
 <!-- Resolve Modal -->
-<div id="resolveModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 12px; padding: 30px; max-width: 500px; width: 90%;">
-        <h3 style="margin: 0 0 20px 0; color: #2d3748;">حل التنبيه</h3>
+<div id="resolveModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">حل التنبيه</h3>
+            <button type="button" class="close-btn" onclick="hideResolveModal()">×</button>
+        </div>
         <form id="resolveForm" method="POST">
             @csrf
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">ملاحظات الحل</label>
-                <textarea name="resolution_notes" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; height: 100px;" placeholder="اكتب ملاحظات حول كيفية حل هذا التنبيه..."></textarea>
+            <div class="form-group">
+                <label class="form-label">ملاحظات الحل</label>
+                <textarea name="resolution_notes" class="form-input form-textarea" placeholder="اكتب ملاحظات حول كيفية حل هذا التنبيه..."></textarea>
             </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" onclick="hideResolveModal()" style="background: #6b7280; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            <div class="modal-actions">
+                <button type="button" onclick="hideResolveModal()" class="btn btn-secondary">
                     إلغاء
                 </button>
-                <button type="submit" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                <button type="submit" class="btn btn-success">
                     حل التنبيه
                 </button>
             </div>
