@@ -8,6 +8,7 @@ use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SupplierContractController extends Controller
 {
@@ -39,7 +40,17 @@ class SupplierContractController extends Controller
             ];
         } catch (\Exception $e) {
             // If table doesn't exist, show empty data
-            $contracts = collect()->paginate(15);
+            $contracts = new LengthAwarePaginator(
+                collect([]), // Empty collection
+                0, // Total items
+                15, // Items per page
+                1, // Current page
+                [
+                    'path' => request()->url(),
+                    'pageName' => 'page',
+                ]
+            );
+
             $stats = [
                 'total' => 0,
                 'active' => 0,
