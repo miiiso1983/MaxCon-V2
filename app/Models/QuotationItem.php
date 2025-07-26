@@ -75,7 +75,7 @@ class QuotationItem extends Model
     // Update total price
     public function updateTotal()
     {
-        $this->total_price = number_format($this->calculateTotal(), 2, '.', '');
+        $this->setAttribute('total_price', round($this->calculateTotal(), 2));
         $this->save();
     }
 }

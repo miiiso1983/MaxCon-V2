@@ -20,24 +20,24 @@
 <div class="settings-grid">
 
     <!-- General Settings -->
-    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #10b981;">
-        <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
-                <i class="fas fa-cogs" style="font-size: 24px;"></i>
+    <div class="settings-card settings-card-general">
+        <div class="settings-header">
+            <div class="settings-icon settings-icon-general">
+                <i class="fas fa-cogs"></i>
             </div>
             <div>
-                <h3 style="font-size: 20px; font-weight: 700; color: #065f46; margin: 0;">الإعدادات العامة</h3>
-                <p style="color: #047857; margin: 5px 0 0 0;">إعدادات أساسية للنظام</p>
+                <h3 class="settings-title settings-title-general">الإعدادات العامة</h3>
+                <p class="settings-subtitle settings-subtitle-general">إعدادات أساسية للنظام</p>
             </div>
         </div>
 
-        <div style="display: grid; gap: 10px;">
-            <button onclick="openSettings('company_info')" style="background: #f0fff4; border: 1px solid #10b981; color: #065f46; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fff4'">
-                <i class="fas fa-building" style="margin-left: 8px;"></i>
+        <div class="settings-buttons">
+            <button onclick="openSettings('company_info')" class="settings-btn-general">
+                <i class="fas fa-building"></i>
                 معلومات الشركة
             </button>
-            <button onclick="openSettings('system_preferences')" style="background: #f0fff4; border: 1px solid #10b981; color: #065f46; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fff4'">
-                <i class="fas fa-sliders-h" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('system_preferences')" class="settings-btn-general">
+                <i class="fas fa-sliders-h"></i>
                 تفضيلات النظام
             </button>
             <button onclick="openSettings('language_settings')" style="background: #f0fff4; border: 1px solid #10b981; color: #065f46; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fff4'">
@@ -255,6 +255,244 @@ document.addEventListener('DOMContentLoaded', function() {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 25px;
+}
+
+.settings-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.settings-card-general {
+    border: 2px solid #10b981;
+}
+
+.settings-card-security {
+    border: 2px solid #3b82f6;
+}
+
+.settings-card-notifications {
+    border: 2px solid #f59e0b;
+}
+
+.settings-card-backup {
+    border: 2px solid #8b5cf6;
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.settings-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 15px;
+    font-size: 24px;
+}
+
+.settings-icon-general {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.settings-icon-security {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.settings-icon-notifications {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.settings-icon-backup {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.settings-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.settings-title-general {
+    color: #065f46;
+}
+
+.settings-title-security {
+    color: #1e3a8a;
+}
+
+.settings-title-notifications {
+    color: #92400e;
+}
+
+.settings-title-backup {
+    color: #581c87;
+}
+
+.settings-subtitle {
+    margin: 5px 0 0 0;
+}
+
+.settings-subtitle-general {
+    color: #047857;
+}
+
+.settings-subtitle-security {
+    color: #1d4ed8;
+}
+
+.settings-subtitle-notifications {
+    color: #d97706;
+}
+
+.settings-subtitle-backup {
+    color: #7c3aed;
+}
+
+.settings-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.settings-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-list li:last-child {
+    border-bottom: none;
+}
+
+.settings-list li span {
+    color: #374151;
+    font-weight: 500;
+}
+
+.settings-list li small {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.settings-btn {
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.settings-btn:hover {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+.settings-btn-primary {
+    background: #10b981;
+    color: white;
+}
+
+.settings-btn-primary:hover {
+    background: #059669;
+}
+
+.settings-buttons {
+    display: grid;
+    gap: 10px;
+}
+
+.settings-btn-general {
+    background: #f0fff4;
+    border: 1px solid #10b981;
+    color: #065f46;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: right;
+    font-weight: 500;
+}
+
+.settings-btn-general:hover {
+    background: #dcfce7;
+}
+
+.settings-btn-general i {
+    margin-left: 8px;
+}
+
+.settings-btn-security {
+    background: #eff6ff;
+    border: 1px solid #3b82f6;
+    color: #1e40af;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: right;
+    font-weight: 500;
+}
+
+.settings-btn-security:hover {
+    background: #dbeafe;
+}
+
+.settings-btn-security i {
+    margin-left: 8px;
+}
+
+.settings-btn-notifications {
+    background: #fffbeb;
+    border: 1px solid #f59e0b;
+    color: #92400e;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: right;
+    font-weight: 500;
+}
+
+.settings-btn-notifications:hover {
+    background: #fef3c7;
+}
+
+.settings-btn-notifications i {
+    margin-left: 8px;
+}
+
+.settings-btn-backup {
+    background: #faf5ff;
+    border: 1px solid #8b5cf6;
+    color: #7c3aed;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: right;
+    font-weight: 500;
+}
+
+.settings-btn-backup:hover {
+    background: #f3e8ff;
+}
+
+.settings-btn-backup i {
+    margin-left: 8px;
 }
 </style>
 

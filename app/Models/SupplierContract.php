@@ -123,13 +123,13 @@ class SupplierContract extends Model
 
     public function getIsExpiringSoonAttribute()
     {
-        return $this->end_date > now() &&
-               $this->end_date <= now()->addDays(30);
+        $endDate = \Carbon\Carbon::parse($this->end_date);
+        return $endDate > now() && $endDate <= now()->addDays(30);
     }
 
     public function getDaysUntilExpiryAttribute()
     {
-        return $this->end_date->diffInDays(now(), false);
+        return \Carbon\Carbon::parse($this->end_date)->diffInDays(now(), false);
     }
 
     public function getStatusTextAttribute()
