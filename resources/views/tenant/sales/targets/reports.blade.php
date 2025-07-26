@@ -168,13 +168,11 @@
                                             <span style="font-weight: 600; color: #374151;">{{ $target->progress_percentage }}%</span>
                                         </div>
                                         <div style="background: #e5e7eb; border-radius: 10px; height: 6px; overflow: hidden;">
-                                            <div style="background: {{ $target->progress_percentage >= 100 ? '#10b981' : ($target->progress_percentage >= 80 ? '#f59e0b' : '#3b82f6') }}; height: 100%; width: {{ min(100, $target->progress_percentage) }}%;"></div>
+                                            <div class="progress-bar-fill" data-percentage="{{ $target->progress_percentage }}" style="height: 100%;"></div>
                                         </div>
                                     </td>
                                     <td style="padding: 12px; text-align: center;">
-                                        <span style="background: {{ $target->status === 'completed' ? '#dcfce7' : ($target->status === 'active' ? '#dbeafe' : '#fef3c7') }}; 
-                                                     color: {{ $target->status === 'completed' ? '#166534' : ($target->status === 'active' ? '#1e40af' : '#d97706') }}; 
-                                                     padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                        <span class="status-badge status-{{ $target->status }}" style="padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
                                             {{ $target->status_text }}
                                         </span>
                                     </td>
@@ -251,8 +249,8 @@
                     تصدير التقارير
                 </h3>
                 
-                <div style="space-y: 10px;">
-                    <button onclick="exportReport('pdf')" 
+                <div class="export-buttons">
+                    <button onclick="exportReport('pdf')"
                             style="display: block; width: 100%; background: #ef4444; color: white; padding: 12px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 10px;">
                         <i class="fas fa-file-pdf"></i> تصدير PDF
                     </button>
@@ -272,12 +270,23 @@
     </div>
 </div>
 
+@php
+    $chartData = [
+        'by_type' => $reportData['by_type'] ?? [],
+        'by_period' => $reportData['by_period'] ?? [],
+        'by_team' => $reportData['by_team'] ?? []
+    ];
+@endphp
+
 <!-- Chart Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Chart data from PHP
+    const chartData = JSON.parse('{{ json_encode($chartData) }}');
+
     // Performance by Type Chart
-    const typeData = @json($reportData['by_type'] ?? []);
+    const typeData = chartData.by_type;
     const typeLabels = Object.keys(typeData);
     const typeValues = Object.values(typeData).map(item => item.avg_progress);
     
@@ -309,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
     typeChart.render();
     
     // Performance by Period Chart
-    const periodData = @json($reportData['by_period'] ?? []);
+    const periodData = chartData.by_period;
     const periodLabels = Object.keys(periodData);
     const periodValues = Object.values(periodData).map(item => item.avg_progress);
     
@@ -346,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
     periodChart.render();
     
     // Status Distribution Chart
-    const statusData = @json($reportData['by_status'] ?? []);
+    const statusData = chartData.by_team;
     const statusLabels = Object.keys(statusData);
     const statusValues = Object.values(statusData);
     
@@ -384,5 +393,42 @@ function exportReport(format) {
 function printReport() {
     window.print();
 }
+
+// Set progress bar colors and widths
+document.querySelectorAll('.progress-bar-fill[data-percentage]').forEach(function(bar) {
+    const percentage = parseFloat(bar.getAttribute('data-percentage'));
+    const width = Math.min(100, percentage);
+    let color = '#3b82f6'; // Default blue
+
+    if (percentage >= 100) {
+        color = '#10b981'; // Green
+    } else if (percentage >= 80) {
+        color = '#f59e0b'; // Orange
+    }
+
+    bar.style.width = width + '%';
+    bar.style.backgroundColor = color;
+});
 </script>
+
+<style>
+/* Status badges */
+.status-badge.status-completed {
+    background: #dcfce7;
+    color: #166534;
+}
+.status-badge.status-active {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* Export buttons spacing */
+.export-buttons > *:not(:last-child) {
+    margin-bottom: 10px;
+}
+</style>
 @endsection

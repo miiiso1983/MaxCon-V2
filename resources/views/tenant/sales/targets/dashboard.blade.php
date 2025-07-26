@@ -71,9 +71,9 @@
                 </h3>
                 
                 @if($activeTargets->count() > 0)
-                    <div style="space-y: 20px;">
+                    <div class="targets-list">
                         @foreach($activeTargets as $target)
-                            <div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; transition: all 0.3s ease; hover: box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <div class="target-card" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: all 0.3s ease;">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                                     <div>
                                         <h4 style="margin: 0 0 5px 0; color: #1f2937; font-size: 16px; font-weight: 600;">
@@ -93,7 +93,9 @@
                                 
                                 <!-- Progress Bar -->
                                 <div style="background: #e5e7eb; border-radius: 10px; height: 8px; margin-bottom: 15px; overflow: hidden;">
-                                    <div style="background: {{ $target->progress_percentage >= 100 ? '#10b981' : ($target->progress_percentage >= 80 ? '#f59e0b' : '#3b82f6') }}; height: 100%; width: {{ min(100, $target->progress_percentage) }}%; transition: width 0.3s ease;"></div>
+                                    <div class="progress-bar-fill"
+                                         data-percentage="{{ $target->progress_percentage }}"
+                                         style="height: 100%; transition: width 0.3s ease;"></div>
                                 </div>
                                 
                                 <!-- Target Details -->
@@ -158,7 +160,7 @@
                     ملخص الشهر الحالي
                 </h3>
                 
-                <div style="space-y: 15px;">
+                <div class="summary-list">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <span style="color: #6b7280; font-size: 14px;">الأهداف الشهرية</span>
                         <span style="font-weight: 600; color: #374151;">{{ $performanceSummary['monthly_targets'] }}</span>
@@ -202,7 +204,7 @@
                 </h3>
                 
                 @if($recentAchievements->count() > 0)
-                    <div style="space-y: 15px;">
+                    <div class="achievements-list">
                         @foreach($recentAchievements as $achievement)
                             <div style="border-right: 3px solid #10b981; padding-right: 15px; margin-bottom: 15px;">
                                 <div style="font-weight: 600; color: #374151; margin-bottom: 3px; font-size: 14px;">
@@ -232,8 +234,8 @@
                     إجراءات سريعة
                 </h3>
                 
-                <div style="space-y: 10px;">
-                    <a href="{{ route('tenant.sales.targets.create') }}" 
+                <div class="quick-actions">
+                    <a href="{{ route('tenant.sales.targets.create') }}"
                        style="display: block; background: #f3f4f6; color: #374151; padding: 12px 15px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-bottom: 10px;">
                         <i class="fas fa-plus" style="margin-left: 8px; color: #10b981;"></i>
                         إنشاء هدف جديد
@@ -325,6 +327,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const chart = new ApexCharts(document.querySelector("#performanceChart"), options);
     chart.render();
+
+    // Set progress bar colors and widths
+    document.querySelectorAll('.progress-bar-fill[data-percentage]').forEach(function(bar) {
+        const percentage = parseFloat(bar.getAttribute('data-percentage'));
+        const width = Math.min(100, percentage);
+        let color = '#3b82f6'; // Default blue
+
+        if (percentage >= 100) {
+            color = '#10b981'; // Green
+        } else if (percentage >= 80) {
+            color = '#f59e0b'; // Orange
+        }
+
+        bar.style.width = width + '%';
+        bar.style.backgroundColor = color;
+    });
 });
 </script>
+
+<style>
+/* Target cards hover effect */
+.target-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* List spacing */
+.targets-list > *:not(:last-child),
+.summary-list > *:not(:last-child),
+.achievements-list > *:not(:last-child),
+.quick-actions > *:not(:last-child) {
+    margin-bottom: 15px;
+}
+
+.quick-actions > *:not(:last-child) {
+    margin-bottom: 10px;
+}
+</style>
 @endsection
