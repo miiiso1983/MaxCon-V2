@@ -210,7 +210,7 @@
                                     'cancelled' => 'ملغي'
                                 ];
                             @endphp
-                            <span style="background: {{ $statusColor['bg'] }}; color: {{ $statusColor['text'] }}; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                            <span class="status-badge status-{{ $contract->status }}" style="padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
                                 {{ $statusLabels[$contract->status] ?? $contract->status }}
                             </span>
                         </td>
@@ -389,5 +389,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<style>
+/* Status badges for contracts */
+.status-badge.status-draft {
+    background: #fef3c7;
+    color: #d97706;
+}
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+.status-badge.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+.status-badge.status-expired {
+    background: #fecaca;
+    color: #dc2626;
+}
+.status-badge.status-terminated {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+.status-badge.status-cancelled {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+</style>
 @endpush
 @endsection

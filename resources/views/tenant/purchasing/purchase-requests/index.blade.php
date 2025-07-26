@@ -216,9 +216,15 @@
                                         'urgent' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
                                     ];
                                     $priority = $priorityColors[$request->priority] ?? ['bg' => '#f3f4f6', 'text' => '#374151'];
+                                    $priorityLabels = [
+                                        'low' => 'منخفضة',
+                                        'medium' => 'متوسطة',
+                                        'high' => 'عالية',
+                                        'urgent' => 'عاجل'
+                                    ];
                                 @endphp
-                                <span style="background: {{ $priority['bg'] }}; color: {{ $priority['text'] }}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                    {{ $request->priority_label }}
+                                <span class="priority-badge priority-{{ $request->priority }}" style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    {{ $priorityLabels[$request->priority] ?? $request->priority }}
                                 </span>
                             </td>
                             <td style="padding: 15px; text-align: center;">
@@ -233,8 +239,18 @@
                                     ];
                                     $status = $statusColors[$request->status] ?? ['bg' => '#f3f4f6', 'text' => '#374151'];
                                 @endphp
-                                <span style="background: {{ $status['bg'] }}; color: {{ $status['text'] }}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                    {{ $request->status_label }}
+                                @php
+                                    $statusLabels = [
+                                        'draft' => 'مسودة',
+                                        'pending' => 'في الانتظار',
+                                        'approved' => 'معتمد',
+                                        'rejected' => 'مرفوض',
+                                        'cancelled' => 'ملغي',
+                                        'completed' => 'مكتمل'
+                                    ];
+                                @endphp
+                                <span class="status-badge status-{{ $request->status }}" style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    {{ $statusLabels[$request->status] ?? $request->status }}
                                 </span>
                             </td>
                             <td style="padding: 15px; text-align: center;">
@@ -318,11 +334,26 @@
 function exportRequests() {
     // Create CSV content
     let csv = 'رقم الطلب,العنوان,مقدم الطلب,الأولوية,الحالة,التاريخ المطلوب,القيمة المقدرة\n';
-    
-    @foreach($purchaseRequests as $request)
-        csv += '"{{ $request->request_number }}","{{ $request->title }}","{{ $request->requestedBy->name }}","{{ $request->priority_label }}","{{ $request->status_label }}","{{ $request->required_date->format('Y-m-d') }}",{{ $request->estimated_total }}\n';
-    @endforeach
-    
+
+    // Get data from table rows
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        if (row.style.display !== 'none') {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 7) {
+                const requestNumber = cells[0].querySelector('div').textContent.trim();
+                const title = cells[1].querySelector('div').textContent.trim();
+                const requester = cells[2].querySelector('div').textContent.trim();
+                const priority = cells[3].querySelector('span').textContent.trim();
+                const status = cells[4].querySelector('span').textContent.trim();
+                const date = cells[5].querySelector('div').textContent.trim();
+                const amount = cells[6].querySelector('div').textContent.trim();
+
+                csv += `"${requestNumber}","${title}","${requester}","${priority}","${status}","${date}","${amount}"\n`;
+            }
+        }
+    });
+
     // Download CSV
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -335,5 +366,51 @@ function exportRequests() {
     document.body.removeChild(link);
 }
 </script>
+
+<style>
+/* Priority badges */
+.priority-badge.priority-low {
+    background: #f0f9ff;
+    color: #0369a1;
+}
+.priority-badge.priority-medium {
+    background: #fef3c7;
+    color: #92400e;
+}
+.priority-badge.priority-high {
+    background: #fef2f2;
+    color: #991b1b;
+}
+.priority-badge.priority-urgent {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Status badges */
+.status-badge.status-draft {
+    background: #f3f4f6;
+    color: #374151;
+}
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+.status-badge.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+.status-badge.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.status-badge.status-cancelled {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+.status-badge.status-completed {
+    background: #dbeafe;
+    color: #1e40af;
+}
+</style>
 @endpush
 @endsection
