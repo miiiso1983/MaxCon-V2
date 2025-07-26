@@ -61,11 +61,11 @@
                 <i class="fas fa-list" style="font-size: 24px; opacity: 0.8;"></i>
                 <span style="font-size: 12px; opacity: 0.8;">إجمالي العقود</span>
             </div>
-            <div style="font-size: 28px; font-weight: 700;">{{ number_format($stats['total']) }}</div>
+            <div style="font-size: 28px; font-weight: 700;">{{ number_format($stats['total'] ?? 0) }}</div>
             <div style="font-size: 12px; opacity: 0.8;">عقد</div>
         </div>
     </div>
-    
+
     <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 15px; padding: 20px; color: white; position: relative; overflow: hidden;">
         <div style="position: absolute; top: -10px; right: -10px; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
         <div style="position: relative; z-index: 2;">
@@ -73,11 +73,11 @@
                 <i class="fas fa-check-circle" style="font-size: 24px; opacity: 0.8;"></i>
                 <span style="font-size: 12px; opacity: 0.8;">نشط</span>
             </div>
-            <div style="font-size: 28px; font-weight: 700;">{{ number_format($stats['active']) }}</div>
+            <div style="font-size: 28px; font-weight: 700;">{{ number_format($stats['active'] ?? 0) }}</div>
             <div style="font-size: 12px; opacity: 0.8;">عقد نشط</div>
         </div>
     </div>
-    
+
     <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 15px; padding: 20px; color: white; position: relative; overflow: hidden;">
         <div style="position: absolute; top: -10px; right: -10px; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
         <div style="position: relative; z-index: 2;">
@@ -85,11 +85,11 @@
                 <i class="fas fa-times-circle" style="font-size: 24px; opacity: 0.8;"></i>
                 <span style="font-size: 12px; opacity: 0.8;">منتهي الصلاحية</span>
             </div>
-            <div style="font-size: 28px; font-weight: 700;">{{ number_format($stats['expired']) }}</div>
+            <div style="font-size: 28px; font-weight: 700;">{{ number_format($stats['expired'] ?? 0) }}</div>
             <div style="font-size: 12px; opacity: 0.8;">عقد منتهي</div>
         </div>
     </div>
-    
+
     <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 15px; padding: 20px; color: white; position: relative; overflow: hidden;">
         <div style="position: absolute; top: -10px; right: -10px; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
         <div style="position: relative; z-index: 2;">
@@ -97,7 +97,7 @@
                 <i class="fas fa-exclamation-triangle" style="font-size: 24px; opacity: 0.8;"></i>
                 <span style="font-size: 12px; opacity: 0.8;">ينتهي قريباً</span>
             </div>
-            <div style="font-size: 28px; font-weight: 700;">{{ number_format($stats['expiring_soon']) }}</div>
+            <div style="font-size: 28px; font-weight: 700;">{{ number_format($stats['expiring_soon'] ?? 0) }}</div>
             <div style="font-size: 12px; opacity: 0.8;">عقد</div>
         </div>
     </div>
@@ -127,7 +127,7 @@
         </div>
     </div>
 
-    @if($contracts && $contracts->count() > 0)
+    @if(isset($contracts) && $contracts && $contracts->count() > 0)
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <thead style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
@@ -165,41 +165,94 @@
                         </td>
 
                         <td style="padding: 12px 15px;">
-                            <span style="color: #374151;">{{ $contract->supplier->name ?? 'غير محدد' }}</span>
+                            <span style="color: #374151;">
+                                @if($contract->supplier)
+                                    {{ $contract->supplier->name }}
+                                @else
+                                    <span style="color: #ef4444; font-style: italic;">غير محدد</span>
+                                @endif
+                            </span>
                         </td>
 
                         <td style="padding: 12px 15px;">
-                            <span style="color: #6b7280;">{{ $contract->type_text }}</span>
+                            <span style="color: #6b7280;">
+                                @php
+                                    $typeLabels = [
+                                        'supply' => 'توريد',
+                                        'service' => 'خدمة',
+                                        'maintenance' => 'صيانة',
+                                        'consulting' => 'استشاري',
+                                        'framework' => 'إطاري'
+                                    ];
+                                @endphp
+                                {{ $typeLabels[$contract->type] ?? $contract->type }}
+                            </span>
                         </td>
 
                         <td style="padding: 12px 15px; text-align: center;">
-                            <span style="background: {{ $contract->status === 'active' ? '#dcfce7' : ($contract->status === 'expired' ? '#fecaca' : ($contract->status === 'draft' ? '#fef3c7' : '#f3f4f6')) }};
-                                         color: {{ $contract->status === 'active' ? '#166534' : ($contract->status === 'expired' ? '#dc2626' : ($contract->status === 'draft' ? '#d97706' : '#6b7280')) }};
-                                         padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
-                                {{ $contract->status_text }}
+                            @php
+                                $statusColors = [
+                                    'draft' => ['bg' => '#fef3c7', 'text' => '#d97706'],
+                                    'pending' => ['bg' => '#fef3c7', 'text' => '#d97706'],
+                                    'active' => ['bg' => '#dcfce7', 'text' => '#166534'],
+                                    'expired' => ['bg' => '#fecaca', 'text' => '#dc2626'],
+                                    'terminated' => ['bg' => '#f3f4f6', 'text' => '#6b7280'],
+                                    'cancelled' => ['bg' => '#f3f4f6', 'text' => '#6b7280']
+                                ];
+                                $statusColor = $statusColors[$contract->status] ?? ['bg' => '#f3f4f6', 'text' => '#6b7280'];
+
+                                $statusLabels = [
+                                    'draft' => 'مسودة',
+                                    'pending' => 'في الانتظار',
+                                    'active' => 'نشط',
+                                    'expired' => 'منتهي',
+                                    'terminated' => 'مُنهى',
+                                    'cancelled' => 'ملغي'
+                                ];
+                            @endphp
+                            <span style="background: {{ $statusColor['bg'] }}; color: {{ $statusColor['text'] }}; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                {{ $statusLabels[$contract->status] ?? $contract->status }}
                             </span>
                         </td>
 
                         <td style="padding: 12px 15px; text-align: center;">
                             <span style="color: #6b7280; font-size: 14px;">
-                                {{ $contract->start_date->format('Y/m/d') }}
-                            </span>
-                        </td>
-
-                        <td style="padding: 12px 15px; text-align: center;">
-                            <span style="color: {{ $contract->is_expired ? '#dc2626' : ($contract->is_expiring_soon ? '#d97706' : '#6b7280') }}; font-size: 14px; font-weight: {{ $contract->is_expired || $contract->is_expiring_soon ? '600' : '400' }};">
-                                {{ $contract->end_date->format('Y/m/d') }}
-                                @if($contract->is_expiring_soon)
-                                    <i class="fas fa-exclamation-triangle" style="margin-right: 5px; color: #f59e0b;"></i>
-                                @elseif($contract->is_expired)
-                                    <i class="fas fa-times-circle" style="margin-right: 5px; color: #ef4444;"></i>
+                                @if($contract->start_date)
+                                    {{ $contract->start_date->format('Y/m/d') }}
+                                @else
+                                    <span style="color: #ef4444; font-style: italic;">غير محدد</span>
                                 @endif
                             </span>
                         </td>
 
                         <td style="padding: 12px 15px; text-align: center;">
+                            @if($contract->end_date)
+                                @php
+                                    $isExpired = $contract->end_date->isPast();
+                                    $isExpiringSoon = !$isExpired && $contract->end_date->diffInDays(now()) <= 30;
+                                    $dateColor = $isExpired ? '#dc2626' : ($isExpiringSoon ? '#d97706' : '#6b7280');
+                                    $fontWeight = ($isExpired || $isExpiringSoon) ? '600' : '400';
+                                @endphp
+                                <span style="color: {{ $dateColor }}; font-size: 14px; font-weight: {{ $fontWeight }};">
+                                    {{ $contract->end_date->format('Y/m/d') }}
+                                    @if($isExpiringSoon)
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 5px; color: #f59e0b;"></i>
+                                    @elseif($isExpired)
+                                        <i class="fas fa-times-circle" style="margin-right: 5px; color: #ef4444;"></i>
+                                    @endif
+                                </span>
+                            @else
+                                <span style="color: #ef4444; font-style: italic;">غير محدد</span>
+                            @endif
+                        </td>
+
+                        <td style="padding: 12px 15px; text-align: center;">
                             <span style="font-weight: 600; color: #059669;">
-                                {{ number_format($contract->contract_value, 0) }} {{ $contract->currency }}
+                                @if($contract->contract_value)
+                                    {{ number_format($contract->contract_value, 0) }} {{ $contract->currency ?? 'IQD' }}
+                                @else
+                                    <span style="color: #6b7280; font-style: italic;">غير محدد</span>
+                                @endif
                             </span>
                         </td>
 
@@ -235,65 +288,106 @@
         </div>
 
         <!-- Pagination -->
-        <div style="margin-top: 20px; display: flex; justify-content: center;">
-            {{ $contracts->links() }}
-        </div>
+        @if(isset($contracts) && method_exists($contracts, 'links'))
+            <div style="margin-top: 20px; display: flex; justify-content: center;">
+                {{ $contracts->links() }}
+            </div>
+        @endif
     @else
         <div style="text-align: center; padding: 60px 40px; color: #6b7280;">
             <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px;">
                 <i class="fas fa-file-contract"></i>
             </div>
-            <h3 style="margin: 0 0 10px 0; color: #2d3748; font-size: 20px; font-weight: 700;">لا توجد عقود بعد</h3>
-            <p style="margin: 0 0 20px 0; color: #6b7280;">ابدأ بإنشاء أول عقد مع الموردين</p>
-            <a href="{{ route('tenant.purchasing.contracts.create') }}"
-               style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fas fa-plus"></i>
-                إنشاء عقد جديد
-            </a>
+            @if(isset($contracts))
+                <h3 style="margin: 0 0 10px 0; color: #2d3748; font-size: 20px; font-weight: 700;">لا توجد عقود بعد</h3>
+                <p style="margin: 0 0 20px 0; color: #6b7280;">ابدأ بإنشاء أول عقد مع الموردين</p>
+                <a href="{{ route('tenant.purchasing.contracts.create') }}"
+                   style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-plus"></i>
+                    إنشاء عقد جديد
+                </a>
+            @else
+                <h3 style="margin: 0 0 10px 0; color: #ef4444; font-size: 20px; font-weight: 700;">خطأ في تحميل البيانات</h3>
+                <p style="margin: 0 0 20px 0; color: #6b7280;">يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني</p>
+                <button onclick="window.location.reload()"
+                        style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-refresh"></i>
+                    إعادة تحميل الصفحة
+                </button>
+            @endif
         </div>
     @endif
 </div>
 
+@push('scripts')
 <script>
-// Search functionality
-document.getElementById('searchInput').addEventListener('keyup', function() {
-    const searchTerm = this.value.toLowerCase();
-    const rows = document.querySelectorAll('tbody tr');
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
 
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? '' : 'none';
-    });
-});
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            filterTable();
+        });
+    }
 
-// Status filter
-document.getElementById('statusFilter').addEventListener('change', function() {
-    const selectedStatus = this.value;
-    const rows = document.querySelectorAll('tbody tr');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            filterTable();
+        });
+    }
 
-    rows.forEach(row => {
-        if (!selectedStatus) {
-            row.style.display = '';
-        } else {
-            const statusCell = row.querySelector('td:nth-child(5) span');
-            const statusText = statusCell ? statusCell.textContent.trim() : '';
+    function filterTable() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const selectedStatus = statusFilter ? statusFilter.value : '';
+        const rows = document.querySelectorAll('tbody tr');
 
-            // Map Arabic status to English
-            const statusMap = {
-                'مسودة': 'draft',
-                'في الانتظار': 'pending',
-                'نشط': 'active',
-                'منتهي': 'expired',
-                'مُنهى': 'terminated',
-                'ملغي': 'cancelled'
-            };
+        rows.forEach(row => {
+            let showRow = true;
 
-            const englishStatus = Object.keys(statusMap).find(key => statusText.includes(key));
-            const mappedStatus = englishStatus ? statusMap[englishStatus] : '';
+            // Search filter
+            if (searchTerm) {
+                const text = row.textContent.toLowerCase();
+                showRow = showRow && text.includes(searchTerm);
+            }
 
-            row.style.display = mappedStatus === selectedStatus ? '' : 'none';
-        }
-    });
+            // Status filter
+            if (selectedStatus && showRow) {
+                const statusCell = row.querySelector('td:nth-child(5) span');
+                const statusText = statusCell ? statusCell.textContent.trim() : '';
+
+                // Map Arabic status to English
+                const statusMap = {
+                    'مسودة': 'draft',
+                    'في الانتظار': 'pending',
+                    'نشط': 'active',
+                    'منتهي': 'expired',
+                    'مُنهى': 'terminated',
+                    'ملغي': 'cancelled'
+                };
+
+                const englishStatus = Object.keys(statusMap).find(key => statusText.includes(key));
+                const mappedStatus = englishStatus ? statusMap[englishStatus] : '';
+
+                showRow = showRow && (mappedStatus === selectedStatus);
+            }
+
+            row.style.display = showRow ? '' : 'none';
+        });
+
+        // Update visible count
+        updateVisibleCount();
+    }
+
+    function updateVisibleCount() {
+        const visibleRows = document.querySelectorAll('tbody tr[style=""], tbody tr:not([style*="none"])');
+        const totalRows = document.querySelectorAll('tbody tr').length;
+
+        // You can add a counter display here if needed
+        console.log(`Showing ${visibleRows.length} of ${totalRows} contracts`);
+    }
 });
 </script>
+@endpush
 @endsection
