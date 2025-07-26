@@ -144,11 +144,13 @@
         </div>
         
         <div style="display: flex; gap: 10px;">
-            <button type="submit" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            <button type="submit" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.3)'">
                 <i class="fas fa-search"></i>
+                <span>بحث</span>
             </button>
-            <a href="{{ route('tenant.purchasing.purchase-requests.index') }}" style="background: #6b7280; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: flex; align-items: center;">
+            <a href="{{ route('tenant.purchasing.purchase-requests.index') }}" style="background: #6b7280; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(107, 114, 128, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(107, 114, 128, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(107, 114, 128, 0.3)'">
                 <i class="fas fa-times"></i>
+                <span>إلغاء</span>
             </a>
         </div>
     </form>
@@ -159,9 +161,9 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin: 0;">قائمة طلبات الشراء</h3>
         <div style="display: flex; gap: 10px;">
-            <button onclick="exportRequests()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button onclick="exportRequests()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(16, 185, 129, 0.3)'">
                 <i class="fas fa-file-excel"></i>
-                تصدير
+                <span>تصدير Excel</span>
             </button>
         </div>
     </div>
@@ -254,20 +256,35 @@
                             </td>
                             <td style="padding: 15px; text-align: center;">
                                 <div style="display: flex; justify-content: center; gap: 8px;">
-                                    <a href="{{ route('tenant.purchasing.purchase-requests.show', $request) }}" style="background: #3b82f6; color: white; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+                                    <a href="{{ route('tenant.purchasing.purchase-requests.show', $request) }}"
+                                       style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 10px 14px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);"
+                                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.4)'"
+                                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.3)'"
+                                       title="عرض التفاصيل">
                                         <i class="fas fa-eye"></i>
+                                        <span>عرض</span>
                                     </a>
                                     @if(in_array($request->status, ['draft', 'pending']))
-                                        <a href="{{ route('tenant.purchasing.purchase-requests.edit', $request) }}" style="background: #f59e0b; color: white; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+                                        <a href="{{ route('tenant.purchasing.purchase-requests.edit', $request) }}"
+                                           style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 10px 14px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);"
+                                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(245, 158, 11, 0.4)'"
+                                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(245, 158, 11, 0.3)'"
+                                           title="تعديل الطلب">
                                             <i class="fas fa-edit"></i>
+                                            <span>تعديل</span>
                                         </a>
                                     @endif
                                     @if(in_array($request->status, ['draft', 'cancelled']))
                                         <form method="POST" action="{{ route('tenant.purchasing.purchase-requests.destroy', $request) }}" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب؟')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" style="background: #ef4444; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                                            <button type="submit"
+                                                    style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);"
+                                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(239, 68, 68, 0.4)'"
+                                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(239, 68, 68, 0.3)'"
+                                                    title="حذف الطلب">
                                                 <i class="fas fa-trash"></i>
+                                                <span>حذف</span>
                                             </button>
                                         </form>
                                     @endif
