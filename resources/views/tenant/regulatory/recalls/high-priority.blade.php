@@ -236,8 +236,8 @@
                                         $progressColor = $percentage >= 80 ? 'success' : ($percentage >= 50 ? 'warning' : 'danger');
                                     @endphp
                                     <div class="progress mb-1" style="height: 20px;">
-                                        <div class="progress-bar bg-{{ $progressColor }}" role="progressbar" 
-                                             style="width: {{ $percentage }}%" 
+                                        <div class="progress-bar progress-{{ $progressColor }}" role="progressbar"
+                                             data-percentage="{{ $percentage }}"
                                              aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100">
                                             {{ $percentage }}%
                                         </div>
@@ -463,6 +463,24 @@
 <link rel="stylesheet" href="{{ asset('css/regulatory-companies.css') }}">
 @endpush
 
+@php
+    $chartData = [];
+    if(isset($recalls)) {
+        foreach($recalls as $recall) {
+            $recoveryPercentage = $recall->quantity_affected > 0 ? round(($recall->quantity_recovered / $recall->quantity_affected) * 100, 1) : 0;
+            $remainingPercentage = 100 - $recoveryPercentage;
+            $color = $recoveryPercentage >= 80 ? '#28a745' : ($recoveryPercentage >= 50 ? '#ffc107' : '#dc3545');
+
+            $chartData[] = [
+                'id' => $recall->id,
+                'recoveryPercentage' => $recoveryPercentage,
+                'remainingPercentage' => $remainingPercentage,
+                'color' => $color
+            ];
+        }
+    }
+@endphp
+
 @push('scripts')
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -487,50 +505,57 @@ $(document).ready(function() {
         ]
     });
 
-    // Initialize charts for each recall
-    @foreach($recalls as $recall)
-    @php
-        $recoveryPercentage = $recall->quantity_affected > 0 ? round(($recall->quantity_recovered / $recall->quantity_affected) * 100, 1) : 0;
-        $remainingPercentage = 100 - $recoveryPercentage;
-    @endphp
-    
-    const ctx{{ $recall->id }} = document.getElementById('recallChart{{ $recall->id }}');
-    if (ctx{{ $recall->id }}) {
-        new Chart(ctx{{ $recall->id }}, {
-            type: 'doughnut',
-            data: {
-                labels: ['مسترد', 'متبقي'],
-                datasets: [{
-                    data: [{{ $recoveryPercentage }}, {{ $remainingPercentage }}],
-                    backgroundColor: [
-                        @if($recoveryPercentage >= 80)
-                            '#28a745',
-                        @elseif($recoveryPercentage >= 50)
-                            '#ffc107',
-                        @else
-                            '#dc3545',
-                        @endif
-                        '#e9ecef'
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    },
-                    title: {
-                        display: true,
-                        text: 'نسبة الاسترداد'
+    // Chart data from PHP
+    const chartData = JSON.parse('{{ json_encode($chartData ?? []) }}');
+
+    // Initialize charts
+    chartData.forEach(function(data) {
+        const ctx = document.getElementById('recallChart' + data.id);
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['مسترد', 'متبقي'],
+                    datasets: [{
+                        data: [data.recoveryPercentage, data.remainingPercentage],
+                        backgroundColor: [data.color, '#e9ecef'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: true,
+                            text: 'نسبة الاسترداد'
+                        }
                     }
                 }
-            }
-        });
-    }
-    @endforeach
+            });
+        }
+    });
+    // Set progress bar widths
+    document.querySelectorAll('.progress-bar[data-percentage]').forEach(function(bar) {
+        const percentage = bar.getAttribute('data-percentage');
+        bar.style.width = percentage + '%';
+    });
 });
 </script>
+
+<style>
+/* Progress bar colors */
+.progress-success {
+    background-color: #28a745 !important;
+}
+.progress-warning {
+    background-color: #ffc107 !important;
+}
+.progress-danger {
+    background-color: #dc3545 !important;
+}
+</style>
 @endpush
 @endsection
