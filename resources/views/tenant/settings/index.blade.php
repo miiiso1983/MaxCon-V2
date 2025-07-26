@@ -40,32 +40,32 @@
                 <i class="fas fa-sliders-h"></i>
                 تفضيلات النظام
             </button>
-            <button onclick="openSettings('language_settings')" style="background: #f0fff4; border: 1px solid #10b981; color: #065f46; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fff4'">
-                <i class="fas fa-language" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('language_settings')" class="settings-btn-general">
+                <i class="fas fa-language"></i>
                 إعدادات اللغة
             </button>
-            <button onclick="openSettings('timezone_settings')" style="background: #f0fff4; border: 1px solid #10b981; color: #065f46; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fff4'">
-                <i class="fas fa-clock" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('timezone_settings')" class="settings-btn-general">
+                <i class="fas fa-clock"></i>
                 المنطقة الزمنية
             </button>
         </div>
     </div>
 
     <!-- Security Settings -->
-    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #ef4444;">
-        <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
-                <i class="fas fa-shield-alt" style="font-size: 24px;"></i>
+    <div class="settings-card settings-card-security">
+        <div class="settings-header">
+            <div class="settings-icon settings-icon-security">
+                <i class="fas fa-shield-alt"></i>
             </div>
             <div>
-                <h3 style="font-size: 20px; font-weight: 700; color: #7f1d1d; margin: 0;">إعدادات الأمان</h3>
-                <p style="color: #dc2626; margin: 5px 0 0 0;">حماية وأمان النظام</p>
+                <h3 class="settings-title settings-title-security">إعدادات الأمان</h3>
+                <p class="settings-subtitle settings-subtitle-security">حماية وأمان النظام</p>
             </div>
         </div>
 
-        <div style="display: grid; gap: 10px;">
-            <button onclick="openSettings('password_policy')" style="background: #fef2f2; border: 1px solid #ef4444; color: #7f1d1d; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-                <i class="fas fa-key" style="margin-left: 8px;"></i>
+        <div class="settings-buttons">
+            <button onclick="openSettings('password_policy')" class="settings-btn-security">
+                <i class="fas fa-key"></i>
                 سياسة كلمات المرور
             </button>
             <button onclick="openSettings('two_factor_auth')" style="background: #fef2f2; border: 1px solid #ef4444; color: #7f1d1d; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .settings-card-security {
-    border: 2px solid #3b82f6;
+    border: 2px solid #ef4444;
 }
 
 .settings-card-notifications {
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .settings-icon-security {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
 .settings-icon-notifications {
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .settings-title-security {
-    color: #1e3a8a;
+    color: #7f1d1d;
 }
 
 .settings-title-notifications {
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .settings-subtitle-security {
-    color: #1d4ed8;
+    color: #dc2626;
 }
 
 .settings-subtitle-notifications {
