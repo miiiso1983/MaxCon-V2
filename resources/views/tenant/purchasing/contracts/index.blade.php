@@ -127,7 +127,7 @@
         </div>
     </div>
 
-    @if($contracts->count() > 0)
+    @if($contracts && $contracts->count() > 0)
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <thead style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">

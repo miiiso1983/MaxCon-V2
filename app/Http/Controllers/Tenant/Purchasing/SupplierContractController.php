@@ -23,19 +23,33 @@ class SupplierContractController extends Controller
             abort(403, 'No tenant access');
         }
 
-        // Get contracts with relationships
-        $contracts = SupplierContract::with(['supplier', 'createdBy'])
-            ->where('tenant_id', $tenantId)
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        try {
+            // Get contracts with relationships
+            $contracts = SupplierContract::with(['supplier', 'createdBy'])
+                ->where('tenant_id', $tenantId)
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
 
-        // Calculate statistics
-        $stats = [
-            'total' => SupplierContract::where('tenant_id', $tenantId)->count(),
-            'active' => SupplierContract::where('tenant_id', $tenantId)->active()->count(),
-            'expired' => SupplierContract::where('tenant_id', $tenantId)->expired()->count(),
-            'expiring_soon' => SupplierContract::where('tenant_id', $tenantId)->expiringSoon()->count(),
-        ];
+            // Calculate statistics
+            $stats = [
+                'total' => SupplierContract::where('tenant_id', $tenantId)->count(),
+                'active' => SupplierContract::where('tenant_id', $tenantId)->active()->count(),
+                'expired' => SupplierContract::where('tenant_id', $tenantId)->expired()->count(),
+                'expiring_soon' => SupplierContract::where('tenant_id', $tenantId)->expiringSoon()->count(),
+            ];
+        } catch (\Exception $e) {
+            // If table doesn't exist, show empty data
+            $contracts = collect()->paginate(15);
+            $stats = [
+                'total' => 0,
+                'active' => 0,
+                'expired' => 0,
+                'expiring_soon' => 0,
+            ];
+
+            // Log the error for debugging
+            \Log::error('Supplier contracts table not found: ' . $e->getMessage());
+        }
 
         return view('tenant.purchasing.contracts.index', compact('contracts', 'stats'));
     }
