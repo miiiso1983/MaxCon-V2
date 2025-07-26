@@ -1,4 +1,4 @@
-@extends('layouts.tenant')
+@extends('layouts.modern')
 
 @section('title', 'إعدادات النظام')
 

@@ -1,4 +1,4 @@
-@extends('layouts.tenant')
+@extends('layouts.modern')
 
 @section('title', 'الفحوصات المختبرية المتأخرة')
 

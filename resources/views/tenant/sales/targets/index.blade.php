@@ -1,5 +1,5 @@
 
-@extends('layouts.tenant')
+@extends('layouts.modern')
 
 @section('title', 'أهداف البيع')
 
