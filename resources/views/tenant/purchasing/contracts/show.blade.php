@@ -58,7 +58,14 @@
 
 <!-- Contract Status -->
 <div style="margin-bottom: 30px;">
-    <div style="background: {{ $contract->status === 'active' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : ($contract->status === 'expired' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)') }}; border-radius: 15px; padding: 20px; color: white; text-align: center;">
+    @php
+        $statusClass = match($contract->status) {
+            'active' => 'status-active',
+            'expired' => 'status-expired',
+            default => 'status-default'
+        };
+    @endphp
+    <div class="contract-status-banner {{ $statusClass }}" style="border-radius: 15px; padding: 20px; color: white; text-align: center;">
         <div style="font-size: 24px; margin-bottom: 10px;">
             @if($contract->status === 'active')
                 <i class="fas fa-check-circle"></i>
@@ -87,7 +94,7 @@
             المعلومات الأساسية
         </h3>
         
-        <div style="space-y: 15px;">
+        <div>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: 600; color: #6b7280; font-size: 12px; margin-bottom: 5px;">رقم العقد</label>
                 <div style="color: #111827; font-weight: 600;">{{ $contract->contract_number }}</div>
@@ -124,7 +131,7 @@
             المعلومات المالية
         </h3>
         
-        <div style="space-y: 15px;">
+        <div>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: 600; color: #6b7280; font-size: 12px; margin-bottom: 5px;">قيمة العقد</label>
                 <div style="color: #059669; font-weight: 700; font-size: 18px;">
@@ -164,7 +171,7 @@
             التواريخ المهمة
         </h3>
         
-        <div style="space-y: 15px;">
+        <div>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: 600; color: #6b7280; font-size: 12px; margin-bottom: 5px;">تاريخ البداية</label>
                 <div style="color: #111827; font-weight: 600;">{{ $contract->start_date->format('Y/m/d') }}</div>
@@ -172,11 +179,16 @@
             
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: 600; color: #6b7280; font-size: 12px; margin-bottom: 5px;">تاريخ الانتهاء</label>
-                <div style="color: {{ $contract->is_expired ? '#ef4444' : ($contract->is_expiring_soon ? '#f59e0b' : '#111827') }}; font-weight: 600;">
+                @php
+                    $isExpired = $contract->end_date->isPast();
+                    $isExpiringSoon = !$isExpired && $contract->end_date->diffInDays(now()) <= 30;
+                    $dateClass = $isExpired ? 'text-danger' : ($isExpiringSoon ? 'text-warning' : 'text-dark');
+                @endphp
+                <div class="{{ $dateClass }}" style="font-weight: 600;">
                     {{ $contract->end_date->format('Y/m/d') }}
-                    @if($contract->is_expiring_soon)
+                    @if($isExpiringSoon)
                         <span style="color: #f59e0b; font-size: 12px;">(ينتهي قريباً)</span>
-                    @elseif($contract->is_expired)
+                    @elseif($isExpired)
                         <span style="color: #ef4444; font-size: 12px;">(منتهي)</span>
                     @endif
                 </div>
@@ -203,7 +215,7 @@
             معلومات إضافية
         </h3>
         
-        <div style="space-y: 15px;">
+        <div>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: 600; color: #6b7280; font-size: 12px; margin-bottom: 5px;">أنشأ بواسطة</label>
                 <div style="color: #111827; font-weight: 600;">{{ $contract->createdBy->name ?? 'غير محدد' }}</div>
@@ -226,3 +238,29 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+/* Contract status banners */
+.contract-status-banner.status-active {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+.contract-status-banner.status-expired {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+.contract-status-banner.status-default {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+/* Text colors */
+.text-danger {
+    color: #ef4444 !important;
+}
+.text-warning {
+    color: #f59e0b !important;
+}
+.text-dark {
+    color: #111827 !important;
+}
+</style>
+@endpush

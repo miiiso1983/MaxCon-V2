@@ -219,8 +219,19 @@
                                     ];
                                     $status = $statusColors[$order->status] ?? ['bg' => '#f3f4f6', 'text' => '#374151'];
                                 @endphp
-                                <span style="background: {{ $status['bg'] }}; color: {{ $status['text'] }}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                    {{ $order->status_label }}
+                                @php
+                                    $statusLabels = [
+                                        'draft' => 'مسودة',
+                                        'pending' => 'في الانتظار',
+                                        'approved' => 'معتمد',
+                                        'sent' => 'مُرسل',
+                                        'received' => 'مُستلم',
+                                        'completed' => 'مكتمل',
+                                        'cancelled' => 'ملغي'
+                                    ];
+                                @endphp
+                                <span class="status-badge status-{{ $order->status }}" style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    {{ $statusLabels[$order->status] ?? $order->status }}
                                 </span>
                             </td>
                             <td style="padding: 15px; text-align: center;">
@@ -233,8 +244,16 @@
                                     ];
                                     $payment = $paymentColors[$order->payment_status] ?? ['bg' => '#f3f4f6', 'text' => '#374151'];
                                 @endphp
-                                <span style="background: {{ $payment['bg'] }}; color: {{ $payment['text'] }}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                    {{ $order->payment_status_label }}
+                                @php
+                                    $paymentLabels = [
+                                        'pending' => 'في الانتظار',
+                                        'partial' => 'جزئي',
+                                        'paid' => 'مدفوع',
+                                        'overdue' => 'متأخر'
+                                    ];
+                                @endphp
+                                <span class="payment-badge payment-{{ $order->payment_status }}" style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    {{ $paymentLabels[$order->payment_status] ?? $order->payment_status }}
                                 </span>
                             </td>
                             <td style="padding: 15px; text-align: center;">
@@ -315,9 +334,25 @@ function exportOrders() {
     // Create CSV content
     let csv = 'رقم الأمر,المورد,الحالة,حالة الدفع,تاريخ الأمر,التسليم المتوقع,القيمة الإجمالية,العملة\n';
 
-    @foreach($purchaseOrders as $order)
-        csv += '"{{ $order->po_number }}","{{ $order->supplier->name }}","{{ $order->status_label }}","{{ $order->payment_status_label }}","{{ $order->order_date->format('Y-m-d') }}","{{ $order->expected_delivery_date->format('Y-m-d') }}",{{ $order->total_amount }},"{{ $order->currency }}"\n';
-    @endforeach
+    // Get data from table rows
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        if (row.style.display !== 'none') {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 8) {
+                const poNumber = cells[0].querySelector('div').textContent.trim();
+                const supplier = cells[1].querySelector('div').textContent.trim();
+                const status = cells[2].querySelector('span').textContent.trim();
+                const paymentStatus = cells[3].querySelector('span').textContent.trim();
+                const orderDate = cells[4].querySelector('div').textContent.trim();
+                const deliveryDate = cells[5].querySelector('div').textContent.trim();
+                const amount = cells[6].querySelector('div').textContent.trim();
+                const currency = cells[7].querySelector('div').textContent.trim();
+
+                csv += `"${poNumber}","${supplier}","${status}","${paymentStatus}","${orderDate}","${deliveryDate}","${amount}","${currency}"\n`;
+            }
+        }
+    });
 
     // Download CSV
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -331,5 +366,55 @@ function exportOrders() {
     document.body.removeChild(link);
 }
 </script>
+
+<style>
+/* Status badges for purchase orders */
+.status-badge.status-draft {
+    background: #f3f4f6;
+    color: #374151;
+}
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+.status-badge.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+.status-badge.status-sent {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.status-badge.status-received {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+.status-badge.status-completed {
+    background: #dcfce7;
+    color: #166534;
+}
+.status-badge.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Payment badges */
+.payment-badge.payment-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+.payment-badge.payment-partial {
+    background: #fef3c7;
+    color: #92400e;
+}
+.payment-badge.payment-paid {
+    background: #dcfce7;
+    color: #166534;
+}
+.payment-badge.payment-overdue {
+    background: #fee2e2;
+    color: #991b1b;
+}
+</style>
 @endpush
 @endsection
