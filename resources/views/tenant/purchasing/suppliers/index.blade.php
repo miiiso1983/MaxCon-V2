@@ -225,8 +225,15 @@
                                     ];
                                     $status = $statusColors[$supplier->status] ?? ['bg' => '#f3f4f6', 'text' => '#374151'];
                                 @endphp
-                                <span style="background: {{ $status['bg'] }}; color: {{ $status['text'] }}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                    {{ $supplier->status_label }}
+                                @php
+                                    $statusLabels = [
+                                        'active' => 'نشط',
+                                        'inactive' => 'غير نشط',
+                                        'suspended' => 'معلق'
+                                    ];
+                                @endphp
+                                <span class="status-badge status-{{ $supplier->status }}" style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    {{ $statusLabels[$supplier->status] ?? $supplier->status }}
                                 </span>
                             </td>
                             <td style="padding: 15px; text-align: center;">
@@ -358,11 +365,27 @@
 function exportSuppliers() {
     // Create CSV content
     let csv = 'الكود,الاسم,النوع,الحالة,الهاتف,البريد الإلكتروني,التقييم,إجمالي الطلبات,القيمة الإجمالية\n';
-    
-    @foreach($suppliers as $supplier)
-        csv += '"{{ $supplier->code }}","{{ $supplier->name }}","{{ $supplier->type_label }}","{{ $supplier->status_label }}","{{ $supplier->phone }}","{{ $supplier->email }}",{{ $supplier->rating }},{{ $supplier->total_orders }},{{ $supplier->total_amount }}\n';
-    @endforeach
-    
+
+    // Get data from table rows
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        if (row.style.display !== 'none') {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 8) {
+                const code = cells[0].querySelector('div').textContent.trim();
+                const name = cells[1].querySelector('div').textContent.trim();
+                const type = cells[2].querySelector('div').textContent.trim();
+                const status = cells[3].querySelector('span').textContent.trim();
+                const phone = cells[4].querySelector('div').textContent.trim();
+                const email = cells[5].querySelector('div').textContent.trim();
+                const rating = cells[6].querySelector('div').textContent.trim();
+                const totalOrders = cells[7].querySelector('div').textContent.trim();
+
+                csv += `"${code}","${name}","${type}","${status}","${phone}","${email}","${rating}","${totalOrders}"\n`;
+            }
+        }
+    });
+
     // Download CSV
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -390,5 +413,21 @@ document.addEventListener('click', function(e) {
     }
 });
 </script>
+
+<style>
+/* Status badges for suppliers */
+.status-badge.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+.status-badge.status-inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+.status-badge.status-suspended {
+    background: #fee2e2;
+    color: #991b1b;
+}
+</style>
 @endpush
 @endsection

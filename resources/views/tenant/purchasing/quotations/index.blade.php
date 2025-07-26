@@ -209,8 +209,18 @@
                                     ];
                                     $status = $statusColors[$quotation->status] ?? ['bg' => '#f3f4f6', 'text' => '#374151'];
                                 @endphp
-                                <span style="background: {{ $status['bg'] }}; color: {{ $status['text'] }}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                    {{ $quotation->status_label }}
+                                @php
+                                    $statusLabels = [
+                                        'draft' => 'مسودة',
+                                        'sent' => 'مُرسل',
+                                        'received' => 'مُستلم',
+                                        'accepted' => 'مقبول',
+                                        'rejected' => 'مرفوض',
+                                        'expired' => 'منتهي'
+                                    ];
+                                @endphp
+                                <span class="status-badge status-{{ $quotation->status }}" style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    {{ $statusLabels[$quotation->status] ?? $quotation->status }}
                                 </span>
                             </td>
                             <td style="padding: 15px; text-align: center;">
@@ -291,9 +301,24 @@ function exportQuotations() {
     // Create CSV content
     let csv = 'رقم العرض,العنوان,المورد,الحالة,تاريخ الطلب,صالح حتى,القيمة الإجمالية,العملة\n';
 
-    @foreach($quotations as $quotation)
-        csv += '"{{ $quotation->quotation_number }}","{{ $quotation->title }}","{{ $quotation->supplier->name }}","{{ $quotation->status_label }}","{{ $quotation->quotation_date->format('Y-m-d') }}","{{ $quotation->valid_until->format('Y-m-d') }}",{{ $quotation->total_amount }},"{{ $quotation->currency }}"\n';
-    @endforeach
+    // Get data from table rows
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        if (row.style.display !== 'none') {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 7) {
+                const quotationNumber = cells[0].querySelector('div').textContent.trim();
+                const title = cells[1].querySelector('div').textContent.trim();
+                const supplier = cells[2].querySelector('div').textContent.trim();
+                const status = cells[3].querySelector('span').textContent.trim();
+                const quotationDate = cells[4].querySelector('div').textContent.trim();
+                const validUntil = cells[5].querySelector('div').textContent.trim();
+                const amount = cells[6].querySelector('div').textContent.trim();
+
+                csv += `"${quotationNumber}","${title}","${supplier}","${status}","${quotationDate}","${validUntil}","${amount}"\n`;
+            }
+        }
+    });
 
     // Download CSV
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -307,5 +332,33 @@ function exportQuotations() {
     document.body.removeChild(link);
 }
 </script>
+
+<style>
+/* Status badges for quotations */
+.status-badge.status-draft {
+    background: #f3f4f6;
+    color: #374151;
+}
+.status-badge.status-sent {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.status-badge.status-received {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+.status-badge.status-accepted {
+    background: #dcfce7;
+    color: #166534;
+}
+.status-badge.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.status-badge.status-expired {
+    background: #fef3c7;
+    color: #92400e;
+}
+</style>
 @endpush
 @endsection
