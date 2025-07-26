@@ -227,7 +227,7 @@ class QuotationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Quotation $quotation): View
+    public function edit(Quotation $quotation)
     {
         $user = auth()->user();
 

@@ -95,7 +95,7 @@ class PurchaseOrderItem extends Model
     // Update remaining quantity
     public function updateRemainingQuantity()
     {
-        $this->remaining_quantity = $this->quantity - $this->received_quantity;
+        $this->remaining_quantity = number_format($this->quantity - $this->received_quantity, 2, '.', '');
         $this->save();
     }
 }

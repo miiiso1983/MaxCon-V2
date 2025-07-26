@@ -46,9 +46,9 @@ class Quotation extends Model
     ];
 
     protected $casts = [
-        'quotation_date' => 'date',
-        'valid_until' => 'date',
-        'response_date' => 'date',
+        'quotation_date' => 'datetime',
+        'valid_until' => 'datetime',
+        'response_date' => 'datetime',
         'evaluated_at' => 'datetime',
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
@@ -59,6 +59,13 @@ class Quotation extends Model
         'overall_score' => 'decimal:2',
         'attachments' => 'array',
         'is_selected' => 'boolean',
+    ];
+
+    protected $dates = [
+        'quotation_date',
+        'valid_until',
+        'response_date',
+        'evaluated_at',
     ];
 
     // Relationships
@@ -167,7 +174,7 @@ class Quotation extends Model
     public function updateTotals()
     {
         $this->subtotal = $this->items->sum('total_price');
-        $this->total_amount = $this->subtotal - $this->discount_amount + $this->tax_amount;
+        $this->total_amount = number_format($this->subtotal - $this->discount_amount + $this->tax_amount, 2, '.', '');
         $this->save();
     }
 }

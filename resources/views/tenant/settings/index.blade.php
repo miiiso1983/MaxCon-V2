@@ -17,7 +17,7 @@
 </div>
 
 <!-- Settings Categories -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
+<div class="settings-grid">
 
     <!-- General Settings -->
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #10b981;">
@@ -249,5 +249,13 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Settings page loaded successfully!');
 });
 </script>
+
+<style>
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+}
+</style>
 
 @endsection

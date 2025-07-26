@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
+
 
 class SupplierContract extends Model
 {
@@ -43,16 +43,24 @@ class SupplierContract extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'signed_date' => 'date',
-        'renewal_date' => 'date',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'signed_date' => 'datetime',
+        'renewal_date' => 'datetime',
         'approved_at' => 'datetime',
         'auto_renewal' => 'boolean',
         'contract_value' => 'decimal:2',
         'minimum_order_value' => 'decimal:2',
         'maximum_order_value' => 'decimal:2',
         'attachments' => 'array',
+    ];
+
+    protected $dates = [
+        'start_date',
+        'end_date',
+        'signed_date',
+        'renewal_date',
+        'approved_at',
     ];
 
     // Relationships

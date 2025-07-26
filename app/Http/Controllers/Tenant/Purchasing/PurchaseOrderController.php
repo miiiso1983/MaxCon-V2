@@ -241,7 +241,7 @@ class PurchaseOrderController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(PurchaseOrder $purchaseOrder): View
+    public function edit(PurchaseOrder $purchaseOrder)
     {
         $user = auth()->user();
 
