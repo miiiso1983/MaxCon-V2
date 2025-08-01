@@ -60,8 +60,21 @@ class SystemGuideController extends Controller
     {
         $faqs = $this->getFAQs();
         $categories = $this->getFAQCategories();
-        
+
         return view('tenant.system-guide.faq', compact('faqs', 'categories'));
+    }
+
+    /**
+     * Display New Tenant Guide
+     */
+    public function newTenantGuide()
+    {
+        $setupSteps = $this->getSetupSteps();
+        $modules = $this->getSystemModules();
+        $checklist = $this->getNewTenantChecklist();
+        $timeline = $this->getImplementationTimeline();
+
+        return view('tenant.system-guide.new-tenant-guide', compact('setupSteps', 'modules', 'checklist', 'timeline'));
     }
 
     /**
@@ -1186,6 +1199,202 @@ class SystemGuideController extends Controller
         }
 
         $pdf->writeHTML($html, true, false, true, false, '');
+    }
+
+    /**
+     * Get setup steps for new tenants
+     */
+    private function getSetupSteps()
+    {
+        return [
+            [
+                'id' => 1,
+                'title' => 'إعداد معلومات الشركة',
+                'description' => 'إدخال البيانات الأساسية للشركة والإعدادات الأولية',
+                'icon' => 'fas fa-building',
+                'color' => '#667eea',
+                'estimated_time' => '30 دقيقة',
+                'tasks' => [
+                    'إدخال اسم الشركة والعنوان',
+                    'رفع شعار الشركة',
+                    'تحديد العملة والمنطقة الزمنية',
+                    'إعداد إعدادات الأمان'
+                ]
+            ],
+            [
+                'id' => 2,
+                'title' => 'إدارة المستخدمين',
+                'description' => 'إضافة المستخدمين وتعيين الأدوار والصلاحيات',
+                'icon' => 'fas fa-users',
+                'color' => '#10b981',
+                'estimated_time' => '45 دقيقة',
+                'tasks' => [
+                    'إضافة المستخدمين الأساسيين',
+                    'تعيين الأدوار والصلاحيات',
+                    'إعداد كلمات مرور قوية',
+                    'اختبار تسجيل الدخول'
+                ]
+            ],
+            [
+                'id' => 3,
+                'title' => 'إعداد البيانات الأساسية',
+                'description' => 'إدخال بيانات العملاء والمنتجات الأساسية',
+                'icon' => 'fas fa-database',
+                'color' => '#f59e0b',
+                'estimated_time' => '2 ساعة',
+                'tasks' => [
+                    'إدخال بيانات العملاء الرئيسيين',
+                    'إعداد كتالوج المنتجات',
+                    'تحديد أسعار البيع والشراء',
+                    'إعداد فئات المنتجات'
+                ]
+            ],
+            [
+                'id' => 4,
+                'title' => 'تفعيل الوحدات',
+                'description' => 'تفعيل واختبار جميع وحدات النظام',
+                'icon' => 'fas fa-cogs',
+                'color' => '#8b5cf6',
+                'estimated_time' => '3 ساعات',
+                'tasks' => [
+                    'تفعيل وحدة المبيعات',
+                    'تفعيل وحدة المخزون',
+                    'تفعيل وحدة المحاسبة',
+                    'تفعيل وحدة الموارد البشرية'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get new tenant checklist
+     */
+    private function getNewTenantChecklist()
+    {
+        return [
+            'basic_setup' => [
+                'title' => 'الإعداد الأساسي',
+                'items' => [
+                    ['id' => 'company_info', 'text' => 'إعداد معلومات الشركة', 'completed' => false],
+                    ['id' => 'logo_upload', 'text' => 'رفع شعار الشركة', 'completed' => false],
+                    ['id' => 'currency_timezone', 'text' => 'تحديد العملة والمنطقة الزمنية', 'completed' => false],
+                    ['id' => 'security_settings', 'text' => 'إعداد إعدادات الأمان', 'completed' => false]
+                ]
+            ],
+            'users_management' => [
+                'title' => 'إدارة المستخدمين',
+                'items' => [
+                    ['id' => 'add_users', 'text' => 'إضافة المستخدمين الأساسيين', 'completed' => false],
+                    ['id' => 'assign_roles', 'text' => 'تعيين الأدوار والصلاحيات', 'completed' => false],
+                    ['id' => 'strong_passwords', 'text' => 'إعداد كلمات مرور قوية', 'completed' => false],
+                    ['id' => 'test_login', 'text' => 'اختبار تسجيل الدخول', 'completed' => false]
+                ]
+            ],
+            'data_entry' => [
+                'title' => 'إدخال البيانات',
+                'items' => [
+                    ['id' => 'customers_data', 'text' => 'إدخال بيانات العملاء', 'completed' => false],
+                    ['id' => 'products_catalog', 'text' => 'إعداد كتالوج المنتجات', 'completed' => false],
+                    ['id' => 'pricing', 'text' => 'تحديد أسعار البيع والشراء', 'completed' => false],
+                    ['id' => 'categories', 'text' => 'إعداد فئات المنتجات', 'completed' => false]
+                ]
+            ],
+            'modules_activation' => [
+                'title' => 'تفعيل الوحدات',
+                'items' => [
+                    ['id' => 'sales_module', 'text' => 'تفعيل وحدة المبيعات', 'completed' => false],
+                    ['id' => 'inventory_module', 'text' => 'تفعيل وحدة المخزون', 'completed' => false],
+                    ['id' => 'accounting_module', 'text' => 'تفعيل وحدة المحاسبة', 'completed' => false],
+                    ['id' => 'hr_module', 'text' => 'تفعيل وحدة الموارد البشرية', 'completed' => false]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get implementation timeline
+     */
+    private function getImplementationTimeline()
+    {
+        return [
+            [
+                'week' => 1,
+                'title' => 'الأسبوع الأول: الإعداد الأساسي',
+                'color' => '#667eea',
+                'days' => [
+                    [
+                        'day' => '1-2',
+                        'title' => 'إعداد النظام',
+                        'tasks' => [
+                            'تسجيل الدخول الأول وتغيير كلمة المرور',
+                            'إعداد معلومات الشركة الأساسية',
+                            'تحديد العملة والمنطقة الزمنية',
+                            'إعداد إعدادات الأمان'
+                        ]
+                    ],
+                    [
+                        'day' => '3-4',
+                        'title' => 'إدارة المستخدمين',
+                        'tasks' => [
+                            'إضافة المستخدمين الأساسيين (5-10)',
+                            'تعيين الأدوار والصلاحيات',
+                            'إعداد كلمات مرور قوية',
+                            'اختبار تسجيل الدخول'
+                        ]
+                    ],
+                    [
+                        'day' => '5-7',
+                        'title' => 'البيانات الأساسية',
+                        'tasks' => [
+                            'إدخال بيانات العملاء (20-50 عميل)',
+                            'إعداد كتالوج المنتجات (50-100 منتج)',
+                            'تحديد أسعار البيع والشراء',
+                            'إعداد فئات المنتجات'
+                        ]
+                    ]
+                ]
+            ],
+            [
+                'week' => 2,
+                'title' => 'الأسبوع الثاني: تفعيل الوحدات الأساسية',
+                'color' => '#10b981',
+                'days' => [
+                    [
+                        'day' => '8-10',
+                        'title' => 'وحدة المبيعات',
+                        'tasks' => [
+                            'إنشاء أول فاتورة مبيعات',
+                            'اختبار طباعة الفاتورة مع QR Code',
+                            'تسجيل عملية دفع',
+                            'إنشاء فاتورة مرتجعات',
+                            'تدريب فريق المبيعات'
+                        ]
+                    ],
+                    [
+                        'day' => '11-12',
+                        'title' => 'وحدة المخزون',
+                        'tasks' => [
+                            'إعداد المستودعات الأساسية',
+                            'إدخال الكميات الحالية',
+                            'تسجيل حركات استلام وصرف',
+                            'إجراء جرد تجريبي',
+                            'إعداد تنبيهات المخزون'
+                        ]
+                    ],
+                    [
+                        'day' => '13-14',
+                        'title' => 'وحدة المحاسبة',
+                        'tasks' => [
+                            'إعداد دليل الحسابات',
+                            'إدخال الأرصدة الافتتاحية',
+                            'تسجيل قيود تجريبية',
+                            'إنشاء أول تقرير مالي',
+                            'ربط المبيعات بالحسابات'
+                        ]
+                    ]
+                ]
+            ]
+        ];
     }
 
     /**

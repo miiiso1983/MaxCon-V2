@@ -651,6 +651,12 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('tenant.system-guide.new-tenant-guide') }}" class="submenu-item {{ request()->routeIs('tenant.system-guide.new-tenant-guide') ? 'active' : '' }}">
+                                <i class="fas fa-rocket"></i>
+                                دليل المستأجر الجديد
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('tenant.system-guide.download-manual') }}" class="submenu-item">
                                 <i class="fas fa-download"></i>
                                 تحميل دليل المستخدم

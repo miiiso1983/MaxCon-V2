@@ -28,7 +28,10 @@ Route::prefix('system-guide')->name('system-guide.')->group(function () {
     
     // FAQ page
     Route::get('/faq', [SystemGuideController::class, 'faq'])->name('faq');
-    
+
+    // New Tenant Guide
+    Route::get('/new-tenant-guide', [SystemGuideController::class, 'newTenantGuide'])->name('new-tenant-guide');
+
     // Download user manual
     Route::get('/download-manual', [SystemGuideController::class, 'downloadManual'])->name('download-manual');
     
