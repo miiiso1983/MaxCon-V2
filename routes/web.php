@@ -559,7 +559,12 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'status' => 'completed',
             'estimated_time' => '15 دقيقة',
             'priority' => 'high',
-            'category' => 'setup'
+            'category' => 'setup',
+            'tasks' => [
+                'إدخال اسم الشركة والعنوان',
+                'تحديد نوع النشاط التجاري',
+                'إعداد العملة الأساسية'
+            ]
         ],
         [
             'id' => 2,
@@ -570,7 +575,12 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'status' => 'in_progress',
             'estimated_time' => '30 دقيقة',
             'priority' => 'high',
-            'category' => 'users'
+            'category' => 'users',
+            'tasks' => [
+                'إنشاء حسابات المستخدمين',
+                'تحديد الأدوار والصلاحيات',
+                'إرسال دعوات للمستخدمين'
+            ]
         ],
         [
             'id' => 3,
@@ -581,7 +591,12 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'status' => 'pending',
             'estimated_time' => '45 دقيقة',
             'priority' => 'medium',
-            'category' => 'modules'
+            'category' => 'modules',
+            'tasks' => [
+                'إضافة قائمة العملاء',
+                'إعداد كتالوج المنتجات',
+                'تكوين قوالب الفواتير'
+            ]
         ],
         [
             'id' => 4,
@@ -592,7 +607,12 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'status' => 'pending',
             'estimated_time' => '60 دقيقة',
             'priority' => 'medium',
-            'category' => 'modules'
+            'category' => 'modules',
+            'tasks' => [
+                'إنشاء المستودعات',
+                'تحديد مواقع التخزين',
+                'إعداد حدود المخزون الأدنى'
+            ]
         ]
     ];
 
@@ -672,38 +692,84 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'week' => 1,
             'title' => 'الأسبوع الأول',
             'subtitle' => 'الإعداد الأساسي',
-            'color' => 'primary',
+            'color' => '#667eea',
             'status' => 'completed',
             'progress' => 100,
-            'tasks' => [
-                ['name' => 'الإعداد الأساسي', 'status' => 'completed'],
-                ['name' => 'إضافة المستخدمين', 'status' => 'completed']
+            'days' => [
+                [
+                    'day' => 1,
+                    'title' => 'إعداد معلومات الشركة',
+                    'tasks' => [
+                        'إدخال البيانات الأساسية',
+                        'تحديد نوع النشاط',
+                        'إعداد العملة'
+                    ]
+                ],
+                [
+                    'day' => 2,
+                    'title' => 'إنشاء المستخدمين',
+                    'tasks' => [
+                        'إضافة حسابات المستخدمين',
+                        'تحديد الأدوار',
+                        'إرسال الدعوات'
+                    ]
+                ]
             ]
         ],
         [
             'week' => 2,
             'title' => 'الأسبوع الثاني',
             'subtitle' => 'إعداد الوحدات',
-            'color' => 'warning',
+            'color' => '#f59e0b',
             'status' => 'in_progress',
             'progress' => 60,
-            'tasks' => [
-                ['name' => 'إعداد وحدة المبيعات', 'status' => 'completed'],
-                ['name' => 'إعداد وحدة المخزون', 'status' => 'in_progress'],
-                ['name' => 'التدريب الأولي', 'status' => 'pending']
+            'days' => [
+                [
+                    'day' => 1,
+                    'title' => 'إعداد وحدة المبيعات',
+                    'tasks' => [
+                        'إضافة العملاء',
+                        'إعداد المنتجات',
+                        'تكوين الفواتير'
+                    ]
+                ],
+                [
+                    'day' => 2,
+                    'title' => 'إعداد وحدة المخزون',
+                    'tasks' => [
+                        'إنشاء المستودعات',
+                        'تحديد المواقع',
+                        'إعداد الحدود الدنيا'
+                    ]
+                ]
             ]
         ],
         [
             'week' => 3,
             'title' => 'الأسبوع الثالث',
             'subtitle' => 'التدريب والاختبار',
-            'color' => 'info',
+            'color' => '#10b981',
             'status' => 'pending',
             'progress' => 0,
-            'tasks' => [
-                ['name' => 'التدريب المتقدم', 'status' => 'pending'],
-                ['name' => 'اختبار النظام', 'status' => 'pending'],
-                ['name' => 'البدء في الاستخدام الفعلي', 'status' => 'pending']
+            'days' => [
+                [
+                    'day' => 1,
+                    'title' => 'التدريب على النظام',
+                    'tasks' => [
+                        'مشاهدة الفيديوهات التعليمية',
+                        'قراءة دليل المستخدم',
+                        'التدريب العملي'
+                    ]
+                ],
+                [
+                    'day' => 2,
+                    'title' => 'الاختبار والتشغيل',
+                    'tasks' => [
+                        'اختبار جميع الوحدات',
+                        'إدخال بيانات تجريبية',
+                        'البدء في الاستخدام الفعلي'
+                    ]
+                ]
             ]
         ]
     ];
