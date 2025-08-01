@@ -82,13 +82,32 @@ class SystemGuideController extends Controller
      */
     public function videos($moduleSlug = null)
     {
-        $videos = $this->getVideos($moduleSlug);
-        $modules = $this->getSystemModules();
-        $categories = $this->getVideoCategories();
-        $featuredVideo = $this->getFeaturedVideo();
-        $videoStats = $this->getVideoStats();
+        try {
+            $videos = $this->getVideos($moduleSlug);
+            $modules = $this->getSystemModules();
+            $categories = $this->getVideoCategories();
+            $featuredVideo = $this->getFeaturedVideo();
+            $videoStats = $this->getVideoStats();
 
-        return view('tenant.system-guide.videos-clean', compact('videos', 'modules', 'categories', 'featuredVideo', 'videoStats', 'moduleSlug'));
+            // Ensure videos is always an array
+            if (!is_array($videos)) {
+                $videos = [];
+            }
+
+            return view('tenant.system-guide.videos-clean', compact('videos', 'modules', 'categories', 'featuredVideo', 'videoStats', 'moduleSlug'));
+        } catch (\Exception $e) {
+            // Log the error and return empty data
+            \Log::error('Error in videos method: ' . $e->getMessage());
+
+            return view('tenant.system-guide.videos-clean', [
+                'videos' => [],
+                'modules' => $this->getSystemModules(),
+                'categories' => $this->getVideoCategories(),
+                'featuredVideo' => null,
+                'videoStats' => ['total_videos' => 0, 'total_duration' => '0:00', 'total_views' => 0],
+                'moduleSlug' => $moduleSlug
+            ]);
+        }
     }
 
     /**
@@ -1532,7 +1551,7 @@ class SystemGuideController extends Controller
         $allVideos = array_merge($allVideos, $this->getAnalyticsVideos());
 
         if ($moduleSlug && isset($allVideos[$moduleSlug])) {
-            return $allVideos[$moduleSlug];
+            return [$moduleSlug => $allVideos[$moduleSlug]];
         }
 
         return $allVideos;

@@ -326,37 +326,39 @@
             @foreach($videos as $moduleKey => $moduleVideos)
                 @if(is_array($moduleVideos))
                     @foreach($moduleVideos as $video)
-                    <div class="video-card" data-category="{{ $moduleKey }}" data-title="{{ strtolower($video['title']) }}" data-tags="{{ implode(' ', $video['tags']) }}">
-                        <div class="video-thumbnail" onclick="playVideo('{{ $video['id'] }}')">
+                    @if(is_array($video))
+                    <div class="video-card" data-category="{{ $moduleKey }}" data-title="{{ strtolower($video['title'] ?? '') }}" data-tags="{{ is_array($video['tags'] ?? []) ? implode(' ', $video['tags']) : ($video['tags'] ?? '') }}">
+                        <div class="video-thumbnail" onclick="playVideo('{{ $video['id'] ?? '' }}')">
                             <i class="fas fa-play-circle"></i>
-                            <div class="video-duration">{{ $video['duration'] }}</div>
+                            <div class="video-duration">{{ $video['duration'] ?? '0:00' }}</div>
                         </div>
-                        
+
                         <div class="video-info">
-                            <h3 class="video-title">{{ $video['title'] }}</h3>
-                            <p class="video-description">{{ $video['description'] }}</p>
-                            
+                            <h3 class="video-title">{{ $video['title'] ?? 'فيديو تعليمي' }}</h3>
+                            <p class="video-description">{{ $video['description'] ?? 'وصف الفيديو' }}</p>
+
                             <div class="video-meta">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="difficulty-badge difficulty-{{ $video['difficulty'] == 'مبتدئ' ? 'beginner' : ($video['difficulty'] == 'متوسط' ? 'intermediate' : 'advanced') }}">
-                                        {{ $video['difficulty'] }}
+                                    <span class="difficulty-badge difficulty-{{ ($video['difficulty'] ?? 'مبتدئ') == 'مبتدئ' ? 'beginner' : (($video['difficulty'] ?? 'مبتدئ') == 'متوسط' ? 'intermediate' : 'advanced') }}">
+                                        {{ $video['difficulty'] ?? 'مبتدئ' }}
                                     </span>
-                                    <span>{{ $video['category'] }}</span>
+                                    <span>{{ $video['category'] ?? 'عام' }}</span>
                                 </div>
-                                
+
                                 <div class="d-flex align-items-center gap-2">
                                     <span>
                                         <i class="fas fa-eye"></i>
-                                        {{ number_format($video['views']) }}
+                                        {{ number_format($video['views'] ?? 0) }}
                                     </span>
                                     <span>
                                         <i class="fas fa-star text-warning"></i>
-                                        {{ $video['rating'] }}
+                                        {{ $video['rating'] ?? 0 }}
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    @endif
                     @endforeach
                 @endif
             @endforeach
