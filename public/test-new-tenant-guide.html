@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار دليل المستأجر الجديد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.2rem;
+        }
+
+        .test-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-right: 4px solid #667eea;
+        }
+
+        .test-title {
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .test-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .test-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 12px;
+            font-size: 14px;
+            color: white;
+        }
+
+        .test-icon.success {
+            background: #10b981;
+        }
+
+        .test-icon.error {
+            background: #ef4444;
+        }
+
+        .test-icon.warning {
+            background: #f59e0b;
+        }
+
+        .test-text {
+            flex: 1;
+            color: #4a5568;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .alert-info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            color: #234e52;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 اختبار دليل المستأجر الجديد</h1>
+            <p>فحص حالة التكامل مع النظام</p>
+        </div>
+
+        <!-- Route Test -->
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-route" style="color: #667eea; margin-left: 10px;"></i>
+                اختبار الراوت (Route)
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="test-text">
+                    الراوت مُعرّف في: <code>routes/tenant/system-guide.php</code>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="test-text">
+                    اسم الراوت: <code>tenant.system-guide.new-tenant-guide</code>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="test-text">
+                    المسار: <code>/system-guide/new-tenant-guide</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controller Test -->
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-cogs" style="color: #10b981; margin-left: 10px;"></i>
+                اختبار الكونترولر (Controller)
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="test-text">
+                    الدالة مُضافة في: <code>SystemGuideController::newTenantGuide()</code>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="test-text">
+                    الدوال المساعدة: <code>getSetupSteps(), getNewTenantChecklist(), getImplementationTimeline()</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Test -->
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-eye" style="color: #f59e0b; margin-left: 10px;"></i>
+                اختبار ملف العرض (View)
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="test-text">
+                    ملف العرض: <code>resources/views/tenant/system-guide/new-tenant-guide.blade.php</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Test -->
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-bars" style="color: #8b5cf6; margin-left: 10px;"></i>
+                اختبار القائمة الجانبية (Sidebar)
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="test-text">
+                    الرابط مُضاف في: <code>resources/views/layouts/tenant.blade.php</code>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="test-text">
+                    قد يحتاج إلى مسح الكاش لظهور التغييرات
+                </div>
+            </div>
+        </div>
+
+        <!-- Solutions -->
+        <div class="alert alert-info">
+            <h4 style="margin-bottom: 10px;">💡 حلول المشكلة:</h4>
+            <p>إذا لم يظهر الرابط في القائمة الجانبية، جرب الحلول التالية:</p>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-tools" style="color: #ef4444; margin-left: 10px;"></i>
+                خطوات حل المشكلة
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon warning">
+                    <i class="fas fa-1"></i>
+                </div>
+                <div class="test-text">
+                    مسح كاش Laravel
+                    <div class="code-block">php artisan cache:clear<br>php artisan view:clear<br>php artisan route:clear<br>php artisan config:clear</div>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon warning">
+                    <i class="fas fa-2"></i>
+                </div>
+                <div class="test-text">
+                    مسح كاش المتصفح (Ctrl + F5 أو Cmd + Shift + R)
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon warning">
+                    <i class="fas fa-3"></i>
+                </div>
+                <div class="test-text">
+                    التأكد من تسجيل الدخول كمستأجر (Tenant) وليس كمدير عام
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-icon warning">
+                    <i class="fas fa-4"></i>
+                </div>
+                <div class="test-text">
+                    إعادة تشغيل الخادم المحلي
+                    <div class="code-block">php artisan serve</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Links -->
+        <div style="text-align: center; margin-top: 30px;">
+            <h3 style="color: #2d3748; margin-bottom: 20px;">اختبار الروابط:</h3>
+            
+            <a href="/system-guide/new-tenant-guide" class="btn" target="_blank">
+                <i class="fas fa-external-link-alt"></i>
+                اختبار الرابط المباشر
+            </a>
+            
+            <a href="/دليل_المستأجر_التفاعلي.html" class="btn" target="_blank">
+                <i class="fas fa-file-alt"></i>
+                الدليل التفاعلي (HTML)
+            </a>
+            
+            <a href="/دليل_المستأجر_للطباعة.html" class="btn" target="_blank">
+                <i class="fas fa-print"></i>
+                دليل الطباعة
+            </a>
+        </div>
+
+        <div class="alert alert-warning" style="margin-top: 30px;">
+            <strong>ملاحظة:</strong> إذا كان الرابط المباشر يعمل ولكن لا يظهر في القائمة الجانبية، فالمشكلة في الكاش أو في تحديث الصفحة.
+        </div>
+    </div>
+</body>
+</html>

@@ -497,7 +497,9 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
     });
 
     // System Guide Module
-    require __DIR__ . '/tenant/system-guide.php';
+    Route::prefix('system-guide')->name('system-guide.')->group(function () {
+        require __DIR__ . '/tenant/system-guide.php';
+    });
 
     // Dynamic Reports Module
     Route::prefix('reports')->name('reports.')->group(function () {

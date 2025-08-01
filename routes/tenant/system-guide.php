@@ -12,30 +12,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('system-guide')->name('system-guide.')->group(function () {
-    
-    // Main system guide page
-    Route::get('/', [SystemGuideController::class, 'index'])->name('index');
-    
-    // Introduction page
-    Route::get('/introduction', [SystemGuideController::class, 'introduction'])->name('introduction');
-    
-    // Module-specific guides
-    Route::get('/module/{moduleSlug}', [SystemGuideController::class, 'module'])->name('module');
-    
-    // Video tutorials
-    Route::get('/videos/{moduleSlug?}', [SystemGuideController::class, 'videos'])->name('videos');
-    
-    // FAQ page
-    Route::get('/faq', [SystemGuideController::class, 'faq'])->name('faq');
+// Main system guide page
+Route::get('/', [SystemGuideController::class, 'index'])->name('index');
 
-    // New Tenant Guide
-    Route::get('/new-tenant-guide', [SystemGuideController::class, 'newTenantGuide'])->name('new-tenant-guide');
+// Introduction page
+Route::get('/introduction', [SystemGuideController::class, 'introduction'])->name('introduction');
 
-    // Download user manual
-    Route::get('/download-manual', [SystemGuideController::class, 'downloadManual'])->name('download-manual');
-    
-    // Interactive tour
-    Route::post('/start-tour', [SystemGuideController::class, 'startTour'])->name('start-tour');
-    
-});
+// Module-specific guides
+Route::get('/module/{moduleSlug}', [SystemGuideController::class, 'module'])->name('module');
+
+// Video tutorials
+Route::get('/videos/{moduleSlug?}', [SystemGuideController::class, 'videos'])->name('videos');
+
+// FAQ page
+Route::get('/faq', [SystemGuideController::class, 'faq'])->name('faq');
+
+// New Tenant Guide
+Route::get('/new-tenant-guide', [SystemGuideController::class, 'newTenantGuide'])->name('new-tenant-guide');
+
+// Download user manual
+Route::get('/download-manual', [SystemGuideController::class, 'downloadManual'])->name('download-manual');
+
+// Interactive tour
+Route::post('/start-tour', [SystemGuideController::class, 'startTour'])->name('start-tour');
