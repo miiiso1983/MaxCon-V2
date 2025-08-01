@@ -708,13 +708,46 @@
                     </a>
                 </li>
 
-                <!-- الإعدادات - مخفي مؤقتاً -->
-                {{-- <li>
-                    <a href="{{ route('tenant.settings.index') }}">
+                <!-- الإعدادات -->
+                <li class="menu-section">
+                    <a href="#" class="menu-toggle" onclick="toggleSubmenu(this)">
                         <i class="fas fa-cog"></i>
                         الإعدادات
+                        <i class="fas fa-chevron-down toggle-icon"></i>
                     </a>
-                </li> --}}
+                    <ul class="submenu">
+                        <li>
+                            <a href="/settings-company.php" class="submenu-item" target="_blank">
+                                <i class="fas fa-building"></i>
+                                إعدادات الشركة
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/settings-users.php" class="submenu-item" target="_blank">
+                                <i class="fas fa-users-cog"></i>
+                                إدارة المستخدمين
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/settings-security.php" class="submenu-item" target="_blank">
+                                <i class="fas fa-shield-alt"></i>
+                                الأمان والخصوصية
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/settings-backup.php" class="submenu-item" target="_blank">
+                                <i class="fas fa-database"></i>
+                                النسخ الاحتياطية
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/settings-system.php" class="submenu-item" target="_blank">
+                                <i class="fas fa-server"></i>
+                                إعدادات النظام
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </aside>
         

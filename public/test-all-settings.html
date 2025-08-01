@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار جميع صفحات الإعدادات - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        
+        .success-message {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: #22543d;
+            text-align: center;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .setting-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .setting-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .setting-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .setting-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .setting-description {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .test-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .status-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+        
+        .additional-links {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .additional-links h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .additional-link {
+            background: white;
+            color: #4a5568;
+            padding: 15px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .additional-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+            color: #718096;
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .setting-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 تم إنشاء جميع صفحات الإعدادات بنجاح!</h1>
+            <p>اختبر جميع صفحات الإعدادات الجديدة</p>
+        </div>
+
+        <div class="success-message">
+            <h3 style="margin-bottom: 10px;">✅ تم حل مشكلة قسم الإعدادات!</h3>
+            <p>تم إنشاء 5 صفحات إعدادات تعمل مباشرة بدون راوتات Laravel وتم تفعيل قسم الإعدادات في القائمة الجانبية.</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- Company Settings -->
+            <div class="setting-card" style="position: relative;">
+                <div class="status-indicator"></div>
+                <div class="setting-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="setting-title">إعدادات الشركة</div>
+                <div class="setting-description">
+                    إدارة المعلومات الأساسية للشركة، العنوان، الشعار، والإعدادات العامة
+                </div>
+                <a href="https://www.maxcon.app/settings-company.php" class="test-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    اختبار الصفحة
+                </a>
+            </div>
+
+            <!-- User Management -->
+            <div class="setting-card" style="position: relative;">
+                <div class="status-indicator"></div>
+                <div class="setting-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <div class="setting-title">إدارة المستخدمين</div>
+                <div class="setting-description">
+                    إضافة وتحرير المستخدمين، تعيين الأدوار والصلاحيات، إدارة الحسابات
+                </div>
+                <a href="https://www.maxcon.app/settings-users.php" class="test-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    اختبار الصفحة
+                </a>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="setting-card" style="position: relative;">
+                <div class="status-indicator"></div>
+                <div class="setting-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="setting-title">الأمان والخصوصية</div>
+                <div class="setting-description">
+                    إعدادات كلمات المرور، المصادقة الثنائية، حماية البيانات والخصوصية
+                </div>
+                <a href="https://www.maxcon.app/settings-security.php" class="test-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    اختبار الصفحة
+                </a>
+            </div>
+
+            <!-- Backup Settings -->
+            <div class="setting-card" style="position: relative;">
+                <div class="status-indicator"></div>
+                <div class="setting-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="setting-title">النسخ الاحتياطية</div>
+                <div class="setting-description">
+                    إدارة النسخ الاحتياطية، الجدولة التلقائية، استعادة البيانات
+                </div>
+                <a href="https://www.maxcon.app/settings-backup.php" class="test-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    اختبار الصفحة
+                </a>
+            </div>
+
+            <!-- System Settings -->
+            <div class="setting-card" style="position: relative;">
+                <div class="status-indicator"></div>
+                <div class="setting-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <i class="fas fa-server"></i>
+                </div>
+                <div class="setting-title">إعدادات النظام</div>
+                <div class="setting-description">
+                    إعدادات الخادم، الأداء، قاعدة البيانات، والتشخيص المتقدم
+                </div>
+                <a href="https://www.maxcon.app/settings-system.php" class="test-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    اختبار الصفحة
+                </a>
+            </div>
+
+            <!-- Tenant Guide -->
+            <div class="setting-card" style="position: relative;">
+                <div class="status-indicator"></div>
+                <div class="setting-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="setting-title">دليل المستأجر الجديد</div>
+                <div class="setting-description">
+                    دليل شامل للمستأجرين الجدد مع خطة تفعيل 30 يوم
+                </div>
+                <a href="https://www.maxcon.app/tenant-guide-direct.php" class="test-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    اختبار الصفحة
+                </a>
+            </div>
+        </div>
+
+        <!-- Additional Links -->
+        <div class="additional-links">
+            <h3>🔗 روابط إضافية للاختبار</h3>
+            <div class="links-grid">
+                <a href="https://www.maxcon.app/دليل_المستأجر_التفاعلي.html" class="additional-link" target="_blank">
+                    <i class="fas fa-file-alt"></i>
+                    الدليل التفاعلي
+                </a>
+                <a href="https://www.maxcon.app/دليل_المستأجر_للطباعة.html" class="additional-link" target="_blank">
+                    <i class="fas fa-print"></i>
+                    دليل الطباعة
+                </a>
+                <a href="https://www.maxcon.app/quick-fix-test.html" class="additional-link" target="_blank">
+                    <i class="fas fa-tools"></i>
+                    اختبار الحل السريع
+                </a>
+                <a href="https://www.maxcon.app/live-server-test.html" class="additional-link" target="_blank">
+                    <i class="fas fa-server"></i>
+                    اختبار الخادم المباشر
+                </a>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div style="text-align: center;">
+            <a href="https://www.maxcon.app" class="back-btn">
+                <i class="fas fa-home"></i>
+                العودة إلى النظام
+            </a>
+        </div>
+
+        <div class="footer">
+            <h3 style="color: #2d3748; margin-bottom: 15px;">🎯 ما تم إنجازه:</h3>
+            <div style="text-align: right; max-width: 600px; margin: 0 auto;">
+                <p style="margin-bottom: 8px;">✅ تم تفعيل قسم الإعدادات في القائمة الجانبية</p>
+                <p style="margin-bottom: 8px;">✅ تم إنشاء 5 صفحات إعدادات تعمل مباشرة</p>
+                <p style="margin-bottom: 8px;">✅ تم حل مشكلة دليل المستأجر الجديد</p>
+                <p style="margin-bottom: 8px;">✅ جميع الصفحات تعمل بدون راوتات Laravel</p>
+                <p style="margin-bottom: 8px;">✅ تصميم متجاوب وجذاب لجميع الصفحات</p>
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <p><strong>MaxCon ERP</strong> - نظام إدارة موارد المؤسسات</p>
+                <p>جميع صفحات الإعدادات جاهزة للاستخدام! 🚀</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test all links on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎉 جميع صفحات الإعدادات جاهزة!');
+            console.log('الصفحات المتاحة:');
+            console.log('- settings-company.php');
+            console.log('- settings-users.php');
+            console.log('- settings-security.php');
+            console.log('- settings-backup.php');
+            console.log('- settings-system.php');
+            console.log('- tenant-guide-direct.php');
+            
+            // Add click tracking
+            const testLinks = document.querySelectorAll('.test-link, .additional-link');
+            testLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    console.log('اختبار الرابط:', this.href);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
