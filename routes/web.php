@@ -55,6 +55,11 @@ Route::get('/demo-maxcon', function () {
     return view('admin.tenants.maxcon-index');
 })->name('demo.maxcon');
 
+// Test route for modern sidebar (remove in production)
+Route::get('/test-sidebar', function () {
+    return view('test-sidebar');
+})->name('test.sidebar');
+
 // Test route for system guide (remove in production)
 Route::get('/test-system-guide-direct', function () {
     $modules = [
