@@ -15,7 +15,13 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Bootstrap CSS -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Bootstrap CSS (for compatibility) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
     <!-- Responsive CSS -->
@@ -24,6 +30,9 @@
 
     <!-- Custom Select CSS -->
     <link rel="stylesheet" href="{{ asset('css/custom-select.css') }}">
+
+    <!-- Collapsible Sidebar CSS -->
+    <link rel="stylesheet" href="{{ asset('css/collapsible-sidebar.css') }}">
 
     <!-- Custom Styles -->
     <style>
@@ -200,8 +209,16 @@
         
         .content-area {
             flex: 1;
-            margin-right: 280px;
             min-height: 100vh;
+            transition: margin-right 0.3s ease;
+            margin-right: 288px; /* Default expanded sidebar width */
+        }
+
+        /* Responsive content margins */
+        @media (max-width: 768px) {
+            .content-area {
+                margin-right: 0;
+            }
         }
         
         .top-navbar {
@@ -399,8 +416,11 @@
     <div class="sidebar-overlay"></div>
 
     <div class="main-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <!-- New Collapsible Sidebar -->
+        @include('components.collapsible-sidebar')
+
+        <!-- Legacy Sidebar (Hidden) -->
+        <aside class="sidebar legacy" style="display: none;">
             <div class="sidebar-header">
                 <!-- MaxCon Logo -->
                 <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
@@ -901,6 +921,43 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Sidebar Content Adjustment Script -->
+    <script>
+        // Adjust content area margin based on sidebar state
+        function adjustContentMargin() {
+            const contentArea = document.querySelector('.content-area');
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
+
+            if (contentArea) {
+                if (window.innerWidth >= 768) {
+                    if (sidebarCollapsed === 'true') {
+                        contentArea.style.marginRight = '64px'; // Collapsed width
+                    } else {
+                        contentArea.style.marginRight = '288px'; // Expanded width
+                    }
+                } else {
+                    contentArea.style.marginRight = '0'; // Mobile
+                }
+            }
+        }
+
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', adjustContentMargin);
+
+        // Run on window resize
+        window.addEventListener('resize', adjustContentMargin);
+
+        // Listen for sidebar state changes
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'sidebarCollapsed') {
+                adjustContentMargin();
+            }
+        });
+
+        // Custom event listener for sidebar toggle
+        document.addEventListener('sidebarToggled', adjustContentMargin);
+    </script>
 
     <!-- System Guide Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
