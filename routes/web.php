@@ -542,5 +542,51 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
     });
 });
 
+// Test route for new tenant guide (remove in production)
+Route::get('/test-new-tenant-guide-direct', function () {
+    return view('tenant.system-guide.new-tenant-guide', [
+        'setupSteps' => [
+            [
+                'id' => 1,
+                'title' => 'إعداد معلومات الشركة',
+                'description' => 'إدخال البيانات الأساسية للشركة والإعدادات الأولية',
+                'icon' => 'fas fa-building',
+                'color' => '#667eea',
+                'estimated_time' => '30 دقيقة',
+                'tasks' => [
+                    'إدخال اسم الشركة والعنوان',
+                    'رفع شعار الشركة',
+                    'تحديد العملة والمنطقة الزمنية',
+                    'إعداد إعدادات الأمان'
+                ]
+            ]
+        ],
+        'modules' => [],
+        'checklist' => [
+            'basic_setup' => [
+                'title' => 'الإعداد الأساسي',
+                'items' => [
+                    ['id' => 'company_info', 'text' => 'إعداد معلومات الشركة', 'completed' => false],
+                    ['id' => 'logo_upload', 'text' => 'رفع شعار الشركة', 'completed' => false]
+                ]
+            ]
+        ],
+        'timeline' => [
+            [
+                'week' => 1,
+                'title' => 'الأسبوع الأول: الإعداد الأساسي',
+                'color' => '#667eea',
+                'days' => [
+                    [
+                        'day' => '1-2',
+                        'title' => 'إعداد النظام',
+                        'tasks' => ['تسجيل الدخول الأول وتغيير كلمة المرور']
+                    ]
+                ]
+            ]
+        ]
+    ]);
+})->name('test.new-tenant-guide');
+
 // Include customer routes
 require __DIR__.'/customer.php';

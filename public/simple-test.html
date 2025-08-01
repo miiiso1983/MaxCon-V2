@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار بسيط - دليل المستأجر الجديد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #f7fafc;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        
+        .test-link {
+            display: block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            text-decoration: none;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #234e52;
+        }
+        
+        .error {
+            background: #fef2f2;
+            border: 1px solid #f87171;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #991b1b;
+        }
+        
+        .success {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #22543d;
+        }
+        
+        code {
+            background: #edf2f7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .step {
+            background: #f8fafc;
+            border-right: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .step h3 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .step p {
+            color: #4a5568;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 اختبار دليل المستأجر الجديد</h1>
+        
+        <div class="info">
+            <h3>📋 خطوات الاختبار:</h3>
+            <p>اتبع هذه الخطوات بالترتيب للتأكد من عمل الرابط في القائمة الجانبية</p>
+        </div>
+
+        <div class="step">
+            <h3>1. اختبار الرابط المباشر</h3>
+            <p>اضغط على الرابط أدناه للتأكد من أن الصفحة تعمل</p>
+        </div>
+        
+        <a href="/tenant/system-guide/new-tenant-guide" class="test-link" target="_blank">
+            🚀 اختبار دليل المستأجر الجديد
+        </a>
+
+        <div class="step">
+            <h3>2. مسح الكاش</h3>
+            <p>قم بتشغيل هذه الأوامر في Terminal:</p>
+            <code>php artisan route:clear</code><br>
+            <code>php artisan cache:clear</code><br>
+            <code>php artisan view:clear</code><br>
+            <code>php artisan config:clear</code>
+        </div>
+
+        <div class="step">
+            <h3>3. إعادة تشغيل الخادم</h3>
+            <p>أوقف الخادم واعد تشغيله:</p>
+            <code>php artisan serve</code>
+        </div>
+
+        <div class="step">
+            <h3>4. مسح كاش المتصفح</h3>
+            <p>اضغط <code>Ctrl + F5</code> (Windows) أو <code>Cmd + Shift + R</code> (Mac)</p>
+        </div>
+
+        <div class="step">
+            <h3>5. تسجيل الدخول الصحيح</h3>
+            <p>تأكد من تسجيل الدخول كمستأجر وليس كمدير عام</p>
+        </div>
+
+        <div class="step">
+            <h3>6. فحص القائمة الجانبية</h3>
+            <p>اذهب إلى لوحة التحكم → كيفية استخدام النظام → دليل المستأجر الجديد</p>
+        </div>
+
+        <div class="error">
+            <h3>⚠️ إذا لم يعمل الرابط المباشر:</h3>
+            <ul>
+                <li>تحقق من أن الخادم يعمل</li>
+                <li>تحقق من وجود أخطاء في <code>storage/logs/laravel.log</code></li>
+                <li>تأكد من أن جميع الملفات موجودة</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h3>✅ إذا عمل الرابط المباشر ولكن لا يظهر في القائمة:</h3>
+            <ul>
+                <li>المشكلة في الكاش - امسح الكاش مرة أخرى</li>
+                <li>تأكد من تسجيل الدخول كمستأجر</li>
+                <li>أعد تحميل الصفحة بالكامل</li>
+            </ul>
+        </div>
+
+        <h3 style="margin-top: 30px; text-align: center; color: #2d3748;">روابط إضافية للاختبار:</h3>
+        
+        <a href="/tenant/system-guide/" class="test-link" target="_blank">
+            🏠 الصفحة الرئيسية لدليل النظام
+        </a>
+        
+        <a href="/tenant/system-guide/faq" class="test-link" target="_blank">
+            ❓ الأسئلة الشائعة
+        </a>
+        
+        <a href="/دليل_المستأجر_التفاعلي.html" class="test-link" target="_blank">
+            📄 الدليل التفاعلي (HTML)
+        </a>
+        
+        <a href="/debug-routes.php" class="test-link" target="_blank">
+            🔍 فحص تفصيلي للراوتات
+        </a>
+
+        <div class="info" style="margin-top: 30px;">
+            <h3>💡 نصيحة:</h3>
+            <p>إذا كانت جميع الروابط تعمل ولكن لا تظهر في القائمة الجانبية، فالمشكلة 99% في الكاش. امسح الكاش وأعد تشغيل الخادم.</p>
+        </div>
+    </div>
+
+    <script>
+        // Test if we can access the route
+        document.addEventListener('DOMContentLoaded', function() {
+            const testLink = document.querySelector('a[href="/tenant/system-guide/new-tenant-guide"]');
+            
+            testLink.addEventListener('click', function(e) {
+                console.log('Testing route: /tenant/system-guide/new-tenant-guide');
+            });
+        });
+    </script>
+</body>
+</html>

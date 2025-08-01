@@ -657,6 +657,12 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('test.new-tenant-guide') }}" class="submenu-item">
+                                <i class="fas fa-bug"></i>
+                                اختبار دليل المستأجر (مؤقت)
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('tenant.system-guide.download-manual') }}" class="submenu-item">
                                 <i class="fas fa-download"></i>
                                 تحميل دليل المستخدم
