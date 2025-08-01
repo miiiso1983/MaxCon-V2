@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار الخادم المباشر - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .header .url {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .test-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-right: 4px solid #667eea;
+        }
+        
+        .test-title {
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .test-title i {
+            margin-left: 10px;
+            color: #667eea;
+        }
+        
+        .test-link {
+            display: block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 10px;
+            margin: 8px 0;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .test-link.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .test-link.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .test-link.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        
+        .status-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .status-box.info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            color: #234e52;
+        }
+        
+        .status-box.warning {
+            background: #fffbeb;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+        
+        .status-box.error {
+            background: #fef2f2;
+            border: 1px solid #f87171;
+            color: #991b1b;
+        }
+        
+        .status-box.success {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            color: #22543d;
+        }
+        
+        .step {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border-right: 3px solid #10b981;
+        }
+        
+        .step h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .step p {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .code {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 5px 0;
+            display: inline-block;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .card p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 اختبار الخادم المباشر</h1>
+            <div class="url">www.maxcon.app</div>
+            <p style="margin-top: 15px; color: #718096;">فحص دليل المستأجر الجديد على الخادم المباشر</p>
+        </div>
+
+        <!-- Quick Status Check -->
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-tachometer-alt"></i>
+                فحص سريع للحالة
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🚀 الرابط الأساسي</h3>
+                    <p>دليل المستأجر الجديد</p>
+                    <a href="https://www.maxcon.app/tenant/system-guide/new-tenant-guide" class="test-link" target="_blank">
+                        اختبار الآن
+                    </a>
+                </div>
+                
+                <div class="card">
+                    <h3>🔧 الرابط التجريبي</h3>
+                    <p>نسخة اختبار مؤقتة</p>
+                    <a href="https://www.maxcon.app/test-new-tenant-guide-direct" class="test-link warning" target="_blank">
+                        اختبار الآن
+                    </a>
+                </div>
+                
+                <div class="card">
+                    <h3>📄 الدليل التفاعلي</h3>
+                    <p>نسخة HTML مستقلة</p>
+                    <a href="https://www.maxcon.app/دليل_المستأجر_التفاعلي.html" class="test-link success" target="_blank">
+                        اختبار الآن
+                    </a>
+                </div>
+                
+                <div class="card">
+                    <h3>🖨️ دليل الطباعة</h3>
+                    <p>نسخة قابلة للطباعة</p>
+                    <a href="https://www.maxcon.app/دليل_المستأجر_للطباعة.html" class="test-link info" target="_blank">
+                        اختبار الآن
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Server Solutions -->
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-server"></i>
+                حلول الخادم المباشر
+            </div>
+            
+            <div class="status-box warning">
+                <h4>⚠️ ملاحظة مهمة للخادم المباشر:</h4>
+                <p>مسح الكاش على الخادم المباشر يتطلب وصول إلى cPanel أو SSH</p>
+            </div>
+
+            <div class="step">
+                <h4>1. مسح الكاش عبر cPanel</h4>
+                <p>• اذهب إلى <strong>cPanel</strong> → <strong>File Manager</strong></p>
+                <p>• احذف مجلد <span class="code">bootstrap/cache/</span></p>
+                <p>• احذف ملفات <span class="code">storage/framework/cache/</span></p>
+                <p>• احذف ملفات <span class="code">storage/framework/views/</span></p>
+            </div>
+
+            <div class="step">
+                <h4>2. إعادة تشغيل PHP</h4>
+                <p>• في <strong>cPanel</strong> → <strong>PHP Selector</strong></p>
+                <p>• اختر إعادة تشغيل PHP</p>
+                <p>• أو اتصل بمزود الاستضافة</p>
+            </div>
+
+            <div class="step">
+                <h4>3. مسح كاش المتصفح</h4>
+                <p>• اضغط <span class="code">Ctrl + F5</span> (Windows) أو <span class="code">Cmd + Shift + R</span> (Mac)</p>
+                <p>• أو استخدم نافذة خاصة/متخفية</p>
+            </div>
+
+            <div class="step">
+                <h4>4. التأكد من تسجيل الدخول</h4>
+                <p>• تأكد من تسجيل الدخول كـ <strong>مستأجر</strong> وليس كمدير عام</p>
+                <p>• الرابط يظهر فقط في لوحة تحكم المستأجر</p>
+            </div>
+        </div>
+
+        <!-- System Guide Links -->
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-graduation-cap"></i>
+                روابط دليل النظام
+            </div>
+            
+            <a href="https://www.maxcon.app/tenant/system-guide/" class="test-link">
+                🏠 الصفحة الرئيسية لدليل النظام
+            </a>
+            
+            <a href="https://www.maxcon.app/tenant/system-guide/introduction" class="test-link">
+                📖 مقدمة عن النظام
+            </a>
+            
+            <a href="https://www.maxcon.app/tenant/system-guide/faq" class="test-link">
+                ❓ الأسئلة الشائعة
+            </a>
+            
+            <a href="https://www.maxcon.app/tenant/system-guide/videos" class="test-link">
+                🎥 الفيديوهات التعليمية
+            </a>
+        </div>
+
+        <!-- Diagnostic Tools -->
+        <div class="test-section">
+            <div class="test-title">
+                <i class="fas fa-tools"></i>
+                أدوات التشخيص
+            </div>
+            
+            <a href="https://www.maxcon.app/debug-routes.php" class="test-link warning">
+                🔍 فحص تفصيلي للراوتات
+            </a>
+            
+            <a href="https://www.maxcon.app/simple-test.html" class="test-link info">
+                🧪 اختبار بسيط
+            </a>
+            
+            <a href="https://www.maxcon.app/LIVE-SERVER-INSTRUCTIONS.md" class="test-link">
+                📋 تعليمات الخادم المباشر
+            </a>
+        </div>
+
+        <!-- Status Messages -->
+        <div class="status-box info">
+            <h4>💡 نصائح للخادم المباشر:</h4>
+            <ul style="margin: 10px 0; padding-right: 20px;">
+                <li>إذا عملت الروابط المباشرة ولكن لا تظهر في القائمة الجانبية، فالمشكلة في الكاش</li>
+                <li>تأكد من تسجيل الدخول كمستأجر وليس كمدير عام</li>
+                <li>جرب متصفح آخر أو نافذة خاصة</li>
+                <li>قد تحتاج إلى الانتظار بضع دقائق بعد مسح الكاش</li>
+            </ul>
+        </div>
+
+        <div class="status-box success">
+            <h4>✅ علامات النجاح:</h4>
+            <ul style="margin: 10px 0; padding-right: 20px;">
+                <li>ظهور رابط "دليل المستأجر الجديد" في القائمة الجانبية</li>
+                <li>عمل الرابط عند النقر عليه</li>
+                <li>ظهور الصفحة التفاعلية مع جميع المحتويات</li>
+                <li>عمل تتبع التقدم وحفظ البيانات في المتصفح</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #718096;">
+            <p><strong>MaxCon ERP</strong> - نظام إدارة موارد المؤسسات</p>
+            <p>الخادم المباشر: <strong>www.maxcon.app</strong></p>
+            <p>آخر تحديث: ديسمبر 2024</p>
+        </div>
+    </div>
+
+    <script>
+        // Test connectivity and log results
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🌐 اختبار الخادم المباشر - MaxCon ERP');
+            console.log('الموقع: https://www.maxcon.app');
+            console.log('الهدف: فحص دليل المستأجر الجديد');
+            
+            // Add click tracking for test links
+            const testLinks = document.querySelectorAll('.test-link');
+            testLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    console.log('اختبار الرابط:', this.href);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
