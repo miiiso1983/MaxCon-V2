@@ -497,8 +497,8 @@
                     </a>
                 </li>
 
-                <!-- نظام التقارير الديناميكي -->
-                <li class="has-submenu">
+                <!-- نظام التقارير الديناميكي - مخفي للمستأجرين -->
+                {{-- <li class="has-submenu">
                     <a href="#" class="menu-toggle">
                         <i class="fas fa-chart-line"></i>
                         نظام التقارير الديناميكي
@@ -708,8 +708,8 @@
                     </a>
                 </li>
 
-                <!-- الإعدادات -->
-                <li class="menu-section">
+                <!-- الإعدادات - مخفي للمستأجرين -->
+                {{-- <li class="menu-section">
                     <a href="#" class="menu-toggle" onclick="toggleSubmenu(this)">
                         <i class="fas fa-cog"></i>
                         الإعدادات
@@ -747,7 +747,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
             </ul>
         </aside>
         
