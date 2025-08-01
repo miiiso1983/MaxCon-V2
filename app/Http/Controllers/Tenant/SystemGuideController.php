@@ -88,7 +88,7 @@ class SystemGuideController extends Controller
         $featuredVideo = $this->getFeaturedVideo();
         $videoStats = $this->getVideoStats();
 
-        return view('tenant.system-guide.videos-enhanced', compact('videos', 'modules', 'categories', 'featuredVideo', 'videoStats', 'moduleSlug'));
+        return view('tenant.system-guide.videos-clean', compact('videos', 'modules', 'categories', 'featuredVideo', 'videoStats', 'moduleSlug'));
     }
 
     /**

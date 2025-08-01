@@ -1,54 +1,57 @@
-@extends('layouts.tenant')
+@extends('layouts.modern')
 
 @section('page-title', 'الفيديوهات التعليمية')
 @section('page-description', 'مكتبة شاملة من الفيديوهات التعليمية لتعلم استخدام نظام MaxCon ERP')
 
 @push('styles')
 <style>
-    .videos-header {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        border-radius: 20px;
-        padding: 40px;
-        margin-bottom: 30px;
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 25px;
         color: white;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
 
-    .videos-header::before {
+    .page-header::before {
         content: '';
         position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 200px;
-        height: 200px;
+        top: -30px;
+        right: -30px;
+        width: 120px;
+        height: 120px;
         background: rgba(255,255,255,0.1);
         border-radius: 50%;
     }
 
-    .videos-header::after {
+    .page-header::after {
         content: '';
         position: absolute;
-        bottom: -30px;
-        left: -30px;
-        width: 150px;
-        height: 150px;
+        bottom: -20px;
+        left: -20px;
+        width: 80px;
+        height: 80px;
         background: rgba(255,255,255,0.05);
         border-radius: 50%;
     }
 
     .video-card {
         background: white;
-        border-radius: 15px;
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 20px;
     }
 
     .video-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border-color: #667eea;
     }
 
     .video-thumbnail {
@@ -274,37 +277,35 @@
 @endpush
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="videos-header">
-        <div style="position: relative; z-index: 2;">
-            <div style="text-align: center;">
-                <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 15px;">
-                    <i class="fas fa-play-circle" style="margin-left: 15px;"></i>
-                    الفيديوهات التعليمية
-                </h1>
-                <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 25px;">
-                    مكتبة شاملة من الفيديوهات التعليمية لتعلم استخدام نظام MaxCon ERP
-                </p>
-                
-                <!-- Stats -->
-                @if(isset($videoStats))
-                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; font-weight: 800;">{{ $videoStats['total_videos'] }}</div>
-                        <div style="font-size: 14px; opacity: 0.8;">فيديو تعليمي</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; font-weight: 800;">{{ $videoStats['total_duration'] }}</div>
-                        <div style="font-size: 14px; opacity: 0.8;">إجمالي المدة</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; font-weight: 800;">{{ number_format($videoStats['total_views']) }}</div>
-                        <div style="font-size: 14px; opacity: 0.8;">مشاهدة</div>
-                    </div>
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div style="position: relative; z-index: 2; text-align: center;">
+            <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 10px;">
+                <i class="fas fa-play-circle" style="margin-left: 10px;"></i>
+                الفيديوهات التعليمية
+            </h1>
+            <p style="font-size: 1rem; opacity: 0.9; margin-bottom: 20px;">
+                مكتبة شاملة من الفيديوهات التعليمية لتعلم استخدام نظام MaxCon ERP
+            </p>
+
+            <!-- Quick Stats -->
+            @if(isset($videoStats))
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div style="font-size: 1.5rem; font-weight: 700;">{{ $videoStats['total_videos'] }}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8;">فيديو تعليمي</div>
                 </div>
-                @endif
+                <div class="col-md-4">
+                    <div style="font-size: 1.5rem; font-weight: 700;">{{ $videoStats['total_duration'] }}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8;">إجمالي المدة</div>
+                </div>
+                <div class="col-md-4">
+                    <div style="font-size: 1.5rem; font-weight: 700;">{{ number_format($videoStats['total_views']) }}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8;">مشاهدة</div>
+                </div>
             </div>
+            @endif
         </div>
     </div>
 
