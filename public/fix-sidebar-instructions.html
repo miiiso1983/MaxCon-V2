@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إصلاح قسم الإعدادات - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .problem {
+            background: #fef2f2;
+            border: 1px solid #f87171;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            color: #991b1b;
+        }
+        
+        .solution {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            color: #22543d;
+        }
+        
+        .step {
+            background: #f8fafc;
+            border-right: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .step h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .step p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .quick-fix {
+            background: #fffbeb;
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .quick-fix h3 {
+            color: #92400e;
+            margin-bottom: 15px;
+        }
+        
+        .copy-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .copy-button:hover {
+            background: #5a67d8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 إصلاح قسم الإعدادات في القائمة الجانبية</h1>
+            <p>حل سريع لإظهار قسم الإعدادات في القائمة الجانبية</p>
+        </div>
+
+        <div class="problem">
+            <h3 style="margin-bottom: 10px;">❌ المشكلة:</h3>
+            <p>صفحات الإعدادات تعمل بشكل ممتاز عند الوصول إليها مباشرة، لكن قسم الإعدادات لا يظهر في القائمة الجانبية على الخادم المباشر.</p>
+        </div>
+
+        <div class="solution">
+            <h3 style="margin-bottom: 10px;">✅ الحل السريع:</h3>
+            <p>تم إنشاء سكريبت JavaScript يضيف قسم الإعدادات ديناميكياً إلى القائمة الجانبية بدون الحاجة لتحديث ملفات Laravel.</p>
+        </div>
+
+        <div class="quick-fix">
+            <h3>⚡ الحل الفوري - إضافة السكريبت:</h3>
+            <p>انسخ هذا الكود وأضفه في أي مكان في الموقع (مثل footer أو header):</p>
+            
+            <div class="code-block" id="scriptCode">
+&lt;script src="https://www.maxcon.app/fix-sidebar-settings.js"&gt;&lt;/script&gt;
+            </div>
+            <button class="copy-button" onclick="copyScript()">📋 نسخ الكود</button>
+        </div>
+
+        <div class="step">
+            <h3>الطريقة 1: إضافة السكريبت عبر cPanel</h3>
+            <p>1. اذهب إلى <strong>cPanel</strong> → <strong>File Manager</strong></p>
+            <p>2. افتح ملف <code>resources/views/layouts/tenant.blade.php</code></p>
+            <p>3. أضف السكريبت قبل إغلاق tag الـ <code>&lt;/body&gt;</code></p>
+            <p>4. احفظ الملف</p>
+        </div>
+
+        <div class="step">
+            <h3>الطريقة 2: اختبار السكريبت مباشرة</h3>
+            <p>1. اذهب إلى لوحة تحكم المستأجر</p>
+            <p>2. افتح Developer Tools (F12)</p>
+            <p>3. اذهب إلى Console</p>
+            <p>4. انسخ والصق الكود أدناه واضغط Enter:</p>
+            
+            <div class="code-block" id="consoleCode">
+var script = document.createElement('script');
+script.src = 'https://www.maxcon.app/fix-sidebar-settings.js';
+document.head.appendChild(script);
+            </div>
+            <button class="copy-button" onclick="copyConsoleCode()">📋 نسخ كود Console</button>
+        </div>
+
+        <div class="step">
+            <h3>الطريقة 3: تحديث الملفات على الخادم</h3>
+            <p>إذا كان لديك وصول SSH أو FTP:</p>
+            <p>1. حمّل آخر إصدار من GitHub</p>
+            <p>2. ارفع ملف <code>resources/views/layouts/tenant.blade.php</code> المحدث</p>
+            <p>3. امسح الكاش إذا أمكن</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <h3 style="color: #2d3748; margin-bottom: 20px;">اختبر الحلول:</h3>
+            
+            <a href="https://www.maxcon.app" class="btn" target="_blank">
+                <i class="fas fa-home"></i>
+                اذهب إلى النظام
+            </a>
+            
+            <a href="https://www.maxcon.app/test-all-settings.html" class="btn btn-success" target="_blank">
+                <i class="fas fa-cogs"></i>
+                اختبار صفحات الإعدادات
+            </a>
+            
+            <a href="https://www.maxcon.app/fix-sidebar-settings.js" class="btn btn-warning" target="_blank">
+                <i class="fas fa-code"></i>
+                عرض السكريبت
+            </a>
+        </div>
+
+        <div class="solution">
+            <h3 style="margin-bottom: 10px;">🎯 ما سيحدث بعد تطبيق الحل:</h3>
+            <ul style="margin: 10px 0; padding-right: 20px;">
+                <li>سيظهر قسم "الإعدادات" في القائمة الجانبية</li>
+                <li>ستجد 6 روابط فرعية تعمل جميعها</li>
+                <li>ستظهر رسالة نجاح تؤكد إضافة القسم</li>
+                <li>جميع الروابط ستفتح في نوافذ جديدة</li>
+                <li>التصميم سيكون متناسق مع باقي القائمة</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #718096;">
+            <p><strong>MaxCon ERP</strong> - حل سريع لمشكلة قسم الإعدادات</p>
+            <p>إذا واجهت أي مشكلة، جرب الطرق الثلاث بالترتيب</p>
+        </div>
+    </div>
+
+    <script>
+        function copyScript() {
+            const code = document.getElementById('scriptCode').textContent;
+            navigator.clipboard.writeText(code.trim()).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ تم النسخ!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        function copyConsoleCode() {
+            const code = document.getElementById('consoleCode').textContent;
+            navigator.clipboard.writeText(code.trim()).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ تم النسخ!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
