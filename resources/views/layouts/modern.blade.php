@@ -768,6 +768,138 @@
                         </div>
                     </div>
 
+                    <!-- Inventory Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.inventory.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-warehouse"></i>
+                            إدارة المخزون
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.inventory.categories.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.categories.*') ? 'active' : '' }}">
+                                <i class="fas fa-tags"></i>
+                                فئات المنتجات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.products.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.products.*') ? 'active' : '' }}">
+                                <i class="fas fa-cube"></i>
+                                كتالوج المنتجات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.qr.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.qr.*') ? 'active' : '' }}">
+                                <i class="fas fa-qrcode"></i>
+                                QR كود المنتجات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.warehouses.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.warehouses.*') ? 'active' : '' }}">
+                                <i class="fas fa-warehouse"></i>
+                                إدارة المستودعات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.index', 'tenant.inventory.show', 'tenant.inventory.create', 'tenant.inventory.edit') ? 'active' : '' }}">
+                                <i class="fas fa-boxes"></i>
+                                إدارة المخزون
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.movements.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.movements.*') ? 'active' : '' }}">
+                                <i class="fas fa-exchange-alt"></i>
+                                حركات المخزون
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.audits.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.audits.*') ? 'active' : '' }}">
+                                <i class="fas fa-clipboard-list"></i>
+                                الجرد الدوري
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.alerts.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.alerts.*') ? 'active' : '' }}">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                التنبيهات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.reports.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.reports.*') ? 'active' : '' }}">
+                                <i class="fas fa-chart-bar"></i>
+                                تقارير المخزون
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.custom-reports.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.custom-reports.*') ? 'active' : '' }}">
+                                <i class="fas fa-file-alt"></i>
+                                التقارير المخصصة
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Accounting Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.inventory.accounting.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-calculator"></i>
+                            النظام المحاسبي
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.chart-of-accounts.*') ? 'active' : '' }}">
+                                <i class="fas fa-chart-tree"></i>
+                                دليل الحسابات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.accounting.cost-centers.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.cost-centers.*') ? 'active' : '' }}">
+                                <i class="fas fa-building"></i>
+                                مراكز التكلفة
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.accounting.journal-entries.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.journal-entries.*') ? 'active' : '' }}">
+                                <i class="fas fa-file-invoice"></i>
+                                القيود المحاسبية
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.accounting.reports.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.reports.*') ? 'active' : '' }}">
+                                <i class="fas fa-chart-line"></i>
+                                التقارير المالية
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.accounting.reports.trial-balance') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.reports.trial-balance') ? 'active' : '' }}">
+                                <i class="fas fa-balance-scale"></i>
+                                ميزان المراجعة
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.accounting.reports.income-statement') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.reports.income-statement') ? 'active' : '' }}">
+                                <i class="fas fa-chart-bar"></i>
+                                قائمة الدخل
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.accounting.reports.balance-sheet') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.reports.balance-sheet') ? 'active' : '' }}">
+                                <i class="fas fa-building"></i>
+                                الميزانية العمومية
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.accounting.reports.cash-flow') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.reports.cash-flow') ? 'active' : '' }}">
+                                <i class="fas fa-coins"></i>
+                                التدفقات النقدية
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.accounting.reports.account-ledger') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.accounting.reports.account-ledger') ? 'active' : '' }}">
+                                <i class="fas fa-book"></i>
+                                دفتر الأستاذ
+                            </a>
+                        </div>
+                    </div>
+
                     <!-- Reports Section -->
                     <div class="nav-section collapsed">
                         <div class="nav-section-title" onclick="toggleSection(this)">
@@ -799,6 +931,388 @@
                                 <i class="fas fa-calendar-alt"></i>
                                 التقارير الشهرية
                             </a>
+                        </div>
+                    </div>
+
+                    <!-- Regulatory Affairs Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.inventory.regulatory.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-shield-alt"></i>
+                            الشؤون التنظيمية
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.inventory.regulatory.companies.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.companies.*') ? 'active' : '' }}">
+                                <i class="fas fa-building"></i>
+                                تسجيل الشركات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.regulatory.products.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.products.*') ? 'active' : '' }}">
+                                <i class="fas fa-pills"></i>
+                                تسجيل المنتجات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.regulatory.laboratory-tests.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.laboratory-tests.*') ? 'active' : '' }}">
+                                <i class="fas fa-flask"></i>
+                                الفحوصات المخبرية
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.regulatory.inspections.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.inspections.*') ? 'active' : '' }}">
+                                <i class="fas fa-search"></i>
+                                التفتيش التنظيمي
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.regulatory.certificates.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.certificates.*') ? 'active' : '' }}">
+                                <i class="fas fa-certificate"></i>
+                                شهادات الجودة
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.regulatory.product-recalls.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.product-recalls.*') || request()->routeIs('tenant.inventory.regulatory.recalls.*') ? 'active' : '' }}">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                سحب المنتجات
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.regulatory.reports.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.reports.*') ? 'active' : '' }}">
+                                <i class="fas fa-file-alt"></i>
+                                التقارير التنظيمية
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.regulatory.documents.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.documents.*') ? 'active' : '' }}">
+                                <i class="fas fa-folder-open"></i>
+                                الوثائق التنظيمية
+                            </a>
+
+                            <a href="{{ route('tenant.inventory.regulatory.dashboard') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.regulatory.dashboard') ? 'active' : '' }}">
+                                <i class="fas fa-tachometer-alt"></i>
+                                لوحة الشؤون التنظيمية
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Human Resources Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.hr.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-users"></i>
+                            الموارد البشرية
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.hr.dashboard') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.dashboard') ? 'active' : '' }}">
+                                <i class="fas fa-tachometer-alt"></i>
+                                لوحة الموارد البشرية
+                            </a>
+
+                            <a href="{{ route('tenant.hr.employees.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.employees.*') ? 'active' : '' }}">
+                                <i class="fas fa-user-tie"></i>
+                                إدارة الموظفين
+                            </a>
+
+                            <a href="{{ route('tenant.hr.departments.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.departments.*') ? 'active' : '' }}">
+                                <i class="fas fa-building"></i>
+                                الأقسام والمناصب
+                            </a>
+
+                            <a href="{{ route('tenant.hr.attendance.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.attendance.*') ? 'active' : '' }}">
+                                <i class="fas fa-calendar-check"></i>
+                                الحضور والانصراف
+                            </a>
+
+                            <a href="{{ route('tenant.hr.leaves.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.leaves.*') || request()->routeIs('tenant.hr.leave-types.*') ? 'active' : '' }}">
+                                <i class="fas fa-calendar-times"></i>
+                                إدارة الإجازات
+                            </a>
+
+                            <a href="{{ route('tenant.hr.shifts.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.shifts.*') ? 'active' : '' }}">
+                                <i class="fas fa-clock"></i>
+                                إدارة المناوبات
+                            </a>
+
+                            <a href="{{ route('tenant.hr.overtime.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.overtime.*') ? 'active' : '' }}">
+                                <i class="fas fa-stopwatch"></i>
+                                الساعات الإضافية
+                            </a>
+
+                            <a href="{{ route('tenant.hr.payroll.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.payroll.*') ? 'active' : '' }}">
+                                <i class="fas fa-money-bill-wave"></i>
+                                كشف الرواتب
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Analytics and AI Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.analytics.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-brain"></i>
+                            الذكاء الاصطناعي والتحليلات
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.analytics.predictions') }}"
+                               class="nav-link {{ request()->routeIs('tenant.analytics.predictions') ? 'active' : '' }}">
+                                <i class="fas fa-crystal-ball"></i>
+                                التنبؤات الذكية
+                            </a>
+
+                            <a href="{{ route('tenant.analytics.market-trends') }}"
+                               class="nav-link {{ request()->routeIs('tenant.analytics.market-trends') ? 'active' : '' }}">
+                                <i class="fas fa-chart-line"></i>
+                                تحليل اتجاهات السوق
+                            </a>
+
+                            <a href="{{ route('tenant.analytics.customer-behavior') }}"
+                               class="nav-link {{ request()->routeIs('tenant.analytics.customer-behavior') ? 'active' : '' }}">
+                                <i class="fas fa-user-chart"></i>
+                                تحليل سلوك العملاء
+                            </a>
+
+                            <a href="{{ route('tenant.analytics.profitability') }}"
+                               class="nav-link {{ request()->routeIs('tenant.analytics.profitability') ? 'active' : '' }}">
+                                <i class="fas fa-chart-pie"></i>
+                                تحليل الربحية
+                            </a>
+
+                            <a href="{{ route('tenant.analytics.risk-management') }}"
+                               class="nav-link {{ request()->routeIs('tenant.analytics.risk-management') ? 'active' : '' }}">
+                                <i class="fas fa-shield-alt"></i>
+                                إدارة المخاطر
+                            </a>
+
+                            <a href="{{ route('tenant.analytics.executive-reports') }}"
+                               class="nav-link {{ request()->routeIs('tenant.analytics.executive-reports') ? 'active' : '' }}">
+                                <i class="fas fa-file-chart"></i>
+                                التقارير التنفيذية
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Reports System Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.reports.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-chart-line"></i>
+                            نظام التقارير الديناميكي
+                        </div>
+                        <div class="nav-section-content">
+                            <!-- Main Dashboard -->
+                            <a href="{{ route('tenant.reports.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.reports.index') ? 'active' : '' }}">
+                                <i class="fas fa-tachometer-alt"></i>
+                                لوحة التقارير
+                            </a>
+
+                            <!-- Sales Reports Subsection -->
+                            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; margin-bottom: 10px; padding: 0 15px;">
+                                    تقارير المبيعات
+                                </div>
+
+                                <a href="{{ route('tenant.reports.generate', 'تقرير_المبيعات_اليومية') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'تقرير_المبيعات_اليومية' ? 'active' : '' }}">
+                                    <i class="fas fa-chart-bar"></i>
+                                    المبيعات اليومية
+                                </a>
+
+                                <a href="{{ route('tenant.reports.generate', 'تقرير_أداء_المندوبين') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'تقرير_أداء_المندوبين' ? 'active' : '' }}">
+                                    <i class="fas fa-users"></i>
+                                    أداء المندوبين
+                                </a>
+
+                                <a href="{{ route('tenant.reports.generate', 'العملاء_الأكثر_شراءً') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'العملاء_الأكثر_شراءً' ? 'active' : '' }}">
+                                    <i class="fas fa-star"></i>
+                                    العملاء الأكثر شراءً
+                                </a>
+                            </div>
+
+                            <!-- Financial Reports Subsection -->
+                            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; margin-bottom: 10px; padding: 0 15px;">
+                                    التقارير المالية
+                                </div>
+
+                                <a href="{{ route('tenant.reports.generate', 'تقرير_التدفقات_النقدية') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'تقرير_التدفقات_النقدية' ? 'active' : '' }}">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    التدفقات النقدية
+                                </a>
+
+                                <a href="{{ route('tenant.reports.generate', 'الذمم_المدينة') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'الذمم_المدينة' ? 'active' : '' }}">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                    الذمم المدينة
+                                </a>
+
+                                <a href="{{ route('tenant.reports.generate', 'الميزانية_العمومية') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'الميزانية_العمومية' ? 'active' : '' }}">
+                                    <i class="fas fa-balance-scale"></i>
+                                    الميزانية العمومية
+                                </a>
+                            </div>
+
+                            <!-- Inventory Reports Subsection -->
+                            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; margin-bottom: 10px; padding: 0 15px;">
+                                    تقارير المخزون
+                                </div>
+
+                                <a href="{{ route('tenant.reports.generate', 'تقرير_مستويات_المخزون') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'تقرير_مستويات_المخزون' ? 'active' : '' }}">
+                                    <i class="fas fa-boxes"></i>
+                                    مستويات المخزون
+                                </a>
+
+                                <a href="{{ route('tenant.reports.generate', 'حركات_المخزون') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'حركات_المخزون' ? 'active' : '' }}">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    حركات المخزون
+                                </a>
+
+                                <a href="{{ route('tenant.reports.generate', 'تنبيهات_النفاد') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'تنبيهات_النفاد' ? 'active' : '' }}">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    تنبيهات النفاد
+                                </a>
+                            </div>
+
+                            <!-- Products Reports Subsection -->
+                            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; margin-bottom: 10px; padding: 0 15px;">
+                                    تقارير المنتجات
+                                </div>
+
+                                <a href="{{ route('tenant.reports.generate', 'المنتجات_الأكثر_مبيعاً') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'المنتجات_الأكثر_مبيعاً' ? 'active' : '' }}">
+                                    <i class="fas fa-trophy"></i>
+                                    المنتجات الأكثر مبيعاً
+                                </a>
+
+                                <a href="{{ route('tenant.reports.generate', 'تحليل_ربحية_المنتجات') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.generate') && request()->route('reportType') == 'تحليل_ربحية_المنتجات' ? 'active' : '' }}">
+                                    <i class="fas fa-chart-line"></i>
+                                    تحليل الربحية
+                                </a>
+                            </div>
+
+                            <!-- Report Tools Subsection -->
+                            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; margin-bottom: 10px; padding: 0 15px;">
+                                    أدوات التقارير
+                                </div>
+
+                                <a href="{{ route('tenant.reports.builder') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.builder') ? 'active' : '' }}">
+                                    <i class="fas fa-cogs"></i>
+                                    منشئ التقارير
+                                </a>
+
+                                <a href="{{ route('tenant.reports.history') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.reports.history') ? 'active' : '' }}">
+                                    <i class="fas fa-history"></i>
+                                    سجل التقارير
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Guide Section -->
+                    <div class="nav-section">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-graduation-cap"></i>
+                            كيفية استخدام النظام
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.system-guide.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.system-guide.index') ? 'active' : '' }}">
+                                <i class="fas fa-home"></i>
+                                الصفحة الرئيسية
+                            </a>
+
+                            <a href="{{ route('tenant.system-guide.introduction') }}"
+                               class="nav-link {{ request()->routeIs('tenant.system-guide.introduction') ? 'active' : '' }}">
+                                <i class="fas fa-info-circle"></i>
+                                مقدمة عن النظام
+                            </a>
+
+                            <a href="{{ route('tenant.system-guide.videos') }}"
+                               class="nav-link {{ request()->routeIs('tenant.system-guide.videos') ? 'active' : '' }}">
+                                <i class="fas fa-play-circle"></i>
+                                الفيديوهات التعليمية
+                            </a>
+
+                            <a href="{{ route('tenant.system-guide.faq') }}"
+                               class="nav-link {{ request()->routeIs('tenant.system-guide.faq') ? 'active' : '' }}">
+                                <i class="fas fa-question-circle"></i>
+                                الأسئلة الشائعة
+                            </a>
+
+                            <a href="{{ route('tenant.system-guide.download-manual') }}"
+                               class="nav-link">
+                                <i class="fas fa-download"></i>
+                                تحميل دليل المستخدم
+                            </a>
+
+                            <!-- Module Guides Subsection -->
+                            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; margin-bottom: 10px; padding: 0 15px;">
+                                    أدلة الوحدات
+                                </div>
+
+                                <a href="{{ route('tenant.system-guide.module', 'sales') }}"
+                                   class="nav-link">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    دليل المبيعات
+                                </a>
+
+                                <a href="{{ route('tenant.system-guide.module', 'inventory') }}"
+                                   class="nav-link">
+                                    <i class="fas fa-warehouse"></i>
+                                    دليل المخزون
+                                </a>
+
+                                <a href="{{ route('tenant.system-guide.module', 'targets') }}"
+                                   class="nav-link">
+                                    <i class="fas fa-bullseye"></i>
+                                    دليل الأهداف
+                                </a>
+
+                                <a href="{{ route('tenant.system-guide.module', 'accounting') }}"
+                                   class="nav-link">
+                                    <i class="fas fa-calculator"></i>
+                                    دليل المحاسبة
+                                </a>
+
+                                <a href="{{ route('tenant.system-guide.module', 'hr') }}"
+                                   class="nav-link">
+                                    <i class="fas fa-users"></i>
+                                    دليل الموارد البشرية
+                                </a>
+
+                                <a href="{{ route('tenant.system-guide.module', 'regulatory') }}"
+                                   class="nav-link">
+                                    <i class="fas fa-shield-alt"></i>
+                                    دليل الشؤون التنظيمية
+                                </a>
+
+                                <a href="{{ route('tenant.system-guide.module', 'analytics') }}"
+                                   class="nav-link">
+                                    <i class="fas fa-brain"></i>
+                                    دليل الذكاء الاصطناعي
+                                </a>
+                            </div>
                         </div>
                     </div>
 
