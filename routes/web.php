@@ -555,16 +555,44 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'title' => 'إعداد معلومات الشركة',
             'description' => 'إدخال البيانات الأساسية للشركة والإعدادات الأولية',
             'icon' => 'fas fa-building',
+            'color' => 'primary',
             'status' => 'completed',
-            'estimated_time' => '15 دقيقة'
+            'estimated_time' => '15 دقيقة',
+            'priority' => 'high',
+            'category' => 'setup'
         ],
         [
             'id' => 2,
             'title' => 'إضافة المستخدمين والأدوار',
             'description' => 'إنشاء حسابات المستخدمين وتحديد الصلاحيات',
             'icon' => 'fas fa-users',
+            'color' => 'success',
             'status' => 'in_progress',
-            'estimated_time' => '30 دقيقة'
+            'estimated_time' => '30 دقيقة',
+            'priority' => 'high',
+            'category' => 'users'
+        ],
+        [
+            'id' => 3,
+            'title' => 'إعداد وحدة المبيعات',
+            'description' => 'تكوين العملاء والمنتجات والفواتير',
+            'icon' => 'fas fa-shopping-cart',
+            'color' => 'warning',
+            'status' => 'pending',
+            'estimated_time' => '45 دقيقة',
+            'priority' => 'medium',
+            'category' => 'modules'
+        ],
+        [
+            'id' => 4,
+            'title' => 'إعداد وحدة المخزون',
+            'description' => 'تكوين المستودعات وحركات المخزون',
+            'icon' => 'fas fa-warehouse',
+            'color' => 'info',
+            'status' => 'pending',
+            'estimated_time' => '60 دقيقة',
+            'priority' => 'medium',
+            'category' => 'modules'
         ]
     ];
 
@@ -572,30 +600,69 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
         'sales' => [
             'name' => 'إدارة المبيعات',
             'icon' => 'fas fa-shopping-bag',
-            'description' => 'إدارة العملاء، الطلبات، الفواتير، والمرتجعات'
+            'color' => 'primary',
+            'description' => 'إدارة العملاء، الطلبات، الفواتير، والمرتجعات',
+            'status' => 'active',
+            'progress' => 75
         ],
         'inventory' => [
             'name' => 'إدارة المخزون',
             'icon' => 'fas fa-warehouse',
-            'description' => 'إدارة المنتجات، المستودعات، وحركات المخزون'
+            'color' => 'success',
+            'description' => 'إدارة المنتجات، المستودعات، وحركات المخزون',
+            'status' => 'active',
+            'progress' => 60
+        ],
+        'accounting' => [
+            'name' => 'النظام المحاسبي',
+            'icon' => 'fas fa-calculator',
+            'color' => 'warning',
+            'description' => 'إدارة الحسابات والتقارير المالية',
+            'status' => 'pending',
+            'progress' => 25
+        ],
+        'hr' => [
+            'name' => 'الموارد البشرية',
+            'icon' => 'fas fa-users',
+            'color' => 'info',
+            'description' => 'إدارة الموظفين والرواتب والحضور',
+            'status' => 'pending',
+            'progress' => 10
         ]
     ];
 
     $checklist = [
         'basic_setup' => [
             'title' => 'الإعداد الأساسي',
+            'color' => 'primary',
+            'icon' => 'fas fa-cogs',
+            'progress' => 80,
             'items' => [
-                'إعداد معلومات الشركة',
-                'إضافة المستخدمين',
-                'تحديد الأدوار والصلاحيات'
+                ['text' => 'إعداد معلومات الشركة', 'completed' => true],
+                ['text' => 'إضافة المستخدمين', 'completed' => true],
+                ['text' => 'تحديد الأدوار والصلاحيات', 'completed' => false]
             ]
         ],
         'modules_setup' => [
             'title' => 'إعداد الوحدات',
+            'color' => 'success',
+            'icon' => 'fas fa-puzzle-piece',
+            'progress' => 40,
             'items' => [
-                'إعداد وحدة المبيعات',
-                'إعداد وحدة المخزون',
-                'إعداد النظام المحاسبي'
+                ['text' => 'إعداد وحدة المبيعات', 'completed' => true],
+                ['text' => 'إعداد وحدة المخزون', 'completed' => false],
+                ['text' => 'إعداد النظام المحاسبي', 'completed' => false]
+            ]
+        ],
+        'training' => [
+            'title' => 'التدريب والتعلم',
+            'color' => 'warning',
+            'icon' => 'fas fa-graduation-cap',
+            'progress' => 20,
+            'items' => [
+                ['text' => 'مشاهدة الفيديوهات التعليمية', 'completed' => false],
+                ['text' => 'قراءة دليل المستخدم', 'completed' => false],
+                ['text' => 'إجراء اختبار تجريبي', 'completed' => false]
             ]
         ]
     ];
@@ -604,12 +671,40 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
         [
             'week' => 1,
             'title' => 'الأسبوع الأول',
-            'tasks' => ['الإعداد الأساسي', 'إضافة المستخدمين']
+            'subtitle' => 'الإعداد الأساسي',
+            'color' => 'primary',
+            'status' => 'completed',
+            'progress' => 100,
+            'tasks' => [
+                ['name' => 'الإعداد الأساسي', 'status' => 'completed'],
+                ['name' => 'إضافة المستخدمين', 'status' => 'completed']
+            ]
         ],
         [
             'week' => 2,
             'title' => 'الأسبوع الثاني',
-            'tasks' => ['إعداد الوحدات', 'التدريب الأولي']
+            'subtitle' => 'إعداد الوحدات',
+            'color' => 'warning',
+            'status' => 'in_progress',
+            'progress' => 60,
+            'tasks' => [
+                ['name' => 'إعداد وحدة المبيعات', 'status' => 'completed'],
+                ['name' => 'إعداد وحدة المخزون', 'status' => 'in_progress'],
+                ['name' => 'التدريب الأولي', 'status' => 'pending']
+            ]
+        ],
+        [
+            'week' => 3,
+            'title' => 'الأسبوع الثالث',
+            'subtitle' => 'التدريب والاختبار',
+            'color' => 'info',
+            'status' => 'pending',
+            'progress' => 0,
+            'tasks' => [
+                ['name' => 'التدريب المتقدم', 'status' => 'pending'],
+                ['name' => 'اختبار النظام', 'status' => 'pending'],
+                ['name' => 'البدء في الاستخدام الفعلي', 'status' => 'pending']
+            ]
         ]
     ];
 
