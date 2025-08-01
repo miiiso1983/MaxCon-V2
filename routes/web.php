@@ -568,7 +568,52 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
         ]
     ];
 
-    return view('tenant.system-guide.new-tenant-guide', compact('setupSteps'));
+    $modules = [
+        'sales' => [
+            'name' => 'إدارة المبيعات',
+            'icon' => 'fas fa-shopping-bag',
+            'description' => 'إدارة العملاء، الطلبات، الفواتير، والمرتجعات'
+        ],
+        'inventory' => [
+            'name' => 'إدارة المخزون',
+            'icon' => 'fas fa-warehouse',
+            'description' => 'إدارة المنتجات، المستودعات، وحركات المخزون'
+        ]
+    ];
+
+    $checklist = [
+        'basic_setup' => [
+            'title' => 'الإعداد الأساسي',
+            'items' => [
+                'إعداد معلومات الشركة',
+                'إضافة المستخدمين',
+                'تحديد الأدوار والصلاحيات'
+            ]
+        ],
+        'modules_setup' => [
+            'title' => 'إعداد الوحدات',
+            'items' => [
+                'إعداد وحدة المبيعات',
+                'إعداد وحدة المخزون',
+                'إعداد النظام المحاسبي'
+            ]
+        ]
+    ];
+
+    $timeline = [
+        [
+            'week' => 1,
+            'title' => 'الأسبوع الأول',
+            'tasks' => ['الإعداد الأساسي', 'إضافة المستخدمين']
+        ],
+        [
+            'week' => 2,
+            'title' => 'الأسبوع الثاني',
+            'tasks' => ['إعداد الوحدات', 'التدريب الأولي']
+        ]
+    ];
+
+    return view('tenant.system-guide.new-tenant-guide', compact('setupSteps', 'modules', 'checklist', 'timeline'));
 })->name('tenant.system-guide.new-tenant-guide');
 
 // Test route for new tenant guide (remove in production)
