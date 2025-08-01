@@ -547,6 +547,30 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
     });
 });
 
+// Temporary route for new tenant guide (remove in production)
+Route::get('/tenant/system-guide/new-tenant-guide', function () {
+    $setupSteps = [
+        [
+            'id' => 1,
+            'title' => 'إعداد معلومات الشركة',
+            'description' => 'إدخال البيانات الأساسية للشركة والإعدادات الأولية',
+            'icon' => 'fas fa-building',
+            'status' => 'completed',
+            'estimated_time' => '15 دقيقة'
+        ],
+        [
+            'id' => 2,
+            'title' => 'إضافة المستخدمين والأدوار',
+            'description' => 'إنشاء حسابات المستخدمين وتحديد الصلاحيات',
+            'icon' => 'fas fa-users',
+            'status' => 'in_progress',
+            'estimated_time' => '30 دقيقة'
+        ]
+    ];
+
+    return view('tenant.system-guide.new-tenant-guide', compact('setupSteps'));
+})->name('tenant.system-guide.new-tenant-guide');
+
 // Test route for new tenant guide (remove in production)
 Route::get('/test-new-tenant-guide-direct', function () {
     return view('tenant.system-guide.new-tenant-guide', [
