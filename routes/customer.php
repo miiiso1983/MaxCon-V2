@@ -102,74 +102,8 @@ Route::prefix('customer')->name('customer.')->group(function () {
     });
 });
 
-// Admin routes for managing customers
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin'])->group(function () {
-    
-    Route::prefix('customers')->name('customers.')->group(function () {
-        
-        // Customer management
-        Route::get('/', function () {
-            // List all customers
-        })->name('index');
-        
-        Route::get('/create', function () {
-            // Create customer form
-        })->name('create');
-        
-        Route::post('/', function () {
-            // Store customer
-        })->name('store');
-        
-        Route::get('/{customer}', function () {
-            // Show customer details
-        })->name('show');
-        
-        Route::get('/{customer}/edit', function () {
-            // Edit customer form
-        })->name('edit');
-        
-        Route::put('/{customer}', function () {
-            // Update customer
-        })->name('update');
-        
-        Route::delete('/{customer}', function () {
-            // Delete customer
-        })->name('destroy');
-        
-        // Customer permissions management
-        Route::get('/{customer}/permissions', function () {
-            // Manage customer permissions
-        })->name('permissions');
-        
-        Route::post('/{customer}/permissions', function () {
-            // Update customer permissions
-        })->name('permissions.update');
-        
-        // Customer activation/deactivation
-        Route::post('/{customer}/activate', function () {
-            // Activate customer
-        })->name('activate');
-        
-        Route::post('/{customer}/deactivate', function () {
-            // Deactivate customer
-        })->name('deactivate');
-        
-        // Customer financial management
-        Route::prefix('{customer}/financial')->name('financial.')->group(function () {
-            Route::get('/', function () {
-                // Customer financial overview
-            })->name('index');
-            
-            Route::post('/adjust-balance', function () {
-                // Adjust customer balance
-            })->name('adjust-balance');
-            
-            Route::post('/set-credit-limit', function () {
-                // Set customer credit limit
-            })->name('set-credit-limit');
-        });
-    });
-});
+// Note: Admin customer management routes are defined in routes/web.php
+// under the admin.customers.* namespace with tenant scoping
 
 // Tenant-specific customer routes (if using multi-tenancy)
 Route::domain('{tenant}.maxcon.app')->group(function () {
