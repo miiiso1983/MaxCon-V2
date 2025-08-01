@@ -1,4 +1,4 @@
-@extends('layouts.tenant')
+@extends('layouts.modern')
 
 @section('page-title', 'دليل المستأجر الجديد')
 @section('page-description', 'دليل شامل للاستفادة القصوى من نظام MaxCon ERP')
