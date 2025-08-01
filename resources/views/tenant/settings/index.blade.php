@@ -554,6 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .settings-btn-maintenance i {
     margin-left: 8px;
 }
+
 .settings-card-email {
     background: white;
     border-radius: 20px;

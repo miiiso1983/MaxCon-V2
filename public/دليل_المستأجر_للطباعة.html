@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل المستأجر الجديد - نظام MaxCon ERP (للطباعة)</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+            
+            body {
+                font-size: 12pt;
+                line-height: 1.4;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+            
+            .avoid-break {
+                page-break-inside: avoid;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: white;
+            color: #333;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+
+        .header .version {
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .toc {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .toc h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px dotted #e2e8f0;
+        }
+
+        .toc a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .subsection {
+            margin-bottom: 25px;
+        }
+
+        .subsection-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .checklist li {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f7fafc;
+            border-radius: 5px;
+            border-right: 4px solid #667eea;
+        }
+
+        .checklist li::before {
+            content: "☐ ";
+            font-weight: bold;
+            color: #667eea;
+            margin-left: 8px;
+        }
+
+        .info-box {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .info-box.warning {
+            background: #fffbeb;
+            border-color: #fbbf24;
+        }
+
+        .info-box.danger {
+            background: #fef2f2;
+            border-color: #f87171;
+        }
+
+        .info-box h4 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: right;
+        }
+
+        .table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .week-schedule {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .week-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+            text-align: center;
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .day-section {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border-right: 4px solid #48bb78;
+        }
+
+        .day-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .contact-info {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .contact-info h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .contact-item {
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        .print-btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .print-btn:hover {
+            background: #5a67d8;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            border-top: 2px solid #e2e8f0;
+            color: #718096;
+        }
+
+        @media screen {
+            .container {
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                background: white;
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏢 دليل المستأجر الجديد</h1>
+            <p>نظام MaxCon ERP المتكامل</p>
+            <div class="version">الإصدار 2.0 - ديسمبر 2024</div>
+        </div>
+
+        <!-- Print Button -->
+        <button class="print-btn no-print" onclick="window.print()">
+            🖨️ طباعة الدليل
+        </button>
+
+        <!-- Table of Contents -->
+        <div class="toc avoid-break">
+            <h2>📋 جدول المحتويات</h2>
+            <ul>
+                <li><a href="#quick-start">1. البدء السريع</a></li>
+                <li><a href="#basic-setup">2. الإعداد الأساسي</a></li>
+                <li><a href="#modules">3. الوحدات الرئيسية</a></li>
+                <li><a href="#users">4. إدارة المستخدمين</a></li>
+                <li><a href="#schedule">5. جدول التفعيل (30 يوم)</a></li>
+                <li><a href="#checklists">6. قوائم المراجعة</a></li>
+                <li><a href="#tips">7. نصائح مهمة</a></li>
+                <li><a href="#support">8. الدعم الفني</a></li>
+            </ul>
+        </div>
+
+        <!-- Quick Start Section -->
+        <div class="section" id="quick-start">
+            <h2 class="section-title">🚀 البدء السريع</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الخطوة الأولى: تسجيل الدخول</h3>
+                <ul class="checklist">
+                    <li>استخدم الرابط المخصص لشركتكم</li>
+                    <li>أدخل بيانات الدخول المرسلة عبر البريد الإلكتروني</li>
+                    <li>غيّر كلمة المرور فوراً لضمان الأمان</li>
+                    <li>تأكد من تفعيل المصادقة الثنائية</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h4>💡 نصيحة مهمة</h4>
+                <p>احتفظ بنسخة من بيانات الدخول في مكان آمن، وتأكد من مشاركتها مع المسؤولين المخولين فقط.</p>
+            </div>
+        </div>
+
+        <!-- Basic Setup Section -->
+        <div class="section page-break" id="basic-setup">
+            <h2 class="section-title">⚙️ الإعداد الأساسي</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">1. إعدادات الشركة</h3>
+                <table class="table">
+                    <tr>
+                        <th>الإعداد</th>
+                        <th>الوصف</th>
+                        <th>مطلوب</th>
+                    </tr>
+                    <tr>
+                        <td>اسم الشركة</td>
+                        <td>الاسم الرسمي للشركة</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>العنوان</td>
+                        <td>العنوان الكامل مع الرمز البريدي</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>الشعار</td>
+                        <td>شعار الشركة (PNG/JPG - 500KB)</td>
+                        <td>⚪</td>
+                    </tr>
+                    <tr>
+                        <td>العملة</td>
+                        <td>الدينار العراقي (IQD) أو عملة أخرى</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>المنطقة الزمنية</td>
+                        <td>بغداد/العراق</td>
+                        <td>✅</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h3 class="subsection-title">2. إعدادات الأمان</h3>
+                <ul class="checklist">
+                    <li>تعيين سياسة كلمات المرور القوية</li>
+                    <li>تحديد مدة انتهاء الجلسة (افتراضي: 8 ساعات)</li>
+                    <li>تفعيل المصادقة الثنائية للحسابات الحساسة</li>
+                    <li>تفعيل سجل الأنشطة لجميع العمليات</li>
+                    <li>إعداد النسخ الاحتياطية التلقائية</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Modules Section -->
+        <div class="section page-break" id="modules">
+            <h2 class="section-title">🏗️ الوحدات الرئيسية</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">1. وحدة إدارة المبيعات 💰</h3>
+                <div class="info-box">
+                    <h4>الهدف</h4>
+                    <p>إدارة شاملة لدورة المبيعات من العملاء إلى الفواتير والمدفوعات</p>
+                </div>
+                
+                <h4>المكونات الأساسية:</h4>
+                <ul class="checklist">
+                    <li>إدارة العملاء (معلومات شخصية، مالية، تجارية)</li>
+                    <li>كتالوج المنتجات (أسماء، أكواد، أسعار، صور)</li>
+                    <li>إنشاء الفواتير (مع QR Code للمنتجات)</li>
+                    <li>معالجة المدفوعات (نقدي، آجل، بطاقة ائتمان)</li>
+                    <li>إدارة المرتجعات والاستبدالات</li>
+                    <li>تتبع الذمم المدينة</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h3 class="subsection-title">2. وحدة إدارة المخزون 📦</h3>
+                <div class="info-box">
+                    <h4>الهدف</h4>
+                    <p>تتبع دقيق للمخزون مع إدارة المستودعات وحركات البضائع</p>
+                </div>
+                
+                <h4>المكونات الأساسية:</h4>
+                <ul class="checklist">
+                    <li>إعداد المستودعات (مواقع، أنواع، مسؤولين)</li>
+                    <li>تسجيل حركات المخزون (استلام، صرف، تحويل)</li>
+                    <li>الجرد الدوري (يدوي أو بالباركود)</li>
+                    <li>تنبيهات المخزون (نفاد، انتهاء صلاحية)</li>
+                    <li>تقارير المخزون التفصيلية</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h3 class="subsection-title">3. وحدة المحاسبة 💼</h3>
+                <div class="info-box">
+                    <h4>الهدف</h4>
+                    <p>نظام محاسبي متكامل مع التقارير المالية الشاملة</p>
+                </div>
+                
+                <h4>المكونات الأساسية:</h4>
+                <ul class="checklist">
+                    <li>دليل الحسابات الهرمي</li>
+                    <li>القيود المحاسبية (تلقائية ويدوية)</li>
+                    <li>التقارير المالية (ميزان مراجعة، قائمة دخل، ميزانية)</li>
+                    <li>إدارة الذمم المدينة والدائنة</li>
+                    <li>دعم العملات المتعددة</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h3 class="subsection-title">4. وحدة الموارد البشرية 👥</h3>
+                <div class="info-box">
+                    <h4>الهدف</h4>
+                    <p>إدارة شاملة للموظفين من التوظيف إلى الرواتب</p>
+                </div>
+                
+                <h4>المكونات الأساسية:</h4>
+                <ul class="checklist">
+                    <li>ملفات الموظفين الشاملة</li>
+                    <li>الهيكل التنظيمي (أقسام، مناصب)</li>
+                    <li>نظام الحضور والانصراف</li>
+                    <li>إدارة الرواتب والبدلات</li>
+                    <li>إدارة الإجازات والعمل الإضافي</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 30-Day Schedule -->
+        <div class="section page-break" id="schedule">
+            <h2 class="section-title">📅 جدول التفعيل (30 يوم)</h2>
+            
+            <div class="week-schedule">
+                <div class="week-title">الأسبوع الأول: الإعداد الأساسي</div>
+                
+                <div class="day-section">
+                    <div class="day-title">اليوم 1-2: إعداد النظام</div>
+                    <ul class="checklist">
+                        <li>تسجيل الدخول الأول وتغيير كلمة المرور</li>
+                        <li>إعداد معلومات الشركة الأساسية</li>
+                        <li>تحديد العملة والمنطقة الزمنية</li>
+                        <li>إعداد إعدادات الأمان</li>
+                    </ul>
+                </div>
+
+                <div class="day-section">
+                    <div class="day-title">اليوم 3-4: إدارة المستخدمين</div>
+                    <ul class="checklist">
+                        <li>إضافة المستخدمين الأساسيين (5-10)</li>
+                        <li>تعيين الأدوار والصلاحيات</li>
+                        <li>إعداد كلمات مرور قوية</li>
+                        <li>اختبار تسجيل الدخول</li>
+                    </ul>
+                </div>
+
+                <div class="day-section">
+                    <div class="day-title">اليوم 5-7: البيانات الأساسية</div>
+                    <ul class="checklist">
+                        <li>إدخال بيانات العملاء (20-50 عميل)</li>
+                        <li>إعداد كتالوج المنتجات (50-100 منتج)</li>
+                        <li>تحديد أسعار البيع والشراء</li>
+                        <li>إعداد فئات المنتجات</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="week-schedule">
+                <div class="week-title">الأسبوع الثاني: تفعيل الوحدات الأساسية</div>
+                
+                <div class="day-section">
+                    <div class="day-title">اليوم 8-10: وحدة المبيعات</div>
+                    <ul class="checklist">
+                        <li>إنشاء أول فاتورة مبيعات</li>
+                        <li>اختبار طباعة الفاتورة مع QR Code</li>
+                        <li>تسجيل عملية دفع</li>
+                        <li>إنشاء فاتورة مرتجعات</li>
+                        <li>تدريب فريق المبيعات</li>
+                    </ul>
+                </div>
+
+                <div class="day-section">
+                    <div class="day-title">اليوم 11-12: وحدة المخزون</div>
+                    <ul class="checklist">
+                        <li>إعداد المستودعات الأساسية</li>
+                        <li>إدخال الكميات الحالية</li>
+                        <li>تسجيل حركات استلام وصرف</li>
+                        <li>إجراء جرد تجريبي</li>
+                        <li>إعداد تنبيهات المخزون</li>
+                    </ul>
+                </div>
+
+                <div class="day-section">
+                    <div class="day-title">اليوم 13-14: وحدة المحاسبة</div>
+                    <ul class="checklist">
+                        <li>إعداد دليل الحسابات</li>
+                        <li>إدخال الأرصدة الافتتاحية</li>
+                        <li>تسجيل قيود تجريبية</li>
+                        <li>إنشاء أول تقرير مالي</li>
+                        <li>ربط المبيعات بالحسابات</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Tips -->
+        <div class="section page-break" id="tips">
+            <h2 class="section-title">💡 نصائح مهمة</h2>
+            
+            <div class="info-box warning">
+                <h4>⚠️ أخطاء شائعة يجب تجنبها</h4>
+                <ul class="checklist">
+                    <li>عدم إدخال أسعار صحيحة للمنتجات</li>
+                    <li>عدم تحديد سقف المديونية للعملاء</li>
+                    <li>عدم إعداد الحد الأدنى للمخزون</li>
+                    <li>إعطاء صلاحيات أكثر من المطلوب</li>
+                    <li>عدم إجراء نسخ احتياطية دورية</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h4>✅ أفضل الممارسات</h4>
+                <ul class="checklist">
+                    <li>إجراء نسخ احتياطية يومية</li>
+                    <li>مراجعة التقارير بانتظام</li>
+                    <li>تدريب المستخدمين بشكل مستمر</li>
+                    <li>متابعة تنبيهات النظام</li>
+                    <li>تحديث البيانات بانتظام</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Support Section -->
+        <div class="section" id="support">
+            <h2 class="section-title">🆘 الدعم الفني</h2>
+            
+            <div class="contact-info">
+                <h3>معلومات الاتصال</h3>
+                <div class="contact-item">📧 البريد الإلكتروني: support@maxcon.app</div>
+                <div class="contact-item">📞 الهاتف: +964-XXX-XXXX</div>
+                <div class="contact-item">💬 الدردشة المباشرة: متاحة 24/7</div>
+                <div class="contact-item">🎫 نظام التذاكر: عبر لوحة التحكم</div>
+            </div>
+
+            <div class="subsection">
+                <h3 class="subsection-title">ساعات العمل</h3>
+                <table class="table">
+                    <tr>
+                        <th>اليوم</th>
+                        <th>الساعات</th>
+                        <th>نوع الدعم</th>
+                    </tr>
+                    <tr>
+                        <td>الأحد - الخميس</td>
+                        <td>8:00 ص - 6:00 م</td>
+                        <td>دعم كامل</td>
+                    </tr>
+                    <tr>
+                        <td>الجمعة - السبت</td>
+                        <td>10:00 ص - 2:00 م</td>
+                        <td>دعم محدود</td>
+                    </tr>
+                    <tr>
+                        <td>الطوارئ</td>
+                        <td>24/7</td>
+                        <td>مشاكل حرجة</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>نظام MaxCon ERP</strong> - الحل المتكامل لإدارة موارد المؤسسات</p>
+            <p>الإصدار 2.0 - ديسمبر 2024</p>
+            <p>جميع الحقوق محفوظة © 2024</p>
+        </div>
+    </div>
+
+    <script>
+        // Print functionality
+        function printGuide() {
+            window.print();
+        }
+
+        // Auto-print when accessed with print parameter
+        if (window.location.search.includes('print=true')) {
+            window.onload = function() {
+                setTimeout(function() {
+                    window.print();
+                }, 1000);
+            };
+        }
+    </script>
+</body>
+</html>
