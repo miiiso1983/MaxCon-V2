@@ -79,65 +79,6 @@ Route::prefix('shifts')->name('shifts.')->group(function () {
     Route::get('/{shift}/edit', [ShiftController::class, 'edit'])->name('edit');
     Route::put('/{shift}', [ShiftController::class, 'update'])->name('update');
     Route::delete('/{shift}', [ShiftController::class, 'destroy'])->name('destroy');
-});
-
-// Overtime Management
-Route::prefix('overtime')->name('overtime.')->group(function () {
-    Route::get('/', [OvertimeController::class, 'index'])->name('index');
-    Route::get('/create', [OvertimeController::class, 'create'])->name('create');
-    Route::post('/', [OvertimeController::class, 'store'])->name('store');
-    Route::get('/{overtime}', [OvertimeController::class, 'show'])->name('show');
-    Route::get('/{overtime}/edit', [OvertimeController::class, 'edit'])->name('edit');
-    Route::put('/{overtime}', [OvertimeController::class, 'update'])->name('update');
-    Route::delete('/{overtime}', [OvertimeController::class, 'destroy'])->name('destroy');
-    Route::post('/{overtime}/approve', [OvertimeController::class, 'approve'])->name('approve');
-    Route::post('/{overtime}/reject', [OvertimeController::class, 'reject'])->name('reject');
-});
-
-// Payroll Management
-Route::prefix('payroll')->name('payroll.')->group(function () {
-    Route::get('/', [PayrollController::class, 'index'])->name('index');
-    Route::post('/process', [PayrollController::class, 'process'])->name('process');
-    Route::get('/{employee}/payslip', [PayrollController::class, 'payslip'])->name('payslip');
-    Route::get('/{employee}/payslip/print', [PayrollController::class, 'printPayslip'])->name('print-payslip');
-    Route::post('/{employee}/payslip/send', [PayrollController::class, 'sendPayslip'])->name('send-payslip');
-    Route::get('/export', [PayrollController::class, 'export'])->name('export');
-    Route::get('/report', [PayrollController::class, 'report'])->name('report');
-});
-
-// Leave Types Management
-Route::prefix('leave-types')->name('leave-types.')->group(function () {
-    Route::get('/', [LeaveTypeController::class, 'index'])->name('index');
-    Route::get('/create', [LeaveTypeController::class, 'create'])->name('create');
-    Route::post('/', [LeaveTypeController::class, 'store'])->name('store');
-    Route::get('/{leaveType}/edit', [LeaveTypeController::class, 'edit'])->name('edit');
-    Route::put('/{leaveType}', [LeaveTypeController::class, 'update'])->name('update');
-    Route::delete('/{leaveType}', [LeaveTypeController::class, 'destroy'])->name('destroy');
-});
-
-// Leaves Management
-Route::prefix('leaves')->name('leaves.')->group(function () {
-    Route::get('/', [LeaveController::class, 'index'])->name('index');
-    Route::get('/create', [LeaveController::class, 'create'])->name('create');
-    Route::post('/', [LeaveController::class, 'store'])->name('store');
-    Route::get('/{leave}', [LeaveController::class, 'show'])->name('show');
-    Route::get('/{leave}/edit', [LeaveController::class, 'edit'])->name('edit');
-    Route::put('/{leave}', [LeaveController::class, 'update'])->name('update');
-    Route::delete('/{leave}', [LeaveController::class, 'destroy'])->name('destroy');
-    Route::post('/{leave}/approve', [LeaveController::class, 'approve'])->name('approve');
-    Route::post('/{leave}/reject', [LeaveController::class, 'reject'])->name('reject');
-    Route::get('/calendar/view', [LeaveController::class, 'calendar'])->name('calendar');
-    Route::get('/balance/{employee}', [LeaveController::class, 'balance'])->name('balance');
-});
-
-// Shifts Management
-Route::prefix('shifts')->name('shifts.')->group(function () {
-    Route::get('/', [ShiftController::class, 'index'])->name('index');
-    Route::get('/create', [ShiftController::class, 'create'])->name('create');
-    Route::post('/', [ShiftController::class, 'store'])->name('store');
-    Route::get('/{shift}/edit', [ShiftController::class, 'edit'])->name('edit');
-    Route::put('/{shift}', [ShiftController::class, 'update'])->name('update');
-    Route::delete('/{shift}', [ShiftController::class, 'destroy'])->name('destroy');
     Route::get('/assignments', [ShiftController::class, 'assignments'])->name('assignments');
     Route::post('/assign', [ShiftController::class, 'assignEmployees'])->name('assign');
     Route::get('/schedule', [ShiftController::class, 'schedule'])->name('schedule');
@@ -166,13 +107,45 @@ Route::prefix('payroll')->name('payroll.')->group(function () {
     Route::get('/{payroll}/edit', [PayrollController::class, 'edit'])->name('edit');
     Route::put('/{payroll}', [PayrollController::class, 'update'])->name('update');
     Route::delete('/{payroll}', [PayrollController::class, 'destroy'])->name('destroy');
+    Route::post('/process', [PayrollController::class, 'process'])->name('process');
     Route::post('/generate', [PayrollController::class, 'generatePayroll'])->name('generate');
     Route::post('/{payroll}/approve', [PayrollController::class, 'approve'])->name('approve');
     Route::post('/{payroll}/pay', [PayrollController::class, 'markAsPaid'])->name('pay');
-    Route::get('/reports', [PayrollController::class, 'reports'])->name('reports');
     Route::get('/{payroll}/slip', [PayrollController::class, 'payslip'])->name('payslip');
-    Route::get('/export/{period}', [PayrollController::class, 'export'])->name('export');
+    Route::get('/{employee}/payslip/print', [PayrollController::class, 'printPayslip'])->name('print-payslip');
+    Route::post('/{employee}/payslip/send', [PayrollController::class, 'sendPayslip'])->name('send-payslip');
+    Route::get('/reports', [PayrollController::class, 'reports'])->name('reports');
+    Route::get('/export', [PayrollController::class, 'export'])->name('export');
+    Route::get('/export/{period}', [PayrollController::class, 'exportPeriod'])->name('export-period');
+    Route::get('/report', [PayrollController::class, 'report'])->name('report');
 });
+
+// Leave Types Management
+Route::prefix('leave-types')->name('leave-types.')->group(function () {
+    Route::get('/', [LeaveTypeController::class, 'index'])->name('index');
+    Route::get('/create', [LeaveTypeController::class, 'create'])->name('create');
+    Route::post('/', [LeaveTypeController::class, 'store'])->name('store');
+    Route::get('/{leaveType}/edit', [LeaveTypeController::class, 'edit'])->name('edit');
+    Route::put('/{leaveType}', [LeaveTypeController::class, 'update'])->name('update');
+    Route::delete('/{leaveType}', [LeaveTypeController::class, 'destroy'])->name('destroy');
+});
+
+// Leaves Management
+Route::prefix('leaves')->name('leaves.')->group(function () {
+    Route::get('/', [LeaveController::class, 'index'])->name('index');
+    Route::get('/create', [LeaveController::class, 'create'])->name('create');
+    Route::post('/', [LeaveController::class, 'store'])->name('store');
+    Route::get('/{leave}', [LeaveController::class, 'show'])->name('show');
+    Route::get('/{leave}/edit', [LeaveController::class, 'edit'])->name('edit');
+    Route::put('/{leave}', [LeaveController::class, 'update'])->name('update');
+    Route::delete('/{leave}', [LeaveController::class, 'destroy'])->name('destroy');
+    Route::post('/{leave}/approve', [LeaveController::class, 'approve'])->name('approve');
+    Route::post('/{leave}/reject', [LeaveController::class, 'reject'])->name('reject');
+    Route::get('/calendar/view', [LeaveController::class, 'calendar'])->name('calendar');
+    Route::get('/balance/{employee}', [LeaveController::class, 'balance'])->name('balance');
+});
+
+
 
 // Reports
 Route::prefix('reports')->name('reports.')->group(function () {
