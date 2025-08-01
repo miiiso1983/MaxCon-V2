@@ -1227,6 +1227,12 @@
                                 الأسئلة الشائعة
                             </a>
 
+                            <a href="{{ route('tenant.system-guide.new-tenant-guide') }}"
+                               class="nav-link {{ request()->routeIs('tenant.system-guide.new-tenant-guide') ? 'active' : '' }}">
+                                <i class="fas fa-rocket"></i>
+                                دليل المستأجر الجديد
+                            </a>
+
                             <a href="{{ route('tenant.system-guide.download-manual') }}"
                                class="nav-link">
                                 <i class="fas fa-download"></i>
