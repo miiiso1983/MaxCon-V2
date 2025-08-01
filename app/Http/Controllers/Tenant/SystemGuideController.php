@@ -84,8 +84,11 @@ class SystemGuideController extends Controller
     {
         $videos = $this->getVideos($moduleSlug);
         $modules = $this->getSystemModules();
-        
-        return view('tenant.system-guide.videos', compact('videos', 'modules', 'moduleSlug'));
+        $categories = $this->getVideoCategories();
+        $featuredVideo = $this->getFeaturedVideo();
+        $videoStats = $this->getVideoStats();
+
+        return view('tenant.system-guide.videos-enhanced', compact('videos', 'modules', 'categories', 'featuredVideo', 'videoStats', 'moduleSlug'));
     }
 
     /**
@@ -1398,8 +1401,517 @@ class SystemGuideController extends Controller
     }
 
     /**
+     * Get video tutorials
+     */
+    private function getVideos($moduleSlug = null)
+    {
+        $allVideos = [
+            'general' => [
+                [
+                    'id' => 'system-overview',
+                    'title' => 'نظرة عامة على النظام',
+                    'description' => 'مقدمة شاملة عن نظام MaxCon ERP وجميع وحداته',
+                    'duration' => '8:30',
+                    'difficulty' => 'مبتدئ',
+                    'thumbnail' => '/images/videos/system-overview.jpg',
+                    'video_url' => 'https://example.com/videos/system-overview.mp4',
+                    'embed_code' => null,
+                    'category' => 'عام',
+                    'tags' => ['مقدمة', 'نظرة عامة', 'ERP'],
+                    'views' => 1250,
+                    'rating' => 4.8,
+                    'created_at' => '2024-01-15',
+                    'updated_at' => '2024-01-15'
+                ],
+                [
+                    'id' => 'first-login',
+                    'title' => 'تسجيل الدخول الأول وإعداد الحساب',
+                    'description' => 'كيفية تسجيل الدخول لأول مرة وإعداد معلومات الحساب الأساسية',
+                    'duration' => '5:45',
+                    'difficulty' => 'مبتدئ',
+                    'thumbnail' => '/images/videos/first-login.jpg',
+                    'video_url' => 'https://example.com/videos/first-login.mp4',
+                    'embed_code' => null,
+                    'category' => 'البداية',
+                    'tags' => ['تسجيل دخول', 'إعداد', 'حساب'],
+                    'views' => 980,
+                    'rating' => 4.9,
+                    'created_at' => '2024-01-16',
+                    'updated_at' => '2024-01-16'
+                ],
+                [
+                    'id' => 'navigation-basics',
+                    'title' => 'أساسيات التنقل في النظام',
+                    'description' => 'تعلم كيفية التنقل بين الوحدات والقوائم المختلفة',
+                    'duration' => '6:20',
+                    'difficulty' => 'مبتدئ',
+                    'thumbnail' => '/images/videos/navigation.jpg',
+                    'video_url' => 'https://example.com/videos/navigation.mp4',
+                    'embed_code' => null,
+                    'category' => 'أساسيات',
+                    'tags' => ['تنقل', 'قوائم', 'واجهة'],
+                    'views' => 756,
+                    'rating' => 4.7,
+                    'created_at' => '2024-01-17',
+                    'updated_at' => '2024-01-17'
+                ]
+            ],
+            'sales' => [
+                [
+                    'id' => 'sales-overview',
+                    'title' => 'مقدمة في إدارة المبيعات',
+                    'description' => 'نظرة شاملة على وحدة إدارة المبيعات وإمكانياتها',
+                    'duration' => '10:15',
+                    'difficulty' => 'مبتدئ',
+                    'thumbnail' => '/images/videos/sales-overview.jpg',
+                    'video_url' => 'https://example.com/videos/sales-overview.mp4',
+                    'embed_code' => null,
+                    'category' => 'المبيعات',
+                    'tags' => ['مبيعات', 'عملاء', 'طلبات'],
+                    'views' => 1100,
+                    'rating' => 4.8,
+                    'created_at' => '2024-01-18',
+                    'updated_at' => '2024-01-18'
+                ],
+                [
+                    'id' => 'customer-management',
+                    'title' => 'إدارة العملاء',
+                    'description' => 'كيفية إضافة وإدارة بيانات العملاء بشكل فعال',
+                    'duration' => '12:30',
+                    'difficulty' => 'مبتدئ',
+                    'thumbnail' => '/images/videos/customers.jpg',
+                    'video_url' => 'https://example.com/videos/customers.mp4',
+                    'embed_code' => null,
+                    'category' => 'المبيعات',
+                    'tags' => ['عملاء', 'إدارة', 'بيانات'],
+                    'views' => 890,
+                    'rating' => 4.9,
+                    'created_at' => '2024-01-19',
+                    'updated_at' => '2024-01-19'
+                ],
+                [
+                    'id' => 'invoice-creation',
+                    'title' => 'إنشاء الفواتير الإلكترونية',
+                    'description' => 'دليل شامل لإنشاء وإدارة الفواتير الإلكترونية',
+                    'duration' => '15:45',
+                    'difficulty' => 'متوسط',
+                    'thumbnail' => '/images/videos/invoices.jpg',
+                    'video_url' => 'https://example.com/videos/invoices.mp4',
+                    'embed_code' => null,
+                    'category' => 'المبيعات',
+                    'tags' => ['فواتير', 'إلكترونية', 'QR'],
+                    'views' => 1350,
+                    'rating' => 4.8,
+                    'created_at' => '2024-01-20',
+                    'updated_at' => '2024-01-20'
+                ],
+                [
+                    'id' => 'payment-tracking',
+                    'title' => 'تتبع المدفوعات والمستحقات',
+                    'description' => 'كيفية تتبع المدفوعات وإدارة المستحقات المالية',
+                    'duration' => '11:20',
+                    'difficulty' => 'متوسط',
+                    'thumbnail' => '/images/videos/payments.jpg',
+                    'video_url' => 'https://example.com/videos/payments.mp4',
+                    'embed_code' => null,
+                    'category' => 'المبيعات',
+                    'tags' => ['مدفوعات', 'مستحقات', 'مالية'],
+                    'views' => 720,
+                    'rating' => 4.7,
+                    'created_at' => '2024-01-21',
+                    'updated_at' => '2024-01-21'
+                ]
+            ]
+        ];
+
+        // Add more modules...
+        $allVideos = array_merge($allVideos, $this->getInventoryVideos());
+        $allVideos = array_merge($allVideos, $this->getAccountingVideos());
+        $allVideos = array_merge($allVideos, $this->getHRVideos());
+        $allVideos = array_merge($allVideos, $this->getRegulatoryVideos());
+        $allVideos = array_merge($allVideos, $this->getAnalyticsVideos());
+
+        if ($moduleSlug && isset($allVideos[$moduleSlug])) {
+            return $allVideos[$moduleSlug];
+        }
+
+        return $allVideos;
+    }
+
+    /**
+     * Get inventory videos
+     */
+    private function getInventoryVideos()
+    {
+        return [
+            'inventory' => [
+                [
+                    'id' => 'inventory-overview',
+                    'title' => 'مقدمة في إدارة المخزون',
+                    'description' => 'نظرة شاملة على وحدة إدارة المخزون وإمكانياتها',
+                    'duration' => '12:15',
+                    'difficulty' => 'مبتدئ',
+                    'thumbnail' => '/images/videos/inventory-overview.jpg',
+                    'video_url' => 'https://example.com/videos/inventory-overview.mp4',
+                    'embed_code' => null,
+                    'category' => 'المخزون',
+                    'tags' => ['مخزون', 'منتجات', 'مستودعات'],
+                    'views' => 850,
+                    'rating' => 4.7,
+                    'created_at' => '2024-01-22',
+                    'updated_at' => '2024-01-22'
+                ],
+                [
+                    'id' => 'product-catalog',
+                    'title' => 'إدارة كتالوج المنتجات',
+                    'description' => 'كيفية إضافة وإدارة المنتجات والفئات',
+                    'duration' => '14:30',
+                    'difficulty' => 'متوسط',
+                    'thumbnail' => '/images/videos/products.jpg',
+                    'video_url' => 'https://example.com/videos/products.mp4',
+                    'embed_code' => null,
+                    'category' => 'المخزون',
+                    'tags' => ['منتجات', 'كتالوج', 'فئات'],
+                    'views' => 920,
+                    'rating' => 4.8,
+                    'created_at' => '2024-01-23',
+                    'updated_at' => '2024-01-23'
+                ],
+                [
+                    'id' => 'stock-movements',
+                    'title' => 'حركات المخزون والجرد',
+                    'description' => 'تتبع حركات المخزون وإجراء الجرد الدوري',
+                    'duration' => '16:45',
+                    'difficulty' => 'متوسط',
+                    'thumbnail' => '/images/videos/stock-movements.jpg',
+                    'video_url' => 'https://example.com/videos/stock-movements.mp4',
+                    'embed_code' => null,
+                    'category' => 'المخزون',
+                    'tags' => ['حركات', 'جرد', 'تتبع'],
+                    'views' => 680,
+                    'rating' => 4.6,
+                    'created_at' => '2024-01-24',
+                    'updated_at' => '2024-01-24'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get accounting videos
+     */
+    private function getAccountingVideos()
+    {
+        return [
+            'accounting' => [
+                [
+                    'id' => 'accounting-overview',
+                    'title' => 'مقدمة في النظام المحاسبي',
+                    'description' => 'أساسيات النظام المحاسبي ودليل الحسابات',
+                    'duration' => '18:20',
+                    'difficulty' => 'متوسط',
+                    'thumbnail' => '/images/videos/accounting-overview.jpg',
+                    'video_url' => 'https://example.com/videos/accounting-overview.mp4',
+                    'embed_code' => null,
+                    'category' => 'المحاسبة',
+                    'tags' => ['محاسبة', 'قيود', 'حسابات'],
+                    'views' => 1200,
+                    'rating' => 4.9,
+                    'created_at' => '2024-01-25',
+                    'updated_at' => '2024-01-25'
+                ],
+                [
+                    'id' => 'journal-entries',
+                    'title' => 'إنشاء القيود المحاسبية',
+                    'description' => 'كيفية إنشاء وإدارة القيود المحاسبية',
+                    'duration' => '20:15',
+                    'difficulty' => 'متقدم',
+                    'thumbnail' => '/images/videos/journal-entries.jpg',
+                    'video_url' => 'https://example.com/videos/journal-entries.mp4',
+                    'embed_code' => null,
+                    'category' => 'المحاسبة',
+                    'tags' => ['قيود', 'محاسبية', 'دفتر'],
+                    'views' => 950,
+                    'rating' => 4.8,
+                    'created_at' => '2024-01-26',
+                    'updated_at' => '2024-01-26'
+                ],
+                [
+                    'id' => 'financial-reports',
+                    'title' => 'التقارير المالية',
+                    'description' => 'إنشاء وتخصيص التقارير المالية المختلفة',
+                    'duration' => '22:30',
+                    'difficulty' => 'متقدم',
+                    'thumbnail' => '/images/videos/financial-reports.jpg',
+                    'video_url' => 'https://example.com/videos/financial-reports.mp4',
+                    'embed_code' => null,
+                    'category' => 'المحاسبة',
+                    'tags' => ['تقارير', 'مالية', 'ميزانية'],
+                    'views' => 780,
+                    'rating' => 4.7,
+                    'created_at' => '2024-01-27',
+                    'updated_at' => '2024-01-27'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get HR videos
+     */
+    private function getHRVideos()
+    {
+        return [
+            'hr' => [
+                [
+                    'id' => 'hr-overview',
+                    'title' => 'مقدمة في إدارة الموارد البشرية',
+                    'description' => 'نظرة شاملة على وحدة الموارد البشرية',
+                    'duration' => '13:45',
+                    'difficulty' => 'مبتدئ',
+                    'thumbnail' => '/images/videos/hr-overview.jpg',
+                    'video_url' => 'https://example.com/videos/hr-overview.mp4',
+                    'embed_code' => null,
+                    'category' => 'الموارد البشرية',
+                    'tags' => ['موارد بشرية', 'موظفين', 'رواتب'],
+                    'views' => 650,
+                    'rating' => 4.6,
+                    'created_at' => '2024-01-28',
+                    'updated_at' => '2024-01-28'
+                ],
+                [
+                    'id' => 'employee-management',
+                    'title' => 'إدارة ملفات الموظفين',
+                    'description' => 'كيفية إضافة وإدارة بيانات الموظفين',
+                    'duration' => '15:20',
+                    'difficulty' => 'مبتدئ',
+                    'thumbnail' => '/images/videos/employees.jpg',
+                    'video_url' => 'https://example.com/videos/employees.mp4',
+                    'embed_code' => null,
+                    'category' => 'الموارد البشرية',
+                    'tags' => ['موظفين', 'ملفات', 'بيانات'],
+                    'views' => 580,
+                    'rating' => 4.7,
+                    'created_at' => '2024-01-29',
+                    'updated_at' => '2024-01-29'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get regulatory videos
+     */
+    private function getRegulatoryVideos()
+    {
+        return [
+            'regulatory' => [
+                [
+                    'id' => 'regulatory-overview',
+                    'title' => 'مقدمة في الشؤون التنظيمية',
+                    'description' => 'نظرة شاملة على وحدة الشؤون التنظيمية والامتثال',
+                    'duration' => '14:25',
+                    'difficulty' => 'متقدم',
+                    'thumbnail' => '/images/videos/regulatory-overview.jpg',
+                    'video_url' => 'https://example.com/videos/regulatory-overview.mp4',
+                    'embed_code' => null,
+                    'category' => 'الشؤون التنظيمية',
+                    'tags' => ['تنظيمية', 'امتثال', 'تراخيص'],
+                    'views' => 420,
+                    'rating' => 4.8,
+                    'created_at' => '2024-01-30',
+                    'updated_at' => '2024-01-30'
+                ],
+                [
+                    'id' => 'company-registration',
+                    'title' => 'تسجيل الشركات والتراخيص',
+                    'description' => 'كيفية تسجيل الشركات وإدارة التراخيص',
+                    'duration' => '16:30',
+                    'difficulty' => 'متقدم',
+                    'thumbnail' => '/images/videos/company-registration.jpg',
+                    'video_url' => 'https://example.com/videos/company-registration.mp4',
+                    'embed_code' => null,
+                    'category' => 'الشؤون التنظيمية',
+                    'tags' => ['تسجيل', 'شركات', 'تراخيص'],
+                    'views' => 380,
+                    'rating' => 4.7,
+                    'created_at' => '2024-01-31',
+                    'updated_at' => '2024-01-31'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get analytics videos
+     */
+    private function getAnalyticsVideos()
+    {
+        return [
+            'analytics' => [
+                [
+                    'id' => 'analytics-overview',
+                    'title' => 'مقدمة في التحليلات والذكاء الاصطناعي',
+                    'description' => 'استخدام أدوات التحليل والذكاء الاصطناعي',
+                    'duration' => '9:45',
+                    'difficulty' => 'متقدم',
+                    'thumbnail' => '/images/videos/analytics-overview.jpg',
+                    'video_url' => 'https://example.com/videos/analytics-overview.mp4',
+                    'embed_code' => null,
+                    'category' => 'التحليلات',
+                    'tags' => ['تحليلات', 'ذكاء اصطناعي', 'تقارير'],
+                    'views' => 890,
+                    'rating' => 4.9,
+                    'created_at' => '2024-02-01',
+                    'updated_at' => '2024-02-01'
+                ],
+                [
+                    'id' => 'dashboard-creation',
+                    'title' => 'إنشاء لوحات التحكم التفاعلية',
+                    'description' => 'كيفية إنشاء وتخصيص لوحات التحكم',
+                    'duration' => '18:15',
+                    'difficulty' => 'متقدم',
+                    'thumbnail' => '/images/videos/dashboards.jpg',
+                    'video_url' => 'https://example.com/videos/dashboards.mp4',
+                    'embed_code' => null,
+                    'category' => 'التحليلات',
+                    'tags' => ['لوحات تحكم', 'تفاعلية', 'مؤشرات'],
+                    'views' => 720,
+                    'rating' => 4.8,
+                    'created_at' => '2024-02-02',
+                    'updated_at' => '2024-02-02'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get video categories for filtering
+     */
+    private function getVideoCategories()
+    {
+        return [
+            'general' => [
+                'name' => 'عام',
+                'icon' => 'fas fa-home',
+                'color' => '#667eea',
+                'description' => 'مقدمات عامة وأساسيات النظام'
+            ],
+            'sales' => [
+                'name' => 'المبيعات',
+                'icon' => 'fas fa-shopping-bag',
+                'color' => '#10b981',
+                'description' => 'إدارة العملاء والطلبات والفواتير'
+            ],
+            'inventory' => [
+                'name' => 'المخزون',
+                'icon' => 'fas fa-warehouse',
+                'color' => '#3b82f6',
+                'description' => 'إدارة المنتجات والمستودعات'
+            ],
+            'accounting' => [
+                'name' => 'المحاسبة',
+                'icon' => 'fas fa-calculator',
+                'color' => '#ef4444',
+                'description' => 'النظام المحاسبي والتقارير المالية'
+            ],
+            'hr' => [
+                'name' => 'الموارد البشرية',
+                'icon' => 'fas fa-users',
+                'color' => '#f59e0b',
+                'description' => 'إدارة الموظفين والرواتب'
+            ],
+            'regulatory' => [
+                'name' => 'الشؤون التنظيمية',
+                'icon' => 'fas fa-shield-alt',
+                'color' => '#dc2626',
+                'description' => 'التراخيص والامتثال التنظيمي'
+            ],
+            'analytics' => [
+                'name' => 'التحليلات',
+                'icon' => 'fas fa-brain',
+                'color' => '#8b5cf6',
+                'description' => 'التحليلات والذكاء الاصطناعي'
+            ]
+        ];
+    }
+
+    /**
+     * Get featured video
+     */
+    private function getFeaturedVideo()
+    {
+        return [
+            'id' => 'system-overview',
+            'title' => 'نظرة عامة شاملة على نظام MaxCon ERP',
+            'description' => 'تعرف على جميع وحدات النظام وكيفية استخدامها بفعالية لإدارة أعمالك الصيدلانية',
+            'duration' => '12:30',
+            'difficulty' => 'مبتدئ',
+            'thumbnail' => '/images/videos/featured-overview.jpg',
+            'video_url' => 'https://example.com/videos/featured-overview.mp4',
+            'embed_code' => null,
+            'category' => 'عام',
+            'tags' => ['مقدمة', 'نظرة عامة', 'ERP', 'صيدلانية'],
+            'views' => 2150,
+            'rating' => 4.9,
+            'instructor' => 'فريق MaxCon التقني',
+            'created_at' => '2024-01-15',
+            'updated_at' => '2024-01-15'
+        ];
+    }
+
+    /**
+     * Get video statistics
+     */
+    private function getVideoStats()
+    {
+        return [
+            'total_videos' => 25,
+            'total_duration' => '6:45:30', // 6 hours 45 minutes 30 seconds
+            'total_views' => 18750,
+            'average_rating' => 4.7,
+            'completion_rate' => 78,
+            'most_popular_category' => 'المبيعات',
+            'newest_videos' => 5,
+            'updated_this_week' => 3
+        ];
+    }
+
+    /**
+     * Get video playlists
+     */
+    private function getVideoPlaylists()
+    {
+        return [
+            'beginner' => [
+                'name' => 'دليل المبتدئين',
+                'description' => 'ابدأ رحلتك مع MaxCon ERP',
+                'videos' => ['system-overview', 'first-login', 'navigation-basics'],
+                'duration' => '20:35',
+                'difficulty' => 'مبتدئ',
+                'color' => '#10b981'
+            ],
+            'sales-complete' => [
+                'name' => 'إدارة المبيعات الشاملة',
+                'description' => 'تعلم كل شيء عن إدارة المبيعات',
+                'videos' => ['sales-overview', 'customer-management', 'invoice-creation', 'payment-tracking'],
+                'duration' => '49:50',
+                'difficulty' => 'متوسط',
+                'color' => '#3b82f6'
+            ],
+            'advanced-features' => [
+                'name' => 'الميزات المتقدمة',
+                'description' => 'استخدم الميزات المتقدمة في النظام',
+                'videos' => ['financial-reports', 'analytics-overview', 'dashboard-creation'],
+                'duration' => '50:30',
+                'difficulty' => 'متقدم',
+                'color' => '#8b5cf6'
+            ]
+        ];
+    }
+
+    /**
      * Additional methods to be implemented
      */
     private function getRelatedModules($moduleSlug) { return []; }
-    private function getVideos($moduleSlug) { return []; }
 }

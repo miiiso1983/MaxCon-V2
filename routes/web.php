@@ -555,7 +555,7 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'title' => 'إعداد معلومات الشركة',
             'description' => 'إدخال البيانات الأساسية للشركة والإعدادات الأولية',
             'icon' => 'fas fa-building',
-            'color' => 'primary',
+            'color' => '#667eea',
             'status' => 'completed',
             'estimated_time' => '15 دقيقة',
             'priority' => 'high',

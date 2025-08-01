@@ -93,7 +93,14 @@
         margin-left: 15px;
         font-size: 24px;
         color: white;
+        background: #667eea; /* Default color */
     }
+
+    .step-icon.step-color-primary { background: #667eea; }
+    .step-icon.step-color-success { background: #10b981; }
+    .step-icon.step-color-info { background: #3b82f6; }
+    .step-icon.step-color-warning { background: #f59e0b; }
+    .step-icon.step-color-danger { background: #ef4444; }
 
     .step-title {
         font-size: 1.5rem;
@@ -416,7 +423,7 @@
         @foreach($setupSteps as $step)
         <div class="step-card">
             <div class="step-header">
-                <div class="step-icon" style="background: {{ $step['color'] }};">
+                <div class="step-icon" @if(isset($step['color']) && !empty($step['color'])) style="background: {{ $step['color'] }};" @endif>
                     <i class="{{ $step['icon'] }}"></i>
                 </div>
                 <div style="flex: 1;">
@@ -475,7 +482,7 @@
         
         @foreach($timeline as $week)
         <div class="week-card">
-            <div class="week-header" style="background: {{ $week['color'] }};">
+            <div class="week-header" @if(isset($week['color']) && !empty($week['color'])) style="background: {{ $week['color'] }};" @endif>
                 {{ $week['title'] }}
             </div>
             
