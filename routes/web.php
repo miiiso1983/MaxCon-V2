@@ -47,7 +47,7 @@ use App\Http\Controllers\Tenant\AnalyticsController;
 
 // Public routes
 Route::get('/', function () {
-    return view('welcome-maxcon');
+    return view('welcome');
 })->name('home');
 
 // Temporary route for testing design (remove in production)
