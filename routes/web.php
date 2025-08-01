@@ -658,9 +658,9 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'icon' => 'fas fa-cogs',
             'progress' => 80,
             'items' => [
-                ['text' => 'إعداد معلومات الشركة', 'completed' => true],
-                ['text' => 'إضافة المستخدمين', 'completed' => true],
-                ['text' => 'تحديد الأدوار والصلاحيات', 'completed' => false]
+                ['id' => 'basic_1', 'text' => 'إعداد معلومات الشركة', 'completed' => true],
+                ['id' => 'basic_2', 'text' => 'إضافة المستخدمين', 'completed' => true],
+                ['id' => 'basic_3', 'text' => 'تحديد الأدوار والصلاحيات', 'completed' => false]
             ]
         ],
         'modules_setup' => [
@@ -669,9 +669,9 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'icon' => 'fas fa-puzzle-piece',
             'progress' => 40,
             'items' => [
-                ['text' => 'إعداد وحدة المبيعات', 'completed' => true],
-                ['text' => 'إعداد وحدة المخزون', 'completed' => false],
-                ['text' => 'إعداد النظام المحاسبي', 'completed' => false]
+                ['id' => 'module_1', 'text' => 'إعداد وحدة المبيعات', 'completed' => true],
+                ['id' => 'module_2', 'text' => 'إعداد وحدة المخزون', 'completed' => false],
+                ['id' => 'module_3', 'text' => 'إعداد النظام المحاسبي', 'completed' => false]
             ]
         ],
         'training' => [
@@ -680,9 +680,9 @@ Route::get('/tenant/system-guide/new-tenant-guide', function () {
             'icon' => 'fas fa-graduation-cap',
             'progress' => 20,
             'items' => [
-                ['text' => 'مشاهدة الفيديوهات التعليمية', 'completed' => false],
-                ['text' => 'قراءة دليل المستخدم', 'completed' => false],
-                ['text' => 'إجراء اختبار تجريبي', 'completed' => false]
+                ['id' => 'training_1', 'text' => 'مشاهدة الفيديوهات التعليمية', 'completed' => false],
+                ['id' => 'training_2', 'text' => 'قراءة دليل المستخدم', 'completed' => false],
+                ['id' => 'training_3', 'text' => 'إجراء اختبار تجريبي', 'completed' => false]
             ]
         ]
     ];
