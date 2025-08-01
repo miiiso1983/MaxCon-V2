@@ -552,36 +552,32 @@
 </head>
 
 <body>
-    <!-- Modern Collapsible Sidebar -->
-    @if(auth()->user()->hasRole('tenant-admin'))
-        <x-collapsible-sidebar />
-    @else
-        <!-- Super Admin Sidebar (Keep existing for super admin) -->
-        <div class="sidebar">
-            <div class="p-6">
-                <!-- Logo -->
-                <div class="sidebar-logo-container text-center mb-8" style="padding: 20px; position: relative;">
-                    <div style="background: linear-gradient(135deg, #fbbf24, #f59e0b, #ea580c); border-radius: 20px; padding: 20px; display: inline-block; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3); transform: perspective(1000px) rotateX(5deg); transition: all 0.3s ease;">
-                        <i class="fas fa-crown crown-icon" style="color: white; font-size: 32px;"></i>
-                    </div>
-                    <h1 class="gradient-text-primary" style="font-size: 28px; font-weight: 800; margin-bottom: 10px; letter-spacing: 1px; text-align: center;">
-                        MaxCon Master
-                    </h1>
-                    <p class="gradient-text-secondary" style="font-size: 16px; font-weight: 600; text-align: center; margin-bottom: 15px;">
-                        إدارة النظام الرئيسية
-                    </p>
-                    <div style="display: flex; justify-content: center; margin-top: 15px;">
-                        <div class="divider-line" style="width: 80px; height: 3px; border-radius: 2px;"></div>
-                    </div>
-                    <div style="margin-top: 10px; display: flex; justify-content: center; gap: 5px;">
-                        <div style="width: 8px; height: 8px; background: #fbbf24; border-radius: 50%; animation: pulse 2s infinite;"></div>
-                        <div style="width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; animation: pulse 2s infinite 0.5s;"></div>
-                        <div style="width: 8px; height: 8px; background: #ea580c; border-radius: 50%; animation: pulse 2s infinite 1s;"></div>
-                    </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-6">
+            <!-- Logo -->
+            <div class="sidebar-logo-container text-center mb-8" style="padding: 20px; position: relative;">
+                <div style="background: linear-gradient(135deg, #fbbf24, #f59e0b, #ea580c); border-radius: 20px; padding: 20px; display: inline-block; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3); transform: perspective(1000px) rotateX(5deg); transition: all 0.3s ease;">
+                    <i class="fas fa-crown crown-icon" style="color: white; font-size: 32px;"></i>
                 </div>
+                <h1 class="gradient-text-primary" style="font-size: 28px; font-weight: 800; margin-bottom: 10px; letter-spacing: 1px; text-align: center;">
+                    MaxCon Master
+                </h1>
+                <p class="gradient-text-secondary" style="font-size: 16px; font-weight: 600; text-align: center; margin-bottom: 15px;">
+                    إدارة النظام الرئيسية
+                </p>
+                <div style="display: flex; justify-content: center; margin-top: 15px;">
+                    <div class="divider-line" style="width: 80px; height: 3px; border-radius: 2px;"></div>
+                </div>
+                <div style="margin-top: 10px; display: flex; justify-content: center; gap: 5px;">
+                    <div style="width: 8px; height: 8px; background: #fbbf24; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                    <div style="width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; animation: pulse 2s infinite 0.5s;"></div>
+                    <div style="width: 8px; height: 8px; background: #ea580c; border-radius: 50%; animation: pulse 2s infinite 1s;"></div>
+                </div>
+            </div>
 
-                <!-- Navigation -->
-                <nav class="space-y-1">
+            <!-- Navigation -->
+            <nav class="space-y-1">
                 @if(auth()->user()->isSuperAdmin())
                     <!-- Super Admin Navigation -->
                     <a href="{{ route('dashboard') }}"
@@ -649,11 +645,205 @@
                         <i class="fas fa-heart"></i>
                         خطط الاشتراك
                     </a>
+                @else
+                    <!-- Tenant Admin Navigation -->
+                    <a href="{{ route('tenant.dashboard') }}"
+                       class="nav-link {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        لوحة التحكم
+                    </a>
+
+                    <a href="{{ route('tenant.roles.index') }}"
+                       class="nav-link {{ request()->routeIs('tenant.roles.*') ? 'active' : '' }}">
+                        <i class="fas fa-user-shield"></i>
+                        إدارة الأدوار والصلاحيات
+                    </a>
+
+                    <!-- Purchasing Management Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.purchasing.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-truck"></i>
+                            إدارة المشتريات
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.purchasing.suppliers.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.purchasing.suppliers.*') ? 'active' : '' }}">
+                                <i class="fas fa-truck"></i>
+                                إدارة الموردين
+                            </a>
+
+                            <a href="{{ route('tenant.purchasing.purchase-requests.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.purchasing.purchase-requests.*') ? 'active' : '' }}">
+                                <i class="fas fa-file-alt"></i>
+                                طلبات الشراء
+                            </a>
+
+                            <a href="{{ route('tenant.purchasing.purchase-orders.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.purchasing.purchase-orders.*') ? 'active' : '' }}">
+                                <i class="fas fa-clipboard-list"></i>
+                                أوامر الشراء
+                            </a>
+
+                            <a href="{{ route('tenant.purchasing.quotations.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.purchasing.quotations.*') ? 'active' : '' }}">
+                                <i class="fas fa-quote-right"></i>
+                                عروض الأسعار
+                            </a>
+
+                            <a href="{{ route('tenant.purchasing.contracts.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.purchasing.contracts.*') ? 'active' : '' }}">
+                                <i class="fas fa-file-contract"></i>
+                                العقود والاتفاقيات
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Sales Management Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.sales.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-shopping-bag"></i>
+                            إدارة المبيعات
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.sales.orders.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.sales.orders.*') ? 'active' : '' }}">
+                                <i class="fas fa-shopping-cart"></i>
+                                طلبات المبيعات
+                            </a>
+
+                            <a href="{{ route('tenant.sales.customers.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.sales.customers.*') ? 'active' : '' }}">
+                                <i class="fas fa-users"></i>
+                                إدارة العملاء
+                            </a>
+
+                            <a href="{{ route('tenant.sales.products.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.sales.products.*') ? 'active' : '' }}">
+                                <i class="fas fa-pills"></i>
+                                إدارة المنتجات
+                            </a>
+
+                            <a href="{{ route('tenant.sales.invoices.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.sales.invoices.*') ? 'active' : '' }}">
+                                <i class="fas fa-file-invoice"></i>
+                                إدارة الفواتير
+                            </a>
+
+                            <a href="{{ route('tenant.sales.returns.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.sales.returns.*') ? 'active' : '' }}">
+                                <i class="fas fa-undo-alt"></i>
+                                إدارة المرتجعات
+                            </a>
+
+                            <!-- Sales Targets Section -->
+                            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; margin-bottom: 10px; padding: 0 15px;">
+                                    أهداف البيع
+                                </div>
+
+                                <a href="{{ route('tenant.sales.targets.index') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.sales.targets.index') ? 'active' : '' }}">
+                                    <i class="fas fa-bullseye"></i>
+                                    قائمة الأهداف
+                                </a>
+
+                                <a href="{{ route('tenant.sales.targets.create') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.sales.targets.create') ? 'active' : '' }}">
+                                    <i class="fas fa-plus-circle"></i>
+                                    إنشاء هدف جديد
+                                </a>
+
+                                <a href="{{ route('tenant.sales.targets.dashboard') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.sales.targets.dashboard') ? 'active' : '' }}">
+                                    <i class="fas fa-chart-line"></i>
+                                    لوحة تحكم الأهداف
+                                </a>
+
+                                <a href="{{ route('tenant.sales.targets.reports') }}"
+                                   class="nav-link {{ request()->routeIs('tenant.sales.targets.reports') ? 'active' : '' }}">
+                                    <i class="fas fa-chart-bar"></i>
+                                    تقارير الأهداف
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reports Section -->
+                    <div class="nav-section collapsed">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-chart-line"></i>
+                            التقارير والإحصائيات
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-chart-pie"></i>
+                                تقارير المبيعات
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-chart-bar"></i>
+                                تقارير المخزون
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-money-bill-wave"></i>
+                                التقارير المالية
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                تقارير العملاء
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-calendar-alt"></i>
+                                التقارير الشهرية
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Settings Section -->
+                    <div class="nav-section collapsed">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-cogs"></i>
+                            الإعدادات
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-building"></i>
+                                إعدادات الشركة
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-users-cog"></i>
+                                إدارة المستخدمين
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-key"></i>
+                                الصلاحيات
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-bell"></i>
+                                إعدادات التنبيهات
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-envelope"></i>
+                                إعدادات البريد
+                            </a>
+
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-database"></i>
+                                النسخ الاحتياطية
+                            </a>
+                        </div>
+                    </div>
                 @endif
             </nav>
         </div>
     </div>
-    @endif
 
 
 
