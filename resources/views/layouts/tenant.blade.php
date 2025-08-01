@@ -651,7 +651,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('tenant.system-guide.new-tenant-guide') }}" class="submenu-item {{ request()->routeIs('tenant.system-guide.new-tenant-guide') ? 'active' : '' }}">
+                            <a href="/tenant-guide-direct.php" class="submenu-item" target="_blank">
                                 <i class="fas fa-rocket"></i>
                                 دليل المستأجر الجديد
                             </a>
