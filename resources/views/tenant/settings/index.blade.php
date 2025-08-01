@@ -68,24 +68,24 @@
                 <i class="fas fa-key"></i>
                 سياسة كلمات المرور
             </button>
-            <button onclick="openSettings('two_factor_auth')" style="background: #fef2f2; border: 1px solid #ef4444; color: #7f1d1d; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-                <i class="fas fa-mobile-alt" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('two_factor_auth')" class="settings-btn-security">
+                <i class="fas fa-mobile-alt"></i>
                 المصادقة الثنائية
             </button>
-            <button onclick="openSettings('session_management')" style="background: #fef2f2; border: 1px solid #ef4444; color: #7f1d1d; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-                <i class="fas fa-user-clock" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('session_management')" class="settings-btn-security">
+                <i class="fas fa-user-clock"></i>
                 إدارة الجلسات
             </button>
-            <button onclick="openSettings('audit_logs')" style="background: #fef2f2; border: 1px solid #ef4444; color: #7f1d1d; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-                <i class="fas fa-history" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('audit_logs')" class="settings-btn-security">
+                <i class="fas fa-history"></i>
                 سجلات المراجعة
             </button>
         </div>
     </div>
 
     <!-- Email Settings -->
-    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #3b82f6;">
-        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+    <div class="settings-card settings-card-email">
+        <div class="settings-flex-header">
             <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
                 <i class="fas fa-envelope" style="font-size: 24px;"></i>
             </div>
@@ -96,20 +96,20 @@
         </div>
 
         <div style="display: grid; gap: 10px;">
-            <button onclick="openSettings('smtp_settings')" style="background: #eff6ff; border: 1px solid #3b82f6; color: #1e3a8a; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
-                <i class="fas fa-server" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('smtp_settings')" class="settings-btn-email">
+                <i class="fas fa-server"></i>
                 إعدادات SMTP
             </button>
-            <button onclick="openSettings('email_templates')" style="background: #eff6ff; border: 1px solid #3b82f6; color: #1e3a8a; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
-                <i class="fas fa-file-alt" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('email_templates')" class="settings-btn-email">
+                <i class="fas fa-file-alt"></i>
                 قوالب البريد الإلكتروني
             </button>
-            <button onclick="openSettings('notification_settings')" style="background: #eff6ff; border: 1px solid #3b82f6; color: #1e3a8a; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
-                <i class="fas fa-bell" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('notification_settings')" class="settings-btn-email">
+                <i class="fas fa-bell"></i>
                 إعدادات الإشعارات
             </button>
-            <button onclick="openSettings('email_queue')" style="background: #eff6ff; border: 1px solid #3b82f6; color: #1e3a8a; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
-                <i class="fas fa-list" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('email_queue')" class="settings-btn-email">
+                <i class="fas fa-list"></i>
                 طابور البريد الإلكتروني
             </button>
         </div>
@@ -128,20 +128,20 @@
         </div>
 
         <div style="display: grid; gap: 10px;">
-            <button onclick="openSettings('backup_schedule')" style="background: #faf5ff; border: 1px solid #8b5cf6; color: #581c87; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#e9d5ff'" onmouseout="this.style.background='#faf5ff'">
-                <i class="fas fa-calendar-alt" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('backup_schedule')" class="settings-btn-backup">
+                <i class="fas fa-calendar-alt"></i>
                 جدولة النسخ الاحتياطي
             </button>
-            <button onclick="openSettings('backup_storage')" style="background: #faf5ff; border: 1px solid #8b5cf6; color: #581c87; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#e9d5ff'" onmouseout="this.style.background='#faf5ff'">
-                <i class="fas fa-cloud" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('backup_storage')" class="settings-btn-backup">
+                <i class="fas fa-cloud"></i>
                 تخزين النسخ الاحتياطي
             </button>
-            <button onclick="openSettings('restore_data')" style="background: #faf5ff; border: 1px solid #8b5cf6; color: #581c87; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#e9d5ff'" onmouseout="this.style.background='#faf5ff'">
-                <i class="fas fa-undo" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('restore_data')" class="settings-btn-backup">
+                <i class="fas fa-undo"></i>
                 استعادة البيانات
             </button>
-            <button onclick="openSettings('backup_history')" style="background: #faf5ff; border: 1px solid #8b5cf6; color: #581c87; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#e9d5ff'" onmouseout="this.style.background='#faf5ff'">
-                <i class="fas fa-history" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('backup_history')" class="settings-btn-backup">
+                <i class="fas fa-history"></i>
                 تاريخ النسخ الاحتياطي
             </button>
         </div>
@@ -160,20 +160,20 @@
         </div>
 
         <div style="display: grid; gap: 10px;">
-            <button onclick="openSettings('api_settings')" style="background: #fefce8; border: 1px solid #f59e0b; color: #92400e; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='#fefce8'">
-                <i class="fas fa-code" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('api_settings')" class="settings-btn-integration">
+                <i class="fas fa-code"></i>
                 إعدادات API
             </button>
-            <button onclick="openSettings('payment_gateways')" style="background: #fefce8; border: 1px solid #f59e0b; color: #92400e; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='#fefce8'">
-                <i class="fas fa-credit-card" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('payment_gateways')" class="settings-btn-integration">
+                <i class="fas fa-credit-card"></i>
                 بوابات الدفع
             </button>
-            <button onclick="openSettings('whatsapp_integration')" style="background: #fefce8; border: 1px solid #f59e0b; color: #92400e; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='#fefce8'">
-                <i class="fab fa-whatsapp" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('whatsapp_integration')" class="settings-btn-integration">
+                <i class="fab fa-whatsapp"></i>
                 تكامل واتساب
             </button>
-            <button onclick="openSettings('third_party_services')" style="background: #fefce8; border: 1px solid #f59e0b; color: #92400e; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='#fefce8'">
-                <i class="fas fa-external-link-alt" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('third_party_services')" class="settings-btn-integration">
+                <i class="fas fa-external-link-alt"></i>
                 خدمات خارجية
             </button>
         </div>
@@ -192,20 +192,20 @@
         </div>
 
         <div style="display: grid; gap: 10px;">
-            <button onclick="openSettings('cache_management')" style="background: #f0f9ff; border: 1px solid #06b6d4; color: #164e63; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
-                <i class="fas fa-memory" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('cache_management')" class="settings-btn-maintenance">
+                <i class="fas fa-memory"></i>
                 إدارة التخزين المؤقت
             </button>
-            <button onclick="openSettings('database_optimization')" style="background: #f0f9ff; border: 1px solid #06b6d4; color: #164e63; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
-                <i class="fas fa-database" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('database_optimization')" class="settings-btn-maintenance">
+                <i class="fas fa-database"></i>
                 تحسين قاعدة البيانات
             </button>
-            <button onclick="openSettings('system_logs')" style="background: #f0f9ff; border: 1px solid #06b6d4; color: #164e63; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
-                <i class="fas fa-file-alt" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('system_logs')" class="settings-btn-maintenance">
+                <i class="fas fa-file-alt"></i>
                 سجلات النظام
             </button>
-            <button onclick="openSettings('performance_monitoring')" style="background: #f0f9ff; border: 1px solid #06b6d4; color: #164e63; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: right;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
-                <i class="fas fa-chart-line" style="margin-left: 8px;"></i>
+            <button onclick="openSettings('performance_monitoring')" class="settings-btn-maintenance">
+                <i class="fas fa-chart-line"></i>
                 مراقبة الأداء
             </button>
         </div>
@@ -493,6 +493,78 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .settings-btn-backup i {
     margin-left: 8px;
+}
+
+.settings-btn-email {
+    background: #eff6ff;
+    border: 1px solid #3b82f6;
+    color: #1e3a8a;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: right;
+    font-weight: 500;
+}
+
+.settings-btn-email:hover {
+    background: #dbeafe;
+}
+
+.settings-btn-email i {
+    margin-left: 8px;
+}
+
+.settings-btn-integration {
+    background: #fefce8;
+    border: 1px solid #f59e0b;
+    color: #92400e;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: right;
+    font-weight: 500;
+}
+
+.settings-btn-integration:hover {
+    background: #fef3c7;
+}
+
+.settings-btn-integration i {
+    margin-left: 8px;
+}
+
+.settings-btn-maintenance {
+    background: #f0f9ff;
+    border: 1px solid #06b6d4;
+    color: #164e63;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: right;
+    font-weight: 500;
+}
+
+.settings-btn-maintenance:hover {
+    background: #e0f2fe;
+}
+
+.settings-btn-maintenance i {
+    margin-left: 8px;
+}
+.settings-card-email {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 2px solid #3b82f6;
+}
+.settings-flex-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
 }
 </style>
 
