@@ -900,39 +900,7 @@
                         </div>
                     </div>
 
-                    <!-- Reports Section -->
-                    <div class="nav-section collapsed">
-                        <div class="nav-section-title" onclick="toggleSection(this)">
-                            <i class="fas fa-chart-line"></i>
-                            التقارير والإحصائيات
-                        </div>
-                        <div class="nav-section-content">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-chart-pie"></i>
-                                تقارير المبيعات
-                            </a>
 
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-chart-bar"></i>
-                                تقارير المخزون
-                            </a>
-
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-money-bill-wave"></i>
-                                التقارير المالية
-                            </a>
-
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-users"></i>
-                                تقارير العملاء
-                            </a>
-
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-calendar-alt"></i>
-                                التقارير الشهرية
-                            </a>
-                        </div>
-                    </div>
 
                     <!-- Regulatory Affairs Section -->
                     <div class="nav-section {{ request()->routeIs('tenant.inventory.regulatory.*') ? '' : 'collapsed' }}">
@@ -1316,44 +1284,7 @@
                         </div>
                     </div>
 
-                    <!-- Settings Section -->
-                    <div class="nav-section collapsed">
-                        <div class="nav-section-title" onclick="toggleSection(this)">
-                            <i class="fas fa-cogs"></i>
-                            الإعدادات
-                        </div>
-                        <div class="nav-section-content">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-building"></i>
-                                إعدادات الشركة
-                            </a>
 
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-users-cog"></i>
-                                إدارة المستخدمين
-                            </a>
-
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-key"></i>
-                                الصلاحيات
-                            </a>
-
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-bell"></i>
-                                إعدادات التنبيهات
-                            </a>
-
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-envelope"></i>
-                                إعدادات البريد
-                            </a>
-
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-database"></i>
-                                النسخ الاحتياطية
-                            </a>
-                        </div>
-                    </div>
                 @endif
             </nav>
         </div>
