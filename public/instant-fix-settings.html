@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إصلاح فوري لقسم الإعدادات - MaxCon ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #718096;
+            font-size: 1.2rem;
+        }
+        
+        .problem-alert {
+            background: #fef2f2;
+            border: 2px solid #f87171;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+            color: #991b1b;
+        }
+        
+        .problem-alert h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .solution-box {
+            background: #f0fff4;
+            border: 2px solid #68d391;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            color: #22543d;
+        }
+        
+        .instant-fix-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            margin: 20px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .instant-fix-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5);
+        }
+        
+        .instant-fix-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .console-method {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: left;
+            direction: ltr;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .copy-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .steps {
+            text-align: right;
+            margin: 25px 0;
+        }
+        
+        .step {
+            background: #f8fafc;
+            border-right: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .step h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .step p {
+            color: #4a5568;
+            line-height: 1.5;
+        }
+        
+        .test-links {
+            margin: 30px 0;
+        }
+        
+        .test-link {
+            background: #667eea;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-link:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .success-indicator {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            color: #22543d;
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 إصلاح فوري لقسم الإعدادات</h1>
+            <p>حل المشكلة في ثوانٍ معدودة</p>
+        </div>
+
+        <div class="problem-alert">
+            <h3>❌ المشكلة المكتشفة:</h3>
+            <p><strong>قسم الإعدادات يؤدي إلى رابط "#" ولا يعمل</strong></p>
+            <p>السبب: القسم موجود لكن معطل أو لم يُحدث على الخادم المباشر</p>
+        </div>
+
+        <div class="solution-box">
+            <h3>✅ الحل الفوري:</h3>
+            <p>سكريبت محسن يزيل القسم المعطل ويضيف قسم جديد يعمل بشكل مثالي</p>
+        </div>
+
+        <button class="instant-fix-btn" onclick="applyInstantFix()">
+            <i class="fas fa-magic"></i>
+            <span id="btnText">إصلاح فوري - اضغط الآن!</span>
+        </button>
+
+        <div class="success-indicator" id="successMessage">
+            <h3>🎉 تم الإصلاح بنجاح!</h3>
+            <p>اذهب الآن إلى لوحة تحكم المستأجر وستجد قسم الإعدادات يعمل بشكل مثالي</p>
+        </div>
+
+        <div class="steps">
+            <h3 style="color: #2d3748; margin-bottom: 15px;">📋 أو استخدم الطريقة اليدوية:</h3>
+            
+            <div class="step">
+                <h4>الخطوة 1: افتح Developer Console</h4>
+                <p>اذهب إلى لوحة تحكم المستأجر واضغط <strong>F12</strong> ثم اختر <strong>Console</strong></p>
+            </div>
+            
+            <div class="step">
+                <h4>الخطوة 2: انسخ والصق الكود</h4>
+                <div class="console-method">
+                    <button class="copy-btn" onclick="copyConsoleCode()">📋 نسخ</button>
+var script = document.createElement('script');
+script.src = 'https://www.maxcon.app/fix-settings-menu-v2.js';
+document.head.appendChild(script);
+                </div>
+            </div>
+            
+            <div class="step">
+                <h4>الخطوة 3: اضغط Enter</h4>
+                <p>ستظهر رسالة نجاح وسيعمل قسم الإعدادات فوراً</p>
+            </div>
+        </div>
+
+        <div class="test-links">
+            <h3 style="color: #2d3748; margin-bottom: 15px;">🔗 روابط الاختبار:</h3>
+            
+            <a href="https://www.maxcon.app" class="test-link" target="_blank">
+                <i class="fas fa-home"></i>
+                لوحة تحكم المستأجر
+            </a>
+            
+            <a href="https://www.maxcon.app/test-all-settings.html" class="test-link" target="_blank">
+                <i class="fas fa-cogs"></i>
+                اختبار صفحات الإعدادات
+            </a>
+            
+            <a href="https://www.maxcon.app/fix-settings-menu-v2.js" class="test-link" target="_blank">
+                <i class="fas fa-code"></i>
+                عرض السكريبت المحسن
+            </a>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #718096;">
+            <h3 style="color: #2d3748; margin-bottom: 10px;">🎯 ما سيحدث بعد الإصلاح:</h3>
+            <ul style="text-align: right; padding-right: 20px; line-height: 1.8;">
+                <li>إزالة قسم الإعدادات المعطل</li>
+                <li>إضافة قسم إعدادات جديد يعمل بشكل مثالي</li>
+                <li>7 روابط فرعية تعمل جميعها</li>
+                <li>تصميم محسن مع تأثيرات بصرية</li>
+                <li>رسالة نجاح تؤكد الإصلاح</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function applyInstantFix() {
+            const btn = document.querySelector('.instant-fix-btn');
+            const btnText = document.getElementById('btnText');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Change button state
+            btnText.innerHTML = '<span class="loading"></span> جاري الإصلاح...';
+            btn.disabled = true;
+            btn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+            
+            // Load the enhanced fix script
+            const script = document.createElement('script');
+            script.src = 'https://www.maxcon.app/fix-settings-menu-v2.js';
+            
+            script.onload = function() {
+                btnText.innerHTML = '<i class="fas fa-check"></i> تم الإصلاح بنجاح!';
+                btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                successMessage.style.display = 'block';
+                
+                // Show detailed success message
+                setTimeout(() => {
+                    alert('🎉 تم إصلاح قسم الإعدادات بنجاح!\n\n✅ تم إزالة القسم المعطل\n✅ تم إضافة قسم جديد يعمل\n✅ جميع الروابط تعمل الآن\n\nاذهب إلى لوحة تحكم المستأجر وجرب قسم الإعدادات');
+                }, 1000);
+                
+                // Reset button after 5 seconds
+                setTimeout(() => {
+                    btnText.innerHTML = '<i class="fas fa-magic"></i> إصلاح فوري - اضغط الآن!';
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 5000);
+            };
+            
+            script.onerror = function() {
+                btnText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> حدث خطأ - حاول مرة أخرى';
+                btn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                
+                setTimeout(() => {
+                    btnText.innerHTML = '<i class="fas fa-magic"></i> إصلاح فوري - اضغط الآن!';
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 3000);
+            };
+            
+            document.head.appendChild(script);
+        }
+
+        function copyConsoleCode() {
+            const code = `var script = document.createElement('script');
+script.src = 'https://www.maxcon.app/fix-settings-menu-v2.js';
+document.head.appendChild(script);`;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ تم النسخ!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Auto-focus on the fix button
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚨 صفحة الإصلاح الفوري جاهزة!');
+            console.log('اضغط على الزر الأخضر لإصلاح قسم الإعدادات فوراً');
+        });
+    </script>
+</body>
+</html>

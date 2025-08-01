@@ -30,16 +30,17 @@
             return;
         }
         
-        // Check if settings menu already exists
-        const existingSettings = sidebar.querySelector('a[href*="settings"], a:contains("الإعدادات")');
-        if (existingSettings && !existingSettings.href.includes('#')) {
-            console.log('✅ قسم الإعدادات موجود بالفعل');
-            return;
-        }
-        
-        // Remove existing commented or broken settings
-        const brokenSettings = sidebar.querySelectorAll('li:has(a[href="#"]:contains("الإعدادات"))');
-        brokenSettings.forEach(item => item.remove());
+        // Find and remove existing broken settings menu
+        const existingSettings = sidebar.querySelectorAll('a');
+        existingSettings.forEach(link => {
+            if (link.textContent.includes('الإعدادات') || link.href.includes('#')) {
+                const parentLi = link.closest('li');
+                if (parentLi && link.textContent.includes('الإعدادات')) {
+                    console.log('🗑️ إزالة قسم الإعدادات المعطل...');
+                    parentLi.remove();
+                }
+            }
+        });
         
         // Create settings menu HTML
         const settingsMenuHTML = `
