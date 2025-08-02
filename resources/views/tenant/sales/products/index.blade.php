@@ -4,6 +4,21 @@
 @section('page-description', 'إدارة شاملة لكتالوج المنتجات الدوائية')
 
 @section('content')
+
+@if(isset($debugInfo))
+<!-- Debug Information -->
+<div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+    <h5 style="color: #495057; margin-bottom: 10px;">🔍 معلومات التشخيص:</h5>
+    <div style="font-size: 14px; color: #6c757d;">
+        <strong>معرف المستخدم:</strong> {{ $debugInfo['user_id'] }} |
+        <strong>معرف المؤسسة:</strong> {{ $debugInfo['tenant_id'] }} |
+        <strong>إجمالي المنتجات في قاعدة البيانات:</strong> {{ $debugInfo['total_products_db'] }} |
+        <strong>منتجات المؤسسة:</strong> {{ $debugInfo['tenant_products_db'] }} |
+        <strong>المنتجات المعروضة:</strong> {{ $debugInfo['query_count'] }}
+    </div>
+</div>
+@endif
+
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>

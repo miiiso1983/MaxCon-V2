@@ -26,7 +26,13 @@ class ProductController extends Controller
             $tenantId = 1; // للاختبار فقط
         }
 
-        $query = Product::forTenant($tenantId);
+        // للتشخيص: عرض جميع المنتجات مؤقتاً
+        $query = Product::query();
+
+        // إضافة فلتر tenant_id إذا كان موجود
+        if ($tenantId) {
+            $query->where('tenant_id', $tenantId);
+        }
 
         // Apply filters
         if ($request->filled('category')) {
@@ -49,20 +55,41 @@ class ProductController extends Controller
 
         $products = $query->orderBy('created_at', 'desc')->paginate(15);
 
+        // للتشخيص: استخدام query مباشر بدلاً من scope
+        $statsQuery = Product::query();
+        if ($tenantId) {
+            $statsQuery->where('tenant_id', $tenantId);
+        }
+
         $stats = [
-            'total' => Product::forTenant($tenantId)->count(),
-            'active' => Product::forTenant($tenantId)->active()->count(),
-            'low_stock' => Product::forTenant($tenantId)->lowStock()->count(),
-            'expired' => Product::forTenant($tenantId)->expired()->count(),
+            'total' => $statsQuery->count(),
+            'active' => $statsQuery->where('is_active', 1)->count(),
+            'low_stock' => $statsQuery->whereColumn('stock_quantity', '<=', 'min_stock_level')->count(),
+            'expired' => 0, // مؤقت
         ];
 
-        $categories = Product::forTenant($tenantId)
+        $categoriesQuery = Product::query();
+        if ($tenantId) {
+            $categoriesQuery->where('tenant_id', $tenantId);
+        }
+
+        $categories = $categoriesQuery
             ->distinct()
             ->pluck('category')
             ->filter()
             ->sort();
 
-        return view('tenant.sales.products.index', compact('products', 'stats', 'categories'));
+        // للتشخيص: إضافة معلومات debug
+        $debugInfo = [
+            'user_id' => $user ? $user->id : 'غير مسجل',
+            'tenant_id' => $tenantId,
+            'total_products_db' => Product::count(),
+            'tenant_products_db' => Product::where('tenant_id', $tenantId)->count(),
+            'query_count' => $products->total(),
+            'stats' => $stats
+        ];
+
+        return view('tenant.sales.products.index', compact('products', 'stats', 'categories', 'debugInfo'));
     }
 
     /**
