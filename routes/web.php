@@ -519,18 +519,17 @@ Route::post('/test-excel-upload', function (Request $request) {
         // Read Excel file and show raw data
         $import = new \App\Imports\ProductsImport($tenantId);
 
-        // Get file path
+        // Get file
         $file = $request->file('excel_file');
-        $filePath = $file->store('temp');
 
-        // Read Excel data manually to debug
-        $data = Excel::toArray($import, storage_path('app/' . $filePath));
+        // Read Excel data directly from uploaded file
+        $data = Excel::toArray($import, $file);
 
-        // Process import
-        Excel::import($import, storage_path('app/' . $filePath));
+        // Create a new import instance for actual processing (to reset counters)
+        $actualImport = new \App\Imports\ProductsImport($tenantId);
 
-        // Clean up temp file
-        Storage::delete($filePath);
+        // Process import directly from uploaded file
+        Excel::import($actualImport, $file);
 
         $totalProducts = DB::table('products')->where('tenant_id', $tenantId)->count();
 
@@ -542,10 +541,10 @@ Route::post('/test-excel-upload', function (Request $request) {
                 'file_name' => $file->getClientOriginalName(),
                 'file_size' => $file->getSize(),
                 'raw_data' => $data[0] ?? [], // First sheet data
-                'imported_count' => $import->getImportedCount(),
-                'skipped_count' => $import->getSkippedCount(),
+                'imported_count' => $actualImport->getImportedCount(),
+                'skipped_count' => $actualImport->getSkippedCount(),
                 'total_products_after' => $totalProducts,
-                'failures' => $import->failures()
+                'failures' => $actualImport->failures()
             ]
         ]);
 
@@ -618,6 +617,63 @@ Route::get('/test-excel-form', function () {
     </body>
     </html>';
 })->name('test.excel.form');
+
+// Force import without duplicate check
+Route::get('/force-import-test', function () {
+    try {
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : 4;
+
+        // Create test product directly without duplicate check
+        $testProduct = [
+            'tenant_id' => $tenantId,
+            'product_code' => 'PRD' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT),
+            'name' => 'منتج اختبار ' . date('H:i:s'),
+            'description' => 'منتج اختبار للتأكد من عمل الاستيراد',
+            'category' => 'اختبار',
+            'manufacturer' => 'شركة اختبار',
+            'barcode' => '999' . rand(100000, 999999),
+            'unit_of_measure' => 'قرص',
+            'cost_price' => 1.00,
+            'selling_price' => 2.00,
+            'min_stock_level' => 10,
+            'stock_quantity' => 100,
+            'is_active' => 1,
+            'status' => 'active',
+            'currency' => 'IQD',
+            'base_unit' => 'piece',
+            'is_taxable' => 1,
+            'tax_rate' => 15.00,
+            'track_expiry' => 1,
+            'track_batch' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
+        ];
+
+        // Insert directly into database
+        $productId = DB::table('products')->insertGetId($testProduct);
+
+        $totalProducts = DB::table('products')->where('tenant_id', $tenantId)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => "تم إنشاء منتج اختبار بنجاح",
+            'debug_info' => [
+                'tenant_id' => $tenantId,
+                'product_id' => $productId,
+                'product_name' => $testProduct['name'],
+                'total_products_after' => $totalProducts
+            ]
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'خطأ: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+})->name('force.import.test');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
