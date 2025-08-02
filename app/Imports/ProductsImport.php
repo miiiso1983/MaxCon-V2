@@ -64,8 +64,7 @@ class ProductsImport implements
         $product->tenant_id = $this->tenantId;
 
         // Generate product code using the model method
-        $product->code = Product::generateCode($this->tenantId);
-        $product->product_code = $product->code; // For backward compatibility
+        $product->product_code = 'PRD' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
 
         $product->name = trim($row['name']);
         $product->description = !empty($row['description']) ? trim($row['description']) : null;
@@ -73,43 +72,37 @@ class ProductsImport implements
         $product->manufacturer = !empty($row['manufacturer']) ? trim($row['manufacturer']) : null;
         $product->barcode = !empty($row['barcode']) ? trim($row['barcode']) : null;
 
-        // Use base_unit instead of unit
-        $product->base_unit = !empty($row['unit']) ? trim($row['unit']) : 'قرص';
+        // Use unit_of_measure instead of base_unit
+        $product->unit_of_measure = !empty($row['unit']) ? trim($row['unit']) : 'قرص';
 
-        // Use cost_price instead of purchase_price
-        $product->cost_price = !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? (string)floatval($row['purchase_price']) : '0';
-        $product->selling_price = !empty($row['selling_price']) && is_numeric($row['selling_price']) ? (string)floatval($row['selling_price']) : '0';
+        // Use the correct field names from database
+        $product->cost_price = !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? floatval($row['purchase_price']) : 0.00;
+        $product->selling_price = !empty($row['selling_price']) && is_numeric($row['selling_price']) ? floatval($row['selling_price']) : 0.00;
 
-        // Use minimum_stock instead of min_stock_level
-        $product->minimum_stock = !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? (string)intval($row['min_stock_level']) : '10';
-        $product->current_stock = !empty($row['current_stock']) && is_numeric($row['current_stock']) ? (string)intval($row['current_stock']) : '0';
+        // Use min_stock_level and stock_quantity (current stock)
+        $product->min_stock_level = !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? intval($row['min_stock_level']) : 10;
+        $product->stock_quantity = !empty($row['current_stock']) && is_numeric($row['current_stock']) ? intval($row['current_stock']) : 0;
 
         // Handle dates
         if (!empty($row['expiry_date'])) {
             try {
-                $product->expiry_date = Carbon::parse($row['expiry_date'])->format('Y-m-d');
+                $product->expiry_date = Carbon::parse($row['expiry_date']);
             } catch (\Exception $e) {
                 $product->expiry_date = null;
             }
         }
 
-        if (!empty($row['manufacturing_date'])) {
-            try {
-                $product->manufacturing_date = Carbon::parse($row['manufacturing_date'])->format('Y-m-d');
-            } catch (\Exception $e) {
-                $product->manufacturing_date = null;
-            }
-        }
+        // Note: manufacturing_date field doesn't exist in current table structure
 
         // Additional fields
         $product->notes = !empty($row['notes']) ? trim($row['notes']) : null;
-        $product->status = 'active';
+        $product->is_active = true;
 
         // Set default values for required fields
-        $product->type = 'simple';
-        $product->track_stock = true;
-        $product->allow_backorder = false;
-        $product->is_featured = false;
+        $product->is_taxable = true;
+        $product->tax_rate = 15.00;
+        $product->track_expiry = true;
+        $product->track_batch = true;
 
         $this->importedCount++;
         return $product;

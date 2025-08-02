@@ -138,9 +138,9 @@
                             </div>
                             <div>
                                 <div style="font-weight: 600; color: #2d3748; margin-bottom: 2px;">{{ $product->name }}</div>
-                                <div style="font-size: 12px; color: #718096;">{{ $product->code ?? $product->product_code }}</div>
-                                @if($product->short_description)
-                                    <div style="font-size: 11px; color: #9f7aea;">{{ $product->short_description }}</div>
+                                <div style="font-size: 12px; color: #718096;">{{ $product->product_code }}</div>
+                                @if($product->description)
+                                    <div style="font-size: 11px; color: #9f7aea;">{{ Str::limit($product->description, 50) }}</div>
                                 @endif
                                 @if($product->barcode)
                                     <div style="font-size: 10px; color: #6b7280;">{{ $product->barcode }}</div>
@@ -168,13 +168,13 @@
                         </div>
                     </td>
                     <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                        <div style="font-weight: 600; color: {{ ($product->current_stock ?? 0) <= ($product->minimum_stock ?? 0) ? '#f56565' : '#059669' }};">
-                            {{ $product->current_stock ?? 0 }} {{ $product->base_unit ?? 'قطعة' }}
+                        <div style="font-weight: 600; color: {{ ($product->stock_quantity ?? 0) <= ($product->min_stock_level ?? 0) ? '#f56565' : '#059669' }};">
+                            {{ $product->stock_quantity ?? 0 }} {{ $product->unit_of_measure ?? 'قطعة' }}
                         </div>
                         <div style="font-size: 12px; color: #6b7280;">
-                            الحد الأدنى: {{ $product->minimum_stock ?? 0 }} {{ $product->base_unit ?? 'قطعة' }}
+                            الحد الأدنى: {{ $product->min_stock_level ?? 0 }} {{ $product->unit_of_measure ?? 'قطعة' }}
                         </div>
-                        @if(($product->current_stock ?? 0) <= ($product->minimum_stock ?? 0))
+                        @if(($product->stock_quantity ?? 0) <= ($product->min_stock_level ?? 0))
                             <div style="font-size: 11px; color: #f56565; font-weight: 600;">
                                 <i class="fas fa-exclamation-triangle"></i> مخزون منخفض
                             </div>

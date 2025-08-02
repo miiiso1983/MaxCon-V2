@@ -42,7 +42,7 @@ class ProductController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('product_code', 'like', "%{$search}%")
                   ->orWhere('barcode', 'like', "%{$search}%")
-                  ->orWhere('generic_name', 'like', "%{$search}%");
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
