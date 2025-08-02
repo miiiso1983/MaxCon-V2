@@ -9,6 +9,7 @@ $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 use App\Models\Product;
 
 echo "Fixing products...\n";
+echo "Database: " . config('database.default') . "\n";
 
 // تحديث جميع المنتجات لتكون مع tenant_id = 1
 $products = Product::whereNull('tenant_id')->get();
@@ -18,6 +19,26 @@ foreach ($products as $product) {
     $product->tenant_id = 1;
     $product->save();
     echo "Updated product ID: " . $product->id . " - " . $product->name . "\n";
+}
+
+// إنشاء tenant إذا لم يكن موجود
+try {
+    $tenant = DB::table('tenants')->where('id', 1)->first();
+    if (!$tenant) {
+        DB::table('tenants')->insert([
+            'id' => 1,
+            'name' => 'شركة تجريبية',
+            'slug' => 'test-company',
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        echo "Created tenant with ID 1\n";
+    } else {
+        echo "Tenant with ID 1 already exists\n";
+    }
+} catch (Exception $e) {
+    echo "Error creating tenant: " . $e->getMessage() . "\n";
 }
 
 // إنشاء منتجات تجريبية إضافية

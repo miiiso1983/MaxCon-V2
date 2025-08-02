@@ -34,8 +34,16 @@
     <h2>3. اختبار الجداول</h2>
     @php
         try {
-            $tables = DB::select("SELECT name FROM sqlite_master WHERE type='table'");
-            $tableNames = array_column($tables, 'name');
+            $dbType = config('database.default');
+            if ($dbType === 'mysql') {
+                $tables = DB::select("SHOW TABLES");
+                $dbName = config('database.connections.mysql.database');
+                $tableKey = "Tables_in_" . $dbName;
+                $tableNames = array_column($tables, $tableKey);
+            } else {
+                $tables = DB::select("SELECT name FROM sqlite_master WHERE type='table'");
+                $tableNames = array_column($tables, 'name');
+            }
             $hasProducts = in_array('products', $tableNames);
         } catch (Exception $e) {
             $tableNames = [];
@@ -45,9 +53,17 @@
     @endphp
     
     <p><strong>جدول المنتجات موجود:</strong> <span class="{{ $hasProducts ? 'success' : 'error' }}">{{ $hasProducts ? 'نعم' : 'لا' }}</span></p>
-    
+
     @if(isset($tableError))
         <p class="error">خطأ في قراءة الجداول: {{ $tableError }}</p>
+    @else
+        <p><strong>عدد الجداول الموجودة:</strong> {{ count($tableNames) }}</p>
+        @if(count($tableNames) > 0)
+            <details>
+                <summary>عرض جميع الجداول</summary>
+                <pre>{{ implode(', ', $tableNames) }}</pre>
+            </details>
+        @endif
     @endif
     
     <h2>4. اختبار المنتجات</h2>
