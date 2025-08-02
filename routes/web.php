@@ -400,6 +400,58 @@ Route::get('/fix-tenant-products', function () {
     }
 })->name('fix.tenant.products');
 
+// Test import functionality
+Route::get('/test-import', function () {
+    try {
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : 4;
+
+        // Create test CSV data
+        $testData = [
+            [
+                'name' => 'إيبوبروفين 400 مجم',
+                'category' => 'مسكنات',
+                'manufacturer' => 'شركة الأدوية اللبنانية',
+                'barcode' => '123456789015',
+                'unit' => 'قرص',
+                'purchase_price' => 0.75,
+                'selling_price' => 1.25,
+                'min_stock_level' => 80,
+                'current_stock' => 400,
+                'description' => 'مسكن ومضاد للالتهاب',
+                'notes' => 'لا يستخدم مع أمراض المعدة'
+            ]
+        ];
+
+        // Simulate import process
+        $import = new \App\Imports\ProductsImport($tenantId);
+
+        foreach ($testData as $row) {
+            $product = $import->model($row);
+            if ($product) {
+                $product->save();
+            }
+        }
+
+        $totalProducts = DB::table('products')->where('tenant_id', $tenantId)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => "تم اختبار الاستيراد بنجاح. إجمالي المنتجات: {$totalProducts}",
+            'tenant_id' => $tenantId,
+            'imported_count' => $import->getImportedCount(),
+            'skipped_count' => $import->getSkippedCount(),
+            'total_count' => $totalProducts
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'خطأ: ' . $e->getMessage()
+        ]);
+    }
+})->name('test.import');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 

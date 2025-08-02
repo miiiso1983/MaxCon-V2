@@ -41,8 +41,15 @@ class ProductsImport implements
      */
     public function model(array $row)
     {
+        // Log the row data for debugging
+        \Log::info('ProductsImport: Processing row', [
+            'tenant_id' => $this->tenantId,
+            'row_data' => $row
+        ]);
+
         // Skip empty rows
         if (empty($row['name']) || empty(trim($row['name']))) {
+            \Log::info('ProductsImport: Skipping empty row');
             $this->skippedCount++;
             return null;
         }
@@ -56,6 +63,10 @@ class ProductsImport implements
             ->first();
 
         if ($existingProduct) {
+            \Log::info('ProductsImport: Product already exists', [
+                'name' => trim($row['name']),
+                'existing_id' => $existingProduct->id
+            ]);
             $this->skippedCount++;
             return null;
         }
@@ -103,6 +114,12 @@ class ProductsImport implements
         $product->tax_rate = 15.00;
         $product->track_expiry = true;
         $product->track_batch = true;
+
+        \Log::info('ProductsImport: Creating new product', [
+            'name' => $product->name,
+            'tenant_id' => $product->tenant_id,
+            'category' => $product->category
+        ]);
 
         $this->importedCount++;
         return $product;

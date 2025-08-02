@@ -254,7 +254,15 @@ class ProductController extends Controller
         ]);
 
         try {
-            $import = new ProductsImport(auth()->user()->tenant_id);
+            $user = auth()->user();
+            $tenantId = $user ? $user->tenant_id : null;
+
+            // مؤقت للاختبار: إذا لم يكن للمستخدم tenant_id، استخدم 4
+            if (!$tenantId) {
+                $tenantId = 4; // للاختبار فقط
+            }
+
+            $import = new ProductsImport($tenantId);
             Excel::import($import, $request->file('excel_file'));
 
             $importedCount = $import->getImportedCount();
