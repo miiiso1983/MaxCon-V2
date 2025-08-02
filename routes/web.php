@@ -171,6 +171,11 @@ Route::middleware('auth')->get('/logout-confirm', function () {
     return view('auth.logout-confirm');
 })->name('logout.confirm');
 
+// Test products page
+Route::get('/test-products', function () {
+    return view('test-products');
+})->name('test.products');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
