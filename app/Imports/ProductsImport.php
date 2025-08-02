@@ -62,23 +62,32 @@ class ProductsImport implements
 
         $product = new Product();
         $product->tenant_id = $this->tenantId;
-        $product->product_code = $product->generateProductCode();
+
+        // Generate product code using the model method
+        $product->code = Product::generateCode($this->tenantId);
+        $product->product_code = $product->code; // For backward compatibility
+
         $product->name = trim($row['name']);
-        $product->generic_name = !empty($row['generic_name']) ? trim($row['generic_name']) : null;
+        $product->description = !empty($row['description']) ? trim($row['description']) : null;
         $product->category = !empty($row['category']) ? trim($row['category']) : 'أخرى';
         $product->manufacturer = !empty($row['manufacturer']) ? trim($row['manufacturer']) : null;
         $product->barcode = !empty($row['barcode']) ? trim($row['barcode']) : null;
-        $product->unit = !empty($row['unit']) ? trim($row['unit']) : 'قرص';
-        $product->purchase_price = !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? floatval($row['purchase_price']) : 0;
-        $product->selling_price = !empty($row['selling_price']) && is_numeric($row['selling_price']) ? floatval($row['selling_price']) : 0;
-        $product->min_stock_level = !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? intval($row['min_stock_level']) : 10;
-        $product->current_stock = !empty($row['current_stock']) && is_numeric($row['current_stock']) ? intval($row['current_stock']) : 0;
-        $product->batch_number = !empty($row['batch_number']) ? trim($row['batch_number']) : null;
+
+        // Use base_unit instead of unit
+        $product->base_unit = !empty($row['unit']) ? trim($row['unit']) : 'قرص';
+
+        // Use cost_price instead of purchase_price
+        $product->cost_price = !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? (string)floatval($row['purchase_price']) : '0';
+        $product->selling_price = !empty($row['selling_price']) && is_numeric($row['selling_price']) ? (string)floatval($row['selling_price']) : '0';
+
+        // Use minimum_stock instead of min_stock_level
+        $product->minimum_stock = !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? (string)intval($row['min_stock_level']) : '10';
+        $product->current_stock = !empty($row['current_stock']) && is_numeric($row['current_stock']) ? (string)intval($row['current_stock']) : '0';
 
         // Handle dates
         if (!empty($row['expiry_date'])) {
             try {
-                $product->expiry_date = Carbon::parse($row['expiry_date']);
+                $product->expiry_date = Carbon::parse($row['expiry_date'])->format('Y-m-d');
             } catch (\Exception $e) {
                 $product->expiry_date = null;
             }
@@ -86,16 +95,21 @@ class ProductsImport implements
 
         if (!empty($row['manufacturing_date'])) {
             try {
-                $product->manufacturing_date = Carbon::parse($row['manufacturing_date']);
+                $product->manufacturing_date = Carbon::parse($row['manufacturing_date'])->format('Y-m-d');
             } catch (\Exception $e) {
                 $product->manufacturing_date = null;
             }
         }
 
-        $product->storage_conditions = !empty($row['storage_conditions']) ? trim($row['storage_conditions']) : null;
-        $product->description = !empty($row['description']) ? trim($row['description']) : null;
+        // Additional fields
         $product->notes = !empty($row['notes']) ? trim($row['notes']) : null;
-        $product->is_active = true;
+        $product->status = 'active';
+
+        // Set default values for required fields
+        $product->type = 'simple';
+        $product->track_stock = true;
+        $product->allow_backorder = false;
+        $product->is_featured = false;
 
         $this->importedCount++;
         return $product;

@@ -197,6 +197,26 @@ class Product extends Model
         return $this->selling_price + $this->calculateTaxAmount($this->selling_price);
     }
 
+    /**
+     * Generate unique product code for tenant
+     */
+    public static function generateCode($tenantId): string
+    {
+        $prefix = 'PRD';
+        $lastProduct = self::where('tenant_id', $tenantId)
+            ->where('code', 'like', $prefix . '%')
+            ->orderBy('code', 'desc')
+            ->first();
+
+        if ($lastProduct && preg_match('/PRD(\d+)/', $lastProduct->code, $matches)) {
+            $number = intval($matches[1]) + 1;
+        } else {
+            $number = 1;
+        }
+
+        return $prefix . str_pad($number, 6, '0', STR_PAD_LEFT);
+    }
+
     // New methods for enhanced product management
     public function getStatusLabelAttribute(): string
     {
