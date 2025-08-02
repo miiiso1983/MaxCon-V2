@@ -26,13 +26,8 @@ class ProductController extends Controller
             $tenantId = 1; // للاختبار فقط
         }
 
-        // للتشخيص: عرض جميع المنتجات مؤقتاً
-        $query = Product::query();
-
-        // إضافة فلتر tenant_id إذا كان موجود
-        if ($tenantId) {
-            $query->where('tenant_id', $tenantId);
-        }
+        // للتشخيص: استخدام DB مباشر للتأكد من قراءة البيانات
+        $query = Product::where('tenant_id', $tenantId);
 
         // Apply filters
         if ($request->filled('category')) {
@@ -54,6 +49,14 @@ class ProductController extends Controller
         }
 
         $products = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        // للتشخيص: log معلومات الاستعلام
+        \Log::info('ProductController index: Query results', [
+            'tenant_id' => $tenantId,
+            'total_products' => $products->total(),
+            'current_page_count' => $products->count(),
+            'query_sql' => $query->toSql()
+        ]);
 
         // للتشخيص: استخدام query مباشر بدلاً من scope
         $statsQuery = Product::query();

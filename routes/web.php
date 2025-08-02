@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\Admin\UserController;
@@ -503,6 +505,119 @@ Route::get('/debug-import', function () {
         ]);
     }
 })->name('debug.import');
+
+// Test Excel file upload
+Route::post('/test-excel-upload', function (Request $request) {
+    try {
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : 4;
+
+        // Read Excel file and show raw data
+        $import = new \App\Imports\ProductsImport($tenantId);
+
+        // Get file path
+        $file = $request->file('excel_file');
+        $filePath = $file->store('temp');
+
+        // Read Excel data manually to debug
+        $data = Excel::toArray($import, storage_path('app/' . $filePath));
+
+        // Process import
+        Excel::import($import, storage_path('app/' . $filePath));
+
+        // Clean up temp file
+        Storage::delete($filePath);
+
+        $totalProducts = DB::table('products')->where('tenant_id', $tenantId)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => "تم اختبار رفع الملف بنجاح",
+            'debug_info' => [
+                'tenant_id' => $tenantId,
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'raw_data' => $data[0] ?? [], // First sheet data
+                'imported_count' => $import->getImportedCount(),
+                'skipped_count' => $import->getSkippedCount(),
+                'total_products_after' => $totalProducts,
+                'failures' => $import->failures()
+            ]
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'خطأ: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+})->name('test.excel.upload');
+
+// Show test upload form
+Route::get('/test-excel-form', function () {
+    return '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>اختبار رفع ملف Excel</title>
+        <meta charset="UTF-8">
+    </head>
+    <body style="font-family: Arial; padding: 20px; direction: rtl;">
+        <h2>اختبار رفع ملف Excel</h2>
+        <form action="/test-excel-upload" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="' . csrf_token() . '">
+            <div style="margin: 20px 0;">
+                <label>اختر ملف Excel:</label><br>
+                <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required>
+            </div>
+            <button type="submit" style="background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                رفع واختبار الملف
+            </button>
+        </form>
+
+        <hr style="margin: 30px 0;">
+
+        <h3>تنسيق الملف المطلوب:</h3>
+        <p>يجب أن يحتوي الصف الأول على الأعمدة التالية:</p>
+        <code>name | category | manufacturer | barcode | unit | purchase_price | selling_price | min_stock_level | current_stock | description | notes</code>
+
+        <h3>مثال:</h3>
+        <table border="1" style="border-collapse: collapse; margin: 10px 0;">
+            <tr style="background: #f5f5f5;">
+                <th style="padding: 8px;">name</th>
+                <th style="padding: 8px;">category</th>
+                <th style="padding: 8px;">manufacturer</th>
+                <th style="padding: 8px;">barcode</th>
+                <th style="padding: 8px;">unit</th>
+                <th style="padding: 8px;">purchase_price</th>
+                <th style="padding: 8px;">selling_price</th>
+                <th style="padding: 8px;">min_stock_level</th>
+                <th style="padding: 8px;">current_stock</th>
+                <th style="padding: 8px;">description</th>
+                <th style="padding: 8px;">notes</th>
+            </tr>
+            <tr>
+                <td style="padding: 8px;">أسبرين 100 مجم</td>
+                <td style="padding: 8px;">مسكنات</td>
+                <td style="padding: 8px;">شركة الأدوية</td>
+                <td style="padding: 8px;">123456789021</td>
+                <td style="padding: 8px;">قرص</td>
+                <td style="padding: 8px;">0.25</td>
+                <td style="padding: 8px;">0.50</td>
+                <td style="padding: 8px;">100</td>
+                <td style="padding: 8px;">500</td>
+                <td style="padding: 8px;">مسكن</td>
+                <td style="padding: 8px;">مع الطعام</td>
+            </tr>
+        </table>
+    </body>
+    </html>';
+})->name('test.excel.form');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
