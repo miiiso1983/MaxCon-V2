@@ -653,11 +653,26 @@
                         لوحة التحكم
                     </a>
 
-                    <a href="{{ route('tenant.roles.index') }}"
-                       class="nav-link {{ request()->routeIs('tenant.roles.*') ? 'active' : '' }}">
-                        <i class="fas fa-user-shield"></i>
-                        إدارة الأدوار والصلاحيات
-                    </a>
+                    <!-- User Management Section -->
+                    <div class="nav-section {{ request()->routeIs('tenant.users.*') || request()->routeIs('tenant.roles.*') ? '' : 'collapsed' }}">
+                        <div class="nav-section-title" onclick="toggleSection(this)">
+                            <i class="fas fa-users-cog"></i>
+                            إدارة المستخدمين والصلاحيات
+                        </div>
+                        <div class="nav-section-content">
+                            <a href="{{ route('tenant.users.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.users.*') ? 'active' : '' }}">
+                                <i class="fas fa-users"></i>
+                                إدارة المستخدمين
+                            </a>
+
+                            <a href="{{ route('tenant.roles.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.roles.*') ? 'active' : '' }}">
+                                <i class="fas fa-user-shield"></i>
+                                إدارة الأدوار والصلاحيات
+                            </a>
+                        </div>
+                    </div>
 
                     <!-- Purchasing Management Section -->
                     <div class="nav-section {{ request()->routeIs('tenant.purchasing.*') ? '' : 'collapsed' }}">

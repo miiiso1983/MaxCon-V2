@@ -423,7 +423,7 @@
         @foreach($setupSteps as $step)
         <div class="step-card">
             <div class="step-header">
-                <div class="step-icon" @if(isset($step['color']) && !empty($step['color'])) style="background: {{ $step['color'] }};" @endif>
+                <div class="step-icon" {!! isset($step['color']) && !empty($step['color']) ? 'style="background: ' . $step['color'] . ';"' : '' !!}>
                     <i class="{{ $step['icon'] }}"></i>
                 </div>
                 <div style="flex: 1;">
@@ -482,7 +482,7 @@
         
         @foreach($timeline as $week)
         <div class="week-card">
-            <div class="week-header" @if(isset($week['color']) && !empty($week['color'])) style="background: {{ $week['color'] }};" @endif>
+            <div class="week-header" {!! isset($week['color']) && !empty($week['color']) ? 'style="background: ' . $week['color'] . ';"' : '' !!}>
                 {{ $week['title'] }}
             </div>
             

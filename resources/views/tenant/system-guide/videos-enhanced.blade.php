@@ -327,7 +327,7 @@
         @foreach($categories as $slug => $category)
         <a href="{{ route('tenant.system-guide.videos', $slug) }}" 
            class="category-btn {{ $moduleSlug == $slug ? 'active' : '' }}"
-           style="{{ $moduleSlug == $slug ? 'border-color: ' . $category['color'] . '; background: ' . $category['color'] . ';' : '' }}">
+           style="{{ $moduleSlug == $slug ? 'border-color: ' . $category['color'] . '; background: ' . $category['color'] . ';' : '' }}"
             <i class="{{ $category['icon'] }}"></i>
             {{ $category['name'] }}
         </a>
@@ -371,10 +371,10 @@
                     </span>
                 </div>
                 
-                <button onclick="playVideo('{{ $featuredVideo['id'] }}')" 
+                <button onclick="playVideo('{{ $featuredVideo['id'] }}')"
                         style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: transform 0.3s ease;"
                         onmouseover="this.style.transform='translateY(-2px)'"
-                        onmouseout="this.style.transform='translateY(0)'">
+                        onmouseout="this.style.transform='translateY(0)'">>
                     <i class="fas fa-play" style="margin-left: 8px;"></i>
                     مشاهدة الفيديو
                 </button>

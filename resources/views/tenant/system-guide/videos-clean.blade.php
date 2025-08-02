@@ -329,7 +329,7 @@
                     @foreach($moduleVideos as $video)
                     @if(is_array($video))
                     <div class="video-card" data-category="{{ $moduleKey }}" data-title="{{ strtolower($video['title'] ?? '') }}" data-tags="{{ is_array($video['tags'] ?? []) ? implode(' ', $video['tags']) : ($video['tags'] ?? '') }}">
-                        <div class="video-thumbnail" onclick="playVideo('{{ $video['id'] ?? '' }}')">
+                        <div class="video-thumbnail" data-video-id="{{ $video['id'] ?? '' }}" style="cursor: pointer;">
                             <i class="fas fa-play-circle"></i>
                             <div class="video-duration">{{ $video['duration'] ?? '0:00' }}</div>
                         </div>
@@ -470,6 +470,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Add click event listeners to video thumbnails
+    const videoThumbnails = document.querySelectorAll('.video-thumbnail[data-video-id]');
+    videoThumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', function() {
+            const videoId = this.dataset.videoId;
+            if (videoId) {
+                playVideo(videoId);
+            }
+        });
+    });
 });
 
 // Video player functionality
