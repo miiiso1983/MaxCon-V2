@@ -110,16 +110,36 @@ class ProductsImport implements
         $product->is_active = true;
 
         // Set default values for required fields
-        $product->is_taxable = true;
+        $product->is_taxable = 1; // Use integer instead of boolean for MySQL
         $product->tax_rate = 15.00;
-        $product->track_expiry = true;
-        $product->track_batch = true;
+        $product->track_expiry = 1;
+        $product->track_batch = 1;
+        $product->is_active = 1;
+        $product->status = 'active';
+        $product->currency = 'IQD';
+        $product->base_unit = 'piece';
 
         \Log::info('ProductsImport: Creating new product', [
             'name' => $product->name,
             'tenant_id' => $product->tenant_id,
-            'category' => $product->category
+            'category' => $product->category,
+            'product_code' => $product->product_code
         ]);
+
+        try {
+            // Force save to check for errors
+            $saved = $product->save();
+            \Log::info('ProductsImport: Product saved successfully', [
+                'saved' => $saved,
+                'product_id' => $product->id ?? 'not_set'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('ProductsImport: Error saving product', [
+                'error' => $e->getMessage(),
+                'product_data' => $product->toArray()
+            ]);
+            throw $e;
+        }
 
         $this->importedCount++;
         return $product;

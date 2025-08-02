@@ -117,11 +117,13 @@
     <p><a href="/add-test-products" style="background: #007cba; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-right: 10px;">إضافة منتجات تجريبية</a></p>
     <p><a href="/force-add-products" style="background: #dc3545; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-right: 10px;">فرض إضافة منتجات جديدة</a></p>
     <p><a href="/fix-tenant-products" style="background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-right: 10px;">إصلاح معرف المؤسسة للمنتجات</a></p>
-    <p><a href="/test-import" style="background: #6f42c1; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">اختبار الاستيراد</a></p>
+    <p><a href="/test-import" style="background: #6f42c1; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-right: 10px;">اختبار الاستيراد</a></p>
+    <p><a href="/debug-import" style="background: #fd7e14; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">تشخيص مشاكل الاستيراد</a></p>
     <p style="font-size: 12px; color: #666;">
         الزر الأحمر سيحذف المنتجات الموجودة ويضيف منتجات جديدة<br>
         الزر الأخضر سيحدث المنتجات الموجودة لتنتمي للمؤسسة الحالية<br>
-        الزر البنفسجي سيختبر وظيفة الاستيراد مباشرة
+        الزر البنفسجي سيختبر وظيفة الاستيراد مباشرة<br>
+        الزر البرتقالي سيعرض تفاصيل مشاكل الاستيراد
     </p>
 
     <hr>

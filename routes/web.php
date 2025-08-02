@@ -452,6 +452,58 @@ Route::get('/test-import', function () {
     }
 })->name('test.import');
 
+// Debug import issues
+Route::get('/debug-import', function () {
+    try {
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : 4;
+
+        // Check recent products
+        $recentProducts = DB::table('products')
+            ->where('tenant_id', $tenantId)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get(['id', 'name', 'tenant_id', 'created_at']);
+
+        // Check all products count by tenant
+        $productsByTenant = DB::table('products')
+            ->select('tenant_id', DB::raw('count(*) as count'))
+            ->groupBy('tenant_id')
+            ->get();
+
+        // Check if there are any products with null tenant_id
+        $nullTenantProducts = DB::table('products')
+            ->whereNull('tenant_id')
+            ->count();
+
+        // Check logs (if log file exists)
+        $logPath = storage_path('logs/laravel.log');
+        $recentLogs = '';
+        if (file_exists($logPath)) {
+            $logs = file($logPath);
+            $recentLogs = implode('', array_slice($logs, -20)); // Last 20 lines
+        }
+
+        return response()->json([
+            'success' => true,
+            'debug_info' => [
+                'current_user_id' => $user ? $user->id : 'غير مسجل',
+                'current_tenant_id' => $tenantId,
+                'recent_products' => $recentProducts,
+                'products_by_tenant' => $productsByTenant,
+                'null_tenant_products' => $nullTenantProducts,
+                'recent_logs' => $recentLogs
+            ]
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'خطأ: ' . $e->getMessage()
+        ]);
+    }
+})->name('debug.import');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
