@@ -373,6 +373,33 @@ Route::get('/force-add-products', function () {
     }
 })->name('force.add.products');
 
+// Fix tenant_id for current user
+Route::get('/fix-tenant-products', function () {
+    try {
+        $user = auth()->user();
+        $userTenantId = $user ? $user->tenant_id : 4; // استخدم 4 كافتراضي
+
+        // تحديث جميع المنتجات لتنتمي للمؤسسة الحالية
+        $updated = DB::table('products')->update(['tenant_id' => $userTenantId]);
+
+        $totalProducts = DB::table('products')->where('tenant_id', $userTenantId)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => "تم تحديث {$updated} منتج للمؤسسة {$userTenantId}. إجمالي المنتجات: {$totalProducts}",
+            'updated_count' => $updated,
+            'tenant_id' => $userTenantId,
+            'total_count' => $totalProducts
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'خطأ: ' . $e->getMessage()
+        ]);
+    }
+})->name('fix.tenant.products');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 

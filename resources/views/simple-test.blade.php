@@ -115,8 +115,12 @@
     <hr>
     <h2>6. إضافة بيانات تجريبية</h2>
     <p><a href="/add-test-products" style="background: #007cba; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-right: 10px;">إضافة منتجات تجريبية</a></p>
-    <p><a href="/force-add-products" style="background: #dc3545; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">فرض إضافة منتجات جديدة</a></p>
-    <p style="font-size: 12px; color: #666;">الزر الأحمر سيحذف المنتجات الموجودة ويضيف منتجات جديدة</p>
+    <p><a href="/force-add-products" style="background: #dc3545; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-right: 10px;">فرض إضافة منتجات جديدة</a></p>
+    <p><a href="/fix-tenant-products" style="background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">إصلاح معرف المؤسسة للمنتجات</a></p>
+    <p style="font-size: 12px; color: #666;">
+        الزر الأحمر سيحذف المنتجات الموجودة ويضيف منتجات جديدة<br>
+        الزر الأخضر سيحدث المنتجات الموجودة لتنتمي للمؤسسة الحالية
+    </p>
 
     <hr>
     <p><a href="/test-products">الذهاب لصفحة الاختبار المفصلة</a></p>
