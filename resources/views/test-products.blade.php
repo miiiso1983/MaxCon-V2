@@ -18,6 +18,10 @@
     
     @php
         try {
+            // تحقق من اتصال قاعدة البيانات
+            $dbConnection = config('database.default');
+            $dbPath = config('database.connections.sqlite.database');
+
             // عرض جميع المنتجات للاختبار
             $products = App\Models\Product::all();
             $count = $products->count();
@@ -28,6 +32,10 @@
 
             $products_tenant_null = App\Models\Product::whereNull('tenant_id')->get();
             $count_tenant_null = $products_tenant_null->count();
+
+            // تحقق مباشر من قاعدة البيانات
+            $directCount = DB::select('SELECT COUNT(*) as count FROM products')[0]->count ?? 0;
+
         } catch (Exception $e) {
             $products = collect();
             $count = 0;
@@ -36,8 +44,16 @@
     @endphp
     
     <div>
-        <p><strong>إجمالي المنتجات:</strong>
+        <p><strong>قاعدة البيانات:</strong> {{ $dbConnection ?? 'غير محدد' }}</p>
+        <p><strong>مسار قاعدة البيانات:</strong> {{ $dbPath ?? 'غير محدد' }}</p>
+        <hr>
+
+        <p><strong>إجمالي المنتجات (Eloquent):</strong>
             <span class="{{ $count > 0 ? 'success' : 'error' }}">{{ $count }}</span>
+        </p>
+
+        <p><strong>إجمالي المنتجات (SQL مباشر):</strong>
+            <span class="{{ $directCount > 0 ? 'success' : 'error' }}">{{ $directCount ?? 'خطأ' }}</span>
         </p>
 
         <p><strong>المنتجات مع tenant_id = 1:</strong>
