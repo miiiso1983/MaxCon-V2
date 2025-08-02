@@ -176,6 +176,11 @@ Route::get('/test-products', function () {
     return view('test-products');
 })->name('test.products');
 
+// Simple test page
+Route::get('/simple-test', function () {
+    return view('simple-test');
+})->name('simple.test');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
