@@ -278,6 +278,101 @@ Route::get('/add-test-products', function () {
     }
 })->name('add.test.products');
 
+// Force add test products (delete existing first)
+Route::get('/force-add-products', function () {
+    try {
+        // حذف المنتجات الموجودة
+        DB::table('products')->where('tenant_id', 1)->delete();
+
+        // إنشاء tenant إذا لم يكن موجود
+        $tenant = DB::table('tenants')->where('id', 1)->first();
+        if (!$tenant) {
+            DB::table('tenants')->insert([
+                'id' => 1,
+                'name' => 'شركة تجريبية',
+                'slug' => 'test-company',
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        // إضافة منتجات تجريبية
+        $testProducts = [
+            [
+                'tenant_id' => 1,
+                'product_code' => 'PRD000001',
+                'name' => 'باراسيتامول 500 مجم',
+                'description' => 'مسكن للألم وخافض للحرارة',
+                'category' => 'مسكنات',
+                'manufacturer' => 'شركة الأدوية المصرية',
+                'barcode' => '123456789012',
+                'unit_of_measure' => 'قرص',
+                'cost_price' => 0.50,
+                'selling_price' => 1.00,
+                'min_stock_level' => 100,
+                'stock_quantity' => 500,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'tenant_id' => 1,
+                'product_code' => 'PRD000002',
+                'name' => 'أموكسيسيلين 250 مجم',
+                'description' => 'مضاد حيوي واسع المجال',
+                'category' => 'مضادات حيوية',
+                'manufacturer' => 'شركة الأدوية الأردنية',
+                'barcode' => '123456789013',
+                'unit_of_measure' => 'كبسولة',
+                'cost_price' => 1.20,
+                'selling_price' => 2.50,
+                'min_stock_level' => 50,
+                'stock_quantity' => 200,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'tenant_id' => 1,
+                'product_code' => 'PRD000003',
+                'name' => 'فيتامين سي 1000 مجم',
+                'description' => 'مكمل غذائي لتقوية المناعة',
+                'category' => 'فيتامينات',
+                'manufacturer' => 'شركة الأدوية السعودية',
+                'barcode' => '123456789014',
+                'unit_of_measure' => 'قرص',
+                'cost_price' => 0.80,
+                'selling_price' => 1.50,
+                'min_stock_level' => 75,
+                'stock_quantity' => 300,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+        ];
+
+        foreach ($testProducts as $productData) {
+            DB::table('products')->insert($productData);
+        }
+
+        $totalProducts = DB::table('products')->where('tenant_id', 1)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => "تم إضافة 3 منتجات جديدة بنجاح. إجمالي المنتجات: {$totalProducts}",
+            'added_count' => 3,
+            'total_count' => $totalProducts
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'خطأ: ' . $e->getMessage()
+        ]);
+    }
+})->name('force.add.products');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
