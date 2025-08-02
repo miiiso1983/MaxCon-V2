@@ -113,6 +113,10 @@
     @endif
     
     <hr>
+    <h2>6. إضافة بيانات تجريبية</h2>
+    <p><a href="/add-test-products" style="background: #007cba; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">إضافة منتجات تجريبية</a></p>
+
+    <hr>
     <p><a href="/test-products">الذهاب لصفحة الاختبار المفصلة</a></p>
     <p><a href="/tenant/sales/products">الذهاب لصفحة إدارة المنتجات</a></p>
 </body>
