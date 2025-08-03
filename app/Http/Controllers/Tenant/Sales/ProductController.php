@@ -252,26 +252,13 @@ class ProductController extends Controller
      */
     public function processImport(Request $request): RedirectResponse
     {
-        // تسجيل فوري في بداية الدالة
-        \Log::emergency('🚨 URGENT: ProcessImport method called at ' . now()->toDateTimeString());
-        \Log::emergency('🚨 Request details: ' . json_encode([
-            'method' => $request->method(),
-            'url' => $request->url(),
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
+        \Log::info('ProcessImport method called', [
+            'request_method' => $request->method(),
             'has_file' => $request->hasFile('excel_file'),
-            'all_data' => $request->all()
-        ]));
-
-        // كتابة في ملف منفصل أيضاً
-        file_put_contents(storage_path('logs/import_test.log'),
-            '🚨 ProcessImport called at ' . now()->toDateTimeString() . "\n",
-            FILE_APPEND | LOCK_EX
-        );
-
-        // اختبار فوري - إرجاع رسالة بدون معالجة
-        return redirect()->route('tenant.sales.products.import')
-            ->with('success', '🚨 URGENT TEST: وصل الطلب إلى الـ Controller في ' . now()->format('H:i:s'));
+            'file_size' => $request->hasFile('excel_file') ? $request->file('excel_file')->getSize() : 'no_file',
+            'user_id' => auth()->id(),
+            'tenant_id' => auth()->user()->tenant_id ?? 'no_tenant'
+        ]);
 
         $request->validate([
             'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max

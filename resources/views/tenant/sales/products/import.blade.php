@@ -669,47 +669,28 @@ function checkLargeFile(file) {
 }
 
 function handleSubmitClick(event) {
-    console.log('🔥 handleSubmitClick called');
-    alert('🔥 handleSubmitClick called');
-
     // منع الإرسال الافتراضي
     event.preventDefault();
 
     // تشغيل التحقق
     if (validateBeforeSubmit()) {
-        console.log('🔥 Validation passed, submitting form manually');
-        alert('🔥 Validation passed, submitting form manually');
-
         // تشغيل form submit event يدوياً
         const form = document.getElementById('importForm');
         const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-
-        console.log('🔥 Dispatching submit event');
-        alert('🔥 Dispatching submit event');
-
         form.dispatchEvent(submitEvent);
-    } else {
-        console.log('🔥 Validation failed');
-        alert('🔥 Validation failed');
     }
 }
 
 function validateBeforeSubmit() {
-    console.log('🔥 validateBeforeSubmit called at', new Date().toLocaleTimeString());
-    alert('🔥 اختبار جديد: validateBeforeSubmit تم استدعاؤها في ' + new Date().toLocaleTimeString());
-
     const fileInput = document.getElementById('excelFile');
     const submitBtn = document.getElementById('submitBtn');
     const submitText = document.getElementById('submitText');
     const uploadProgress = document.getElementById('uploadProgress');
 
     if (!fileInput.files || fileInput.files.length === 0) {
-        alert('❌ لا يوجد ملف محدد');
         showFileError('يرجى اختيار ملف Excel للاستيراد');
         return false;
     }
-
-    alert('✅ تم العثور على ملف: ' + fileInput.files[0].name);
 
     const file = fileInput.files[0];
 
@@ -806,8 +787,6 @@ function validateBeforeSubmit() {
         progressText.textContent = 'تم الانتهاء!';
     }, estimatedSeconds * 1000);
 
-    console.log('🔥 validateBeforeSubmit returning true');
-    alert('🔥 validateBeforeSubmit returning true - form should submit now!');
     return true;
 }
 
@@ -821,36 +800,15 @@ document.addEventListener('DOMContentLoaded', function() {
     let isSubmitting = false;
 
     form.addEventListener('submit', function(e) {
-        console.log('🔥 Form submit event fired!');
-        alert('🔥 Form submit event fired!');
-
         const submitBtn = document.getElementById('submitBtn');
 
         // منع الإرسال المتكرر
         if (isSubmitting) {
-            console.log('🔥 Preventing duplicate submission');
-            alert('🔥 Preventing duplicate submission');
             e.preventDefault();
             return false;
         }
 
         isSubmitting = true;
-        console.log('🔥 Form submission started - proceeding...');
-        alert('🔥 Form submission started - proceeding...');
-
-        // تسجيل تفاصيل النموذج
-        console.log('🔥 Form details:', {
-            action: form.action,
-            method: form.method,
-            enctype: form.enctype,
-            hasFile: document.getElementById('excelFile').files.length > 0,
-            fileName: document.getElementById('excelFile').files[0]?.name
-        });
-
-        alert('🔥 Form will be submitted to: ' + form.action);
-
-        // السماح للنموذج بالإرسال
-        console.log('🔥 Allowing form to submit naturally...');
 
         // إضافة timeout للكشف عن المشاكل
         const timeoutId = setTimeout(function() {
