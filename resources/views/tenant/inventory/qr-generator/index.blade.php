@@ -47,7 +47,7 @@
                     <i class="fas fa-file-invoice"></i>
                     مثال الفاتورة
                 </a>
-                <a href="{{ route('tenant.inventory.products.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                <a href="{{ route('tenant.inventory.inventory-products.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-arrow-right"></i>
                     العودة للمنتجات
                 </a>

@@ -796,8 +796,8 @@
                                 فئات المنتجات
                             </a>
 
-                            <a href="{{ route('tenant.inventory.products.index') }}"
-                               class="nav-link {{ request()->routeIs('tenant.inventory.products.*') ? 'active' : '' }}">
+                            <a href="{{ route('tenant.inventory.inventory-products.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.inventory.inventory-products.*') ? 'active' : '' }}">
                                 <i class="fas fa-cube"></i>
                                 كتالوج المنتجات
                             </a>

@@ -150,7 +150,7 @@ class ProductController extends Controller
 
         $product = Product::create($data);
 
-        return redirect()->route('tenant.inventory.products.index')
+        return redirect()->route('tenant.inventory.inventory-products.index')
             ->with('success', 'تم إنشاء المنتج بنجاح');
     }
 
@@ -218,7 +218,7 @@ class ProductController extends Controller
 
         $product->update($request->all());
 
-        return redirect()->route('tenant.inventory.products.index')
+        return redirect()->route('tenant.inventory.inventory-products.index')
             ->with('success', 'تم تحديث المنتج بنجاح');
     }
 
