@@ -40,8 +40,23 @@
 </div>
 
 <!-- Product Form -->
-<form method="POST" action="{{ route('tenant.sales.products.store') }}" onsubmit="console.log('Form submitted!', this); return true;">
+<form method="POST" action="{{ route('tenant.sales.products.store') }}" onsubmit="
+    console.log('=== FORM SUBMISSION ===');
+    console.log('Form submitted to:', this.action);
+    console.log('Form method:', this.method);
+    console.log('CSRF token:', this.querySelector('[name=_token]').value);
+    return true;
+">
     @csrf
+
+    @if(config('app.debug'))
+    <div style="background: #e0f2fe; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 12px;">
+        <strong>تشخيص Form:</strong><br>
+        Action: {{ route('tenant.sales.products.store') }}<br>
+        Method: POST<br>
+        CSRF: {{ csrf_token() }}
+    </div>
+    @endif
     
     <!-- Basic Information -->
     <div class="content-card" style="margin-bottom: 25px;">
@@ -286,7 +301,18 @@
             <i class="fas fa-times"></i>
             إلغاء
         </a>
-        <button type="submit" class="btn-purple" style="padding: 12px 24px;" onclick="console.log('Save button clicked!'); console.log('Form data:', new FormData(this.form));">
+        <button type="submit" class="btn-purple" style="padding: 12px 24px;" onclick="
+            console.log('=== SAVE BUTTON CLICKED ===');
+            console.log('Form element:', this.form);
+            console.log('Form action:', this.form.action);
+            console.log('Form method:', this.form.method);
+            const formData = new FormData(this.form);
+            console.log('Form data entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ': ' + value);
+            }
+            console.log('=== END FORM DATA ===');
+        ">
             <i class="fas fa-save"></i>
             حفظ المنتج
         </button>
