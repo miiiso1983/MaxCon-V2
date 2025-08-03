@@ -1219,8 +1219,8 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         // Product Categories
         Route::resource('categories', ProductCategoryController::class);
 
-        // Products
-        Route::resource('products', InventoryProductController::class);
+        // Inventory Products
+        Route::resource('inventory-products', InventoryProductController::class);
 
         // QR Code Generator
         Route::prefix('qr')->name('qr.')->group(function () {
