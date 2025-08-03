@@ -77,15 +77,14 @@
             <!-- Name -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">اسم المنتج *</label>
-                <input type="text" name="name" value="{{ old('name') }}" required
+                <input type="text" name="name" id="product_name" value="{{ old('name') }}" required
                        style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f0fff4;"
-                       placeholder="اسم المنتج التجاري"
-                       onchange="console.log('Name changed to:', this.value)">
+                       placeholder="اسم المنتج التجاري">
                 @error('name')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
                 @if(config('app.debug'))
-                <div style="font-size: 10px; color: #666; margin-top: 2px;">تشخيص: حقل الاسم</div>
+                <div style="font-size: 10px; color: #666; margin-top: 2px;">تشخيص: حقل الاسم - ID: product_name</div>
                 @endif
             </div>
             
@@ -103,8 +102,7 @@
             <!-- Category -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الفئة *</label>
-                <select name="category" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f0fff4;"
-                        onchange="console.log('Category changed to:', this.value)">
+                <select name="category" id="product_category" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f0fff4;">
                     <option value="">اختر الفئة</option>
                     <option value="أدوية القلب والأوعية الدموية" {{ old('category') === 'أدوية القلب والأوعية الدموية' ? 'selected' : '' }}>أدوية القلب والأوعية الدموية</option>
                     <option value="المضادات الحيوية" {{ old('category') === 'المضادات الحيوية' ? 'selected' : '' }}>المضادات الحيوية</option>
@@ -314,27 +312,22 @@
             <i class="fas fa-times"></i>
             إلغاء
         </a>
-        <button type="submit" class="btn-purple" style="padding: 12px 24px;" onclick="
-            // Simple validation
-            const nameField = document.querySelector('input[name=name]');
-            const categoryField = document.querySelector('select[name=category]');
-
-            if (!nameField || !nameField.value.trim()) {
-                alert('❌ اسم المنتج مطلوب! الحقل فارغ.');
-                nameField.focus();
-                return false;
+        <button type="button" onclick="
+            const nameField = document.getElementById('product_name');
+            const categoryField = document.getElementById('product_category');
+            let message = 'تشخيص الحقول:\\n\\n';
+            message += 'اسم المنتج: ' + (nameField ? nameField.value || '[فارغ]' : '[غير موجود]') + '\\n';
+            message += 'الفئة: ' + (categoryField ? categoryField.value || '[فارغ]' : '[غير موجود]') + '\\n\\n';
+            message += 'هل تريد المتابعة؟';
+            if (confirm(message)) {
+                document.querySelector('form').submit();
             }
+        " style="background: #10b981; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-bug"></i>
+            تشخيص وحفظ
+        </button>
 
-            if (!categoryField || !categoryField.value.trim()) {
-                alert('❌ الفئة مطلوبة! يجب اختيار فئة من القائمة.');
-                categoryField.focus();
-                return false;
-            }
-
-            // Show values for debugging
-            alert('✅ البيانات صحيحة:\\nالاسم: ' + nameField.value + '\\nالفئة: ' + categoryField.value);
-            return true;
-        ">
+        <button type="submit" class="btn-purple" style="padding: 12px 24px;">
             <i class="fas fa-save"></i>
             حفظ المنتج
         </button>
