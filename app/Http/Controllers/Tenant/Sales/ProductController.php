@@ -56,7 +56,7 @@ class ProductController extends Controller
             });
         }
 
-        $products = $query->orderBy('id', 'desc')->paginate(15);
+        $products = $query->orderBy('created_at', 'desc')->orderBy('id', 'desc')->paginate(15);
 
         // للتشخيص: log معلومات الاستعلام
         \Log::info('ProductController index: Query results', [
@@ -189,8 +189,8 @@ class ProductController extends Controller
                 'product_exists' => Product::find($product->id) ? 'YES' : 'NO'
             ]);
 
-            return redirect()->route('tenant.sales.products.index')
-                ->with('success', 'تم إنشاء المنتج بنجاح - ID: ' . $product->id);
+            return redirect()->route('tenant.sales.products.index', ['page' => 1])
+                ->with('success', 'تم إنشاء المنتج بنجاح - ID: ' . $product->id . ' - اسم المنتج: ' . $product->name);
 
         } catch (\Exception $e) {
             \Log::error('Product creation failed', [

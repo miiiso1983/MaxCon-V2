@@ -265,7 +265,8 @@
                 @if(config('app.debug'))
                     @php
                         $currentTenantId = auth()->user()->tenant_id ?? 1;
-                        $lastProduct = \App\Models\Product::where('tenant_id', $currentTenantId)->orderBy('id', 'desc')->first();
+                        $lastProduct = \App\Models\Product::where('tenant_id', $currentTenantId)->orderBy('created_at', 'desc')->orderBy('id', 'desc')->first();
+                        $firstProductInPage = $products->first();
                         $tenantProductsCount = \App\Models\Product::where('tenant_id', $currentTenantId)->count();
                         $allProductsCount = \App\Models\Product::count();
                     @endphp
@@ -277,7 +278,8 @@
                             إجمالي جميع المنتجات: {{ $allProductsCount }} |
                             المستخدم: {{ auth()->id() ?? 'غير مسجل' }} |
                             Tenant ID: {{ $currentTenantId }} |
-                            آخر منتج للتينانت: {{ $lastProduct ? $lastProduct->name . ' (ID: ' . $lastProduct->id . ')' : 'لا يوجد' }}
+                            آخر منتج للتينانت: {{ $lastProduct ? $lastProduct->name . ' (ID: ' . $lastProduct->id . ' - ' . $lastProduct->created_at->format('H:i:s') . ')' : 'لا يوجد' }} |
+                            أول منتج في الصفحة: {{ $firstProductInPage ? $firstProductInPage->name . ' (ID: ' . $firstProductInPage->id . ')' : 'لا يوجد' }}
                         </td>
                     </tr>
                 @endif
