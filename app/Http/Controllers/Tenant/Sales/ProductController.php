@@ -254,6 +254,11 @@ class ProductController extends Controller
     {
         $request->validate([
             'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max
+        ], [
+            'excel_file.required' => 'يرجى اختيار ملف Excel للاستيراد.',
+            'excel_file.file' => 'الملف المرفوع غير صالح.',
+            'excel_file.mimes' => 'نوع الملف غير مدعوم. يجب أن يكون الملف بصيغة Excel (.xlsx, .xls) أو CSV (.csv).',
+            'excel_file.max' => 'حجم الملف كبير جداً. الحد الأقصى المسموح 10 ميجابايت.',
         ]);
 
         try {
@@ -287,9 +292,50 @@ class ProductController extends Controller
             return redirect()->route('tenant.sales.products.index')
                 ->with('success', $message);
 
-        } catch (\Exception $e) {
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+
+            $errorMessage = 'فشل في استيراد الملف بسبب أخطاء في البيانات. ';
+            $errorMessage .= 'عدد الأخطاء: ' . count($failures);
+
             return back()->withInput()
-                ->with('error', 'حدث خطأ أثناء استيراد الملف: ' . $e->getMessage());
+                ->with('error', $errorMessage)
+                ->with('import_failures', $failures);
+
+        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'لا يمكن قراءة الملف. تأكد من أن الملف بصيغة Excel صحيحة (.xlsx أو .xls) وغير تالف.');
+
+        } catch (\PhpOffice\PhpSpreadsheet\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'خطأ في معالجة ملف Excel. تأكد من أن الملف يحتوي على بيانات صحيحة وأن الأعمدة مطابقة للنموذج.');
+
+        } catch (\Illuminate\Http\Exceptions\PostTooLargeException $e) {
+            return back()->withInput()
+                ->with('error', 'حجم الملف كبير جداً. الحد الأقصى المسموح 10 ميجابايت. قم بتقليل عدد الصفوف أو ضغط الملف.');
+
+        } catch (\Exception $e) {
+            \Log::error('Import error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            $errorMessage = 'حدث خطأ غير متوقع أثناء استيراد الملف. ';
+
+            // تحديد نوع الخطأ وإعطاء حل مناسب
+            if (strpos($e->getMessage(), 'memory') !== false) {
+                $errorMessage .= 'الملف كبير جداً للمعالجة. جرب تقسيم الملف إلى ملفات أصغر.';
+            } elseif (strpos($e->getMessage(), 'timeout') !== false) {
+                $errorMessage .= 'انتهت مهلة المعالجة. جرب ملف أصغر أو أعد المحاولة لاحقاً.';
+            } elseif (strpos($e->getMessage(), 'connection') !== false) {
+                $errorMessage .= 'مشكلة في الاتصال بقاعدة البيانات. أعد المحاولة لاحقاً.';
+            } else {
+                $errorMessage .= 'تفاصيل الخطأ: ' . $e->getMessage();
+            }
+
+            return back()->withInput()
+                ->with('error', $errorMessage);
         }
     }
 

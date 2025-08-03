@@ -170,6 +170,52 @@
     </div>
 </div>
 
+<!-- Quick Help -->
+<div class="content-card" style="margin-bottom: 25px;">
+    <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
+        <i class="fas fa-question-circle" style="color: #3b82f6; margin-left: 10px;"></i>
+        مساعدة سريعة - حل المشاكل الشائعة
+    </h3>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 20px;">
+            <h4 style="color: #0369a1; margin: 0 0 15px 0; font-weight: 600; display: flex; align-items: center;">
+                <i class="fas fa-file-excel" style="margin-left: 8px;"></i>
+                مشاكل الملف
+            </h4>
+            <ul style="color: #075985; margin: 0; padding-right: 20px; font-size: 14px; line-height: 1.6;">
+                <li><strong>الملف لا يُرفع:</strong> تأكد من أن الملف أقل من 10 ميجابايت</li>
+                <li><strong>خطأ في النوع:</strong> استخدم .xlsx أو .xls أو .csv فقط</li>
+                <li><strong>الملف تالف:</strong> افتح الملف في Excel واحفظه مرة أخرى</li>
+            </ul>
+        </div>
+
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px;">
+            <h4 style="color: #166534; margin: 0 0 15px 0; font-weight: 600; display: flex; align-items: center;">
+                <i class="fas fa-table" style="margin-left: 8px;"></i>
+                مشاكل البيانات
+            </h4>
+            <ul style="color: #15803d; margin: 0; padding-right: 20px; font-size: 14px; line-height: 1.6;">
+                <li><strong>أعمدة مفقودة:</strong> تأكد من وجود جميع الأعمدة المطلوبة</li>
+                <li><strong>بيانات فارغة:</strong> املأ جميع الخلايا المطلوبة</li>
+                <li><strong>أرقام خاطئة:</strong> تأكد من أن الأسعار والكميات أرقام</li>
+            </ul>
+        </div>
+
+        <div style="background: #fefce8; border: 1px solid #fde047; border-radius: 12px; padding: 20px;">
+            <h4 style="color: #a16207; margin: 0 0 15px 0; font-weight: 600; display: flex; align-items: center;">
+                <i class="fas fa-tools" style="margin-left: 8px;"></i>
+                حلول سريعة
+            </h4>
+            <ul style="color: #92400e; margin: 0; padding-right: 20px; font-size: 14px; line-height: 1.6;">
+                <li><strong>حمل النموذج:</strong> استخدم النموذج المتوفر دائماً</li>
+                <li><strong>ابدأ صغيراً:</strong> جرب 10-20 منتج أولاً</li>
+                <li><strong>تحقق من التنسيق:</strong> تأكد من تطابق أسماء الأعمدة</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 <!-- Upload Form -->
 <div class="content-card">
     <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
@@ -208,8 +254,57 @@
         </div>
 
         @error('excel_file')
-            <div style="color: #f56565; font-size: 14px; margin-bottom: 15px; text-align: center;">{{ $message }}</div>
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="color: #dc2626; margin: 0 0 15px 0; font-weight: 600; display: flex; align-items: center;">
+                    <i class="fas fa-exclamation-triangle" style="margin-left: 8px;"></i>
+                    خطأ في رفع الملف
+                </h4>
+                <p style="color: #7f1d1d; margin: 0 0 15px 0; font-weight: 600;">{{ $message }}</p>
+
+                <div style="background: white; border-radius: 8px; padding: 15px;">
+                    <h5 style="color: #dc2626; margin: 0 0 10px 0; font-size: 16px;">الأسباب المحتملة والحلول:</h5>
+                    <ul style="color: #7f1d1d; margin: 0; padding-right: 20px; line-height: 1.6;">
+                        <li><strong>نوع الملف غير مدعوم:</strong> تأكد من أن الملف بصيغة .xlsx أو .xls أو .csv</li>
+                        <li><strong>حجم الملف كبير:</strong> الحد الأقصى 10 ميجابايت - قم بتقليل عدد الصفوف أو ضغط الملف</li>
+                        <li><strong>الملف تالف:</strong> جرب فتح الملف في Excel والحفظ مرة أخرى</li>
+                        <li><strong>مشكلة في الشبكة:</strong> تأكد من استقرار الاتصال وأعد المحاولة</li>
+                        <li><strong>الملف فارغ:</strong> تأكد من وجود بيانات في الملف</li>
+                    </ul>
+                </div>
+            </div>
         @enderror
+
+        @if(session('error'))
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="color: #dc2626; margin: 0 0 15px 0; font-weight: 600; display: flex; align-items: center;">
+                    <i class="fas fa-times-circle" style="margin-left: 8px;"></i>
+                    فشل في عملية الاستيراد
+                </h4>
+                <p style="color: #7f1d1d; margin: 0 0 15px 0; font-weight: 600;">{{ session('error') }}</p>
+
+                <div style="background: white; border-radius: 8px; padding: 15px;">
+                    <h5 style="color: #dc2626; margin: 0 0 10px 0; font-size: 16px;">خطوات حل المشكلة:</h5>
+                    <ol style="color: #7f1d1d; margin: 0; padding-right: 20px; line-height: 1.6;">
+                        <li><strong>تحقق من تنسيق الملف:</strong> تأكد من أن الصف الأول يحتوي على أسماء الأعمدة الصحيحة</li>
+                        <li><strong>تحقق من البيانات:</strong> تأكد من عدم وجود خلايا فارغة في الأعمدة المطلوبة</li>
+                        <li><strong>تحقق من الأرقام:</strong> تأكد من أن الأسعار والكميات أرقام صحيحة</li>
+                        <li><strong>تحقق من التواريخ:</strong> استخدم تنسيق التاريخ YYYY-MM-DD</li>
+                        <li><strong>حمل النموذج:</strong> استخدم النموذج المتوفر لضمان التنسيق الصحيح</li>
+                        <li><strong>جرب ملف أصغر:</strong> ابدأ بعدد قليل من المنتجات للاختبار</li>
+                    </ol>
+                </div>
+
+                <div style="background: #fffbeb; border: 1px solid #fed7aa; border-radius: 8px; padding: 15px; margin-top: 15px;">
+                    <h6 style="color: #d97706; margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">
+                        <i class="fas fa-lightbulb" style="margin-left: 5px;"></i>
+                        نصيحة سريعة:
+                    </h6>
+                    <p style="color: #92400e; margin: 0; font-size: 14px;">
+                        حمل النموذج أولاً، املأه ببياناتك، ثم ارفعه. هذا يضمن التنسيق الصحيح ويقلل من الأخطاء.
+                    </p>
+                </div>
+            </div>
+        @endif
 
         <div style="text-align: center;">
             <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled>
