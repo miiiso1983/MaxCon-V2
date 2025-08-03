@@ -306,12 +306,31 @@
             console.log('Form element:', this.form);
             console.log('Form action:', this.form.action);
             console.log('Form method:', this.form.method);
+
+            // Check specific required fields
+            const nameField = this.form.querySelector('[name=name]');
+            const categoryField = this.form.querySelector('[name=category]');
+            console.log('Name field value:', nameField ? nameField.value : 'NOT FOUND');
+            console.log('Category field value:', categoryField ? categoryField.value : 'NOT FOUND');
+
             const formData = new FormData(this.form);
             console.log('Form data entries:');
             for (let [key, value] of formData.entries()) {
                 console.log(key + ': ' + value);
             }
             console.log('=== END FORM DATA ===');
+
+            // Check if required fields are empty
+            if (!nameField || !nameField.value.trim()) {
+                console.error('❌ NAME FIELD IS EMPTY!');
+                alert('اسم المنتج مطلوب!');
+                return false;
+            }
+            if (!categoryField || !categoryField.value.trim()) {
+                console.error('❌ CATEGORY FIELD IS EMPTY!');
+                alert('الفئة مطلوبة!');
+                return false;
+            }
         ">
             <i class="fas fa-save"></i>
             حفظ المنتج
