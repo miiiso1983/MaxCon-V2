@@ -436,7 +436,7 @@
         </div>
 
         <div style="text-align: center;">
-            <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled onclick="return testSubmit()">
+            <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" onclick="return testSubmit()">
                 <i class="fas fa-upload" style="margin-left: 8px;"></i>
                 <span id="submitText">استيراد المنتجات</span>
             </button>
