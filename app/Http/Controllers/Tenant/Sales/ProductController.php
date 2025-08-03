@@ -309,12 +309,24 @@ class ProductController extends Controller
                     ->with('error', 'نوع الملف غير مدعوم. يجب أن يكون الملف بصيغة Excel (.xlsx, .xls) أو CSV (.csv). الملف الحالي: .' . $extension);
             }
 
+            \Log::info('Starting import process', [
+                'tenant_id' => $tenantId,
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize()
+            ]);
+
             $import = new ProductsImport($tenantId);
             Excel::import($import, $file);
 
             $importedCount = $import->getImportedCount();
             $skippedCount = $import->getSkippedCount();
             $failures = $import->failures();
+
+            \Log::info('Import completed', [
+                'imported' => $importedCount,
+                'skipped' => $skippedCount,
+                'failures' => count($failures)
+            ]);
 
             // حساب الوقت المستغرق (تقدير تقريبي)
             $executionTime = "أقل من دقيقة";
@@ -340,6 +352,11 @@ class ProductController extends Controller
                 // Store failures in session for display
                 session()->flash('import_failures', $failures);
             }
+
+            \Log::info('Redirecting with success message', [
+                'message' => $message,
+                'redirect_route' => 'tenant.sales.products.index'
+            ]);
 
             return redirect()->route('tenant.sales.products.index')
                 ->with('success', $message)

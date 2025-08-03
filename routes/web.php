@@ -893,6 +893,25 @@ Route::post('/import-all-products-no-check', function (Request $request) {
     }
 })->name('import.all.products.no.check');
 
+// Test route to check if messages work
+Route::get('/test-import-success', function () {
+    return redirect()->route('tenant.sales.products.index')
+        ->with('success', '✅ تم استيراد 1101 منتج بنجاح وتم تخطي 0 منتج (موجود مسبقاً). الوقت المستغرق: 3.2 دقيقة.')
+        ->with('import_stats', [
+            'imported' => 1101,
+            'skipped' => 0,
+            'total_processed' => 1101,
+            'failures_count' => 0,
+            'execution_time' => '3.2 دقيقة'
+        ]);
+})->name('test.import.success');
+
+// Test route to check if error messages work
+Route::get('/test-import-error', function () {
+    return redirect()->route('tenant.sales.products.index')
+        ->with('error', 'فشل في استيراد الملف بسبب أخطاء في البيانات. عدد الأخطاء: 25. معظم الأخطاء بسبب حقول مطلوبة فارغة.');
+})->name('test.import.error');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
