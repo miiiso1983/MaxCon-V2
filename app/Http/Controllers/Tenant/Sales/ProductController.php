@@ -252,7 +252,8 @@ class ProductController extends Controller
      */
     public function processImport(Request $request): RedirectResponse
     {
-        \Log::info('ProcessImport method called', [
+        \Log::info('🔥 ProcessImport method called - NEW TEST', [
+            'timestamp' => now()->toDateTimeString(),
             'request_method' => $request->method(),
             'has_file' => $request->hasFile('excel_file'),
             'file_size' => $request->hasFile('excel_file') ? $request->file('excel_file')->getSize() : 'no_file',
@@ -261,6 +262,10 @@ class ProductController extends Controller
             'all_request_data' => $request->all(),
             'headers' => $request->headers->all()
         ]);
+
+        // اختبار فوري - إرجاع رسالة بدون معالجة
+        return redirect()->route('tenant.sales.products.import')
+            ->with('success', '🔥 اختبار جديد: وصل الطلب إلى الـ Controller في ' . now()->format('H:i:s'));
 
         $request->validate([
             'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max

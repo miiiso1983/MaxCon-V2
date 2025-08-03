@@ -669,15 +669,21 @@ function checkLargeFile(file) {
 }
 
 function validateBeforeSubmit() {
+    console.log('🔥 validateBeforeSubmit called at', new Date().toLocaleTimeString());
+    alert('🔥 اختبار جديد: validateBeforeSubmit تم استدعاؤها في ' + new Date().toLocaleTimeString());
+
     const fileInput = document.getElementById('excelFile');
     const submitBtn = document.getElementById('submitBtn');
     const submitText = document.getElementById('submitText');
     const uploadProgress = document.getElementById('uploadProgress');
 
     if (!fileInput.files || fileInput.files.length === 0) {
+        alert('❌ لا يوجد ملف محدد');
         showFileError('يرجى اختيار ملف Excel للاستيراد');
         return false;
     }
+
+    alert('✅ تم العثور على ملف: ' + fileInput.files[0].name);
 
     const file = fileInput.files[0];
 
