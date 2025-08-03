@@ -780,6 +780,8 @@ function validateBeforeSubmit() {
         progressText.textContent = 'تم الانتهاء!';
     }, estimatedSeconds * 1000);
 
+    console.log('🔥 validateBeforeSubmit returning true');
+    alert('🔥 validateBeforeSubmit returning true - form should submit now!');
     return true;
 }
 
@@ -793,16 +795,22 @@ document.addEventListener('DOMContentLoaded', function() {
     let isSubmitting = false;
 
     form.addEventListener('submit', function(e) {
+        console.log('🔥 Form submit event fired!');
+        alert('🔥 Form submit event fired!');
+
         const submitBtn = document.getElementById('submitBtn');
 
         // منع الإرسال المتكرر
         if (isSubmitting) {
+            console.log('🔥 Preventing duplicate submission');
+            alert('🔥 Preventing duplicate submission');
             e.preventDefault();
             return false;
         }
 
         isSubmitting = true;
-        console.log('Form submission started');
+        console.log('🔥 Form submission started - proceeding...');
+        alert('🔥 Form submission started - proceeding...');
 
         // إضافة timeout للكشف عن المشاكل
         const timeoutId = setTimeout(function() {
