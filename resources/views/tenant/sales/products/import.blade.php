@@ -436,7 +436,7 @@
         </div>
 
         <div style="text-align: center;">
-            <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled onclick="return validateBeforeSubmit()">
+            <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled onclick="handleSubmitClick(event)">
                 <i class="fas fa-upload" style="margin-left: 8px;"></i>
                 <span id="submitText">استيراد المنتجات</span>
             </button>
@@ -665,6 +665,27 @@ function checkLargeFile(file) {
         }, 100);
     } else {
         largeFileWarning.style.display = 'none';
+    }
+}
+
+function handleSubmitClick(event) {
+    console.log('🔥 handleSubmitClick called');
+    alert('🔥 handleSubmitClick called');
+
+    // منع الإرسال الافتراضي
+    event.preventDefault();
+
+    // تشغيل التحقق
+    if (validateBeforeSubmit()) {
+        console.log('🔥 Validation passed, submitting form manually');
+        alert('🔥 Validation passed, submitting form manually');
+
+        // إرسال النموذج يدوياً
+        const form = document.getElementById('importForm');
+        form.submit();
+    } else {
+        console.log('🔥 Validation failed');
+        alert('🔥 Validation failed');
     }
 }
 
