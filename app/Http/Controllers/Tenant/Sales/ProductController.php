@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
@@ -131,7 +132,32 @@ class ProductController extends Controller
             $product = new Product();
             $product->tenant_id = auth()->user()->tenant_id;
             $product->product_code = $product->generateProductCode();
+
+            // تعيين الحقول مع التعامل مع أسماء الحقول المختلفة
             $product->fill($validated);
+
+            // التأكد من تعيين الحقول الصحيحة
+            if (isset($validated['purchase_price'])) {
+                $product->cost_price = $validated['purchase_price']; // حفظ في cost_price
+                if (Schema::hasColumn('products', 'purchase_price')) {
+                    $product->purchase_price = $validated['purchase_price'];
+                }
+            }
+
+            if (isset($validated['current_stock'])) {
+                $product->stock_quantity = $validated['current_stock']; // حفظ في stock_quantity
+                if (Schema::hasColumn('products', 'current_stock')) {
+                    $product->current_stock = $validated['current_stock'];
+                }
+            }
+
+            if (isset($validated['unit'])) {
+                $product->unit_of_measure = $validated['unit']; // حفظ في unit_of_measure
+                if (Schema::hasColumn('products', 'unit')) {
+                    $product->unit = $validated['unit'];
+                }
+            }
+
             $product->is_active = true;
             $product->save();
 
@@ -201,7 +227,32 @@ class ProductController extends Controller
         ]);
 
         try {
-            $product->update($validated);
+            // تحديث الحقول مع التعامل مع أسماء الحقول المختلفة
+            $product->fill($validated);
+
+            // التأكد من تحديث الحقول الصحيحة
+            if (isset($validated['purchase_price'])) {
+                $product->cost_price = $validated['purchase_price']; // حفظ في cost_price
+                if (Schema::hasColumn('products', 'purchase_price')) {
+                    $product->purchase_price = $validated['purchase_price'];
+                }
+            }
+
+            if (isset($validated['current_stock'])) {
+                $product->stock_quantity = $validated['current_stock']; // حفظ في stock_quantity
+                if (Schema::hasColumn('products', 'current_stock')) {
+                    $product->current_stock = $validated['current_stock'];
+                }
+            }
+
+            if (isset($validated['unit'])) {
+                $product->unit_of_measure = $validated['unit']; // حفظ في unit_of_measure
+                if (Schema::hasColumn('products', 'unit')) {
+                    $product->unit = $validated['unit'];
+                }
+            }
+
+            $product->save();
 
             return redirect()->route('tenant.sales.products.show', $product)
                 ->with('success', 'تم تحديث بيانات المنتج بنجاح');

@@ -29,14 +29,18 @@ class Product extends Model
         'unit_of_measure',
         'country_of_origin',
         'cost_price',
+        'purchase_price', // إضافة purchase_price
         'selling_price',
         'min_selling_price',
         'wholesale_price',
         'retail_price',
         'currency',
         'stock_quantity',
+        'current_stock', // إضافة current_stock
         'min_stock_level',
         'max_stock_level',
+        'minimum_stock', // إضافة minimum_stock
+        'maximum_stock', // إضافة maximum_stock
         'tax_rate',
         'is_taxable',
         'is_active',
@@ -44,19 +48,27 @@ class Product extends Model
         'track_batch',
         'image_url',
         'specifications',
-
+        'notes',
+        'unit', // إضافة unit
+        'generic_name', // إضافة generic_name
+        'manufacturing_date', // إضافة manufacturing_date
+        'storage_conditions', // إضافة storage_conditions
     ];
 
     protected $casts = [
         'cost_price' => 'decimal:2',
+        'purchase_price' => 'decimal:2',
         'selling_price' => 'decimal:2',
         'wholesale_price' => 'decimal:2',
         'retail_price' => 'decimal:2',
         'unit_weight' => 'decimal:3',
         'unit_volume' => 'decimal:3',
         'current_stock' => 'decimal:2',
+        'stock_quantity' => 'decimal:2',
         'minimum_stock' => 'decimal:2',
         'maximum_stock' => 'decimal:2',
+        'min_stock_level' => 'integer',
+        'max_stock_level' => 'integer',
         'reorder_level' => 'decimal:2',
         'reorder_quantity' => 'decimal:2',
         'track_stock' => 'boolean',
@@ -70,6 +82,54 @@ class Product extends Model
         'attributes' => 'array',
         'variations' => 'array',
     ];
+
+    // Accessors and Mutators for field compatibility
+
+    /**
+     * Get purchase_price attribute (maps to cost_price if purchase_price doesn't exist)
+     */
+    public function getPurchasePriceAttribute($value)
+    {
+        // إذا كان purchase_price موجود، استخدمه
+        if ($value !== null) {
+            return $value;
+        }
+
+        // وإلا استخدم cost_price
+        return $this->attributes['cost_price'] ?? 0;
+    }
+
+    /**
+     * Set purchase_price attribute (save to both purchase_price and cost_price)
+     */
+    public function setPurchasePriceAttribute($value)
+    {
+        $this->attributes['purchase_price'] = $value;
+        $this->attributes['cost_price'] = $value; // للتوافق مع الحقول القديمة
+    }
+
+    /**
+     * Get current_stock attribute (maps to stock_quantity if current_stock doesn't exist)
+     */
+    public function getCurrentStockAttribute($value)
+    {
+        // إذا كان current_stock موجود، استخدمه
+        if ($value !== null) {
+            return $value;
+        }
+
+        // وإلا استخدم stock_quantity
+        return $this->attributes['stock_quantity'] ?? 0;
+    }
+
+    /**
+     * Set current_stock attribute (save to both current_stock and stock_quantity)
+     */
+    public function setCurrentStockAttribute($value)
+    {
+        $this->attributes['current_stock'] = $value;
+        $this->attributes['stock_quantity'] = $value; // للتوافق مع الحقول القديمة
+    }
 
     // Relationships
     public function tenant(): BelongsTo
