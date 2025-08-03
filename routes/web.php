@@ -1078,7 +1078,7 @@ Route::prefix('test')->name('test.')->group(function () {
 });
 
 // Tenant-specific routes (للـ Tenant Admin)
-Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('tenant')->name('tenant.')->group(function () {
     // Tenant dashboard
     Route::get('/dashboard', function () {
         return view('tenant.dashboard');
