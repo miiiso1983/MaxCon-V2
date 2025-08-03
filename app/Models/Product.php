@@ -76,54 +76,7 @@ class Product extends Model
 
     // Accessors and Mutators for field compatibility
 
-    /**
-     * Get purchase_price attribute (maps to cost_price since purchase_price doesn't exist in DB)
-     */
-    public function getPurchasePriceAttribute()
-    {
-        return $this->attributes['cost_price'] ?? 0;
-    }
-
-    /**
-     * Set purchase_price attribute (save to cost_price since purchase_price doesn't exist in DB)
-     */
-    public function setPurchasePriceAttribute($value)
-    {
-        $this->attributes['cost_price'] = $value;
-    }
-
-    /**
-     * Get current_stock attribute (maps to stock_quantity since current_stock doesn't exist in DB)
-     */
-    public function getCurrentStockAttribute()
-    {
-        return $this->attributes['stock_quantity'] ?? 0;
-    }
-
-    /**
-     * Set current_stock attribute (save to stock_quantity since current_stock doesn't exist in DB)
-     */
-    public function setCurrentStockAttribute($value)
-    {
-        $this->attributes['stock_quantity'] = $value;
-    }
-
-    /**
-     * Get unit attribute (maps to unit_of_measure since unit doesn't exist in DB)
-     */
-    public function getUnitAttribute()
-    {
-        return $this->attributes['unit_of_measure'] ?? 'قطعة';
-    }
-
-    /**
-     * Set unit attribute (save to unit_of_measure since unit doesn't exist in DB)
-     */
-    public function setUnitAttribute($value)
-    {
-        $this->attributes['unit_of_measure'] = $value;
-        $this->attributes['stock_quantity'] = $value; // للتوافق مع الحقول القديمة
-    }
+    // تم إزالة الـ Accessors/Mutators لحل مشكلة الحفظ
 
     // Relationships
     public function tenant(): BelongsTo

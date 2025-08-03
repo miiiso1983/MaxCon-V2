@@ -156,7 +156,7 @@
             <!-- Purchase Price -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">سعر الشراء *</label>
-                <input type="number" name="purchase_price" value="{{ old('purchase_price', $product->cost_price ?? 0) }}" min="0" step="0.01" required
+                <input type="number" name="purchase_price" value="{{ old('purchase_price', $product->cost_price) }}" min="0" step="0.01" required
                        style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" 
                        placeholder="0.00">
                 @error('purchase_price')
@@ -188,7 +188,7 @@
             <!-- Current Stock -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المخزون الحالي *</label>
-                <input type="number" name="current_stock" value="{{ old('current_stock', $product->stock_quantity ?? 0) }}" min="0" required
+                <input type="number" name="current_stock" value="{{ old('current_stock', $product->stock_quantity) }}" min="0" required
                        style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" 
                        placeholder="0">
                 @error('current_stock')

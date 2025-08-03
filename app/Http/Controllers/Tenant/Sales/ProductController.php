@@ -113,6 +113,13 @@ class ProductController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // تشخيص البيانات المرسلة
+        \Log::info('Store method called', [
+            'request_data' => $request->all(),
+            'user_id' => auth()->id(),
+            'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL'
+        ]);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'generic_name' => 'nullable|string|max:255',
@@ -132,58 +139,54 @@ class ProductController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        \Log::info('Validation passed', ['validated_data' => $validated]);
+
         try {
             $user = auth()->user();
-            $tenantId = $user ? $user->tenant_id : 1; // fallback للاختبار
-
-            // تشخيص مفصل قبل الحفظ
-            \Log::info('Before product creation', [
-                'user_id' => auth()->id(),
-                'user_tenant_id' => $tenantId,
-                'validated_data' => $validated,
-                'products_count_before' => Product::where('tenant_id', $tenantId)->count()
-            ]);
+            $tenantId = $user ? $user->tenant_id : 1;
 
             $product = new Product();
             $product->tenant_id = $tenantId;
-
-            // تعيين الحقول يدوياً للتأكد
             $product->name = $validated['name'];
             $product->category = $validated['category'];
-            $product->cost_price = $validated['purchase_price'] ?? 0;
-            $product->selling_price = $validated['selling_price'] ?? 0;
-            $product->stock_quantity = $validated['current_stock'] ?? 0;
-            $product->min_stock_level = $validated['min_stock_level'] ?? 0;
-            $product->unit_of_measure = $validated['unit'] ?? 'قطعة';
-            $product->manufacturer = $validated['manufacturer'] ?? null;
-            $product->barcode = $validated['barcode'] ?? null;
-            $product->batch_number = $validated['batch_number'] ?? null;
-            $product->expiry_date = $validated['expiry_date'] ?? null;
-            $product->manufacturing_date = $validated['manufacturing_date'] ?? null;
-            $product->storage_conditions = $validated['storage_conditions'] ?? null;
-            $product->description = $validated['description'] ?? null;
-            $product->notes = $validated['notes'] ?? null;
+            $product->cost_price = $validated['purchase_price'];
+            $product->selling_price = $validated['selling_price'];
+            $product->stock_quantity = $validated['current_stock'];
+            $product->min_stock_level = $validated['min_stock_level'];
+            $product->unit_of_measure = $validated['unit'];
+            $product->manufacturer = $validated['manufacturer'];
+            $product->barcode = $validated['barcode'];
+            $product->batch_number = $validated['batch_number'];
+            $product->expiry_date = $validated['expiry_date'];
+            $product->manufacturing_date = $validated['manufacturing_date'];
+            $product->storage_conditions = $validated['storage_conditions'];
+            $product->description = $validated['description'];
+            $product->notes = $validated['notes'];
             $product->is_active = true;
+            $product->product_code = 'PROD' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
 
-            // توليد product_code بعد تعيين tenant_id
-            $product->product_code = $product->generateProductCode();
+            \Log::info('Before save', [
+                'product_data' => $product->toArray(),
+                'tenant_id' => $tenantId
+            ]);
 
             $saved = $product->save();
 
-            // تشخيص مفصل بعد الحفظ
-            \Log::info('After product creation', [
-                'save_result' => $saved,
+            \Log::info('After save', [
+                'saved' => $saved,
                 'product_id' => $product->id,
-                'product_name' => $product->name,
-                'product_tenant_id' => $product->tenant_id,
-                'products_count_after' => Product::where('tenant_id', $tenantId)->count(),
                 'product_exists' => Product::find($product->id) ? 'YES' : 'NO'
             ]);
 
-            return redirect()->route('tenant.sales.products.index', ['page' => 1])
-                ->with('success', 'تم إنشاء المنتج بنجاح - ID: ' . $product->id . ' - Tenant: ' . $product->tenant_id);
+            return redirect()->route('tenant.sales.products.index')
+                ->with('success', 'تم إنشاء المنتج بنجاح - ID: ' . $product->id);
 
         } catch (\Exception $e) {
+            \Log::error('Product creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return back()->withInput()
                 ->with('error', 'حدث خطأ أثناء إنشاء المنتج: ' . $e->getMessage());
         }

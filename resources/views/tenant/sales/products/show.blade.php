@@ -34,7 +34,7 @@
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                     <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
                         <i class="fas fa-boxes" style="margin-left: 8px;"></i>
-                        <span style="font-size: 14px; font-weight: 600;">مخزون: {{ $product->stock_quantity ?? 0 }} {{ $product->unit_of_measure ?? 'قطعة' }}</span>
+                        <span style="font-size: 14px; font-weight: 600;">مخزون: {{ $product->stock_quantity }} {{ $product->unit_of_measure }}</span>
                     </div>
                     <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
                         <i class="fas fa-dollar-sign" style="margin-left: 8px;"></i>
@@ -149,7 +149,7 @@
         <div style="space-y: 15px;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #fef2f2; border-radius: 8px; margin-bottom: 10px;">
                 <span style="color: #dc2626; font-weight: 600;">سعر الشراء</span>
-                <span style="color: #b91c1c; font-weight: 700;">{{ number_format($product->cost_price ?? 0, 2) }} ر.س</span>
+                <span style="color: #b91c1c; font-weight: 700;">{{ number_format($product->cost_price, 2) }} ر.س</span>
             </div>
             
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f0fdf4; border-radius: 8px; margin-bottom: 10px;">
