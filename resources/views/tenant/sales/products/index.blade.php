@@ -176,12 +176,21 @@
                     <i class="fas fa-file-excel"></i>
                     استيراد من Excel
                 </a>
-                <a href="{{ route('tenant.sales.products.create') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease;"
+                <a href="{{ route('tenant.sales.products.create') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease; margin-left: 10px;"
                    onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='translateY(-2px)';"
                    onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(0)';">
                     <i class="fas fa-plus"></i>
                     إضافة منتج جديد
                 </a>
+
+                @if(config('app.debug'))
+                <a href="{{ route('tenant.sales.products.index') }}?refresh={{ time() }}" style="background: rgba(255,255,255,0.15); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)';"
+                   onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)';">
+                    <i class="fas fa-sync-alt"></i>
+                    تحديث فوري
+                </a>
+                @endif
             </div>
         </div>
     </div>
@@ -254,13 +263,17 @@
             <tbody>
                 {{-- تشخيص مؤقت --}}
                 @if(config('app.debug'))
+                    @php
+                        $lastProduct = \App\Models\Product::where('tenant_id', auth()->user()->tenant_id ?? 1)->orderBy('id', 'desc')->first();
+                    @endphp
                     <tr style="background: #fef2f2; border: 1px solid #fca5a5;">
                         <td colspan="7" style="padding: 10px; font-size: 12px; color: #dc2626;">
                             <strong>تشخيص:</strong>
                             عدد المنتجات: {{ $products->count() }} |
                             إجمالي المنتجات: {{ $products->total() }} |
                             المستخدم: {{ auth()->id() ?? 'غير مسجل' }} |
-                            Tenant ID: {{ auth()->user()->tenant_id ?? 'NULL' }}
+                            Tenant ID: {{ auth()->user()->tenant_id ?? 'NULL' }} |
+                            آخر منتج: {{ $lastProduct ? $lastProduct->name . ' (ID: ' . $lastProduct->id . ')' : 'لا يوجد' }}
                         </td>
                     </tr>
                 @endif

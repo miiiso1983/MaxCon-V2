@@ -49,7 +49,7 @@ class ProductController extends Controller
             });
         }
 
-        $products = $query->orderBy('created_at', 'desc')->paginate(15);
+        $products = $query->orderBy('id', 'desc')->paginate(15);
 
         // للتشخيص: log معلومات الاستعلام
         \Log::info('ProductController index: Query results', [
@@ -153,8 +153,13 @@ class ProductController extends Controller
                 'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL'
             ]);
 
+            // Clear any potential cache
+            if (function_exists('opcache_reset')) {
+                opcache_reset();
+            }
+
             return redirect()->route('tenant.sales.products.index')
-                ->with('success', 'تم إنشاء المنتج بنجاح');
+                ->with('success', 'تم إنشاء المنتج بنجاح - ID: ' . $product->id);
 
         } catch (\Exception $e) {
             return back()->withInput()
