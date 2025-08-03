@@ -40,7 +40,7 @@
 </div>
 
 <!-- Product Form -->
-<form method="POST" action="{{ route('tenant.sales.products.store') }}">
+<form method="POST" action="{{ route('tenant.sales.products.store') }}" onsubmit="console.log('Form submitted!', this); return true;">
     @csrf
     
     <!-- Basic Information -->
@@ -286,7 +286,7 @@
             <i class="fas fa-times"></i>
             إلغاء
         </a>
-        <button type="submit" class="btn-purple" style="padding: 12px 24px;">
+        <button type="submit" class="btn-purple" style="padding: 12px 24px;" onclick="console.log('Save button clicked!'); console.log('Form data:', new FormData(this.form));">
             <i class="fas fa-save"></i>
             حفظ المنتج
         </button>

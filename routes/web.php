@@ -893,6 +893,65 @@ Route::post('/import-all-products-no-check', function (Request $request) {
     }
 })->name('import.all.products.no.check');
 
+// Test direct product creation
+Route::get('/test-direct-product-creation', function () {
+    try {
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : 4;
+
+        \Log::info('Direct product creation test started', [
+            'user_id' => auth()->id(),
+            'tenant_id' => $tenantId
+        ]);
+
+        $product = new \App\Models\Product();
+        $product->tenant_id = $tenantId;
+        $product->name = 'منتج اختبار مباشر ' . now()->format('H:i:s');
+        $product->category = 'أدوية';
+        $product->cost_price = 10.50;
+        $product->selling_price = 20.00;
+        $product->stock_quantity = 50;
+        $product->min_stock_level = 5;
+        $product->unit_of_measure = 'قرص';
+        $product->manufacturer = 'شركة اختبار';
+        $product->is_active = true;
+        $product->product_code = 'TEST' . rand(1000, 9999);
+
+        \Log::info('Before save - product data', $product->toArray());
+
+        $saved = $product->save();
+
+        \Log::info('After save', [
+            'saved' => $saved,
+            'product_id' => $product->id,
+            'exists_in_db' => \App\Models\Product::find($product->id) ? 'YES' : 'NO'
+        ]);
+
+        $totalProducts = \App\Models\Product::where('tenant_id', $tenantId)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم إنشاء منتج اختبار بنجاح',
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'tenant_id' => $tenantId,
+            'total_products' => $totalProducts,
+            'saved_result' => $saved
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Direct product creation failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+    }
+})->name('test.direct.product.creation');
+
 // Test route to check if messages work
 Route::get('/test-import-success', function () {
     return redirect()->route('tenant.sales.products.index')
