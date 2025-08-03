@@ -3,7 +3,115 @@
 @section('page-title', 'إدارة المنتجات')
 @section('page-description', 'إدارة شاملة لكتالوج المنتجات الدوائية')
 
+@push('styles')
+<style>
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+@endpush
+
 @section('content')
+
+<!-- Success/Error Messages -->
+@if(session('success'))
+<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 25px; animation: slideInDown 0.5s ease-out;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="background: #22c55e; border-radius: 50%; padding: 10px; flex-shrink: 0;">
+            <i class="fas fa-check" style="color: white; font-size: 18px;"></i>
+        </div>
+        <div style="flex: 1;">
+            <h4 style="color: #166534; margin: 0 0 8px 0; font-weight: 600; font-size: 18px;">
+                تم بنجاح!
+            </h4>
+            <p style="color: #15803d; margin: 0; font-size: 16px; line-height: 1.5;">
+                {{ session('success') }}
+            </p>
+
+            @if(session('import_stats'))
+                <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #d1fae5;">
+                    <h5 style="color: #166534; margin: 0 0 10px 0; font-size: 16px;">📊 إحصائيات الاستيراد:</h5>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 14px;">
+                        <div style="text-align: center;">
+                            <div style="color: #22c55e; font-weight: 600; font-size: 18px;">{{ session('import_stats')['imported'] }}</div>
+                            <div style="color: #15803d;">منتج مستورد</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #f59e0b; font-weight: 600; font-size: 18px;">{{ session('import_stats')['skipped'] }}</div>
+                            <div style="color: #92400e;">منتج متخطى</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #3b82f6; font-weight: 600; font-size: 18px;">{{ session('import_stats')['total_processed'] }}</div>
+                            <div style="color: #1e40af;">إجمالي معالج</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #8b5cf6; font-weight: 600; font-size: 18px;">{{ session('import_stats')['execution_time'] }}</div>
+                            <div style="color: #7c3aed;">وقت التنفيذ</div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+        <button onclick="this.parentElement.parentElement.style.display='none'"
+                style="background: none; border: none; color: #166534; font-size: 20px; cursor: pointer; padding: 5px;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 20px; margin-bottom: 25px; animation: slideInDown 0.5s ease-out;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="background: #ef4444; border-radius: 50%; padding: 10px; flex-shrink: 0;">
+            <i class="fas fa-exclamation-triangle" style="color: white; font-size: 18px;"></i>
+        </div>
+        <div style="flex: 1;">
+            <h4 style="color: #dc2626; margin: 0 0 8px 0; font-weight: 600; font-size: 18px;">
+                حدث خطأ!
+            </h4>
+            <p style="color: #7f1d1d; margin: 0; font-size: 16px; line-height: 1.5;">
+                {{ session('error') }}
+            </p>
+        </div>
+        <button onclick="this.parentElement.parentElement.style.display='none'"
+                style="background: none; border: none; color: #dc2626; font-size: 20px; cursor: pointer; padding: 5px;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+@endif
+
+@if(session('import_failures'))
+<div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+    <h4 style="color: #92400e; margin: 0 0 15px 0; font-weight: 600; display: flex; align-items: center;">
+        <i class="fas fa-exclamation-triangle" style="margin-left: 8px;"></i>
+        أخطاء في البيانات المستوردة
+    </h4>
+
+    <div style="background: white; border-radius: 8px; padding: 15px; max-height: 300px; overflow-y: auto;">
+        @foreach(session('import_failures') as $failure)
+            <div style="margin-bottom: 10px; padding: 10px; background: #fef2f2; border-radius: 6px; border-right: 4px solid #ef4444;">
+                <div style="font-weight: 600; color: #dc2626; margin-bottom: 5px;">
+                    الصف {{ $failure->row() }}:
+                </div>
+                <ul style="margin: 0; padding-right: 20px; color: #7f1d1d; font-size: 14px;">
+                    @foreach($failure->errors() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endforeach
+    </div>
+</div>
+@endif
 
 @if(isset($debugInfo))
 <!-- Debug Information -->

@@ -3,7 +3,75 @@
 @section('page-title', 'استيراد المنتجات من Excel')
 @section('page-description', 'استيراد قائمة المنتجات الدوائية من ملف Excel')
 
+@push('styles')
+<style>
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+@endpush
+
 @section('content')
+
+<!-- Success/Error Messages -->
+@if(session('success'))
+<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 25px; animation: slideInDown 0.5s ease-out;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="background: #22c55e; border-radius: 50%; padding: 10px; flex-shrink: 0;">
+            <i class="fas fa-check" style="color: white; font-size: 18px;"></i>
+        </div>
+        <div style="flex: 1;">
+            <h4 style="color: #166534; margin: 0 0 8px 0; font-weight: 600; font-size: 18px;">
+                تم الاستيراد بنجاح!
+            </h4>
+            <p style="color: #15803d; margin: 0; font-size: 16px; line-height: 1.5;">
+                {{ session('success') }}
+            </p>
+            <div style="margin-top: 15px;">
+                <a href="{{ route('tenant.sales.products.index') }}"
+                   style="background: #22c55e; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-eye"></i>
+                    عرض المنتجات المستوردة
+                </a>
+            </div>
+        </div>
+        <button onclick="this.parentElement.parentElement.style.display='none'"
+                style="background: none; border: none; color: #166534; font-size: 20px; cursor: pointer; padding: 5px;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 20px; margin-bottom: 25px; animation: slideInDown 0.5s ease-out;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="background: #ef4444; border-radius: 50%; padding: 10px; flex-shrink: 0;">
+            <i class="fas fa-exclamation-triangle" style="color: white; font-size: 18px;"></i>
+        </div>
+        <div style="flex: 1;">
+            <h4 style="color: #dc2626; margin: 0 0 8px 0; font-weight: 600; font-size: 18px;">
+                فشل الاستيراد!
+            </h4>
+            <p style="color: #7f1d1d; margin: 0; font-size: 16px; line-height: 1.5;">
+                {{ session('error') }}
+            </p>
+        </div>
+        <button onclick="this.parentElement.parentElement.style.display='none'"
+                style="background: none; border: none; color: #dc2626; font-size: 20px; cursor: pointer; padding: 5px;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+@endif
+
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
@@ -681,6 +749,16 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             return false;
         }
+    });
+
+    // إضافة timeout للتأكد من إعادة التوجيه
+    form.addEventListener('submit', function() {
+        // إذا لم يتم إعادة التوجيه خلال 10 دقائق، أعد التوجيه يدوياً
+        setTimeout(function() {
+            if (document.getElementById('submitBtn').disabled) {
+                window.location.href = '{{ route("tenant.sales.products.index") }}';
+            }
+        }, 600000); // 10 دقائق
     });
 });
 </script>
