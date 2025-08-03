@@ -127,8 +127,11 @@ class ProductController extends Controller
             'request_url' => $request->url(),
             'request_data' => $request->all(),
             'user_id' => auth()->id(),
+            'user_authenticated' => auth()->check(),
             'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL',
-            'headers' => $request->headers->all()
+            'session_id' => session()->getId(),
+            'csrf_token' => $request->input('_token'),
+            'expected_csrf' => csrf_token()
         ]);
 
         $validated = $request->validate([
