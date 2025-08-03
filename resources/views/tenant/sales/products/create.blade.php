@@ -57,6 +57,14 @@
         CSRF: {{ csrf_token() }}
     </div>
     @endif
+
+    <div style="background: #fef2f2; border: 2px solid #f56565; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4 style="color: #dc2626; margin: 0 0 10px 0;">⚠️ تحذير مهم</h4>
+        <p style="margin: 0; color: #7f1d1d;">
+            <strong>يجب ملء حقل "اسم المنتج" و "الفئة" بشكل صحيح وإلا لن يتم حفظ المنتج!</strong><br>
+            تأكد من اختيار فئة من القائمة المنسدلة.
+        </p>
+    </div>
     
     <!-- Basic Information -->
     <div class="content-card" style="margin-bottom: 25px;">
@@ -69,12 +77,16 @@
             <!-- Name -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">اسم المنتج *</label>
-                <input type="text" name="name" value="{{ old('name') }}" required 
-                       style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" 
-                       placeholder="اسم المنتج التجاري">
+                <input type="text" name="name" value="{{ old('name') }}" required
+                       style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f0fff4;"
+                       placeholder="اسم المنتج التجاري"
+                       onchange="console.log('Name changed to:', this.value)">
                 @error('name')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
+                @if(config('app.debug'))
+                <div style="font-size: 10px; color: #666; margin-top: 2px;">تشخيص: حقل الاسم</div>
+                @endif
             </div>
             
             <!-- Generic Name -->
@@ -91,7 +103,8 @@
             <!-- Category -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الفئة *</label>
-                <select name="category" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="category" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f0fff4;"
+                        onchange="console.log('Category changed to:', this.value)">
                     <option value="">اختر الفئة</option>
                     <option value="أدوية القلب والأوعية الدموية" {{ old('category') === 'أدوية القلب والأوعية الدموية' ? 'selected' : '' }}>أدوية القلب والأوعية الدموية</option>
                     <option value="المضادات الحيوية" {{ old('category') === 'المضادات الحيوية' ? 'selected' : '' }}>المضادات الحيوية</option>
