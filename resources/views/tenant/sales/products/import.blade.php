@@ -306,6 +306,26 @@
             </div>
         @endif
 
+        <!-- تحذير للملفات الكبيرة -->
+        <div id="largeFileWarning" style="display: none; background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h4 style="color: #92400e; margin: 0 0 15px 0; font-weight: 600; display: flex; align-items: center;">
+                <i class="fas fa-exclamation-triangle" style="margin-left: 8px;"></i>
+                تحذير: ملف كبير
+            </h4>
+            <div style="color: #92400e; line-height: 1.6;">
+                <p style="margin: 0 0 10px 0;">الملف المختار كبير الحجم وقد يستغرق وقتاً طويلاً للمعالجة:</p>
+                <ul style="margin: 0 0 15px 0; padding-right: 20px;">
+                    <li>الوقت المتوقع: <span id="estimatedProcessingTime">--</span></li>
+                    <li>يرجى عدم إغلاق الصفحة أو المتصفح أثناء المعالجة</li>
+                    <li>تأكد من استقرار الاتصال بالإنترنت</li>
+                    <li>يمكنك تقسيم الملف إلى ملفات أصغر لتسريع العملية</li>
+                </ul>
+                <div style="background: white; border-radius: 8px; padding: 10px; font-size: 14px;">
+                    <strong>نصيحة:</strong> للملفات الكبيرة جداً (أكثر من 1000 منتج)، يُنصح بتقسيمها إلى ملفات أصغر (200-500 منتج لكل ملف).
+                </div>
+            </div>
+        </div>
+
         <div style="text-align: center;">
             <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled onclick="return validateBeforeSubmit()">
                 <i class="fas fa-upload" style="margin-left: 8px;"></i>
@@ -313,13 +333,36 @@
             </button>
 
             <div id="uploadProgress" style="display: none; margin-top: 15px;">
-                <div style="background: #f3f4f6; border-radius: 10px; padding: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px; color: #6b7280;">
+                <div style="background: #f3f4f6; border-radius: 10px; padding: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; color: #6b7280; margin-bottom: 15px;">
                         <i class="fas fa-spinner fa-spin"></i>
-                        <span>جاري رفع ومعالجة الملف... يرجى الانتظار</span>
+                        <span id="progressText">جاري رفع الملف...</span>
                     </div>
-                    <div style="background: #e5e7eb; border-radius: 5px; height: 8px; margin-top: 10px; overflow: hidden;">
-                        <div id="progressBar" style="background: linear-gradient(90deg, #9f7aea, #805ad5); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+
+                    <div style="background: #e5e7eb; border-radius: 5px; height: 10px; margin-bottom: 15px; overflow: hidden;">
+                        <div id="progressBar" style="background: linear-gradient(90deg, #9f7aea, #805ad5); height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; font-size: 14px;">
+                        <div style="text-align: center;">
+                            <div style="color: #9f7aea; font-weight: 600;" id="timeElapsed">00:00</div>
+                            <div style="color: #6b7280;">الوقت المنقضي</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #9f7aea; font-weight: 600;" id="estimatedTime">--:--</div>
+                            <div style="color: #6b7280;">الوقت المتوقع</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #9f7aea; font-weight: 600;" id="fileSize">--</div>
+                            <div style="color: #6b7280;">حجم الملف</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px; padding: 10px; background: #fef3c7; border-radius: 8px; border: 1px solid #fbbf24;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: #92400e; font-size: 14px;">
+                            <i class="fas fa-info-circle"></i>
+                            <span>الملفات الكبيرة قد تستغرق عدة دقائق للمعالجة. يرجى عدم إغلاق الصفحة.</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -434,6 +477,9 @@ function displayFileName(input) {
         fileName.querySelector('span').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' كيلوبايت)';
         submitBtn.disabled = false;
         submitBtn.style.opacity = '1';
+
+        // إظهار تحذير للملفات الكبيرة
+        checkLargeFile(file);
     } else {
         fileName.style.display = 'none';
         submitBtn.disabled = true;
@@ -479,6 +525,40 @@ function hideFileError() {
     }
 }
 
+function checkLargeFile(file) {
+    const largeFileWarning = document.getElementById('largeFileWarning');
+    const estimatedProcessingTime = document.getElementById('estimatedProcessingTime');
+
+    // اعتبار الملف كبير إذا كان أكبر من 1 ميجابايت
+    const isLargeFile = file.size > 1024 * 1024;
+
+    if (isLargeFile) {
+        // تقدير الوقت بناءً على حجم الملف
+        const fileSizeMB = file.size / (1024 * 1024);
+        let estimatedMinutes;
+
+        if (fileSizeMB < 2) {
+            estimatedMinutes = "1-2 دقيقة";
+        } else if (fileSizeMB < 5) {
+            estimatedMinutes = "2-5 دقائق";
+        } else if (fileSizeMB < 10) {
+            estimatedMinutes = "5-10 دقائق";
+        } else {
+            estimatedMinutes = "أكثر من 10 دقائق";
+        }
+
+        estimatedProcessingTime.textContent = estimatedMinutes;
+        largeFileWarning.style.display = 'block';
+
+        // تمرير سلس للتحذير
+        setTimeout(() => {
+            largeFileWarning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    } else {
+        largeFileWarning.style.display = 'none';
+    }
+}
+
 function validateBeforeSubmit() {
     const fileInput = document.getElementById('excelFile');
     const submitBtn = document.getElementById('submitBtn');
@@ -503,25 +583,87 @@ function validateBeforeSubmit() {
         return false;
     }
 
-    // إظهار شريط التقدم
+    // إظهار شريط التقدم المحسن
     submitBtn.disabled = true;
     submitText.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left: 8px;"></i>جاري الرفع...';
     uploadProgress.style.display = 'block';
 
-    // محاكاة شريط التقدم
+    // عرض حجم الملف
+    const fileSizeElement = document.getElementById('fileSize');
+    const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+    fileSizeElement.textContent = fileSizeMB + ' ميجابايت';
+
+    // بدء عداد الوقت
+    const startTime = Date.now();
     let progress = 0;
     const progressBar = document.getElementById('progressBar');
-    const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress > 90) progress = 90;
-        progressBar.style.width = progress + '%';
-    }, 200);
+    const progressText = document.getElementById('progressText');
+    const timeElapsed = document.getElementById('timeElapsed');
+    const estimatedTime = document.getElementById('estimatedTime');
 
-    // إيقاف شريط التقدم عند اكتمال الرفع (سيتم إعادة تحميل الصفحة)
+    // تقدير الوقت بناءً على حجم الملف
+    const estimatedSeconds = Math.max(30, Math.min(300, file.size / (1024 * 1024) * 20)); // 20 ثانية لكل ميجابايت
+
+    const progressStages = [
+        { progress: 10, text: 'جاري رفع الملف...', duration: 2000 },
+        { progress: 30, text: 'جاري قراءة البيانات...', duration: 3000 },
+        { progress: 60, text: 'جاري معالجة المنتجات...', duration: estimatedSeconds * 600 },
+        { progress: 85, text: 'جاري حفظ البيانات...', duration: 2000 },
+        { progress: 95, text: 'جاري إنهاء العملية...', duration: 1000 }
+    ];
+
+    let currentStage = 0;
+    let stageStartTime = Date.now();
+
+    const updateProgress = () => {
+        const elapsed = Date.now() - startTime;
+        const elapsedSeconds = Math.floor(elapsed / 1000);
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+        timeElapsed.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        // تحديث التقدم بناءً على المرحلة الحالية
+        if (currentStage < progressStages.length) {
+            const stage = progressStages[currentStage];
+            const stageElapsed = Date.now() - stageStartTime;
+            const stageProgress = Math.min(1, stageElapsed / stage.duration);
+
+            if (currentStage === 0) {
+                progress = stage.progress * stageProgress;
+            } else {
+                const prevProgress = currentStage > 0 ? progressStages[currentStage - 1].progress : 0;
+                progress = prevProgress + (stage.progress - prevProgress) * stageProgress;
+            }
+
+            progressBar.style.width = progress + '%';
+            progressText.textContent = stage.text;
+
+            // الانتقال للمرحلة التالية
+            if (stageProgress >= 1 && currentStage < progressStages.length - 1) {
+                currentStage++;
+                stageStartTime = Date.now();
+            }
+        }
+
+        // تحديث الوقت المتوقع
+        if (progress > 5) {
+            const estimatedTotal = (elapsed / progress) * 100;
+            const remaining = Math.max(0, estimatedTotal - elapsed);
+            const remainingSeconds = Math.floor(remaining / 1000);
+            const estMinutes = Math.floor(remainingSeconds / 60);
+            const estSeconds = remainingSeconds % 60;
+            estimatedTime.textContent = `${estMinutes.toString().padStart(2, '0')}:${estSeconds.toString().padStart(2, '0')}`;
+        }
+    };
+
+    const interval = setInterval(updateProgress, 500);
+
+    // تنظيف عند اكتمال العملية
     setTimeout(() => {
         clearInterval(interval);
         progressBar.style.width = '100%';
-    }, 3000);
+        progressText.textContent = 'تم الانتهاء!';
+    }, estimatedSeconds * 1000);
 
     return true;
 }

@@ -262,6 +262,10 @@ class ProductController extends Controller
         ]);
 
         try {
+            // زيادة وقت التنفيذ للملفات الكبيرة
+            set_time_limit(300); // 5 دقائق
+            ini_set('memory_limit', '256M'); // زيادة الذاكرة
+
             $user = auth()->user();
             $tenantId = $user ? $user->tenant_id : null;
 
@@ -312,20 +316,40 @@ class ProductController extends Controller
             $skippedCount = $import->getSkippedCount();
             $failures = $import->failures();
 
-            $message = "تم استيراد {$importedCount} منتج بنجاح";
-            if ($skippedCount > 0) {
-                $message .= " وتم تخطي {$skippedCount} منتج (مكرر أو بيانات ناقصة)";
+            // حساب الوقت المستغرق (تقدير تقريبي)
+            $executionTime = "أقل من دقيقة";
+            if ($importedCount > 100) {
+                $estimatedSeconds = round($importedCount / 20); // تقدير 20 منتج في الثانية
+                if ($estimatedSeconds > 60) {
+                    $minutes = round($estimatedSeconds / 60, 1);
+                    $executionTime = "{$minutes} دقيقة";
+                } else {
+                    $executionTime = "{$estimatedSeconds} ثانية";
+                }
             }
 
+            $message = "✅ تم استيراد {$importedCount} منتج بنجاح";
+            if ($skippedCount > 0) {
+                $message .= " وتم تخطي {$skippedCount} منتج (موجود مسبقاً)";
+            }
+            $message .= ". الوقت المستغرق: {$executionTime}.";
+
             if (count($failures) > 0) {
-                $message .= ". يوجد " . count($failures) . " خطأ في البيانات";
+                $message .= " ⚠️ يوجد " . count($failures) . " خطأ في البيانات - راجع التفاصيل أدناه.";
 
                 // Store failures in session for display
                 session()->flash('import_failures', $failures);
             }
 
             return redirect()->route('tenant.sales.products.index')
-                ->with('success', $message);
+                ->with('success', $message)
+                ->with('import_stats', [
+                    'imported' => $importedCount,
+                    'skipped' => $skippedCount,
+                    'total_processed' => $importedCount + $skippedCount,
+                    'failures_count' => count($failures),
+                    'execution_time' => $executionTime
+                ]);
 
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
