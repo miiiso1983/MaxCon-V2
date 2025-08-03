@@ -270,8 +270,43 @@ class ProductController extends Controller
                 $tenantId = 4; // للاختبار فقط
             }
 
+            // التحقق من الملف قبل المعالجة
+            $file = $request->file('excel_file');
+
+            if (!$file) {
+                return back()->withInput()
+                    ->with('error', 'لم يتم العثور على الملف المرفوع. تأكد من اختيار ملف صحيح وأعد المحاولة.');
+            }
+
+            if (!$file->isValid()) {
+                return back()->withInput()
+                    ->with('error', 'الملف المرفوع تالف أو غير صالح. جرب ملف آخر أو أعد حفظ الملف في Excel.');
+            }
+
+            // التحقق من إمكانية قراءة الملف
+            $filePath = $file->getRealPath();
+            if (!is_readable($filePath)) {
+                return back()->withInput()
+                    ->with('error', 'لا يمكن قراءة الملف المرفوع. تحقق من صلاحيات الملف وأعد المحاولة.');
+            }
+
+            // التحقق من حجم الملف
+            $fileSize = $file->getSize();
+            if ($fileSize === false || $fileSize === 0) {
+                return back()->withInput()
+                    ->with('error', 'الملف فارغ أو تالف. تأكد من أن الملف يحتوي على بيانات وأعد المحاولة.');
+            }
+
+            // التحقق من امتداد الملف
+            $extension = strtolower($file->getClientOriginalExtension());
+            $allowedExtensions = ['xlsx', 'xls', 'csv'];
+            if (!in_array($extension, $allowedExtensions)) {
+                return back()->withInput()
+                    ->with('error', 'نوع الملف غير مدعوم. يجب أن يكون الملف بصيغة Excel (.xlsx, .xls) أو CSV (.csv). الملف الحالي: .' . $extension);
+            }
+
             $import = new ProductsImport($tenantId);
-            Excel::import($import, $request->file('excel_file'));
+            Excel::import($import, $file);
 
             $importedCount = $import->getImportedCount();
             $skippedCount = $import->getSkippedCount();
@@ -296,7 +331,29 @@ class ProductController extends Controller
             $failures = $e->failures();
 
             $errorMessage = 'فشل في استيراد الملف بسبب أخطاء في البيانات. ';
-            $errorMessage .= 'عدد الأخطاء: ' . count($failures);
+            $errorMessage .= 'عدد الأخطاء: ' . count($failures) . '. ';
+
+            // تحليل نوع الأخطاء الأكثر شيوعاً
+            $errorTypes = [];
+            foreach ($failures as $failure) {
+                foreach ($failure->errors() as $error) {
+                    if (strpos($error, 'required') !== false) {
+                        $errorTypes['required'] = ($errorTypes['required'] ?? 0) + 1;
+                    } elseif (strpos($error, 'numeric') !== false) {
+                        $errorTypes['numeric'] = ($errorTypes['numeric'] ?? 0) + 1;
+                    } elseif (strpos($error, 'string') !== false) {
+                        $errorTypes['string'] = ($errorTypes['string'] ?? 0) + 1;
+                    }
+                }
+            }
+
+            if (isset($errorTypes['required']) && $errorTypes['required'] > 5) {
+                $errorMessage .= 'معظم الأخطاء بسبب حقول مطلوبة فارغة. تأكد من ملء جميع الحقول المطلوبة.';
+            } elseif (isset($errorTypes['numeric']) && $errorTypes['numeric'] > 5) {
+                $errorMessage .= 'معظم الأخطاء بسبب قيم غير رقمية في الأسعار أو الكميات. تأكد من أن جميع الأسعار والكميات أرقام.';
+            } else {
+                $errorMessage .= 'راجع تفاصيل الأخطاء أدناه وصحح البيانات.';
+            }
 
             return back()->withInput()
                 ->with('error', $errorMessage)

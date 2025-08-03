@@ -307,10 +307,22 @@
         @endif
 
         <div style="text-align: center;">
-            <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled>
+            <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled onclick="return validateBeforeSubmit()">
                 <i class="fas fa-upload" style="margin-left: 8px;"></i>
-                استيراد المنتجات
+                <span id="submitText">استيراد المنتجات</span>
             </button>
+
+            <div id="uploadProgress" style="display: none; margin-top: 15px;">
+                <div style="background: #f3f4f6; border-radius: 10px; padding: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px; color: #6b7280;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>جاري رفع ومعالجة الملف... يرجى الانتظار</span>
+                    </div>
+                    <div style="background: #e5e7eb; border-radius: 5px; height: 8px; margin-top: 10px; overflow: hidden;">
+                        <div id="progressBar" style="background: linear-gradient(90deg, #9f7aea, #805ad5); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </form>
 </div>
@@ -347,21 +359,79 @@ function handleDrop(event) {
     const dropZone = event.target;
     dropZone.style.borderColor = '#d1d5db';
     dropZone.style.background = 'white';
-    
+
     const files = event.dataTransfer.files;
-    if (files.length > 0) {
-        document.getElementById('excelFile').files = files;
-        displayFileName(document.getElementById('excelFile'));
+
+    if (files.length === 0) {
+        showFileError('لم يتم العثور على ملفات. تأكد من سحب ملف صحيح');
+        return;
+    }
+
+    if (files.length > 1) {
+        showFileError('يمكن رفع ملف واحد فقط في كل مرة. اختر ملف واحد');
+        return;
+    }
+
+    const file = files[0];
+
+    // التحقق الأولي من نوع الملف
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls') && !fileName.endsWith('.csv')) {
+        showFileError('نوع الملف غير مدعوم. اسحب ملف Excel (.xlsx, .xls) أو CSV (.csv) فقط');
+        return;
+    }
+
+    // تعيين الملف وعرض التفاصيل
+    try {
+        const fileInput = document.getElementById('excelFile');
+        fileInput.files = files;
+        displayFileName(fileInput);
+    } catch (error) {
+        showFileError('حدث خطأ في معالجة الملف. جرب رفع الملف بالطريقة التقليدية');
     }
 }
 
 function displayFileName(input) {
     const fileName = document.getElementById('fileName');
     const submitBtn = document.getElementById('submitBtn');
-    
+
     if (input.files && input.files[0]) {
+        const file = input.files[0];
+
+        // التحقق من نوع الملف
+        const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                             'application/vnd.ms-excel',
+                             'text/csv'];
+        const allowedExtensions = ['.xlsx', '.xls', '.csv'];
+
+        const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+
+        if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+            showFileError('نوع الملف غير مدعوم. يجب أن يكون الملف بصيغة Excel (.xlsx, .xls) أو CSV (.csv)');
+            input.value = '';
+            return;
+        }
+
+        // التحقق من حجم الملف (10MB = 10 * 1024 * 1024 bytes)
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showFileError('حجم الملف كبير جداً. الحد الأقصى المسموح 10 ميجابايت. حجم الملف الحالي: ' + (file.size / 1024 / 1024).toFixed(2) + ' ميجابايت');
+            input.value = '';
+            return;
+        }
+
+        // التحقق من أن الملف ليس فارغ
+        if (file.size === 0) {
+            showFileError('الملف فارغ. تأكد من أن الملف يحتوي على بيانات');
+            input.value = '';
+            return;
+        }
+
+        // إخفاء رسائل الخطأ السابقة
+        hideFileError();
+
         fileName.style.display = 'block';
-        fileName.querySelector('span').textContent = input.files[0].name;
+        fileName.querySelector('span').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' كيلوبايت)';
         submitBtn.disabled = false;
         submitBtn.style.opacity = '1';
     } else {
@@ -371,10 +441,105 @@ function displayFileName(input) {
     }
 }
 
+function showFileError(message) {
+    let errorDiv = document.getElementById('fileError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'fileError';
+        errorDiv.style.cssText = `
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #dc2626;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        `;
+        document.getElementById('dropZone').appendChild(errorDiv);
+    }
+
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i>
+        <span>${message}</span>
+    `;
+    errorDiv.style.display = 'flex';
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.5';
+}
+
+function hideFileError() {
+    const errorDiv = document.getElementById('fileError');
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
+}
+
+function validateBeforeSubmit() {
+    const fileInput = document.getElementById('excelFile');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const uploadProgress = document.getElementById('uploadProgress');
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showFileError('يرجى اختيار ملف Excel للاستيراد');
+        return false;
+    }
+
+    const file = fileInput.files[0];
+
+    // التحقق النهائي من الملف
+    if (file.size === 0) {
+        showFileError('الملف فارغ. اختر ملف يحتوي على بيانات');
+        return false;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+        showFileError('حجم الملف كبير جداً. الحد الأقصى 10 ميجابايت');
+        return false;
+    }
+
+    // إظهار شريط التقدم
+    submitBtn.disabled = true;
+    submitText.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left: 8px;"></i>جاري الرفع...';
+    uploadProgress.style.display = 'block';
+
+    // محاكاة شريط التقدم
+    let progress = 0;
+    const progressBar = document.getElementById('progressBar');
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = progress + '%';
+    }, 200);
+
+    // إيقاف شريط التقدم عند اكتمال الرفع (سيتم إعادة تحميل الصفحة)
+    setTimeout(() => {
+        clearInterval(interval);
+        progressBar.style.width = '100%';
+    }, 3000);
+
+    return true;
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.style.opacity = '0.5';
+
+    // إضافة معالج للنموذج لمنع الإرسال المتكرر
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn.disabled && submitBtn.innerHTML.includes('fa-spinner')) {
+            e.preventDefault();
+            return false;
+        }
+    });
 });
 </script>
 @endpush
