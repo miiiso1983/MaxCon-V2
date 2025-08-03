@@ -133,33 +133,55 @@ class ProductController extends Controller
         ]);
 
         try {
-            $product = new Product();
-            $tenantId = auth()->user()->tenant_id ?? 1; // fallback للاختبار
-            $product->tenant_id = $tenantId;
-            $product->product_code = $product->generateProductCode();
+            $user = auth()->user();
+            $tenantId = $user ? $user->tenant_id : 1; // fallback للاختبار
 
-            // تعيين الحقول - الـ Accessors/Mutators ستتولى التحويل التلقائي
-            $product->fill($validated);
-
-            $product->is_active = true;
-            $product->save();
-
-            // للتشخيص: log معلومات المنتج المحفوظ
-            \Log::info('Product created successfully', [
-                'product_id' => $product->id,
-                'product_name' => $product->name,
-                'tenant_id' => $product->tenant_id,
+            // تشخيص مفصل قبل الحفظ
+            \Log::info('Before product creation', [
                 'user_id' => auth()->id(),
-                'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL'
+                'user_tenant_id' => $tenantId,
+                'validated_data' => $validated,
+                'products_count_before' => Product::where('tenant_id', $tenantId)->count()
             ]);
 
-            // Clear any potential cache
-            if (function_exists('opcache_reset')) {
-                opcache_reset();
-            }
+            $product = new Product();
+            $product->tenant_id = $tenantId;
 
-            return redirect()->route('tenant.sales.products.index')
-                ->with('success', 'تم إنشاء المنتج بنجاح - ID: ' . $product->id);
+            // تعيين الحقول يدوياً للتأكد
+            $product->name = $validated['name'];
+            $product->category = $validated['category'];
+            $product->cost_price = $validated['purchase_price'] ?? 0;
+            $product->selling_price = $validated['selling_price'] ?? 0;
+            $product->stock_quantity = $validated['current_stock'] ?? 0;
+            $product->min_stock_level = $validated['min_stock_level'] ?? 0;
+            $product->unit_of_measure = $validated['unit'] ?? 'قطعة';
+            $product->manufacturer = $validated['manufacturer'] ?? null;
+            $product->barcode = $validated['barcode'] ?? null;
+            $product->batch_number = $validated['batch_number'] ?? null;
+            $product->expiry_date = $validated['expiry_date'] ?? null;
+            $product->manufacturing_date = $validated['manufacturing_date'] ?? null;
+            $product->storage_conditions = $validated['storage_conditions'] ?? null;
+            $product->description = $validated['description'] ?? null;
+            $product->notes = $validated['notes'] ?? null;
+            $product->is_active = true;
+
+            // توليد product_code بعد تعيين tenant_id
+            $product->product_code = $product->generateProductCode();
+
+            $saved = $product->save();
+
+            // تشخيص مفصل بعد الحفظ
+            \Log::info('After product creation', [
+                'save_result' => $saved,
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'product_tenant_id' => $product->tenant_id,
+                'products_count_after' => Product::where('tenant_id', $tenantId)->count(),
+                'product_exists' => Product::find($product->id) ? 'YES' : 'NO'
+            ]);
+
+            return redirect()->route('tenant.sales.products.index', ['page' => 1])
+                ->with('success', 'تم إنشاء المنتج بنجاح - ID: ' . $product->id . ' - Tenant: ' . $product->tenant_id);
 
         } catch (\Exception $e) {
             return back()->withInput()

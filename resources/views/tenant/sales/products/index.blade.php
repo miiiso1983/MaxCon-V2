@@ -264,16 +264,20 @@
                 {{-- تشخيص مؤقت --}}
                 @if(config('app.debug'))
                     @php
-                        $lastProduct = \App\Models\Product::where('tenant_id', auth()->user()->tenant_id ?? 1)->orderBy('id', 'desc')->first();
+                        $currentTenantId = auth()->user()->tenant_id ?? 1;
+                        $lastProduct = \App\Models\Product::where('tenant_id', $currentTenantId)->orderBy('id', 'desc')->first();
+                        $tenantProductsCount = \App\Models\Product::where('tenant_id', $currentTenantId)->count();
+                        $allProductsCount = \App\Models\Product::count();
                     @endphp
                     <tr style="background: #fef2f2; border: 1px solid #fca5a5;">
                         <td colspan="7" style="padding: 10px; font-size: 12px; color: #dc2626;">
                             <strong>تشخيص:</strong>
-                            عدد المنتجات: {{ $products->count() }} |
-                            إجمالي المنتجات: {{ $products->total() }} |
+                            عدد المنتجات في الصفحة: {{ $products->count() }} |
+                            إجمالي منتجات التينانت: {{ $tenantProductsCount }} |
+                            إجمالي جميع المنتجات: {{ $allProductsCount }} |
                             المستخدم: {{ auth()->id() ?? 'غير مسجل' }} |
-                            Tenant ID: {{ auth()->user()->tenant_id ?? 'NULL' }} |
-                            آخر منتج: {{ $lastProduct ? $lastProduct->name . ' (ID: ' . $lastProduct->id . ')' : 'لا يوجد' }}
+                            Tenant ID: {{ $currentTenantId }} |
+                            آخر منتج للتينانت: {{ $lastProduct ? $lastProduct->name . ' (ID: ' . $lastProduct->id . ')' : 'لا يوجد' }}
                         </td>
                     </tr>
                 @endif
