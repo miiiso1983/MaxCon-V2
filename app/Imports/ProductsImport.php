@@ -54,14 +54,23 @@ class ProductsImport implements
             return null;
         }
 
-        // Check if product already exists (only by name for now)
+        // Check if product already exists (by name and barcode)
+        $productName = trim($row['name']);
+        $productBarcode = !empty($row['barcode']) ? trim((string)$row['barcode']) : null;
+
         $existingProduct = Product::where('tenant_id', $this->tenantId)
-            ->where('name', trim($row['name']))
+            ->where(function($query) use ($productName, $productBarcode) {
+                $query->where('name', $productName);
+                if ($productBarcode) {
+                    $query->orWhere('barcode', $productBarcode);
+                }
+            })
             ->first();
 
         if ($existingProduct) {
             \Log::info('ProductsImport: Product already exists', [
-                'name' => trim($row['name']),
+                'name' => $productName,
+                'barcode' => $productBarcode,
                 'existing_id' => $existingProduct->id
             ]);
             $this->skippedCount++;
