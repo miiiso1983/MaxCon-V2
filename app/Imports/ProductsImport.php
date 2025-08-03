@@ -54,12 +54,9 @@ class ProductsImport implements
             return null;
         }
 
-        // Check if product already exists
+        // Check if product already exists (only by name for now)
         $existingProduct = Product::where('tenant_id', $this->tenantId)
-            ->where(function($query) use ($row) {
-                $query->where('name', trim($row['name']))
-                      ->orWhere('barcode', trim($row['barcode'] ?? ''));
-            })
+            ->where('name', trim($row['name']))
             ->first();
 
         if ($existingProduct) {

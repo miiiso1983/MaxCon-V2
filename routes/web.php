@@ -577,8 +577,19 @@ Route::get('/test-excel-form', function () {
                 <label>اختر ملف Excel:</label><br>
                 <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required>
             </div>
-            <button type="submit" style="background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
-                رفع واختبار الملف
+            <button type="submit" style="background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px;">
+                رفع واختبار الملف (مع تحقق من التكرار)
+            </button>
+        </form>
+
+        <form action="/test-excel-no-duplicate-check" method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
+            <input type="hidden" name="_token" value="' . csrf_token() . '">
+            <div style="margin: 20px 0;">
+                <label>اختر ملف Excel (بدون تحقق من التكرار):</label><br>
+                <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required>
+            </div>
+            <button type="submit" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                رفع واختبار الملف (بدون تحقق من التكرار - أول 5 منتجات)
             </button>
         </form>
 
@@ -677,6 +688,94 @@ Route::get('/force-import-test', function () {
         ]);
     }
 })->name('force.import.test');
+
+// Test Excel upload without duplicate check
+Route::post('/test-excel-no-duplicate-check', function (Request $request) {
+    try {
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : 4;
+
+        // Get file
+        $file = $request->file('excel_file');
+
+        // Read Excel data directly from uploaded file
+        $data = Excel::toArray(new \App\Imports\ProductsImport($tenantId), $file);
+
+        // Process first few rows manually without duplicate check
+        $imported = 0;
+        $errors = [];
+
+        if (isset($data[0]) && count($data[0]) > 1) {
+            // Skip header row, process first 5 data rows
+            $rows = array_slice($data[0], 1, 5);
+
+            foreach ($rows as $index => $row) {
+                try {
+                    if (empty($row['name'])) continue;
+
+                    $product = [
+                        'tenant_id' => $tenantId,
+                        'product_code' => 'PRD' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT),
+                        'name' => trim($row['name']),
+                        'description' => !empty($row['description']) ? trim($row['description']) : null,
+                        'category' => !empty($row['category']) ? trim($row['category']) : 'أخرى',
+                        'manufacturer' => !empty($row['manufacturer']) ? trim($row['manufacturer']) : null,
+                        'barcode' => !empty($row['barcode']) ? trim((string)$row['barcode']) : null,
+                        'unit_of_measure' => !empty($row['unit']) ? trim($row['unit']) : 'قرص',
+                        'cost_price' => !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? floatval($row['purchase_price']) : 0.00,
+                        'selling_price' => !empty($row['selling_price']) && is_numeric($row['selling_price']) ? floatval($row['selling_price']) : 0.00,
+                        'min_stock_level' => !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? intval($row['min_stock_level']) : 10,
+                        'stock_quantity' => !empty($row['current_stock']) && is_numeric($row['current_stock']) ? intval($row['current_stock']) : 0,
+                        'is_active' => 1,
+                        'status' => 'active',
+                        'currency' => 'IQD',
+                        'base_unit' => 'piece',
+                        'is_taxable' => 1,
+                        'tax_rate' => 15.00,
+                        'track_expiry' => 1,
+                        'track_batch' => 1,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+
+                    DB::table('products')->insert($product);
+                    $imported++;
+
+                } catch (Exception $e) {
+                    $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
+                }
+            }
+        }
+
+        $totalProducts = DB::table('products')->where('tenant_id', $tenantId)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => "تم اختبار الاستيراد بدون تحقق من التكرار",
+            'debug_info' => [
+                'tenant_id' => $tenantId,
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'total_rows' => count($data[0] ?? []),
+                'processed_rows' => count($rows ?? []),
+                'imported_count' => $imported,
+                'errors' => $errors,
+                'total_products_after' => $totalProducts
+            ]
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'خطأ: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+})->name('test.excel.no.duplicate.check');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
