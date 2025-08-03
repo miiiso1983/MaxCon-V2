@@ -838,6 +838,20 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('🔥 Form submission started - proceeding...');
         alert('🔥 Form submission started - proceeding...');
 
+        // تسجيل تفاصيل النموذج
+        console.log('🔥 Form details:', {
+            action: form.action,
+            method: form.method,
+            enctype: form.enctype,
+            hasFile: document.getElementById('excelFile').files.length > 0,
+            fileName: document.getElementById('excelFile').files[0]?.name
+        });
+
+        alert('🔥 Form will be submitted to: ' + form.action);
+
+        // السماح للنموذج بالإرسال
+        console.log('🔥 Allowing form to submit naturally...');
+
         // إضافة timeout للكشف عن المشاكل
         const timeoutId = setTimeout(function() {
             console.warn('Form submission taking too long...');
