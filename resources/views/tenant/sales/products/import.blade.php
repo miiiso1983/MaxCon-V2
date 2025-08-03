@@ -436,7 +436,7 @@
         </div>
 
         <div style="text-align: center;">
-            <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled onclick="return validateBeforeSubmit()">
+            <button type="submit" class="btn-purple" style="padding: 15px 30px; font-size: 16px;" id="submitBtn" disabled onclick="return testSubmit()">
                 <i class="fas fa-upload" style="margin-left: 8px;"></i>
                 <span id="submitText">استيراد المنتجات</span>
             </button>
@@ -668,6 +668,27 @@ function checkLargeFile(file) {
     }
 }
 
+function testSubmit() {
+    console.log('🧪 Test submit function called');
+    alert('🧪 اختبار: تم النقر على زر الإرسال!');
+
+    const fileInput = document.getElementById('excelFile');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert('❌ لم يتم اختيار ملف');
+        return false;
+    }
+
+    const file = fileInput.files[0];
+    alert('✅ تم اختيار ملف: ' + file.name + ' (حجم: ' + file.size + ' بايت)');
+
+    // تفعيل الزر وإرسال النموذج
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = false;
+
+    console.log('🧪 About to submit form');
+    return true;
+}
+
 function validateBeforeSubmit() {
     const fileInput = document.getElementById('excelFile');
     const submitBtn = document.getElementById('submitBtn');
@@ -787,16 +808,20 @@ document.addEventListener('DOMContentLoaded', function() {
     let isSubmitting = false;
 
     form.addEventListener('submit', function(e) {
+        console.log('🧪 Form submit event triggered!');
+        alert('🧪 Form submit event triggered!');
+
         const submitBtn = document.getElementById('submitBtn');
 
         // منع الإرسال المتكرر
         if (isSubmitting) {
+            console.log('🧪 Preventing duplicate submission');
             e.preventDefault();
             return false;
         }
 
         isSubmitting = true;
-        console.log('Form submission started');
+        console.log('🧪 Form submission started - proceeding...');
 
         // إضافة timeout للكشف عن المشاكل
         const timeoutId = setTimeout(function() {
