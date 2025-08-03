@@ -593,6 +593,20 @@ Route::get('/test-excel-form', function () {
             </button>
         </form>
 
+        <form action="/import-all-products-no-check" method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
+            <input type="hidden" name="_token" value="' . csrf_token() . '">
+            <div style="margin: 20px 0;">
+                <label><strong>استيراد جميع المنتجات (بدون تحقق من التكرار):</strong></label><br>
+                <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required>
+            </div>
+            <button type="submit" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                استيراد جميع المنتجات (قد يستغرق وقتاً طويلاً)
+            </button>
+            <p style="font-size: 12px; color: #dc3545; margin-top: 5px;">
+                تحذير: هذا سيستورد جميع المنتجات من الملف بدون تحقق من التكرار. قد يستغرق عدة دقائق.
+            </p>
+        </form>
+
         <hr style="margin: 30px 0;">
 
         <h3>تنسيق الملف المطلوب:</h3>
@@ -776,6 +790,108 @@ Route::post('/test-excel-no-duplicate-check', function (Request $request) {
         ]);
     }
 })->name('test.excel.no.duplicate.check');
+
+// Import ALL products without duplicate check
+Route::post('/import-all-products-no-check', function (Request $request) {
+    try {
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : 4;
+
+        // Get file
+        $file = $request->file('excel_file');
+
+        // Read Excel data directly from uploaded file
+        $data = Excel::toArray(new \App\Imports\ProductsImport($tenantId), $file);
+
+        // Process ALL rows without duplicate check
+        $imported = 0;
+        $errors = [];
+        $skipped = 0;
+
+        if (isset($data[0]) && count($data[0]) > 1) {
+            // Skip header row, process ALL data rows
+            $rows = array_slice($data[0], 1);
+
+            foreach ($rows as $index => $row) {
+                try {
+                    if (empty($row['name']) || empty(trim($row['name']))) {
+                        $skipped++;
+                        continue;
+                    }
+
+                    $product = [
+                        'tenant_id' => $tenantId,
+                        'product_code' => 'PRD' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT),
+                        'name' => trim($row['name']),
+                        'description' => !empty($row['description']) ? trim($row['description']) : null,
+                        'category' => !empty($row['category']) ? trim($row['category']) : 'أخرى',
+                        'manufacturer' => !empty($row['manufacturer']) ? trim($row['manufacturer']) : null,
+                        'barcode' => !empty($row['barcode']) ? trim((string)$row['barcode']) : null,
+                        'unit_of_measure' => !empty($row['unit']) ? trim($row['unit']) : 'قرص',
+                        'cost_price' => !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? floatval($row['purchase_price']) : 0.00,
+                        'selling_price' => !empty($row['selling_price']) && is_numeric($row['selling_price']) ? floatval($row['selling_price']) : 0.00,
+                        'min_stock_level' => !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? intval($row['min_stock_level']) : 10,
+                        'stock_quantity' => !empty($row['current_stock']) && is_numeric($row['current_stock']) ? intval($row['current_stock']) : 0,
+                        'is_active' => 1,
+                        'status' => 'active',
+                        'currency' => 'IQD',
+                        'base_unit' => 'piece',
+                        'is_taxable' => 1,
+                        'tax_rate' => 15.00,
+                        'track_expiry' => 1,
+                        'track_batch' => 1,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+
+                    DB::table('products')->insert($product);
+                    $imported++;
+
+                    // Progress update every 100 products
+                    if ($imported % 100 == 0) {
+                        \Log::info("Import progress: {$imported} products imported");
+                    }
+
+                } catch (Exception $e) {
+                    $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
+                    if (count($errors) > 50) { // Limit errors to prevent memory issues
+                        $errors[] = "... and more errors (showing first 50)";
+                        break;
+                    }
+                }
+            }
+        }
+
+        $totalProducts = DB::table('products')->where('tenant_id', $tenantId)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => "تم استيراد جميع المنتجات بنجاح",
+            'debug_info' => [
+                'tenant_id' => $tenantId,
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'total_rows' => count($data[0] ?? []) - 1, // Exclude header
+                'imported_count' => $imported,
+                'skipped_count' => $skipped,
+                'error_count' => count($errors),
+                'errors' => array_slice($errors, 0, 10), // Show first 10 errors only
+                'total_products_after' => $totalProducts
+            ]
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'خطأ: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+})->name('import.all.products.no.check');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
