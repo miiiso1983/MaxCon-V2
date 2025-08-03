@@ -332,7 +332,7 @@
         رفع ملف Excel
     </h3>
 
-    <form method="POST" action="{{ route('tenant.sales.products.process-import') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('tenant.sales.products.process-import') }}" enctype="multipart/form-data" id="importForm">
         @csrf
         
         <div style="border: 2px dashed #d1d5db; border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 20px; transition: all 0.3s ease;" 
@@ -783,23 +783,71 @@ document.addEventListener('DOMContentLoaded', function() {
     submitBtn.style.opacity = '0.5';
 
     // إضافة معالج للنموذج لمنع الإرسال المتكرر
-    const form = document.querySelector('form');
+    const form = document.getElementById('importForm');
+    let isSubmitting = false;
+
     form.addEventListener('submit', function(e) {
         const submitBtn = document.getElementById('submitBtn');
-        if (submitBtn.disabled && submitBtn.innerHTML.includes('fa-spinner')) {
+
+        // منع الإرسال المتكرر
+        if (isSubmitting) {
             e.preventDefault();
             return false;
         }
+
+        isSubmitting = true;
+        console.log('Form submission started');
+
+        // إضافة timeout للكشف عن المشاكل
+        const timeoutId = setTimeout(function() {
+            console.warn('Form submission taking too long...');
+
+            // عرض رسالة للمستخدم
+            const progressDiv = document.createElement('div');
+            progressDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                z-index: 9999;
+                text-align: center;
+                border: 2px solid #f59e0b;
+            `;
+            progressDiv.innerHTML = `
+                <div style="color: #f59e0b; margin-bottom: 10px;">
+                    <i class="fas fa-clock fa-2x"></i>
+                </div>
+                <h4 style="margin: 10px 0; color: #1f2937;">جاري المعالجة...</h4>
+                <p style="margin: 5px 0; color: #6b7280;">قد تستغرق العملية عدة دقائق للملفات الكبيرة</p>
+                <div style="margin-top: 15px;">
+                    <button onclick="this.parentElement.parentElement.remove()"
+                            style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
+                        إخفاء
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(progressDiv);
+        }, 30000); // 30 ثانية
+
+        // إزالة timeout عند انتهاء العملية
+        window.addEventListener('beforeunload', function() {
+            clearTimeout(timeoutId);
+        });
     });
 
     // إضافة timeout للتأكد من إعادة التوجيه
     form.addEventListener('submit', function() {
-        // إذا لم يتم إعادة التوجيه خلال 10 دقائق، أعد التوجيه يدوياً
+        // إذا لم يتم إعادة التوجيه خلال 15 دقيقة، أعد التوجيه يدوياً
         setTimeout(function() {
             if (document.getElementById('submitBtn').disabled) {
-                window.location.href = '{{ route("tenant.sales.products.index") }}';
+                console.log('Timeout reached, redirecting...');
+                window.location.href = '{{ route("tenant.sales.products.import") }}';
             }
-        }, 600000); // 10 دقائق
+        }, 900000); // 15 دقيقة
     });
 });
 </script>

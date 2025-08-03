@@ -252,6 +252,14 @@ class ProductController extends Controller
      */
     public function processImport(Request $request): RedirectResponse
     {
+        \Log::info('ProcessImport method called', [
+            'request_method' => $request->method(),
+            'has_file' => $request->hasFile('excel_file'),
+            'file_size' => $request->hasFile('excel_file') ? $request->file('excel_file')->getSize() : 'no_file',
+            'user_id' => auth()->id(),
+            'tenant_id' => auth()->user()->tenant_id ?? 'no_tenant'
+        ]);
+
         $request->validate([
             'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max
         ], [
@@ -263,8 +271,15 @@ class ProductController extends Controller
 
         try {
             // زيادة وقت التنفيذ للملفات الكبيرة
-            set_time_limit(300); // 5 دقائق
-            ini_set('memory_limit', '256M'); // زيادة الذاكرة
+            set_time_limit(600); // 10 دقائق
+            ini_set('memory_limit', '512M'); // زيادة الذاكرة أكثر
+
+            \Log::info('Import process started', [
+                'memory_limit' => ini_get('memory_limit'),
+                'max_execution_time' => ini_get('max_execution_time'),
+                'post_max_size' => ini_get('post_max_size'),
+                'upload_max_filesize' => ini_get('upload_max_filesize')
+            ]);
 
             $user = auth()->user();
             $tenantId = $user ? $user->tenant_id : null;
@@ -422,11 +437,22 @@ class ProductController extends Controller
             return back()->withInput()
                 ->with('error', 'حجم الملف كبير جداً. الحد الأقصى المسموح 10 ميجابايت. قم بتقليل عدد الصفوف أو ضغط الملف.');
 
+        } catch (\Illuminate\Session\TokenMismatchException $e) {
+            \Log::error('CSRF Token mismatch during import', [
+                'error' => $e->getMessage(),
+                'user_id' => auth()->id()
+            ]);
+
+            return back()->withInput()
+                ->with('error', 'انتهت صلاحية الجلسة. يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى.');
+
         } catch (\Exception $e) {
             \Log::error('Import error: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'user_id' => auth()->id(),
+                'tenant_id' => auth()->user()->tenant_id ?? 'no_tenant'
             ]);
 
             $errorMessage = 'حدث خطأ غير متوقع أثناء استيراد الملف. ';
@@ -434,10 +460,12 @@ class ProductController extends Controller
             // تحديد نوع الخطأ وإعطاء حل مناسب
             if (strpos($e->getMessage(), 'memory') !== false) {
                 $errorMessage .= 'الملف كبير جداً للمعالجة. جرب تقسيم الملف إلى ملفات أصغر.';
-            } elseif (strpos($e->getMessage(), 'timeout') !== false) {
+            } elseif (strpos($e->getMessage(), 'timeout') !== false || strpos($e->getMessage(), 'Maximum execution time') !== false) {
                 $errorMessage .= 'انتهت مهلة المعالجة. جرب ملف أصغر أو أعد المحاولة لاحقاً.';
             } elseif (strpos($e->getMessage(), 'connection') !== false) {
                 $errorMessage .= 'مشكلة في الاتصال بقاعدة البيانات. أعد المحاولة لاحقاً.';
+            } elseif (strpos($e->getMessage(), 'POST Content-Length') !== false) {
+                $errorMessage .= 'حجم الملف كبير جداً. الحد الأقصى المسموح 10 ميجابايت.';
             } else {
                 $errorMessage .= 'تفاصيل الخطأ: ' . $e->getMessage();
             }

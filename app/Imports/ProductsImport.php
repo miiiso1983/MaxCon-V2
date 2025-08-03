@@ -41,11 +41,14 @@ class ProductsImport implements
      */
     public function model(array $row)
     {
-        // Log the row data for debugging
-        \Log::info('ProductsImport: Processing row', [
-            'tenant_id' => $this->tenantId,
-            'row_data' => $row
-        ]);
+        // Log the row data for debugging (only first few rows to avoid spam)
+        if ($this->importedCount + $this->skippedCount < 5) {
+            \Log::info('ProductsImport: Processing row', [
+                'tenant_id' => $this->tenantId,
+                'row_number' => $this->importedCount + $this->skippedCount + 1,
+                'row_data' => $row
+            ]);
+        }
 
         // Skip empty rows
         if (empty($row['name']) || empty(trim($row['name']))) {
@@ -125,24 +128,30 @@ class ProductsImport implements
         $product->currency = 'IQD';
         $product->base_unit = 'piece';
 
-        \Log::info('ProductsImport: Creating new product', [
-            'name' => $product->name,
-            'tenant_id' => $product->tenant_id,
-            'category' => $product->category,
-            'product_code' => $product->product_code
-        ]);
+        // Log only first few products to avoid spam
+        if ($this->importedCount < 3) {
+            \Log::info('ProductsImport: Creating new product', [
+                'name' => $product->name,
+                'tenant_id' => $product->tenant_id,
+                'category' => $product->category,
+                'product_code' => $product->product_code
+            ]);
+        }
 
         try {
             // Force save to check for errors
             $saved = $product->save();
-            \Log::info('ProductsImport: Product saved successfully', [
-                'saved' => $saved,
-                'product_id' => $product->id ?? 'not_set'
-            ]);
+            if ($this->importedCount < 3) {
+                \Log::info('ProductsImport: Product saved successfully', [
+                    'saved' => $saved,
+                    'product_id' => $product->id ?? 'not_set'
+                ]);
+            }
         } catch (\Exception $e) {
             \Log::error('ProductsImport: Error saving product', [
                 'error' => $e->getMessage(),
-                'product_data' => $product->toArray()
+                'product_name' => $product->name,
+                'row_number' => $this->importedCount + $this->skippedCount + 1
             ]);
             throw $e;
         }
