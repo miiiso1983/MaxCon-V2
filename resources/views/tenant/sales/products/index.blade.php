@@ -248,7 +248,7 @@
                     <th style="padding: 12px; text-align: right; font-weight: 600; color: #4a5568; border-bottom: 1px solid #e2e8f0;">المخزون</th>
                     <th style="padding: 12px; text-align: right; font-weight: 600; color: #4a5568; border-bottom: 1px solid #e2e8f0;">الدفعة والصلاحية</th>
                     <th style="padding: 12px; text-align: right; font-weight: 600; color: #4a5568; border-bottom: 1px solid #e2e8f0;">الحالة</th>
-                    <th style="padding: 12px; text-align: right; font-weight: 600; color: #4a5568; border-bottom: 1px solid #e2e8f0;">الإجراءات</th>
+                    <th style="padding: 12px; text-align: center; font-weight: 600; color: #4a5568; border-bottom: 1px solid #e2e8f0; min-width: 200px;">الإجراءات</th>
                 </tr>
             </thead>
             <tbody>
@@ -331,22 +331,28 @@
                             <span class="status-badge status-inactive">غير نشط</span>
                         @endif
                     </td>
-                    <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <a href="{{ route('tenant.sales.products.show', $product) }}" 
-                               style="background: none; border: none; color: #4299e1; cursor: pointer; padding: 4px;" 
+                    <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; min-width: 120px;">
+                        <div class="action-buttons">
+                            <a href="{{ route('tenant.sales.products.show', $product) }}"
+                               class="action-btn"
+                               style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white;"
                                title="عرض التفاصيل">
                                 <i class="fas fa-eye"></i>
+                                عرض
                             </a>
-                            <a href="{{ route('tenant.sales.products.edit', $product) }}" 
-                               style="background: none; border: none; color: #9f7aea; cursor: pointer; padding: 4px;" 
+                            <a href="{{ route('tenant.sales.products.edit', $product) }}"
+                               class="action-btn"
+                               style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); color: white;"
                                title="تعديل">
                                 <i class="fas fa-edit"></i>
+                                تعديل
                             </a>
-                            <button onclick="confirmDelete({{ $product->id }}, '{{ $product->name }}')" 
-                                    style="background: none; border: none; color: #f56565; cursor: pointer; padding: 4px;" 
+                            <button onclick="confirmDelete({{ $product->id }}, `{{ $product->name }}`)"
+                                    class="action-btn"
+                                    style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white;"
                                     title="حذف">
                                 <i class="fas fa-trash"></i>
+                                حذف
                             </button>
                         </div>
                     </td>
@@ -373,6 +379,59 @@
     </div>
     @endif
 </div>
+
+@push('styles')
+<style>
+/* تحسين عرض أزرار الإجراءات */
+.action-buttons {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+}
+
+.action-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* تحسين الجدول للشاشات الصغيرة */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+
+    .action-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* ضمان ظهور الأيقونات */
+.fas {
+    display: inline-block !important;
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>
