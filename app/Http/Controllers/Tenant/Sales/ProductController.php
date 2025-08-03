@@ -355,10 +355,20 @@ class ProductController extends Controller
 
             \Log::info('Redirecting with success message', [
                 'message' => $message,
-                'redirect_route' => 'tenant.sales.products.index'
+                'redirect_route' => 'tenant.sales.products.import',
+                'session_data' => [
+                    'success' => $message,
+                    'import_stats' => [
+                        'imported' => $importedCount,
+                        'skipped' => $skippedCount,
+                        'total_processed' => $importedCount + $skippedCount,
+                        'failures_count' => count($failures),
+                        'execution_time' => $executionTime
+                    ]
+                ]
             ]);
 
-            return redirect()->route('tenant.sales.products.index')
+            return redirect()->route('tenant.sales.products.import')
                 ->with('success', $message)
                 ->with('import_stats', [
                     'imported' => $importedCount,

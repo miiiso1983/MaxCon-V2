@@ -20,6 +20,17 @@
 
 @section('content')
 
+@php
+    // تسجيل للتحقق من وصول البيانات
+    if (session('success')) {
+        \Log::info('Import page loaded with success message', [
+            'success' => session('success'),
+            'import_stats' => session('import_stats'),
+            'has_import_stats' => session()->has('import_stats')
+        ]);
+    }
+@endphp
+
 <!-- Success/Error Messages -->
 @if(session('success'))
 <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 25px; animation: slideInDown 0.5s ease-out;">
@@ -34,11 +45,41 @@
             <p style="color: #15803d; margin: 0; font-size: 16px; line-height: 1.5;">
                 {{ session('success') }}
             </p>
-            <div style="margin-top: 15px;">
+
+            @if(session('import_stats'))
+                <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #d1fae5;">
+                    <h5 style="color: #166534; margin: 0 0 10px 0; font-size: 16px;">📊 إحصائيات الاستيراد:</h5>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 14px;">
+                        <div style="text-align: center;">
+                            <div style="color: #22c55e; font-weight: 600; font-size: 18px;">{{ session('import_stats')['imported'] }}</div>
+                            <div style="color: #15803d;">منتج مستورد</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #f59e0b; font-weight: 600; font-size: 18px;">{{ session('import_stats')['skipped'] }}</div>
+                            <div style="color: #92400e;">منتج متخطى</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #3b82f6; font-weight: 600; font-size: 18px;">{{ session('import_stats')['total_processed'] }}</div>
+                            <div style="color: #1e40af;">إجمالي معالج</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #8b5cf6; font-weight: 600; font-size: 18px;">{{ session('import_stats')['execution_time'] }}</div>
+                            <div style="color: #7c3aed;">وقت التنفيذ</div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{{ route('tenant.sales.products.index') }}"
                    style="background: #22c55e; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-eye"></i>
                     عرض المنتجات المستوردة
+                </a>
+                <a href="{{ route('tenant.sales.products.import') }}"
+                   style="background: #3b82f6; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-plus"></i>
+                    استيراد ملف آخر
                 </a>
             </div>
         </div>
