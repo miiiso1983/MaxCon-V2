@@ -680,9 +680,14 @@ function handleSubmitClick(event) {
         console.log('🔥 Validation passed, submitting form manually');
         alert('🔥 Validation passed, submitting form manually');
 
-        // إرسال النموذج يدوياً
+        // تشغيل form submit event يدوياً
         const form = document.getElementById('importForm');
-        form.submit();
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+
+        console.log('🔥 Dispatching submit event');
+        alert('🔥 Dispatching submit event');
+
+        form.dispatchEvent(submitEvent);
     } else {
         console.log('🔥 Validation failed');
         alert('🔥 Validation failed');
