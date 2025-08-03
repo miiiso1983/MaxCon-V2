@@ -53,9 +53,13 @@ class ProductController extends Controller
 
         // للتشخيص: log معلومات الاستعلام
         \Log::info('ProductController index: Query results', [
-            'tenant_id' => $tenantId,
+            'user_id' => auth()->id(),
+            'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL',
+            'used_tenant_id' => $tenantId,
             'total_products' => $products->total(),
             'current_page_count' => $products->count(),
+            'all_products_count' => Product::count(),
+            'products_for_tenant_1' => Product::where('tenant_id', 1)->count(),
             'query_sql' => $query->toSql()
         ]);
 
@@ -130,7 +134,8 @@ class ProductController extends Controller
 
         try {
             $product = new Product();
-            $product->tenant_id = auth()->user()->tenant_id;
+            $tenantId = auth()->user()->tenant_id ?? 1; // fallback للاختبار
+            $product->tenant_id = $tenantId;
             $product->product_code = $product->generateProductCode();
 
             // تعيين الحقول - الـ Accessors/Mutators ستتولى التحويل التلقائي
@@ -138,6 +143,15 @@ class ProductController extends Controller
 
             $product->is_active = true;
             $product->save();
+
+            // للتشخيص: log معلومات المنتج المحفوظ
+            \Log::info('Product created successfully', [
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'tenant_id' => $product->tenant_id,
+                'user_id' => auth()->id(),
+                'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL'
+            ]);
 
             return redirect()->route('tenant.sales.products.index')
                 ->with('success', 'تم إنشاء المنتج بنجاح');

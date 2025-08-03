@@ -252,6 +252,19 @@
                 </tr>
             </thead>
             <tbody>
+                {{-- تشخيص مؤقت --}}
+                @if(config('app.debug'))
+                    <tr style="background: #fef2f2; border: 1px solid #fca5a5;">
+                        <td colspan="7" style="padding: 10px; font-size: 12px; color: #dc2626;">
+                            <strong>تشخيص:</strong>
+                            عدد المنتجات: {{ $products->count() }} |
+                            إجمالي المنتجات: {{ $products->total() }} |
+                            المستخدم: {{ auth()->id() ?? 'غير مسجل' }} |
+                            Tenant ID: {{ auth()->user()->tenant_id ?? 'NULL' }}
+                        </td>
+                    </tr>
+                @endif
+
                 @forelse($products as $product)
                 <tr style="transition: all 0.3s ease;" onmouseover="this.style.background='#f7fafc';" onmouseout="this.style.background='white';">
                     <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
