@@ -14,6 +14,13 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        \Log::info('ProductController instantiated', [
+            'timestamp' => now()->toDateTimeString(),
+            'user_id' => auth()->id() ?? 'NOT_AUTHENTICATED'
+        ]);
+    }
     /**
      * Display a listing of products
      */
@@ -114,10 +121,14 @@ class ProductController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // تشخيص البيانات المرسلة
-        \Log::info('Store method called', [
+        \Log::info('=== PRODUCT STORE METHOD CALLED ===', [
+            'timestamp' => now()->toDateTimeString(),
+            'request_method' => $request->method(),
+            'request_url' => $request->url(),
             'request_data' => $request->all(),
             'user_id' => auth()->id(),
-            'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL'
+            'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL',
+            'headers' => $request->headers->all()
         ]);
 
         $validated = $request->validate([
