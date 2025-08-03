@@ -34,7 +34,7 @@
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                     <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
                         <i class="fas fa-boxes" style="margin-left: 8px;"></i>
-                        <span style="font-size: 14px; font-weight: 600;">مخزون: {{ $product->current_stock ?? $product->stock_quantity ?? 0 }} {{ $product->unit ?? $product->unit_of_measure ?? 'قطعة' }}</span>
+                        <span style="font-size: 14px; font-weight: 600;">مخزون: {{ $product->stock_quantity ?? 0 }} {{ $product->unit_of_measure ?? 'قطعة' }}</span>
                     </div>
                     <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
                         <i class="fas fa-dollar-sign" style="margin-left: 8px;"></i>
@@ -52,7 +52,7 @@
                         </div>
                     @endif
                     
-                    @if(($product->current_stock ?? $product->stock_quantity ?? 0) <= ($product->min_stock_level ?? 0))
+                    @if(($product->stock_quantity ?? 0) <= ($product->min_stock_level ?? 0))
                         <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
                             <i class="fas fa-exclamation-triangle" style="margin-left: 8px; color: #fbbf24;"></i>
                             <span style="font-size: 14px;">مخزون منخفض</span>
@@ -149,7 +149,7 @@
         <div style="space-y: 15px;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #fef2f2; border-radius: 8px; margin-bottom: 10px;">
                 <span style="color: #dc2626; font-weight: 600;">سعر الشراء</span>
-                <span style="color: #b91c1c; font-weight: 700;">{{ number_format($product->purchase_price ?? $product->cost_price ?? 0, 2) }} ر.س</span>
+                <span style="color: #b91c1c; font-weight: 700;">{{ number_format($product->cost_price ?? 0, 2) }} ر.س</span>
             </div>
             
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f0fdf4; border-radius: 8px; margin-bottom: 10px;">
@@ -159,7 +159,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f0f9ff; border-radius: 8px;">
                 <span style="color: #0369a1; font-weight: 600;">هامش الربح</span>
-                <span style="color: #1e40af; font-weight: 700;">{{ number_format($product->selling_price - ($product->purchase_price ?? $product->cost_price ?? 0), 2) }} ر.س</span>
+                <span style="color: #1e40af; font-weight: 700;">{{ number_format($product->selling_price - ($product->cost_price ?? 0), 2) }} ر.س</span>
             </div>
         </div>
     </div>
@@ -173,9 +173,9 @@
         
         <div style="space-y: 15px;">
             @php
-                $currentStock = $product->current_stock ?? $product->stock_quantity ?? 0;
+                $currentStock = $product->stock_quantity ?? 0;
                 $minStock = $product->min_stock_level ?? 0;
-                $unit = $product->unit ?? $product->unit_of_measure ?? 'قطعة';
+                $unit = $product->unit_of_measure ?? 'قطعة';
                 $isLowStock = $currentStock <= $minStock;
             @endphp
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: {{ $isLowStock ? '#fef2f2' : '#f0fdf4' }}; border-radius: 8px; margin-bottom: 10px;">
@@ -190,7 +190,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 8px;">
                 <span style="color: #4a5568; font-weight: 600;">قيمة المخزون</span>
-                <span style="color: #2d3748; font-weight: 700;">{{ number_format($currentStock * ($product->purchase_price ?? $product->cost_price ?? 0), 2) }} ر.س</span>
+                <span style="color: #2d3748; font-weight: 700;">{{ number_format($currentStock * ($product->cost_price ?? 0), 2) }} ر.س</span>
             </div>
         </div>
     </div>

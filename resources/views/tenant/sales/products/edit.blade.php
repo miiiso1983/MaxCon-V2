@@ -128,15 +128,15 @@
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الوحدة *</label>
                 <select name="unit" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر الوحدة</option>
-                    <option value="قرص" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'قرص' ? 'selected' : '' }}>قرص</option>
-                    <option value="كبسولة" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'كبسولة' ? 'selected' : '' }}>كبسولة</option>
-                    <option value="شراب" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'شراب' ? 'selected' : '' }}>شراب</option>
-                    <option value="حقنة" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'حقنة' ? 'selected' : '' }}>حقنة</option>
-                    <option value="مرهم" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'مرهم' ? 'selected' : '' }}>مرهم</option>
-                    <option value="قطرة" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'قطرة' ? 'selected' : '' }}>قطرة</option>
-                    <option value="بخاخ" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'بخاخ' ? 'selected' : '' }}>بخاخ</option>
-                    <option value="علبة" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'علبة' ? 'selected' : '' }}>علبة</option>
-                    <option value="زجاجة" {{ old('unit', $product->unit ?? $product->unit_of_measure) === 'زجاجة' ? 'selected' : '' }}>زجاجة</option>
+                    <option value="قرص" {{ old('unit', $product->unit_of_measure) === 'قرص' ? 'selected' : '' }}>قرص</option>
+                    <option value="كبسولة" {{ old('unit', $product->unit_of_measure) === 'كبسولة' ? 'selected' : '' }}>كبسولة</option>
+                    <option value="شراب" {{ old('unit', $product->unit_of_measure) === 'شراب' ? 'selected' : '' }}>شراب</option>
+                    <option value="حقنة" {{ old('unit', $product->unit_of_measure) === 'حقنة' ? 'selected' : '' }}>حقنة</option>
+                    <option value="مرهم" {{ old('unit', $product->unit_of_measure) === 'مرهم' ? 'selected' : '' }}>مرهم</option>
+                    <option value="قطرة" {{ old('unit', $product->unit_of_measure) === 'قطرة' ? 'selected' : '' }}>قطرة</option>
+                    <option value="بخاخ" {{ old('unit', $product->unit_of_measure) === 'بخاخ' ? 'selected' : '' }}>بخاخ</option>
+                    <option value="علبة" {{ old('unit', $product->unit_of_measure) === 'علبة' ? 'selected' : '' }}>علبة</option>
+                    <option value="زجاجة" {{ old('unit', $product->unit_of_measure) === 'زجاجة' ? 'selected' : '' }}>زجاجة</option>
                 </select>
                 @error('unit')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
@@ -156,7 +156,7 @@
             <!-- Purchase Price -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">سعر الشراء *</label>
-                <input type="number" name="purchase_price" value="{{ old('purchase_price', $product->purchase_price ?? $product->cost_price ?? 0) }}" min="0" step="0.01" required
+                <input type="number" name="purchase_price" value="{{ old('purchase_price', $product->cost_price ?? 0) }}" min="0" step="0.01" required
                        style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" 
                        placeholder="0.00">
                 @error('purchase_price')
@@ -188,7 +188,7 @@
             <!-- Current Stock -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المخزون الحالي *</label>
-                <input type="number" name="current_stock" value="{{ old('current_stock', $product->current_stock ?? $product->stock_quantity ?? 0) }}" min="0" required
+                <input type="number" name="current_stock" value="{{ old('current_stock', $product->stock_quantity ?? 0) }}" min="0" required
                        style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" 
                        placeholder="0">
                 @error('current_stock')

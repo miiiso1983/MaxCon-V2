@@ -15,44 +15,35 @@ class Product extends Model
         'tenant_id',
         'product_code',
         'name',
-        'code',
-        'barcode',
-        'qr_code',
         'description',
-        'short_description',
         'category',
-        'category_id',
         'brand',
         'manufacturer',
         'batch_number',
         'expiry_date',
         'unit_of_measure',
-        'country_of_origin',
         'cost_price',
-        'purchase_price', // إضافة purchase_price
         'selling_price',
         'min_selling_price',
-        'wholesale_price',
-        'retail_price',
-        'currency',
         'stock_quantity',
-        'current_stock', // إضافة current_stock
         'min_stock_level',
         'max_stock_level',
-        'minimum_stock', // إضافة minimum_stock
-        'maximum_stock', // إضافة maximum_stock
         'tax_rate',
         'is_taxable',
         'is_active',
         'track_expiry',
         'track_batch',
+        'barcode',
         'image_url',
         'specifications',
         'notes',
-        'unit', // إضافة unit
-        'generic_name', // إضافة generic_name
-        'manufacturing_date', // إضافة manufacturing_date
-        'storage_conditions', // إضافة storage_conditions
+        // Virtual attributes handled by accessors/mutators
+        'purchase_price', // maps to cost_price
+        'current_stock', // maps to stock_quantity
+        'unit', // maps to unit_of_measure
+        'generic_name', // if exists in DB
+        'manufacturing_date', // if exists in DB
+        'storage_conditions', // if exists in DB
     ];
 
     protected $casts = [
@@ -86,48 +77,51 @@ class Product extends Model
     // Accessors and Mutators for field compatibility
 
     /**
-     * Get purchase_price attribute (maps to cost_price if purchase_price doesn't exist)
+     * Get purchase_price attribute (maps to cost_price since purchase_price doesn't exist in DB)
      */
-    public function getPurchasePriceAttribute($value)
+    public function getPurchasePriceAttribute()
     {
-        // إذا كان purchase_price موجود، استخدمه
-        if ($value !== null) {
-            return $value;
-        }
-
-        // وإلا استخدم cost_price
         return $this->attributes['cost_price'] ?? 0;
     }
 
     /**
-     * Set purchase_price attribute (save to both purchase_price and cost_price)
+     * Set purchase_price attribute (save to cost_price since purchase_price doesn't exist in DB)
      */
     public function setPurchasePriceAttribute($value)
     {
-        $this->attributes['purchase_price'] = $value;
-        $this->attributes['cost_price'] = $value; // للتوافق مع الحقول القديمة
+        $this->attributes['cost_price'] = $value;
     }
 
     /**
-     * Get current_stock attribute (maps to stock_quantity if current_stock doesn't exist)
+     * Get current_stock attribute (maps to stock_quantity since current_stock doesn't exist in DB)
      */
-    public function getCurrentStockAttribute($value)
+    public function getCurrentStockAttribute()
     {
-        // إذا كان current_stock موجود، استخدمه
-        if ($value !== null) {
-            return $value;
-        }
-
-        // وإلا استخدم stock_quantity
         return $this->attributes['stock_quantity'] ?? 0;
     }
 
     /**
-     * Set current_stock attribute (save to both current_stock and stock_quantity)
+     * Set current_stock attribute (save to stock_quantity since current_stock doesn't exist in DB)
      */
     public function setCurrentStockAttribute($value)
     {
-        $this->attributes['current_stock'] = $value;
+        $this->attributes['stock_quantity'] = $value;
+    }
+
+    /**
+     * Get unit attribute (maps to unit_of_measure since unit doesn't exist in DB)
+     */
+    public function getUnitAttribute()
+    {
+        return $this->attributes['unit_of_measure'] ?? 'قطعة';
+    }
+
+    /**
+     * Set unit attribute (save to unit_of_measure since unit doesn't exist in DB)
+     */
+    public function setUnitAttribute($value)
+    {
+        $this->attributes['unit_of_measure'] = $value;
         $this->attributes['stock_quantity'] = $value; // للتوافق مع الحقول القديمة
     }
 
