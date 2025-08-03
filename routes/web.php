@@ -507,7 +507,10 @@ Route::get('/debug-import', function () {
 })->name('debug.import');
 
 // Test Excel file upload
-Route::post('/test-excel-upload', function (Request $request) {
+Route::match(['GET', 'POST'], '/test-excel-upload', function (Request $request) {
+    if ($request->isMethod('GET')) {
+        return redirect('/test-excel-form');
+    }
     try {
         $request->validate([
             'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240',

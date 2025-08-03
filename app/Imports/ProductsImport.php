@@ -81,7 +81,7 @@ class ProductsImport implements
         $product->description = !empty($row['description']) ? trim($row['description']) : null;
         $product->category = !empty($row['category']) ? trim($row['category']) : 'أخرى';
         $product->manufacturer = !empty($row['manufacturer']) ? trim($row['manufacturer']) : null;
-        $product->barcode = !empty($row['barcode']) ? trim($row['barcode']) : null;
+        $product->barcode = !empty($row['barcode']) ? trim((string)$row['barcode']) : null;
 
         // Use unit_of_measure instead of base_unit
         $product->unit_of_measure = !empty($row['unit']) ? trim($row['unit']) : 'قرص';
@@ -155,12 +155,12 @@ class ProductsImport implements
             'generic_name' => 'nullable|string|max:255',
             'category' => 'nullable|string|max:100',
             'manufacturer' => 'nullable|string|max:255',
-            'barcode' => 'nullable|string|max:50',
+            'barcode' => 'nullable|max:50',
             'unit' => 'nullable|string|max:20',
             'purchase_price' => 'nullable|numeric|min:0',
             'selling_price' => 'nullable|numeric|min:0',
-            'min_stock_level' => 'nullable|integer|min:0',
-            'current_stock' => 'nullable|integer|min:0',
+            'min_stock_level' => 'nullable|numeric|min:0',
+            'current_stock' => 'nullable|numeric|min:0',
             'batch_number' => 'nullable|string|max:50',
             'expiry_date' => 'nullable|date',
             'manufacturing_date' => 'nullable|date',
