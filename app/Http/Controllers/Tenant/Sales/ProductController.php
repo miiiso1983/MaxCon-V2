@@ -262,19 +262,6 @@ class ProductController extends Controller
             'headers' => $request->headers->all()
         ]);
 
-        // اختبار بسيط للتأكد من وصول الطلب
-        if (!$request->hasFile('excel_file')) {
-            \Log::error('No file uploaded');
-            return back()->with('error', 'لم يتم رفع أي ملف. يرجى اختيار ملف Excel.');
-        }
-
-        // اختبار سريع - إرجاع رسالة نجاح فورية للتأكد من وصول الطلب
-        \Log::info('File upload detected, proceeding with validation');
-
-        // اختبار مؤقت: إرجاع رسالة فورية
-        return redirect()->route('tenant.sales.products.import')
-            ->with('success', '🧪 اختبار: تم استلام الملف بنجاح! حجم الملف: ' . $request->file('excel_file')->getSize() . ' بايت');
-
         $request->validate([
             'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max
         ], [
