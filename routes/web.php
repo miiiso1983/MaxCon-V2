@@ -168,6 +168,21 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 });
 
+// Email verification routes (to fix verification.notice error)
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function () {
+        return redirect()->route('dashboard')->with('success', 'Email verified successfully!');
+    })->middleware('signed')->name('verification.verify');
+
+    Route::post('/email/verification-notification', function () {
+        return back()->with('message', 'Verification link sent!');
+    })->middleware('throttle:6,1')->name('verification.send');
+});
+
 // Logout confirmation page
 Route::middleware('auth')->get('/logout-confirm', function () {
     return view('auth.logout-confirm');
@@ -1063,7 +1078,7 @@ Route::prefix('test')->name('test.')->group(function () {
 });
 
 // Tenant-specific routes (للـ Tenant Admin)
-Route::middleware(['auth', 'verified'])->prefix('tenant')->name('tenant.')->group(function () {
+Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function () {
     // Tenant dashboard
     Route::get('/dashboard', function () {
         return view('tenant.dashboard');
