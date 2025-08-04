@@ -73,6 +73,12 @@
         <i class="fas fa-search"></i>
         البحث عن آخر منتج
     </button>
+
+    <a href="{{ route('tenant.sales.products.create.secure') }}"
+        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; text-decoration: none; display: inline-block; margin-left: 10px;">
+        <i class="fas fa-shield-alt"></i>
+        إضافة منتج آمن (جديد)
+    </a>
 </div>
 
 <!-- Success/Error Messages -->

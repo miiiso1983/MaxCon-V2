@@ -40,7 +40,7 @@
     </div>
 
     <!-- Form -->
-    <form action="{{ route('tenant.products.store.secure') }}" method="POST" style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+    <form action="{{ route('tenant.sales.products.store.secure') }}" method="POST" style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         @csrf
         
         <!-- Hidden tenant_id for extra security -->
