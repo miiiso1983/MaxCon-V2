@@ -20,71 +20,38 @@
 
 @section('content')
 
-<!-- Debug Buttons -->
-<div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-    <button onclick="
-        fetch('/debug-latest-products')
-            .then(response => response.json())
-            .then(data => {
-                alert('آخر 5 منتجات:\\n' + JSON.stringify(data, null, 2));
-            })
-            .catch(error => {
-                alert('خطأ: ' + error.message);
-            });
-    " style="background: #dc2626; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
-        <i class="fas fa-bug"></i>
-        عرض آخر المنتجات
-    </button>
+<!-- Main Actions -->
+<div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="{{ route('tenant.sales.products.create') }}"
+            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 24px; border: none; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.3s;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 15px -3px rgba(0, 0, 0, 0.1)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1)'">
+            <i class="fas fa-plus" style="margin-left: 8px;"></i>
+            إضافة منتج جديد
+        </a>
 
-    <button onclick="
-        fetch('/debug-products-by-tenant')
-            .then(response => response.json())
-            .then(data => {
-                let message = 'توزيع المنتجات حسب المؤسسات:\\n\\n';
-                message += 'إجمالي المنتجات: ' + data.total_products + '\\n';
-                message += 'مؤسستك الحالية: ' + data.current_user_tenant + '\\n\\n';
-                message += 'التوزيع:\\n';
-                data.products_by_tenant.forEach(item => {
-                    message += 'المؤسسة ' + item.tenant_id + ': ' + item.count + ' منتج\\n';
-                });
-                alert(message);
-            })
-            .catch(error => {
-                alert('خطأ: ' + error.message);
-            });
-    " style="background: #7c3aed; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
-        <i class="fas fa-chart-pie"></i>
-        توزيع المنتجات
-    </button>
+        <a href="{{ route('tenant.sales.products.import') }}"
+            style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 12px 24px; border: none; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.3s;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 15px -3px rgba(0, 0, 0, 0.1)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1)'">
+            <i class="fas fa-file-import" style="margin-left: 8px;"></i>
+            استيراد من Excel
+        </a>
 
-    <button onclick="
-        // إزالة جميع الفلاتر والذهاب للصفحة الأولى
-        window.location.href = '{{ route('tenant.sales.products.index') }}?page=1&per_page=50';
-    " style="background: #059669; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
-        <i class="fas fa-refresh"></i>
-        تحديث القائمة (50 منتج)
-    </button>
+        <a href="{{ route('tenant.sales.products.template') }}"
+            style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 12px 24px; border: none; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.3s;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 15px -3px rgba(0, 0, 0, 0.1)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1)'">
+            <i class="fas fa-download" style="margin-left: 8px;"></i>
+            تحميل القالب
+        </a>
+    </div>
 
-    <button onclick="
-        // البحث عن المنتج الأخير
-        const latestProductName = 'منتج اختبار مباشر';
-        window.location.href = '{{ route('tenant.sales.products.index') }}?search=' + encodeURIComponent(latestProductName);
-    " style="background: #f59e0b; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
-        <i class="fas fa-search"></i>
-        البحث عن آخر منتج
-    </button>
-
-    <a href="{{ route('tenant.sales.products.create.secure') }}"
-        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; text-decoration: none; display: inline-block; margin-left: 10px;">
-        <i class="fas fa-shield-alt"></i>
-        إضافة منتج آمن (جديد)
-    </a>
-
-    <a href="{{ route('secure.product.create.direct') }}"
-        style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; text-decoration: none; display: inline-block; margin-left: 10px;">
-        <i class="fas fa-rocket"></i>
-        اختبار مباشر (مؤقت)
-    </a>
+    <div style="color: #6b7280; font-size: 14px; text-align: right;">
+        <i class="fas fa-info-circle" style="margin-left: 5px; color: #3b82f6;"></i>
+        إجمالي المنتجات: <strong>{{ $stats['total'] ?? 0 }}</strong>
+    </div>
 </div>
 
 <!-- Success/Error Messages -->

@@ -1005,90 +1005,11 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('session.refresh');
 
-    // Direct product creation route (for testing)
-    Route::post('/create-product-direct', function (Request $request) {
-        try {
-            // إنشاء منتج مباشرة بدون middleware مع أسماء الأعمدة الصحيحة
-            $product = new \App\Models\Product();
-            $product->name = $request->input('name', 'منتج اختبار');
-            $product->category = $request->input('category', 'أدوية');
-            $product->cost_price = $request->input('purchase_price', 100); // الاسم الصحيح
-            $product->selling_price = $request->input('selling_price', 150);
-            $product->stock_quantity = $request->input('current_stock', 50); // الاسم الصحيح
-            $product->min_stock_level = $request->input('min_stock_level', 10);
-            $product->unit_of_measure = $request->input('unit', 'قرص'); // الاسم الصحيح
-            $product->product_code = 'TEST-' . time(); // إضافة product_code مطلوب
-            $product->tenant_id = 1; // استخدام tenant_id ثابت للاختبار
 
-            $saved = $product->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'تم إنشاء المنتج مباشرة بنجاح',
-                'product_id' => $product->id,
-                'product_code' => $product->product_code,
-                'saved' => $saved
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'خطأ في الإنشاء: ' . $e->getMessage(),
-                'error' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile()
-            ]);
-        }
-    })->name('create.product.direct');
 
-    // Debug route to show latest products
-    Route::get('/debug-latest-products', function () {
-        try {
-            $tenantId = auth()->user()->tenant_id ?? 1;
-            $latestProducts = \App\Models\Product::where('tenant_id', $tenantId)
-                ->orderBy('created_at', 'desc')
-                ->limit(5)
-                ->get(['id', 'name', 'created_at', 'tenant_id'])
-                ->toArray();
 
-            return response()->json([
-                'tenant_id' => $tenantId,
-                'latest_products' => $latestProducts,
-                'total_count' => \App\Models\Product::where('tenant_id', $tenantId)->count()
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage()
-            ]);
-        }
-    })->name('debug.latest.products');
 
-    // Debug route to show products distribution by tenant
-    Route::get('/debug-products-by-tenant', function () {
-        try {
-            $productsByTenant = \App\Models\Product::selectRaw('tenant_id, COUNT(*) as count')
-                ->groupBy('tenant_id')
-                ->orderBy('tenant_id')
-                ->get()
-                ->toArray();
-
-            $totalProducts = \App\Models\Product::count();
-
-            return response()->json([
-                'total_products' => $totalProducts,
-                'products_by_tenant' => $productsByTenant,
-                'current_user_tenant' => auth()->user()->tenant_id ?? 'NULL'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage()
-            ]);
-        }
-    })->name('debug.products.by.tenant');
-
-    // Direct route for secure product creation (outside tenant group for testing)
-    Route::get('/secure-product-create', function () {
-        return view('tenant.sales.products.create-new');
-    })->name('secure.product.create.direct');
 
     // Dashboard
     Route::get('/dashboard', function () {

@@ -114,11 +114,11 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for creating a new product
+     * Show the form for creating a new product (redirected to secure version)
      */
     public function create(): View
     {
-        return view('tenant.sales.products.create');
+        return view('tenant.sales.products.create-new');
     }
 
     /**
