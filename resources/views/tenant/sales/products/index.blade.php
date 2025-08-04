@@ -20,6 +20,23 @@
 
 @section('content')
 
+<!-- Debug Button -->
+<div style="margin-bottom: 20px;">
+    <button onclick="
+        fetch('/debug-latest-products')
+            .then(response => response.json())
+            .then(data => {
+                alert('آخر 5 منتجات:\\n' + JSON.stringify(data, null, 2));
+            })
+            .catch(error => {
+                alert('خطأ: ' + error.message);
+            });
+    " style="background: #dc2626; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
+        <i class="fas fa-bug"></i>
+        عرض آخر المنتجات
+    </button>
+</div>
+
 <!-- Success/Error Messages -->
 @if(session('success'))
 <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 25px; animation: slideInDown 0.5s ease-out;">

@@ -1040,6 +1040,28 @@ Route::middleware('auth')->group(function () {
         }
     })->name('create.product.direct');
 
+    // Debug route to show latest products
+    Route::get('/debug-latest-products', function () {
+        try {
+            $tenantId = auth()->user()->tenant_id ?? 1;
+            $latestProducts = \App\Models\Product::where('tenant_id', $tenantId)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get(['id', 'name', 'created_at', 'tenant_id'])
+                ->toArray();
+
+            return response()->json([
+                'tenant_id' => $tenantId,
+                'latest_products' => $latestProducts,
+                'total_count' => \App\Models\Product::where('tenant_id', $tenantId)->count()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    })->name('debug.latest.products');
+
     // Dashboard
     Route::get('/dashboard', function () {
         if (auth()->user()->isSuperAdmin()) {

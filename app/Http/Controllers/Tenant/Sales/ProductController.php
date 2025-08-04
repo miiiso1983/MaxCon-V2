@@ -59,6 +59,7 @@ class ProductController extends Controller
         $products = $query->orderBy('created_at', 'desc')->orderBy('id', 'desc')->paginate(15);
 
         // للتشخيص: log معلومات الاستعلام
+        $latestProduct = Product::where('tenant_id', $tenantId)->orderBy('created_at', 'desc')->first();
         \Log::info('ProductController index: Query results', [
             'user_id' => auth()->id(),
             'user_tenant_id' => auth()->user()->tenant_id ?? 'NULL',
@@ -67,6 +68,11 @@ class ProductController extends Controller
             'current_page_count' => $products->count(),
             'all_products_count' => Product::count(),
             'products_for_tenant_1' => Product::where('tenant_id', 1)->count(),
+            'latest_product' => $latestProduct ? [
+                'id' => $latestProduct->id,
+                'name' => $latestProduct->name,
+                'created_at' => $latestProduct->created_at->toDateTimeString()
+            ] : 'NULL',
             'query_sql' => $query->toSql()
         ]);
 
