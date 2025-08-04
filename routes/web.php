@@ -989,6 +989,11 @@ Route::get('/test-import-error', function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+    // CSRF token refresh route
+    Route::get('/csrf-token', function () {
+        return response()->json(['csrf_token' => csrf_token()]);
+    })->name('csrf.token');
+
     // Dashboard
     Route::get('/dashboard', function () {
         if (auth()->user()->isSuperAdmin()) {

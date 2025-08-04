@@ -320,7 +320,17 @@
             message += 'الفئة: ' + (categoryField ? categoryField.value || '[فارغ]' : '[غير موجود]') + '\\n\\n';
             message += 'هل تريد المتابعة؟';
             if (confirm(message)) {
-                document.querySelector('form').submit();
+                // تحديث CSRF token قبل الإرسال
+                fetch('/csrf-token')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('input[name=_token]').value = data.csrf_token;
+                        document.querySelector('form').submit();
+                    })
+                    .catch(() => {
+                        // إذا فشل تحديث التوكن، جرب الإرسال العادي
+                        document.querySelector('form').submit();
+                    });
             }
         " style="background: #10b981; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
             <i class="fas fa-bug"></i>
