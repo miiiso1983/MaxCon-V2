@@ -139,6 +139,14 @@ class ProductController extends Controller
             ]);
         }
 
+        // تشخيص البيانات الواردة
+        \Log::info('Request data received', [
+            'all_data' => $request->all(),
+            'method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'is_ajax' => $request->ajax()
+        ]);
+
         // تجاهل CSRF للاختبار المؤقت
         if ($request->has('bypass_csrf')) {
             \Log::info('Bypassing CSRF for testing');

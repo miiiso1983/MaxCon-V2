@@ -473,52 +473,37 @@
         </button>
 
         <button type="button" onclick="
-            const formSave = document.querySelector('form');
-            const nameFieldSave = document.getElementById('product_name');
-            const categoryFieldSave = document.getElementById('product_category');
+            // حل بسيط: استخدام الـ form العادي
+            const formSimple = document.querySelector('form');
+            const nameFieldSimple = document.getElementById('product_name');
+            const categoryFieldSimple = document.getElementById('product_category');
 
-            if (!nameFieldSave.value.trim()) {
+            if (!nameFieldSimple.value.trim()) {
                 alert('❌ اسم المنتج مطلوب!');
                 return;
             }
 
-            if (!categoryFieldSave.value.trim()) {
+            if (!categoryFieldSimple.value.trim()) {
                 alert('❌ الفئة مطلوبة!');
                 return;
             }
 
-            const formDataSave = new FormData(formSave);
+            // تشخيص البيانات قبل الإرسال
+            console.log('=== FORM VALUES BEFORE SUBMIT ===');
+            console.log('Name:', nameFieldSimple.value);
+            console.log('Category:', categoryFieldSimple.value);
+            console.log('Purchase Price:', formSimple.querySelector('[name=purchase_price]').value);
+            console.log('Selling Price:', formSimple.querySelector('[name=selling_price]').value);
+            console.log('Current Stock:', formSimple.querySelector('[name=current_stock]').value);
+            console.log('Unit:', formSimple.querySelector('[name=unit]').value);
+            console.log('CSRF Token:', formSimple.querySelector('[name=_token]').value);
 
-            // تشخيص البيانات المرسلة
-            console.log('=== FORM DATA BEING SENT ===');
-            for (let [key, value] of formDataSave.entries()) {
-                console.log(key + ': ' + value);
-            }
-
-            fetch('/tenant/sales/products', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
-                    // لا نضع Content-Type مع FormData - المتصفح يضعه تلقائياً
-                },
-                body: formDataSave
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Save Response:', data);
-                alert('✅ نتيجة الحفظ: ' + JSON.stringify(data, null, 2));
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                }
-            })
-            .catch(error => {
-                console.error('Save Error:', error);
-                alert('❌ خطأ في الحفظ: ' + error.message);
-            });
+            // إرسال الـ form العادي
+            alert('سيتم إرسال الـ form العادي الآن...');
+            formSimple.submit();
         " style="background: #16a34a; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
             <i class="fas fa-save"></i>
-            اختبار حفظ حقيقي
+            حفظ بـ Form عادي
         </button>
     </div>
 </form>
