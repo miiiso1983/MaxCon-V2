@@ -421,64 +421,84 @@
             تشخيص الخادم
         </button>
 
-        <button type="button" onclick="
-            // حل بسيط: تحديث الصفحة وإعادة المحاولة
-            const form8 = document.querySelector('form');
-            const nameField8 = document.getElementById('product_name');
-            const categoryField8 = document.getElementById('product_category');
-
-            if (!nameField8.value.trim()) {
-                alert('❌ اسم المنتج مطلوب!');
-                return;
-            }
-
-            if (!categoryField8.value.trim()) {
-                alert('❌ الفئة مطلوبة!');
-                return;
-            }
-
-            // حفظ البيانات في localStorage
-            const formData8 = {
-                name: nameField8.value,
-                category: categoryField8.value,
-                purchase_price: form8.querySelector('[name=purchase_price]').value,
-                selling_price: form8.querySelector('[name=selling_price]').value,
-                current_stock: form8.querySelector('[name=current_stock]').value,
-                unit: form8.querySelector('[name=unit]').value
-            };
-
-            localStorage.setItem('productFormData', JSON.stringify(formData8));
-
-            // إعادة تحميل الصفحة للحصول على CSRF token جديد
-            alert('سيتم إعادة تحميل الصفحة للحصول على token جديد...');
-            window.location.reload();
-        " style="background: #059669; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+        <button type="button" onclick="testButton()" style="background: #059669; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
             <i class="fas fa-redo"></i>
             حفظ مع إعادة تحميل
+        </button>
+
+        <button type="button" onclick="
+            alert('اختبار الزر - هل يعمل؟');
+            console.log('Button clicked!');
+        " style="background: #f59e0b; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-test"></i>
+            اختبار الزر
         </button>
     </div>
 </form>
 
 <script>
+// Function for save with reload button
+function testButton() {
+    alert('الزر يعمل! سيتم حفظ البيانات وإعادة التحميل...');
+
+    const form = document.querySelector('form');
+    const nameField = document.getElementById('product_name');
+    const categoryField = document.getElementById('product_category');
+
+    if (!nameField.value.trim()) {
+        alert('❌ اسم المنتج مطلوب!');
+        return;
+    }
+
+    if (!categoryField.value.trim()) {
+        alert('❌ الفئة مطلوبة!');
+        return;
+    }
+
+    // حفظ البيانات في localStorage
+    const formData = {
+        name: nameField.value,
+        category: categoryField.value,
+        purchase_price: form.querySelector('[name=purchase_price]').value,
+        selling_price: form.querySelector('[name=selling_price]').value,
+        current_stock: form.querySelector('[name=current_stock]').value,
+        unit: form.querySelector('[name=unit]').value
+    };
+
+    localStorage.setItem('productFormData', JSON.stringify(formData));
+    console.log('Data saved to localStorage:', formData);
+
+    // إعادة تحميل الصفحة
+    setTimeout(function() {
+        window.location.reload();
+    }, 1000);
+}
+
 // استعادة البيانات بعد إعادة التحميل
 document.addEventListener('DOMContentLoaded', function() {
     const savedData = localStorage.getItem('productFormData');
     if (savedData) {
-        const data = JSON.parse(savedData);
+        try {
+            const data = JSON.parse(savedData);
+            console.log('Restoring data:', data);
 
-        // ملء الحقول
-        document.getElementById('product_name').value = data.name || '';
-        document.getElementById('product_category').value = data.category || '';
-        document.querySelector('[name=purchase_price]').value = data.purchase_price || '';
-        document.querySelector('[name=selling_price]').value = data.selling_price || '';
-        document.querySelector('[name=current_stock]').value = data.current_stock || '';
-        document.querySelector('[name=unit]').value = data.unit || '';
+            // ملء الحقول
+            document.getElementById('product_name').value = data.name || '';
+            document.getElementById('product_category').value = data.category || '';
+            document.querySelector('[name=purchase_price]').value = data.purchase_price || '';
+            document.querySelector('[name=selling_price]').value = data.selling_price || '';
+            document.querySelector('[name=current_stock]').value = data.current_stock || '';
+            document.querySelector('[name=unit]').value = data.unit || '';
 
-        // حذف البيانات المحفوظة
-        localStorage.removeItem('productFormData');
+            // حذف البيانات المحفوظة
+            localStorage.removeItem('productFormData');
 
-        // إظهار رسالة
-        alert('تم استعادة البيانات! يمكنك الآن الضغط على حفظ المنتج العادي.');
+            // إظهار رسالة
+            alert('✅ تم استعادة البيانات! يمكنك الآن الضغط على حفظ المنتج العادي.');
+        } catch (e) {
+            console.error('Error restoring data:', e);
+            localStorage.removeItem('productFormData');
+        }
     }
 });
 </script>
