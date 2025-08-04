@@ -1008,15 +1008,16 @@ Route::middleware('auth')->group(function () {
     // Direct product creation route (for testing)
     Route::post('/create-product-direct', function (Request $request) {
         try {
-            // إنشاء منتج مباشرة بدون middleware
+            // إنشاء منتج مباشرة بدون middleware مع أسماء الأعمدة الصحيحة
             $product = new \App\Models\Product();
             $product->name = $request->input('name', 'منتج اختبار');
             $product->category = $request->input('category', 'أدوية');
-            $product->purchase_price = $request->input('purchase_price', 100);
+            $product->cost_price = $request->input('purchase_price', 100); // الاسم الصحيح
             $product->selling_price = $request->input('selling_price', 150);
-            $product->current_stock = $request->input('current_stock', 50);
+            $product->stock_quantity = $request->input('current_stock', 50); // الاسم الصحيح
             $product->min_stock_level = $request->input('min_stock_level', 10);
-            $product->unit = $request->input('unit', 'قرص');
+            $product->unit_of_measure = $request->input('unit', 'قرص'); // الاسم الصحيح
+            $product->product_code = 'TEST-' . time(); // إضافة product_code مطلوب
             $product->tenant_id = 1; // استخدام tenant_id ثابت للاختبار
 
             $saved = $product->save();
@@ -1025,13 +1026,16 @@ Route::middleware('auth')->group(function () {
                 'success' => true,
                 'message' => 'تم إنشاء المنتج مباشرة بنجاح',
                 'product_id' => $product->id,
+                'product_code' => $product->product_code,
                 'saved' => $saved
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'خطأ في الإنشاء: ' . $e->getMessage(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
             ]);
         }
     })->name('create.product.direct');
