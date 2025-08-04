@@ -440,6 +440,28 @@
         </button>
 
         <button type="button" onclick="
+            const formDirect = document.querySelector('form');
+            const name = document.getElementById('product_name').value;
+            const category = document.getElementById('product_category').value;
+
+            if (!name.trim()) {
+                alert('❌ اسم المنتج مطلوب!');
+                return;
+            }
+
+            if (!category.trim()) {
+                alert('❌ الفئة مطلوبة!');
+                return;
+            }
+
+            alert('✅ سيتم حفظ المنتج: ' + name);
+            formDirect.submit();
+        " style="background: #059669; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-check"></i>
+            حفظ مباشر
+        </button>
+
+        <button type="button" onclick="
             fetch('/tenant/sales/products', {
                 method: 'POST',
                 headers: {
@@ -492,14 +514,22 @@
             console.log('=== FORM VALUES BEFORE SUBMIT ===');
             console.log('Name:', nameFieldSimple.value);
             console.log('Category:', categoryFieldSimple.value);
-            console.log('Purchase Price:', formSimple.querySelector('[name=purchase_price]').value);
-            console.log('Selling Price:', formSimple.querySelector('[name=selling_price]').value);
-            console.log('Current Stock:', formSimple.querySelector('[name=current_stock]').value);
-            console.log('Unit:', formSimple.querySelector('[name=unit]').value);
-            console.log('CSRF Token:', formSimple.querySelector('[name=_token]').value);
+
+            const purchasePriceField = formSimple.querySelector('[name=purchase_price]');
+            const sellingPriceField = formSimple.querySelector('[name=selling_price]');
+            const currentStockField = formSimple.querySelector('[name=current_stock]');
+            const unitField = formSimple.querySelector('[name=unit]');
+            const csrfField = formSimple.querySelector('[name=_token]');
+
+            console.log('Purchase Price:', purchasePriceField ? purchasePriceField.value : 'FIELD NOT FOUND');
+            console.log('Selling Price:', sellingPriceField ? sellingPriceField.value : 'FIELD NOT FOUND');
+            console.log('Current Stock:', currentStockField ? currentStockField.value : 'FIELD NOT FOUND');
+            console.log('Unit:', unitField ? unitField.value : 'FIELD NOT FOUND');
+            console.log('CSRF Token:', csrfField ? csrfField.value : 'FIELD NOT FOUND');
 
             // إرسال الـ form العادي
-            alert('سيتم إرسال الـ form العادي الآن...');
+            console.log('✅ البيانات الأساسية موجودة، سيتم إرسال الـ form...');
+            alert('✅ البيانات جاهزة! سيتم حفظ المنتج الآن...');
             formSimple.submit();
         " style="background: #16a34a; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
             <i class="fas fa-save"></i>
