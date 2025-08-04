@@ -438,6 +438,38 @@
             <i class="fas fa-save"></i>
             حفظ المنتج العادي
         </button>
+
+        <button type="button" onclick="
+            fetch('/tenant/products', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    name: 'اختبار الوصول للـ Controller',
+                    category: 'أدوية',
+                    purchase_price: 100,
+                    selling_price: 150,
+                    current_stock: 50,
+                    min_stock_level: 10,
+                    unit: 'قرص'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);
+                alert('استجابة الخادم: ' + JSON.stringify(data, null, 2));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('خطأ: ' + error.message);
+            });
+        " style="background: #dc2626; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-bug"></i>
+            اختبار الوصول للـ Controller
+        </button>
     </div>
 </form>
 

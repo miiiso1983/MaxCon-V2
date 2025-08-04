@@ -120,6 +120,25 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // تشخيص فوري - هل وصلنا للـ Controller؟
+        \Log::emergency('=== STORE METHOD REACHED ===', [
+            'timestamp' => now()->toDateTimeString(),
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        // إذا كان AJAX request، أرجع response فوري
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'وصلنا للـ Controller بنجاح!',
+                'timestamp' => now()->toDateTimeString(),
+                'data' => $request->all()
+            ]);
+        }
+
         // تجاهل CSRF للاختبار المؤقت
         if ($request->has('bypass_csrf')) {
             \Log::info('Bypassing CSRF for testing');
