@@ -118,7 +118,7 @@ class ProductController extends Controller
     /**
      * Store a newly created product
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         // تشخيص البيانات المرسلة
         \Log::info('=== PRODUCT STORE METHOD CALLED ===', [
