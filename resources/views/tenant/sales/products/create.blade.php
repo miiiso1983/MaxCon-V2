@@ -440,7 +440,7 @@
         </button>
 
         <button type="button" onclick="
-            fetch('/tenant/products', {
+            fetch('/tenant/sales/products', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
