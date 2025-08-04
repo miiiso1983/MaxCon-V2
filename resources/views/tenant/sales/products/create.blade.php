@@ -422,88 +422,31 @@
         </button>
 
         <button type="button" onclick="
-            // فحص البيانات قبل الإرسال
-            const form3 = document.querySelector('form');
-            const nameField3 = document.getElementById('product_name');
-            const categoryField3 = document.getElementById('product_category');
+            // حل بسيط: إرسال الـ form مباشرة بدون تعقيدات
+            const form4 = document.querySelector('form');
+            const nameField4 = document.getElementById('product_name');
+            const categoryField4 = document.getElementById('product_category');
 
-            if (!nameField3.value.trim()) {
+            if (!nameField4.value.trim()) {
                 alert('❌ اسم المنتج مطلوب!');
                 return;
             }
 
-            if (!categoryField3.value.trim()) {
+            if (!categoryField4.value.trim()) {
                 alert('❌ الفئة مطلوبة!');
                 return;
             }
 
-            // تحديث CSRF token وتجديد الجلسة
-            fetch('/csrf-token')
-                .then(response => response.json())
-                .then(data => {
-                    // تحديث التوكن
-                    form3.querySelector('[name=_token]').value = data.csrf_token;
+            // إرسال مباشر بدون AJAX
+            console.log('=== SUBMITTING FORM DIRECTLY ===');
+            console.log('Form action:', form4.action);
+            console.log('Name:', nameField4.value);
+            console.log('Category:', categoryField4.value);
 
-                    // تجديد الجلسة قبل الإرسال
-                    return fetch('/refresh-session', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': data.csrf_token,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                })
-                .then(response => response.json())
-                .then(sessionData => {
-
-                    // إرسال الـ form بـ AJAX بدلاً من submit عادي
-                    const formData = new FormData(form3);
-
-                    console.log('=== SENDING FORM DATA ===');
-                    for (let [key, value] of formData.entries()) {
-                        console.log(key + ': ' + value);
-                    }
-
-                    fetch(form3.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        console.log('Response status:', response.status);
-                        console.log('Response headers:', response.headers);
-
-                        if (response.redirected) {
-                            console.log('❌ REDIRECTED TO:', response.url);
-                            if (response.url.includes('login')) {
-                                alert('❌ تم إعادة التوجيه لصفحة الدخول!\\nURL: ' + response.url);
-                            } else {
-                                alert('✅ تم إعادة التوجيه بنجاح!\\nURL: ' + response.url);
-                                window.location.href = response.url;
-                            }
-                        } else {
-                            return response.text();
-                        }
-                    })
-                    .then(data => {
-                        if (data) {
-                            console.log('Response data:', data);
-                            alert('✅ استجابة الخادم:\\n' + data.substring(0, 200) + '...');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('❌ خطأ في الإرسال:\\n' + error.message);
-                    });
-                })
-                .catch(error => {
-                    alert('❌ فشل في تحديث CSRF token:\\n' + error.message);
-                });
+            form4.submit();
         " class="btn-purple" style="padding: 12px 24px;">
             <i class="fas fa-save"></i>
-            حفظ مع تشخيص متقدم
+            حفظ مباشر
         </button>
     </div>
 </form>
