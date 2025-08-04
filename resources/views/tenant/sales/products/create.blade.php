@@ -422,66 +422,65 @@
         </button>
 
         <button type="button" onclick="
-            // حل نهائي: إرسال بدون CSRF للاختبار
-            const form7 = document.querySelector('form');
-            const nameField7 = document.getElementById('product_name');
-            const categoryField7 = document.getElementById('product_category');
+            // حل بسيط: تحديث الصفحة وإعادة المحاولة
+            const form8 = document.querySelector('form');
+            const nameField8 = document.getElementById('product_name');
+            const categoryField8 = document.getElementById('product_category');
 
-            if (!nameField7.value.trim()) {
+            if (!nameField8.value.trim()) {
                 alert('❌ اسم المنتج مطلوب!');
                 return;
             }
 
-            if (!categoryField7.value.trim()) {
+            if (!categoryField8.value.trim()) {
                 alert('❌ الفئة مطلوبة!');
                 return;
             }
 
-            // إرسال للـ route بدون CSRF
-            const formData7 = new FormData(form7);
-            formData7.append('bypass_csrf', '1');
+            // حفظ البيانات في localStorage
+            const formData8 = {
+                name: nameField8.value,
+                category: categoryField8.value,
+                purchase_price: form8.querySelector('[name=purchase_price]').value,
+                selling_price: form8.querySelector('[name=selling_price]').value,
+                current_stock: form8.querySelector('[name=current_stock]').value,
+                unit: form8.querySelector('[name=unit]').value
+            };
 
-            console.log('=== SENDING WITHOUT CSRF ===');
-            for (let [key, value] of formData7.entries()) {
-                console.log(key + ': ' + value);
-            }
+            localStorage.setItem('productFormData', JSON.stringify(formData8));
 
-            fetch('/tenant/products/no-csrf', {
-                method: 'POST',
-                body: formData7,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                if (response.redirected) {
-                    console.log('Redirected to:', response.url);
-                    if (response.url.includes('login')) {
-                        alert('❌ لا يزال يتم التوجيه لصفحة الدخول!');
-                    } else {
-                        alert('✅ تم الحفظ بنجاح! إعادة توجيه إلى: ' + response.url);
-                        window.location.href = response.url;
-                    }
-                } else {
-                    return response.text();
-                }
-            })
-            .then(data => {
-                if (data) {
-                    console.log('Response:', data);
-                    alert('✅ تم الحفظ بنجاح!');
-                    window.location.href = '/tenant/products';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ خطأ: ' + error.message);
-            });
-        " style="background: #dc2626; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
-            <i class="fas fa-shield-alt"></i>
-            حفظ بدون CSRF (اختبار)
+            // إعادة تحميل الصفحة للحصول على CSRF token جديد
+            alert('سيتم إعادة تحميل الصفحة للحصول على token جديد...');
+            window.location.reload();
+        " style="background: #059669; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-redo"></i>
+            حفظ مع إعادة تحميل
         </button>
     </div>
 </form>
+
+<script>
+// استعادة البيانات بعد إعادة التحميل
+document.addEventListener('DOMContentLoaded', function() {
+    const savedData = localStorage.getItem('productFormData');
+    if (savedData) {
+        const data = JSON.parse(savedData);
+
+        // ملء الحقول
+        document.getElementById('product_name').value = data.name || '';
+        document.getElementById('product_category').value = data.category || '';
+        document.querySelector('[name=purchase_price]').value = data.purchase_price || '';
+        document.querySelector('[name=selling_price]').value = data.selling_price || '';
+        document.querySelector('[name=current_stock]').value = data.current_stock || '';
+        document.querySelector('[name=unit]').value = data.unit || '';
+
+        // حذف البيانات المحفوظة
+        localStorage.removeItem('productFormData');
+
+        // إظهار رسالة
+        alert('تم استعادة البيانات! يمكنك الآن الضغط على حفظ المنتج العادي.');
+    }
+});
+</script>
+
 @endsection

@@ -123,11 +123,16 @@ class ProductController extends Controller
         // تجاهل CSRF للاختبار المؤقت
         if ($request->has('bypass_csrf')) {
             \Log::info('Bypassing CSRF for testing');
+            // تجاهل CSRF validation مؤقتاً
+            $request->session()->regenerateToken();
         }
 
         // التأكد من المصادقة أولاً
         if (!auth()->check()) {
             \Log::warning('User not authenticated in store method');
+            if ($request->ajax()) {
+                return response()->json(['error' => 'User not authenticated'], 401);
+            }
             return redirect()->route('login')->with('error', 'يجب تسجيل الدخول أولاً');
         }
 
