@@ -126,12 +126,12 @@
             <!-- Unit -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الوحدة *</label>
-                <select name="unit" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="unit_of_measure" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر الوحدة</option>
-                    <option value="قرص" {{ old('unit', $product->unit_of_measure) === 'قرص' ? 'selected' : '' }}>قرص</option>
-                    <option value="كبسولة" {{ old('unit', $product->unit_of_measure) === 'كبسولة' ? 'selected' : '' }}>كبسولة</option>
-                    <option value="شراب" {{ old('unit', $product->unit_of_measure) === 'شراب' ? 'selected' : '' }}>شراب</option>
-                    <option value="حقنة" {{ old('unit', $product->unit_of_measure) === 'حقنة' ? 'selected' : '' }}>حقنة</option>
+                    <option value="قرص" {{ old('unit_of_measure', $product->unit_of_measure) === 'قرص' ? 'selected' : '' }}>قرص</option>
+                    <option value="كبسولة" {{ old('unit_of_measure', $product->unit_of_measure) === 'كبسولة' ? 'selected' : '' }}>كبسولة</option>
+                    <option value="شراب" {{ old('unit_of_measure', $product->unit_of_measure) === 'شراب' ? 'selected' : '' }}>شراب</option>
+                    <option value="حقنة" {{ old('unit_of_measure', $product->unit_of_measure) === 'حقنة' ? 'selected' : '' }}>حقنة</option>
                     <option value="مرهم" {{ old('unit', $product->unit_of_measure) === 'مرهم' ? 'selected' : '' }}>مرهم</option>
                     <option value="قطرة" {{ old('unit', $product->unit_of_measure) === 'قطرة' ? 'selected' : '' }}>قطرة</option>
                     <option value="بخاخ" {{ old('unit', $product->unit_of_measure) === 'بخاخ' ? 'selected' : '' }}>بخاخ</option>
@@ -156,10 +156,10 @@
             <!-- Purchase Price -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">سعر الشراء *</label>
-                <input type="number" name="purchase_price" value="{{ old('purchase_price', $product->cost_price) }}" min="0" step="0.01" required
-                       style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" 
+                <input type="number" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}" min="0" step="0.01" required
+                       style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;"
                        placeholder="0.00">
-                @error('purchase_price')
+                @error('cost_price')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
@@ -188,10 +188,10 @@
             <!-- Current Stock -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المخزون الحالي *</label>
-                <input type="number" name="current_stock" value="{{ old('current_stock', $product->stock_quantity) }}" min="0" required
-                       style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" 
+                <input type="number" name="stock_quantity" value="{{ old('stock_quantity', $product->stock_quantity) }}" min="0" required
+                       style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;"
                        placeholder="0">
-                @error('current_stock')
+                @error('stock_quantity')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>

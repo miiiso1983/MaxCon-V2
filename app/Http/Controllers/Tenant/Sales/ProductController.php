@@ -352,15 +352,14 @@ class ProductController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'generic_name' => 'nullable|string|max:255',
             'category' => 'required|string|max:100',
             'manufacturer' => 'nullable|string|max:255',
             'barcode' => 'nullable|string|max:50|unique:products,barcode,' . $product->id,
-            'unit' => 'required|string|max:20',
-            'purchase_price' => 'required|numeric|min:0',
+            'unit_of_measure' => 'required|string|max:20',
+            'cost_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'min_stock_level' => 'required|integer|min:0',
-            'current_stock' => 'required|integer|min:0',
+            'stock_quantity' => 'required|integer|min:0',
             'batch_number' => 'nullable|string|max:50',
             'expiry_date' => 'nullable|date|after:today',
             'manufacturing_date' => 'nullable|date|before_or_equal:today',
@@ -371,8 +370,21 @@ class ProductController extends Controller
         ]);
 
         try {
-            // تحديث الحقول - الـ Accessors/Mutators ستتولى التحويل التلقائي
-            $product->fill($validated);
+            // تحديث الحقول مع أسماء الأعمدة الصحيحة
+            $product->name = $validated['name'];
+            $product->category = $validated['category'];
+            $product->manufacturer = $validated['manufacturer'];
+            $product->barcode = $validated['barcode'];
+            $product->unit_of_measure = $validated['unit_of_measure'];
+            $product->cost_price = $validated['cost_price'];
+            $product->selling_price = $validated['selling_price'];
+            $product->min_stock_level = $validated['min_stock_level'];
+            $product->stock_quantity = $validated['stock_quantity'];
+            $product->batch_number = $validated['batch_number'];
+            $product->expiry_date = $validated['expiry_date'];
+            $product->manufacturing_date = $validated['manufacturing_date'];
+            $product->description = $validated['description'];
+            $product->is_active = $request->has('is_active');
 
             $product->save();
 
@@ -718,6 +730,77 @@ class ProductController extends Controller
                 ];
             }
         }, 'products_template.xlsx', \Maatwebsite\Excel\Excel::XLSX, $headers);
+    }
+
+    /**
+     * Export products to Excel
+     */
+    public function export()
+    {
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : null;
+
+        if (!$tenantId) {
+            return redirect()->back()->with('error', 'خطأ في تحديد المؤسسة');
+        }
+
+        // Get products for current tenant
+        $products = Product::where('tenant_id', $tenantId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="products_export_' . date('Y-m-d_H-i-s') . '.xlsx"',
+        ];
+
+        return Excel::download(new class($products) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings, \Maatwebsite\Excel\Concerns\WithMapping {
+            private $products;
+
+            public function __construct($products) {
+                $this->products = $products;
+            }
+
+            public function collection() {
+                return $this->products;
+            }
+
+            public function headings(): array {
+                return [
+                    'معرف المنتج',
+                    'كود المنتج',
+                    'اسم المنتج',
+                    'الفئة',
+                    'الشركة المصنعة',
+                    'سعر الشراء',
+                    'سعر البيع',
+                    'المخزون الحالي',
+                    'الحد الأدنى',
+                    'وحدة القياس',
+                    'الباركود',
+                    'الوصف',
+                    'تاريخ الإنشاء'
+                ];
+            }
+
+            public function map($product): array {
+                return [
+                    $product->id,
+                    $product->product_code,
+                    $product->name,
+                    $product->category,
+                    $product->manufacturer,
+                    $product->cost_price,
+                    $product->selling_price,
+                    $product->stock_quantity,
+                    $product->min_stock_level,
+                    $product->unit_of_measure,
+                    $product->barcode,
+                    $product->description,
+                    $product->created_at ? $product->created_at->format('Y-m-d H:i:s') : ''
+                ];
+            }
+        }, 'products_export_' . date('Y-m-d_H-i-s') . '.xlsx', \Maatwebsite\Excel\Excel::XLSX, $headers);
     }
 
     /**

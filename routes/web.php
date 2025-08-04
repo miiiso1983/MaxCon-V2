@@ -1165,6 +1165,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::get('products-import', [ProductController::class, 'import'])->name('products.import');
         Route::post('products-import', [ProductController::class, 'processImport'])->name('products.process-import');
         Route::get('products-template', [ProductController::class, 'downloadTemplate'])->name('products.template');
+        Route::get('products-export', [ProductController::class, 'export'])->name('products.export');
 
         // Secure Products (New Implementation)
         Route::get('products/create-secure', [ProductController::class, 'createSecure'])->name('products.create.secure');

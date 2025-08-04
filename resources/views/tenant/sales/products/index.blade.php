@@ -46,6 +46,14 @@
             <i class="fas fa-download" style="margin-left: 8px;"></i>
             تحميل القالب
         </a>
+
+        <a href="{{ route('tenant.sales.products.export') }}"
+            style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 12px 24px; border: none; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.3s;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 15px -3px rgba(0, 0, 0, 0.1)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1)'">
+            <i class="fas fa-file-export" style="margin-left: 8px;"></i>
+            تصدير Excel
+        </a>
     </div>
 
     <div style="color: #6b7280; font-size: 14px; text-align: right;">
