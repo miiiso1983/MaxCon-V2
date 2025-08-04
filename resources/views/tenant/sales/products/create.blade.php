@@ -421,17 +421,77 @@
             تشخيص الخادم
         </button>
 
-        <button type="submit" class="btn-purple" style="padding: 12px 24px;" onclick="
-            console.log('=== FORM SUBMIT CLICKED ===');
-            console.log('Current URL:', window.location.href);
-            console.log('Form action:', this.form.action);
-            console.log('User authenticated:', '{{ auth()->check() ? 'YES' : 'NO' }}');
-            console.log('User ID:', '{{ auth()->id() ?? 'NULL' }}');
-            console.log('Tenant ID:', '{{ auth()->user()->tenant_id ?? 'NULL' }}');
-            return true;
-        ">
+        <button type="button" onclick="
+            // فحص البيانات قبل الإرسال
+            const form3 = document.querySelector('form');
+            const nameField3 = document.getElementById('product_name');
+            const categoryField3 = document.getElementById('product_category');
+
+            if (!nameField3.value.trim()) {
+                alert('❌ اسم المنتج مطلوب!');
+                return;
+            }
+
+            if (!categoryField3.value.trim()) {
+                alert('❌ الفئة مطلوبة!');
+                return;
+            }
+
+            // تحديث CSRF token
+            fetch('/csrf-token')
+                .then(response => response.json())
+                .then(data => {
+                    // تحديث التوكن
+                    form3.querySelector('[name=_token]').value = data.csrf_token;
+
+                    // إرسال الـ form بـ AJAX بدلاً من submit عادي
+                    const formData = new FormData(form3);
+
+                    console.log('=== SENDING FORM DATA ===');
+                    for (let [key, value] of formData.entries()) {
+                        console.log(key + ': ' + value);
+                    }
+
+                    fetch(form3.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        console.log('Response headers:', response.headers);
+
+                        if (response.redirected) {
+                            console.log('❌ REDIRECTED TO:', response.url);
+                            if (response.url.includes('login')) {
+                                alert('❌ تم إعادة التوجيه لصفحة الدخول!\\nURL: ' + response.url);
+                            } else {
+                                alert('✅ تم إعادة التوجيه بنجاح!\\nURL: ' + response.url);
+                                window.location.href = response.url;
+                            }
+                        } else {
+                            return response.text();
+                        }
+                    })
+                    .then(data => {
+                        if (data) {
+                            console.log('Response data:', data);
+                            alert('✅ استجابة الخادم:\\n' + data.substring(0, 200) + '...');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('❌ خطأ في الإرسال:\\n' + error.message);
+                    });
+                })
+                .catch(error => {
+                    alert('❌ فشل في تحديث CSRF token:\\n' + error.message);
+                });
+        " class="btn-purple" style="padding: 12px 24px;">
             <i class="fas fa-save"></i>
-            حفظ المنتج (مع تشخيص)
+            حفظ مع تشخيص متقدم
         </button>
     </div>
 </form>
