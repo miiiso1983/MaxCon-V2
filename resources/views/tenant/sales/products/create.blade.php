@@ -489,11 +489,18 @@
 
             const formDataSave = new FormData(formSave);
 
+            // تشخيص البيانات المرسلة
+            console.log('=== FORM DATA BEING SENT ===');
+            for (let [key, value] of formDataSave.entries()) {
+                console.log(key + ': ' + value);
+            }
+
             fetch('/tenant/sales/products', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                    // لا نضع Content-Type مع FormData - المتصفح يضعه تلقائياً
                 },
                 body: formDataSave
             })
