@@ -422,31 +422,58 @@
         </button>
 
         <button type="button" onclick="
-            // حل بسيط: إرسال الـ form مباشرة بدون تعقيدات
-            const form4 = document.querySelector('form');
-            const nameField4 = document.getElementById('product_name');
-            const categoryField4 = document.getElementById('product_category');
+            // حل CSRF token mismatch بطريقة أفضل
+            const form6 = document.querySelector('form');
+            const nameField6 = document.getElementById('product_name');
+            const categoryField6 = document.getElementById('product_category');
 
-            if (!nameField4.value.trim()) {
+            if (!nameField6.value.trim()) {
                 alert('❌ اسم المنتج مطلوب!');
                 return;
             }
 
-            if (!categoryField4.value.trim()) {
+            if (!categoryField6.value.trim()) {
                 alert('❌ الفئة مطلوبة!');
                 return;
             }
 
-            // إرسال مباشر بدون AJAX
-            console.log('=== SUBMITTING FORM DIRECTLY ===');
-            console.log('Form action:', form4.action);
-            console.log('Name:', nameField4.value);
-            console.log('Category:', categoryField4.value);
+            // الحصول على CSRF token جديد من الخادم
+            fetch('/csrf-token', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to get CSRF token');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // تحديث التوكن في الـ form
+                form6.querySelector('[name=_token]').value = data.csrf_token;
 
-            form4.submit();
-        " class="btn-purple" style="padding: 12px 24px;">
-            <i class="fas fa-save"></i>
-            حفظ مباشر
+                // تحديث meta tag أيضاً
+                const metaToken = document.querySelector('meta[name=csrf-token]');
+                if (metaToken) {
+                    metaToken.setAttribute('content', data.csrf_token);
+                }
+
+                console.log('✅ CSRF token refreshed:', data.csrf_token.substring(0, 20) + '...');
+
+                // إرسال الـ form
+                console.log('=== SUBMITTING WITH FRESH TOKEN ===');
+                form6.submit();
+            })
+            .catch(error => {
+                console.error('Error refreshing CSRF token:', error);
+                alert('❌ فشل في تحديث CSRF token: ' + error.message);
+            });
+        " style="background: #059669; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-sync"></i>
+            حفظ مع تحديث Token
         </button>
     </div>
 </form>
