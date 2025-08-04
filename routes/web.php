@@ -1160,7 +1160,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::post('products-import', [ProductController::class, 'processImport'])->name('products.process-import');
         Route::get('products-template', [ProductController::class, 'downloadTemplate'])->name('products.template');
 
-        // Temporary route without CSRF for testing
+        // Temporary route without CSRF for testing (inside tenant group)
         Route::post('products/no-csrf', [ProductController::class, 'store'])
             ->name('products.store.no-csrf')
             ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);

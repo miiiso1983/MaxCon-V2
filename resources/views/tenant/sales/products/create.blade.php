@@ -446,7 +446,7 @@
                 console.log(key + ': ' + value);
             }
 
-            fetch('{{ route("tenant.products.store.no-csrf") }}', {
+            fetch('/tenant/products/no-csrf', {
                 method: 'POST',
                 body: formData7,
                 headers: {
@@ -471,7 +471,7 @@
                 if (data) {
                     console.log('Response:', data);
                     alert('✅ تم الحفظ بنجاح!');
-                    window.location.href = '{{ route("tenant.products.index") }}';
+                    window.location.href = '/tenant/products';
                 }
             })
             .catch(error => {
