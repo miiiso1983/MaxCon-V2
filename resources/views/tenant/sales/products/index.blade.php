@@ -20,8 +20,8 @@
 
 @section('content')
 
-<!-- Debug Button -->
-<div style="margin-bottom: 20px;">
+<!-- Debug Buttons -->
+<div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
     <button onclick="
         fetch('/debug-latest-products')
             .then(response => response.json())
@@ -34,6 +34,23 @@
     " style="background: #dc2626; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
         <i class="fas fa-bug"></i>
         عرض آخر المنتجات
+    </button>
+
+    <button onclick="
+        // إزالة جميع الفلاتر والذهاب للصفحة الأولى
+        window.location.href = '{{ route('tenant.sales.products.index') }}?page=1&per_page=50';
+    " style="background: #059669; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
+        <i class="fas fa-refresh"></i>
+        تحديث القائمة (50 منتج)
+    </button>
+
+    <button onclick="
+        // البحث عن المنتج الأخير
+        const latestProductName = 'منتج اختبار مباشر';
+        window.location.href = '{{ route('tenant.sales.products.index') }}?search=' + encodeURIComponent(latestProductName);
+    " style="background: #f59e0b; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
+        <i class="fas fa-search"></i>
+        البحث عن آخر منتج
     </button>
 </div>
 
