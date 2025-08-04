@@ -338,23 +338,51 @@
         </button>
 
         <button type="button" onclick="
-            const formData = new FormData(document.querySelector('form'));
+            // التأكد من ملء الحقول المطلوبة
+            const nameField2 = document.getElementById('product_name');
+            const categoryField2 = document.getElementById('product_category');
+
+            if (!nameField2.value.trim()) {
+                alert('❌ يجب ملء حقل اسم المنتج أولاً!');
+                nameField2.focus();
+                return;
+            }
+
+            if (!categoryField2.value.trim()) {
+                alert('❌ يجب اختيار فئة المنتج أولاً!');
+                categoryField2.focus();
+                return;
+            }
+
+            // إنشاء FormData مع جميع بيانات الـ form
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
             formData.append('debug_mode', '1');
 
-            fetch('{{ route('tenant.sales.products.store') }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+            // عرض البيانات المرسلة
+            let dataPreview = 'البيانات المرسلة:\\n\\n';
+            for (let [key, value] of formData.entries()) {
+                if (key !== '_token' && key !== 'debug_mode') {
+                    dataPreview += key + ': ' + value + '\\n';
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('استجابة الخادم:\\n' + JSON.stringify(data, null, 2));
-            })
-            .catch(error => {
-                alert('خطأ في الاتصال:\\n' + error.message);
-            });
+            }
+
+            if (confirm(dataPreview + '\\nهل تريد إرسال هذه البيانات للخادم؟')) {
+                fetch('{{ route('tenant.sales.products.store') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('✅ استجابة الخادم:\\n' + JSON.stringify(data, null, 2));
+                })
+                .catch(error => {
+                    alert('❌ خطأ في الاتصال:\\n' + error.message);
+                });
+            }
         " style="background: #f59e0b; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
             <i class="fas fa-search"></i>
             تشخيص الخادم
