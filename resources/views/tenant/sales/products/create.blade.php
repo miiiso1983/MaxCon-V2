@@ -433,6 +433,11 @@
             <i class="fas fa-test"></i>
             اختبار الزر
         </button>
+
+        <button type="submit" style="background: #9f7aea; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-save"></i>
+            حفظ المنتج العادي
+        </button>
     </div>
 </form>
 
