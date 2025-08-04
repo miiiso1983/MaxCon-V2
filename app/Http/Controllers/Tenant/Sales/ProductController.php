@@ -129,8 +129,8 @@ class ProductController extends Controller
             'user_agent' => $request->userAgent()
         ]);
 
-        // إذا كان AJAX request، أرجع response فوري
-        if ($request->ajax()) {
+        // إذا كان AJAX request، أرجع response فوري (للاختبار فقط)
+        if ($request->ajax() && $request->has('test_mode')) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'وصلنا للـ Controller بنجاح!',
@@ -238,6 +238,26 @@ class ProductController extends Controller
                 'product_id' => $product->id,
                 'product_exists' => Product::find($product->id) ? 'YES' : 'NO'
             ]);
+
+            // تشخيص إضافي: التحقق من وجود المنتج في قاعدة البيانات
+            $savedProduct = Product::where('tenant_id', $tenantId)->find($product->id);
+            \Log::info('Product verification', [
+                'product_found_by_id' => $savedProduct ? 'YES' : 'NO',
+                'product_data' => $savedProduct ? $savedProduct->toArray() : 'NULL',
+                'total_products_for_tenant' => Product::where('tenant_id', $tenantId)->count(),
+                'all_products_count' => Product::count()
+            ]);
+
+            // إذا كان AJAX request، أرجع JSON response
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'تم حفظ المنتج بنجاح',
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'redirect_url' => route('tenant.sales.products.index')
+                ]);
+            }
 
             return redirect()->route('tenant.sales.products.index', ['page' => 1])
                 ->with('success', 'تم إنشاء المنتج بنجاح - ID: ' . $product->id . ' - اسم المنتج: ' . $product->name);

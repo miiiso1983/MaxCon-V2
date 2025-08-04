@@ -448,6 +448,7 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
                 },
                 body: JSON.stringify({
+                    test_mode: true,
                     name: 'اختبار الوصول للـ Controller',
                     category: 'أدوية',
                     purchase_price: 100,
@@ -469,6 +470,48 @@
         " style="background: #dc2626; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
             <i class="fas fa-bug"></i>
             اختبار الوصول للـ Controller
+        </button>
+
+        <button type="button" onclick="
+            const formSave = document.querySelector('form');
+            const nameFieldSave = document.getElementById('product_name');
+            const categoryFieldSave = document.getElementById('product_category');
+
+            if (!nameFieldSave.value.trim()) {
+                alert('❌ اسم المنتج مطلوب!');
+                return;
+            }
+
+            if (!categoryFieldSave.value.trim()) {
+                alert('❌ الفئة مطلوبة!');
+                return;
+            }
+
+            const formDataSave = new FormData(formSave);
+
+            fetch('/tenant/sales/products', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: formDataSave
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Save Response:', data);
+                alert('✅ نتيجة الحفظ: ' + JSON.stringify(data, null, 2));
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                }
+            })
+            .catch(error => {
+                console.error('Save Error:', error);
+                alert('❌ خطأ في الحفظ: ' + error.message);
+            });
+        " style="background: #16a34a; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-save"></i>
+            اختبار حفظ حقيقي
         </button>
     </div>
 </form>
