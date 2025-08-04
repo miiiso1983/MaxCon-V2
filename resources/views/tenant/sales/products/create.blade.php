@@ -65,6 +65,39 @@
             تأكد من اختيار فئة من القائمة المنسدلة.
         </p>
     </div>
+
+    <!-- تشخيص الجلسة -->
+    <div style="background: #e0f2fe; border: 2px solid #0ea5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4 style="color: #0369a1; margin: 0 0 10px 0;">🔍 تشخيص الجلسة</h4>
+        <button type="button" onclick="
+            fetch('/csrf-token')
+                .then(response => response.json())
+                .then(data => {
+                    alert('✅ الجلسة نشطة!\\nCSRF Token: ' + data.csrf_token.substring(0, 20) + '...');
+                })
+                .catch(error => {
+                    alert('❌ مشكلة في الجلسة!\\nالخطأ: ' + error.message);
+                });
+        " style="background: #0ea5e9; color: white; padding: 8px 16px; border: none; border-radius: 6px; margin-left: 10px;">
+            فحص الجلسة
+        </button>
+
+        <button type="button" onclick="
+            fetch('{{ route('tenant.sales.products.index') }}')
+                .then(response => {
+                    if (response.ok) {
+                        alert('✅ الوصول للصفحات محمي!\\nالحالة: ' + response.status);
+                    } else {
+                        alert('❌ مشكلة في الوصول!\\nالحالة: ' + response.status);
+                    }
+                })
+                .catch(error => {
+                    alert('❌ خطأ في الاتصال!\\nالخطأ: ' + error.message);
+                });
+        " style="background: #059669; color: white; padding: 8px 16px; border: none; border-radius: 6px;">
+            فحص الوصول
+        </button>
+    </div>
     
     <!-- Basic Information -->
     <div class="content-card" style="margin-bottom: 25px;">
@@ -388,9 +421,17 @@
             تشخيص الخادم
         </button>
 
-        <button type="submit" class="btn-purple" style="padding: 12px 24px;">
+        <button type="submit" class="btn-purple" style="padding: 12px 24px;" onclick="
+            console.log('=== FORM SUBMIT CLICKED ===');
+            console.log('Current URL:', window.location.href);
+            console.log('Form action:', this.form.action);
+            console.log('User authenticated:', '{{ auth()->check() ? 'YES' : 'NO' }}');
+            console.log('User ID:', '{{ auth()->id() ?? 'NULL' }}');
+            console.log('Tenant ID:', '{{ auth()->user()->tenant_id ?? 'NULL' }}');
+            return true;
+        ">
             <i class="fas fa-save"></i>
-            حفظ المنتج
+            حفظ المنتج (مع تشخيص)
         </button>
     </div>
 </form>
