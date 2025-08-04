@@ -437,12 +437,24 @@
                 return;
             }
 
-            // تحديث CSRF token
+            // تحديث CSRF token وتجديد الجلسة
             fetch('/csrf-token')
                 .then(response => response.json())
                 .then(data => {
                     // تحديث التوكن
                     form3.querySelector('[name=_token]').value = data.csrf_token;
+
+                    // تجديد الجلسة قبل الإرسال
+                    return fetch('/refresh-session', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': data.csrf_token,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                })
+                .then(response => response.json())
+                .then(sessionData => {
 
                     // إرسال الـ form بـ AJAX بدلاً من submit عادي
                     const formData = new FormData(form3);

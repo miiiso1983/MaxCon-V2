@@ -994,6 +994,17 @@ Route::middleware('auth')->group(function () {
         return response()->json(['csrf_token' => csrf_token()]);
     })->name('csrf.token');
 
+    // Session refresh route
+    Route::post('/refresh-session', function () {
+        session()->regenerate();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Session refreshed',
+            'session_id' => session()->getId(),
+            'csrf_token' => csrf_token()
+        ]);
+    })->name('session.refresh');
+
     // Dashboard
     Route::get('/dashboard', function () {
         if (auth()->user()->isSuperAdmin()) {

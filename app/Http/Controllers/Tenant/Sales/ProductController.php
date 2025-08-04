@@ -120,6 +120,15 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // التأكد من المصادقة أولاً
+        if (!auth()->check()) {
+            \Log::warning('User not authenticated in store method');
+            return redirect()->route('login')->with('error', 'يجب تسجيل الدخول أولاً');
+        }
+
+        // تجديد الجلسة
+        session()->regenerate();
+
         // تشخيص البيانات المرسلة
         \Log::info('=== PRODUCT STORE METHOD CALLED ===', [
             'timestamp' => now()->toDateTimeString(),
@@ -141,7 +150,8 @@ class ProductController extends Controller
                 'message' => 'تم استلام البيانات بنجاح في Controller',
                 'data' => $request->all(),
                 'user_id' => auth()->id(),
-                'tenant_id' => auth()->user()->tenant_id ?? 'NULL'
+                'tenant_id' => auth()->user()->tenant_id ?? 'NULL',
+                'session_regenerated' => true
             ]);
         }
 
