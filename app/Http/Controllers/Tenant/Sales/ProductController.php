@@ -122,6 +122,14 @@ class ProductController extends Controller
     }
 
     /**
+     * Show the new secure form for creating a product.
+     */
+    public function createSecure(): View
+    {
+        return view('tenant.sales.products.create-new');
+    }
+
+    /**
      * Store a newly created product
      */
     public function store(Request $request)
@@ -710,5 +718,105 @@ class ProductController extends Controller
                 ];
             }
         }, 'products_template.xlsx', \Maatwebsite\Excel\Excel::XLSX, $headers);
+    }
+
+    /**
+     * Store a new product with enhanced security
+     */
+    public function storeSecure(Request $request)
+    {
+        // Enhanced security checks
+        $currentUser = auth()->user();
+        $currentTenantId = $currentUser->tenant_id;
+
+        // Log the secure attempt
+        \Log::info('=== SECURE PRODUCT STORE ATTEMPT ===', [
+            'timestamp' => now()->toDateTimeString(),
+            'user_id' => $currentUser->id,
+            'user_tenant_id' => $currentTenantId,
+            'request_tenant_id' => $request->input('tenant_id'),
+            'request_user_id' => $request->input('user_id'),
+            'secure_token' => $request->input('secure_token'),
+            'expected_token' => md5($currentTenantId . $currentUser->id . now()->format('Y-m-d'))
+        ]);
+
+        // Validate tenant_id matches
+        if ($request->input('tenant_id') != $currentTenantId) {
+            \Log::warning('Tenant ID mismatch in secure store', [
+                'expected' => $currentTenantId,
+                'received' => $request->input('tenant_id')
+            ]);
+            return redirect()->back()->with('error', 'خطأ في التحقق من المؤسسة');
+        }
+
+        // Validate user_id matches
+        if ($request->input('user_id') != $currentUser->id) {
+            \Log::warning('User ID mismatch in secure store', [
+                'expected' => $currentUser->id,
+                'received' => $request->input('user_id')
+            ]);
+            return redirect()->back()->with('error', 'خطأ في التحقق من المستخدم');
+        }
+
+        // Validate secure token
+        $expectedToken = md5($currentTenantId . $currentUser->id . now()->format('Y-m-d'));
+        if ($request->input('secure_token') !== $expectedToken) {
+            \Log::warning('Security token mismatch in secure store');
+            return redirect()->back()->with('error', 'خطأ في التحقق الأمني');
+        }
+
+        try {
+            // Validate input
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'category' => 'required|string|max:100',
+                'cost_price' => 'required|numeric|min:0',
+                'selling_price' => 'required|numeric|min:0',
+                'stock_quantity' => 'required|integer|min:0',
+                'min_stock_level' => 'required|integer|min:0',
+                'unit_of_measure' => 'required|string|max:20',
+                'manufacturer' => 'nullable|string|max:255',
+                'barcode' => 'nullable|string|max:50',
+                'description' => 'nullable|string'
+            ]);
+
+            // Create product with forced tenant_id
+            $product = new Product();
+            $product->tenant_id = $currentTenantId; // Force current tenant
+            $product->name = $validated['name'];
+            $product->category = $validated['category'];
+            $product->cost_price = $validated['cost_price'];
+            $product->selling_price = $validated['selling_price'];
+            $product->stock_quantity = $validated['stock_quantity'];
+            $product->min_stock_level = $validated['min_stock_level'];
+            $product->unit_of_measure = $validated['unit_of_measure'];
+            $product->manufacturer = $validated['manufacturer'];
+            $product->barcode = $validated['barcode'];
+            $product->description = $validated['description'];
+            $product->product_code = 'SECURE-' . time() . '-' . $currentTenantId;
+
+            $saved = $product->save();
+
+            \Log::info('Secure product created successfully', [
+                'product_id' => $product->id,
+                'tenant_id' => $product->tenant_id,
+                'user_id' => $currentUser->id,
+                'product_name' => $product->name
+            ]);
+
+            return redirect()->route('tenant.sales.products.index')
+                ->with('success', 'تم إنشاء المنتج بنجاح وبأمان - ID: ' . $product->id . ' - المؤسسة: ' . $product->tenant_id);
+
+        } catch (\Exception $e) {
+            \Log::error('Secure product creation failed', [
+                'error' => $e->getMessage(),
+                'user_id' => $currentUser->id,
+                'tenant_id' => $currentTenantId
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'حدث خطأ أثناء إنشاء المنتج: ' . $e->getMessage());
+        }
     }
 }

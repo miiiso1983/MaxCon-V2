@@ -1240,6 +1240,10 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::post('products-import', [ProductController::class, 'processImport'])->name('products.process-import');
         Route::get('products-template', [ProductController::class, 'downloadTemplate'])->name('products.template');
 
+        // Secure Products (New Implementation)
+        Route::get('products/create-secure', [ProductController::class, 'createSecure'])->name('products.create.secure');
+        Route::post('products/store-secure', [ProductController::class, 'storeSecure'])->name('products.store.secure');
+
         // Temporary route without CSRF for testing (inside tenant group)
         Route::post('products/no-csrf', [ProductController::class, 'store'])
             ->name('products.store.no-csrf')
