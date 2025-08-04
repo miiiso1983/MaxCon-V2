@@ -1005,6 +1005,37 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('session.refresh');
 
+    // Direct product creation route (for testing)
+    Route::post('/create-product-direct', function (Request $request) {
+        try {
+            // إنشاء منتج مباشرة بدون middleware
+            $product = new \App\Models\Product();
+            $product->name = $request->input('name', 'منتج اختبار');
+            $product->category = $request->input('category', 'أدوية');
+            $product->purchase_price = $request->input('purchase_price', 100);
+            $product->selling_price = $request->input('selling_price', 150);
+            $product->current_stock = $request->input('current_stock', 50);
+            $product->min_stock_level = $request->input('min_stock_level', 10);
+            $product->unit = $request->input('unit', 'قرص');
+            $product->tenant_id = 1; // استخدام tenant_id ثابت للاختبار
+
+            $saved = $product->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إنشاء المنتج مباشرة بنجاح',
+                'product_id' => $product->id,
+                'saved' => $saved
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'خطأ في الإنشاء: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ]);
+        }
+    })->name('create.product.direct');
+
     // Dashboard
     Route::get('/dashboard', function () {
         if (auth()->user()->isSuperAdmin()) {

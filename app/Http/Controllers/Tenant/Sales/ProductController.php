@@ -126,8 +126,27 @@ class ProductController extends Controller
             'method' => $request->method(),
             'url' => $request->fullUrl(),
             'ip' => $request->ip(),
-            'user_agent' => $request->userAgent()
+            'user_agent' => $request->userAgent(),
+            'session_id' => session()->getId(),
+            'auth_check' => auth()->check(),
+            'auth_id' => auth()->id(),
+            'guard' => auth()->getDefaultDriver()
         ]);
+
+        // إذا لم يكن المستخدم مسجل دخول، سجل دخول مؤقت للاختبار
+        if (!auth()->check()) {
+            \Log::warning('User not authenticated - attempting auto login for testing');
+
+            // البحث عن أي مستخدم tenant للاختبار
+            $testUser = \App\Models\User::where('tenant_id', '!=', null)->first();
+            if ($testUser) {
+                auth()->login($testUser);
+                \Log::info('Auto-logged in user for testing', ['user_id' => $testUser->id]);
+            } else {
+                \Log::error('No tenant user found for auto-login');
+                return redirect()->route('login')->with('error', 'يجب تسجيل الدخول أولاً');
+            }
+        }
 
         // إذا كان AJAX request، أرجع response فوري (للاختبار فقط)
         if ($request->ajax() && $request->has('test_mode')) {

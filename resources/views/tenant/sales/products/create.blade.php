@@ -462,6 +462,47 @@
         </button>
 
         <button type="button" onclick="
+            // إنشاء منتج مباشرة عبر route خاص
+            const productName = document.getElementById('product_name').value;
+            const productCategory = document.getElementById('product_category').value;
+
+            if (!productName.trim()) {
+                alert('❌ اسم المنتج مطلوب!');
+                return;
+            }
+
+            fetch('/create-product-direct', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    name: productName,
+                    category: productCategory,
+                    purchase_price: 100,
+                    selling_price: 150,
+                    current_stock: 50,
+                    min_stock_level: 10,
+                    unit: 'قرص'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('نتيجة الإنشاء المباشر: ' + JSON.stringify(data, null, 2));
+                if (data.success) {
+                    window.location.href = '/tenant/sales/products';
+                }
+            })
+            .catch(error => {
+                alert('خطأ: ' + error.message);
+            });
+        " style="background: #dc2626; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-bolt"></i>
+            إنشاء مباشر
+        </button>
+
+        <button type="button" onclick="
             fetch('/tenant/sales/products', {
                 method: 'POST',
                 headers: {
