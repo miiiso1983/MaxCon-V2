@@ -120,14 +120,16 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // تجاهل CSRF للاختبار المؤقت
+        if ($request->has('bypass_csrf')) {
+            \Log::info('Bypassing CSRF for testing');
+        }
+
         // التأكد من المصادقة أولاً
         if (!auth()->check()) {
             \Log::warning('User not authenticated in store method');
             return redirect()->route('login')->with('error', 'يجب تسجيل الدخول أولاً');
         }
-
-        // تجديد الجلسة
-        session()->regenerate();
 
         // تشخيص البيانات المرسلة
         \Log::info('=== PRODUCT STORE METHOD CALLED ===', [

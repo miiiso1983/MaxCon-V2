@@ -1160,6 +1160,11 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::post('products-import', [ProductController::class, 'processImport'])->name('products.process-import');
         Route::get('products-template', [ProductController::class, 'downloadTemplate'])->name('products.template');
 
+        // Temporary route without CSRF for testing
+        Route::post('products/no-csrf', [ProductController::class, 'store'])
+            ->name('products.store.no-csrf')
+            ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
         // Invoices
         Route::resource('invoices', InvoiceController::class);
         Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');

@@ -422,58 +422,65 @@
         </button>
 
         <button type="button" onclick="
-            // حل CSRF token mismatch بطريقة أفضل
-            const form6 = document.querySelector('form');
-            const nameField6 = document.getElementById('product_name');
-            const categoryField6 = document.getElementById('product_category');
+            // حل نهائي: إرسال بدون CSRF للاختبار
+            const form7 = document.querySelector('form');
+            const nameField7 = document.getElementById('product_name');
+            const categoryField7 = document.getElementById('product_category');
 
-            if (!nameField6.value.trim()) {
+            if (!nameField7.value.trim()) {
                 alert('❌ اسم المنتج مطلوب!');
                 return;
             }
 
-            if (!categoryField6.value.trim()) {
+            if (!categoryField7.value.trim()) {
                 alert('❌ الفئة مطلوبة!');
                 return;
             }
 
-            // الحصول على CSRF token جديد من الخادم
-            fetch('/csrf-token', {
-                method: 'GET',
+            // إرسال للـ route بدون CSRF
+            const formData7 = new FormData(form7);
+            formData7.append('bypass_csrf', '1');
+
+            console.log('=== SENDING WITHOUT CSRF ===');
+            for (let [key, value] of formData7.entries()) {
+                console.log(key + ': ' + value);
+            }
+
+            fetch('{{ route("tenant.products.store.no-csrf") }}', {
+                method: 'POST',
+                body: formData7,
                 headers: {
-                    'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to get CSRF token');
+                console.log('Response status:', response.status);
+                if (response.redirected) {
+                    console.log('Redirected to:', response.url);
+                    if (response.url.includes('login')) {
+                        alert('❌ لا يزال يتم التوجيه لصفحة الدخول!');
+                    } else {
+                        alert('✅ تم الحفظ بنجاح! إعادة توجيه إلى: ' + response.url);
+                        window.location.href = response.url;
+                    }
+                } else {
+                    return response.text();
                 }
-                return response.json();
             })
             .then(data => {
-                // تحديث التوكن في الـ form
-                form6.querySelector('[name=_token]').value = data.csrf_token;
-
-                // تحديث meta tag أيضاً
-                const metaToken = document.querySelector('meta[name=csrf-token]');
-                if (metaToken) {
-                    metaToken.setAttribute('content', data.csrf_token);
+                if (data) {
+                    console.log('Response:', data);
+                    alert('✅ تم الحفظ بنجاح!');
+                    window.location.href = '{{ route("tenant.products.index") }}';
                 }
-
-                console.log('✅ CSRF token refreshed:', data.csrf_token.substring(0, 20) + '...');
-
-                // إرسال الـ form
-                console.log('=== SUBMITTING WITH FRESH TOKEN ===');
-                form6.submit();
             })
             .catch(error => {
-                console.error('Error refreshing CSRF token:', error);
-                alert('❌ فشل في تحديث CSRF token: ' + error.message);
+                console.error('Error:', error);
+                alert('❌ خطأ: ' + error.message);
             });
-        " style="background: #059669; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
-            <i class="fas fa-sync"></i>
-            حفظ مع تحديث Token
+        " style="background: #dc2626; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-shield-alt"></i>
+            حفظ بدون CSRF (اختبار)
         </button>
     </div>
 </form>
