@@ -1062,6 +1062,29 @@ Route::middleware('auth')->group(function () {
         }
     })->name('debug.latest.products');
 
+    // Debug route to show products distribution by tenant
+    Route::get('/debug-products-by-tenant', function () {
+        try {
+            $productsByTenant = \App\Models\Product::selectRaw('tenant_id, COUNT(*) as count')
+                ->groupBy('tenant_id')
+                ->orderBy('tenant_id')
+                ->get()
+                ->toArray();
+
+            $totalProducts = \App\Models\Product::count();
+
+            return response()->json([
+                'total_products' => $totalProducts,
+                'products_by_tenant' => $productsByTenant,
+                'current_user_tenant' => auth()->user()->tenant_id ?? 'NULL'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    })->name('debug.products.by.tenant');
+
     // Dashboard
     Route::get('/dashboard', function () {
         if (auth()->user()->isSuperAdmin()) {

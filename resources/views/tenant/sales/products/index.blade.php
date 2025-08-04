@@ -37,6 +37,27 @@
     </button>
 
     <button onclick="
+        fetch('/debug-products-by-tenant')
+            .then(response => response.json())
+            .then(data => {
+                let message = 'توزيع المنتجات حسب المؤسسات:\\n\\n';
+                message += 'إجمالي المنتجات: ' + data.total_products + '\\n';
+                message += 'مؤسستك الحالية: ' + data.current_user_tenant + '\\n\\n';
+                message += 'التوزيع:\\n';
+                data.products_by_tenant.forEach(item => {
+                    message += 'المؤسسة ' + item.tenant_id + ': ' + item.count + ' منتج\\n';
+                });
+                alert(message);
+            })
+            .catch(error => {
+                alert('خطأ: ' + error.message);
+            });
+    " style="background: #7c3aed; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
+        <i class="fas fa-chart-pie"></i>
+        توزيع المنتجات
+    </button>
+
+    <button onclick="
         // إزالة جميع الفلاتر والذهاب للصفحة الأولى
         window.location.href = '{{ route('tenant.sales.products.index') }}?page=1&per_page=50';
     " style="background: #059669; color: white; padding: 10px 20px; border: none; border-radius: 8px;">
