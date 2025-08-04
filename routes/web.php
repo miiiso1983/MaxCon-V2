@@ -1085,6 +1085,11 @@ Route::middleware('auth')->group(function () {
         }
     })->name('debug.products.by.tenant');
 
+    // Direct route for secure product creation (outside tenant group for testing)
+    Route::get('/secure-product-create', function () {
+        return view('tenant.sales.products.create-new');
+    })->name('secure.product.create.direct');
+
     // Dashboard
     Route::get('/dashboard', function () {
         if (auth()->user()->isSuperAdmin()) {

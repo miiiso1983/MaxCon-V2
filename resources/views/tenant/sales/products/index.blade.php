@@ -79,6 +79,12 @@
         <i class="fas fa-shield-alt"></i>
         إضافة منتج آمن (جديد)
     </a>
+
+    <a href="{{ route('secure.product.create.direct') }}"
+        style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; text-decoration: none; display: inline-block; margin-left: 10px;">
+        <i class="fas fa-rocket"></i>
+        اختبار مباشر (مؤقت)
+    </a>
 </div>
 
 <!-- Success/Error Messages -->
