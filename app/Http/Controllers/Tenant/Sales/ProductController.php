@@ -134,6 +134,17 @@ class ProductController extends Controller
             'expected_csrf' => csrf_token()
         ]);
 
+        // إضافة تشخيص فوري للمتصفح
+        if ($request->has('debug_mode')) {
+            return response()->json([
+                'status' => 'debug',
+                'message' => 'تم استلام البيانات بنجاح في Controller',
+                'data' => $request->all(),
+                'user_id' => auth()->id(),
+                'tenant_id' => auth()->user()->tenant_id ?? 'NULL'
+            ]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'generic_name' => 'nullable|string|max:255',

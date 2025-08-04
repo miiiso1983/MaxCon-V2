@@ -337,6 +337,29 @@
             تشخيص وحفظ
         </button>
 
+        <button type="button" onclick="
+            const formData = new FormData(document.querySelector('form'));
+            formData.append('debug_mode', '1');
+
+            fetch('{{ route('tenant.sales.products.store') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('استجابة الخادم:\\n' + JSON.stringify(data, null, 2));
+            })
+            .catch(error => {
+                alert('خطأ في الاتصال:\\n' + error.message);
+            });
+        " style="background: #f59e0b; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin-left: 10px;">
+            <i class="fas fa-search"></i>
+            تشخيص الخادم
+        </button>
+
         <button type="submit" class="btn-purple" style="padding: 12px 24px;">
             <i class="fas fa-save"></i>
             حفظ المنتج
