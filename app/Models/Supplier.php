@@ -91,6 +91,8 @@ class Supplier extends Model
         return $this->hasMany(SupplierContract::class);
     }
 
+
+
     // Scopes
     public function scopeActive($query)
     {

@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Tenant\Purchasing;
 
 use App\Http\Controllers\Controller;
 use App\Models\Supplier;
+use App\Exports\SuppliersExport;
+use App\Imports\SuppliersImport;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupplierController extends Controller
 {
@@ -267,93 +270,31 @@ class SupplierController extends Controller
      */
     public function import(Request $request): RedirectResponse
     {
-        $user = auth()->user();
-        $tenantId = $user->tenant_id;
-
-        if (!$tenantId) {
-            abort(403, 'No tenant access');
-        }
-
         $request->validate([
-            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:2048'
         ]);
 
         try {
             $file = $request->file('excel_file');
-            $data = $this->parseExcelFile($file);
+            $tenantId = auth()->user()->tenant_id;
 
-            $imported = 0;
-            $errors = [];
+            $import = new SuppliersImport($tenantId);
+            Excel::import($import, $file);
 
-            foreach ($data as $index => $row) {
-                try {
-                    // Skip header row
-                    if ($index === 0) continue;
-
-                    // Validate required fields
-                    if (empty($row[0])) {
-                        $errors[] = "الصف " . ($index + 1) . ": اسم المورد مطلوب";
-                        continue;
-                    }
-
-                    // Generate code if not provided
-                    $code = !empty($row[1]) ? $row[1] : 'SUP-' . str_pad(
-                        Supplier::where('tenant_id', $tenantId)->count() + 1,
-                        4,
-                        '0',
-                        STR_PAD_LEFT
-                    );
-
-                    // Check if supplier already exists
-                    $existingSupplier = Supplier::where('tenant_id', $tenantId)
-                        ->where(function($query) use ($row, $code) {
-                            $query->where('name', $row[0])
-                                  ->orWhere('code', $code);
-                        })->first();
-
-                    if ($existingSupplier) {
-                        $errors[] = "الصف " . ($index + 1) . ": المورد موجود مسبقاً";
-                        continue;
-                    }
-
-                    Supplier::create([
-                        'tenant_id' => $tenantId,
-                        'name' => $row[0],
-                        'code' => $code,
-                        'type' => !empty($row[2]) ? $row[2] : 'distributor',
-                        'status' => !empty($row[3]) ? $row[3] : 'active',
-                        'description' => $row[4] ?? null,
-                        'email' => $row[5] ?? null,
-                        'phone' => $row[6] ?? null,
-                        'fax' => $row[7] ?? null,
-                        'website' => $row[8] ?? null,
-                        'address' => $row[9] ?? null,
-                        'city' => $row[10] ?? null,
-                        'state' => $row[11] ?? null,
-                        'country' => $row[12] ?? 'العراق',
-                        'contact_person' => $row[13] ?? null,
-                        'contact_title' => $row[14] ?? null,
-                        'contact_email' => $row[15] ?? null,
-                        'contact_phone' => $row[16] ?? null,
-                        'tax_number' => $row[17] ?? null,
-                        'license_number' => $row[18] ?? null,
-                        'payment_terms' => $row[19] ?? 'cash',
-                        'currency' => $row[20] ?? 'IQD',
-                        'products_services' => $row[21] ?? null,
-                        'notes' => $row[22] ?? null,
-                    ]);
-
-                    $imported++;
-                } catch (\Exception $e) {
-                    $errors[] = "الصف " . ($index + 1) . ": " . $e->getMessage();
-                }
-            }
+            $imported = $import->getImportedCount();
+            $errors = $import->failures();
 
             $message = "تم استيراد {$imported} مورد بنجاح";
+
             if (!empty($errors)) {
-                $message .= ". الأخطاء: " . implode(', ', array_slice($errors, 0, 5));
-                if (count($errors) > 5) {
-                    $message .= " و " . (count($errors) - 5) . " أخطاء أخرى";
+                $errorMessages = [];
+                foreach ($errors as $failure) {
+                    $errorMessages[] = "الصف {$failure->row()}: " . implode(', ', $failure->errors());
+                }
+
+                $message .= ". الأخطاء: " . implode(', ', array_slice($errorMessages, 0, 3));
+                if (count($errorMessages) > 3) {
+                    $message .= " و " . (count($errorMessages) - 3) . " أخطاء أخرى";
                 }
             }
 
@@ -364,6 +305,25 @@ class SupplierController extends Controller
             return redirect()->route('tenant.purchasing.suppliers.index')
                 ->with('error', 'خطأ في استيراد الملف: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Export suppliers to Excel
+     */
+    public function export(Request $request)
+    {
+        $tenantId = auth()->user()->tenant_id;
+
+        // Get filters from request
+        $filters = [
+            'search' => $request->get('search'),
+            'status' => $request->get('status'),
+            'type' => $request->get('type'),
+        ];
+
+        $filename = 'suppliers_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download(new SuppliersExport($tenantId, $filters), $filename);
     }
 
     /**
@@ -449,9 +409,15 @@ class SupplierController extends Controller
             }
             fclose($handle);
         } else {
-            // For Excel files, you would need PhpSpreadsheet
-            // For now, we'll just handle CSV
-            throw new \Exception('يرجى استخدام ملف CSV');
+            // Use Laravel Excel to read Excel files
+            try {
+                $collection = \Maatwebsite\Excel\Facades\Excel::toArray([], $file);
+                if (!empty($collection) && !empty($collection[0])) {
+                    $data = $collection[0]; // Get first sheet
+                }
+            } catch (\Exception $e) {
+                throw new \Exception('خطأ في قراءة ملف Excel: ' . $e->getMessage());
+            }
         }
 
         return $data;
