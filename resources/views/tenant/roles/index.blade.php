@@ -580,6 +580,9 @@
                     <div style="margin-bottom: 15px; padding: 10px; background: #e2e8f0; border-radius: 6px; font-size: 12px;">
                         <strong>Debug Info:</strong> إجمالي الصلاحيات: {{ $permissions->count() }} |
                         الوحدات المتاحة: {{ count($moduleGroups) }}
+                        <br><strong>أسماء الصلاحيات الموجودة:</strong>
+                        {{ $permissions->pluck('name')->take(10)->implode(', ') }}
+                        @if($permissions->count() > 10)...@endif
                     </div>
 
                     @foreach($moduleGroups as $moduleKey => $moduleInfo)
@@ -649,15 +652,15 @@
                     <div style="margin-bottom: 20px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
                         <div style="background: #718096; color: white; padding: 15px;">
                             <h5 style="margin: 0; font-size: 16px; font-weight: 600;">
-                                🔧 صلاحيات أخرى
+                                🔧 جميع الصلاحيات الموجودة
                                 <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 10px;">
-                                    {{ $otherPermissions->count() }} صلاحية
+                                    {{ $permissions->count() }} صلاحية
                                 </span>
                             </h5>
                         </div>
                         <div style="padding: 20px;">
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
-                                @foreach($otherPermissions as $permission)
+                                @foreach($permissions as $permission)
                                 <label style="display: flex; align-items: center; cursor: pointer; padding: 8px 12px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='transparent'">
                                     <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" style="margin-left: 10px; transform: scale(1.2);">
                                     <div>
