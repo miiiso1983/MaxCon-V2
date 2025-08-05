@@ -94,12 +94,12 @@ class SystemGuideController extends Controller
                 $videos = [];
             }
 
-            return view('tenant.system-guide.videos-clean', compact('videos', 'modules', 'categories', 'featuredVideo', 'videoStats', 'moduleSlug'));
+            return view('tenant.system-guide.videos-enhanced', compact('videos', 'modules', 'categories', 'featuredVideo', 'videoStats', 'moduleSlug'));
         } catch (\Exception $e) {
             // Log the error and return empty data
             \Log::error('Error in videos method: ' . $e->getMessage());
 
-            return view('tenant.system-guide.videos-clean', [
+            return view('tenant.system-guide.videos-enhanced', [
                 'videos' => [],
                 'modules' => $this->getSystemModules(),
                 'categories' => $this->getVideoCategories(),

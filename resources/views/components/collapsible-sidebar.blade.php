@@ -5,7 +5,7 @@
      :class="isCollapsed ? 'w-16' : 'w-72'">
      
     <!-- Sidebar Container -->
-    <div class="h-full shadow-2xl flex flex-col" style="background: linear-gradient(180deg, #5b73e8 0%, #4c63d2 30%, #667eea 70%, #7c3aed 100%);"
+    <div class="h-full shadow-2xl flex flex-col" style="background: linear-gradient(180deg, #5b73e8 0%, #4c63d2 30%, #667eea 70%, #7c3aed 100%);">>
         
         <!-- Header Section -->
         <div class="p-4 border-b border-blue-500/30">
