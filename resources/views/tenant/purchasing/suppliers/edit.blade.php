@@ -1,354 +1,433 @@
 @extends('layouts.modern')
 
-@section('page-title', 'تعديل المورد')
+@section('page-title', 'تعديل المورد: ' . $supplier->name)
 @section('page-description', 'تحديث معلومات المورد وبياناته التجارية')
 
 @section('content')
 <!-- Page Header -->
-<div class="page-header">
-    <div class="page-header-content">
-        <div class="page-header-main">
-            <div class="page-header-icon">
-                <i class="fas fa-edit"></i>
+<div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+
+    <div style="position: relative; z-index: 2;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: rgba(255,255,255,0.2); border-radius: 15px; padding: 15px; margin-left: 20px;">
+                        <i class="fas fa-edit" style="font-size: 32px;"></i>
+                    </div>
+                    <div>
+                        <h1 style="font-size: 32px; font-weight: 800; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                            تعديل المورد ✏️
+                        </h1>
+                        <p style="font-size: 18px; margin: 5px 0 0 0; opacity: 0.9;">
+                            {{ $supplier->name }} - {{ $supplier->code }}
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    @php
+                        $statusColors = [
+                            'active' => ['bg' => 'rgba(16, 185, 129, 0.2)', 'text' => 'white'],
+                            'inactive' => ['bg' => 'rgba(107, 114, 128, 0.2)', 'text' => 'white'],
+                            'pending' => ['bg' => 'rgba(245, 158, 11, 0.2)', 'text' => 'white'],
+                            'suspended' => ['bg' => 'rgba(239, 68, 68, 0.2)', 'text' => 'white'],
+                        ];
+                        $status = $statusColors[$supplier->status] ?? ['bg' => 'rgba(107, 114, 128, 0.2)', 'text' => 'white'];
+                    @endphp
+                    <div style="background: {{ $status['bg'] }}; border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                        <span style="font-size: 14px; font-weight: 600; color: {{ $status['text'] }};">{{ $supplier->status == 'active' ? 'نشط' : ($supplier->status == 'inactive' ? 'غير نشط' : 'معلق') }}</span>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
+                        <i class="fas fa-calendar" style="margin-left: 8px;"></i>
+                        <span style="font-size: 14px;">{{ $supplier->created_at->format('Y-m-d') }}</span>
+                    </div>
+
+                    @if($supplier->rating)
+                        <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
+                            <i class="fas fa-star" style="margin-left: 8px;"></i>
+                            <span style="font-size: 14px;">{{ $supplier->rating }}/5</span>
+                        </div>
+                    @endif
+                </div>
             </div>
-            <div class="page-header-text">
-                <h1>تعديل المورد</h1>
-                <p>تحديث معلومات المورد: {{ $supplier->name }}</p>
+
+            <div style="display: flex; gap: 15px;">
+                <a href="{{ route('tenant.purchasing.suppliers.show', $supplier) }}" style="background: rgba(16, 185, 129, 0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="fas fa-eye"></i>
+                    عرض التفاصيل
+                </a>
+                <a href="{{ route('tenant.purchasing.suppliers.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="fas fa-arrow-right"></i>
+                    العودة للقائمة
+                </a>
             </div>
-        </div>
-        <div class="page-header-actions">
-            <a href="{{ route('tenant.purchasing.suppliers.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-right"></i>
-                العودة للقائمة
-            </a>
-            <a href="{{ route('tenant.purchasing.suppliers.show', $supplier) }}" class="btn btn-info">
-                <i class="fas fa-eye"></i>
-                عرض التفاصيل
-            </a>
         </div>
     </div>
 </div>
 
-<!-- Stats Cards -->
-<div class="stats-grid">
-    <div class="stat-card stat-card-purple">
-        <div class="stat-icon">
-            <i class="fas fa-dollar-sign"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ number_format($supplier->credit_limit ?? 0, 0) }}</div>
-            <div class="stat-label">حد الائتمان</div>
-        </div>
-    </div>
-    
-    <div class="stat-card stat-card-blue">
-        <div class="stat-icon">
-            <i class="fas fa-shopping-cart"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ $supplier->purchase_orders_count ?? 0 }}</div>
-            <div class="stat-label">أوامر الشراء</div>
+<!-- Quick Stats -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+    <div style="background: #f8fafc; padding: 20px; border-radius: 15px; border-right: 4px solid #8b5cf6; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">حد الائتمان</div>
+                <div style="font-size: 28px; font-weight: 700; color: #2d3748;">{{ number_format($supplier->credit_limit ?? 0, 0) }}</div>
+            </div>
+            <div style="background: #8b5cf6; color: white; padding: 12px; border-radius: 12px;">
+                <i class="fas fa-dollar-sign" style="font-size: 20px;"></i>
+            </div>
         </div>
     </div>
-    
-    <div class="stat-card stat-card-green">
-        <div class="stat-icon">
-            <i class="fas fa-calendar"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ $supplier->payment_terms ?? 30 }}</div>
-            <div class="stat-label">مدة السداد (يوم)</div>
+
+    <div style="background: #f8fafc; padding: 20px; border-radius: 15px; border-right: 4px solid #3b82f6; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">أوامر الشراء</div>
+                <div style="font-size: 28px; font-weight: 700; color: #2d3748;">{{ $supplier->purchase_orders_count ?? 0 }}</div>
+            </div>
+            <div style="background: #3b82f6; color: white; padding: 12px; border-radius: 12px;">
+                <i class="fas fa-shopping-cart" style="font-size: 20px;"></i>
+            </div>
         </div>
     </div>
-    
-    <div class="stat-card stat-card-orange">
-        <div class="stat-icon">
-            <i class="fas fa-star"></i>
+
+    <div style="background: #f8fafc; padding: 20px; border-radius: 15px; border-right: 4px solid #10b981; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">مدة السداد (يوم)</div>
+                <div style="font-size: 28px; font-weight: 700; color: #2d3748;">{{ $supplier->payment_terms ?? 30 }}</div>
+            </div>
+            <div style="background: #10b981; color: white; padding: 12px; border-radius: 12px;">
+                <i class="fas fa-calendar" style="font-size: 20px;"></i>
+            </div>
         </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ number_format($supplier->rating ?? 0, 1) }}</div>
-            <div class="stat-label">التقييم</div>
+    </div>
+
+    <div style="background: #f8fafc; padding: 20px; border-radius: 15px; border-right: 4px solid #f59e0b; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">التقييم</div>
+                <div style="font-size: 28px; font-weight: 700; color: #2d3748;">{{ number_format($supplier->rating ?? 0, 1) }}/5</div>
+            </div>
+            <div style="background: #f59e0b; color: white; padding: 12px; border-radius: 12px;">
+                <i class="fas fa-star" style="font-size: 20px;"></i>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Main Content -->
-<div class="content-grid">
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 30px;">
     <!-- Main Form -->
-    <div class="content-main">
-        <div class="content-card">
-            <div class="card-header">
-                <h3>
-                    <i class="fas fa-user-edit"></i>
-                    تعديل بيانات المورد
-                </h3>
-                <p>قم بتحديث معلومات المورد أدناه</p>
+    <div class="content-card">
+        <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
+            <i class="fas fa-user-edit" style="color: #f59e0b; margin-left: 10px;"></i>
+            تعديل بيانات المورد
+        </h3>
+
+        <form action="{{ route('tenant.purchasing.suppliers.update', $supplier) }}" method="POST" id="supplierForm">
+            @csrf
+            @method('PUT')
+
+            <!-- Basic Information -->
+            <div style="margin-bottom: 30px;">
+                <h4 style="font-size: 18px; font-weight: 600; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
+                    <i class="fas fa-info-circle" style="color: #10b981; margin-left: 10px;"></i>
+                    المعلومات الأساسية
+                </h4>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">اسم المورد *</label>
+                        <input type="text"
+                               id="name"
+                               name="name"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                               value="{{ old('name', $supplier->name) }}"
+                               required
+                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        @error('name')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">اسم الشركة</label>
+                        <input type="text"
+                               id="company_name"
+                               name="company_name"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                               value="{{ old('company_name', $supplier->company_name) }}"
+                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        @error('company_name')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">البريد الإلكتروني</label>
+                        <input type="email"
+                               id="email"
+                               name="email"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                               value="{{ old('email', $supplier->email) }}"
+                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        @error('email')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">رقم الهاتف</label>
+                        <input type="tel"
+                               id="phone"
+                               name="phone"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                               value="{{ old('phone', $supplier->phone) }}"
+                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        @error('phone')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">العنوان الكامل</label>
+                    <textarea id="address"
+                              name="address"
+                              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb; min-height: 100px; resize: vertical;"
+                              rows="3"
+                              onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                              onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">{{ old('address', $supplier->address) }}</textarea>
+                    @error('address')
+                        <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                    @enderror
+                </div>
             </div>
-            
-            <div class="card-body">
-                <form action="{{ route('tenant.purchasing.suppliers.update', $supplier) }}" method="POST" id="supplierForm">
-                    @csrf
-                    @method('PUT')
-                    
-                    <!-- Basic Information -->
-                    <div class="form-section">
-                        <h4 class="section-title">
-                            <i class="fas fa-info-circle"></i>
-                            المعلومات الأساسية
-                        </h4>
-                        
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="name" class="form-label required">اسم المورد</label>
-                                <input type="text" 
-                                       id="name" 
-                                       name="name" 
-                                       class="form-input @error('name') error @enderror" 
-                                       value="{{ old('name', $supplier->name) }}" 
-                                       required>
-                                @error('name')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="company_name" class="form-label">اسم الشركة</label>
-                                <input type="text" 
-                                       id="company_name" 
-                                       name="company_name" 
-                                       class="form-input @error('company_name') error @enderror" 
-                                       value="{{ old('company_name', $supplier->company_name) }}">
-                                @error('company_name')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="email" class="form-label">البريد الإلكتروني</label>
-                                <input type="email" 
-                                       id="email" 
-                                       name="email" 
-                                       class="form-input @error('email') error @enderror" 
-                                       value="{{ old('email', $supplier->email) }}">
-                                @error('email')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="phone" class="form-label">رقم الهاتف</label>
-                                <input type="tel" 
-                                       id="phone" 
-                                       name="phone" 
-                                       class="form-input @error('phone') error @enderror" 
-                                       value="{{ old('phone', $supplier->phone) }}">
-                                @error('phone')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="address" class="form-label">العنوان الكامل</label>
-                            <textarea id="address" 
-                                      name="address" 
-                                      class="form-textarea @error('address') error @enderror" 
-                                      rows="3">{{ old('address', $supplier->address) }}</textarea>
-                            @error('address')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
-                        </div>
+
+            <!-- Financial Information -->
+            <div style="margin-bottom: 30px;">
+                <h4 style="font-size: 18px; font-weight: 600; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
+                    <i class="fas fa-dollar-sign" style="color: #3b82f6; margin-left: 10px;"></i>
+                    المعلومات المالية
+                </h4>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">حد الائتمان</label>
+                        <input type="number"
+                               id="credit_limit"
+                               name="credit_limit"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                               value="{{ old('credit_limit', $supplier->credit_limit) }}"
+                               step="0.01"
+                               min="0"
+                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        @error('credit_limit')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
                     </div>
-                    
-                    <!-- Financial Information -->
-                    <div class="form-section">
-                        <h4 class="section-title">
-                            <i class="fas fa-dollar-sign"></i>
-                            المعلومات المالية
-                        </h4>
-                        
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="credit_limit" class="form-label">حد الائتمان</label>
-                                <input type="number" 
-                                       id="credit_limit" 
-                                       name="credit_limit" 
-                                       class="form-input @error('credit_limit') error @enderror" 
-                                       value="{{ old('credit_limit', $supplier->credit_limit) }}" 
-                                       step="0.01" 
-                                       min="0">
-                                @error('credit_limit')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="payment_terms" class="form-label">مدة السداد (بالأيام)</label>
-                                <input type="number" 
-                                       id="payment_terms" 
-                                       name="payment_terms" 
-                                       class="form-input @error('payment_terms') error @enderror" 
-                                       value="{{ old('payment_terms', $supplier->payment_terms) }}" 
-                                       min="0">
-                                @error('payment_terms')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="tax_number" class="form-label">الرقم الضريبي</label>
-                                <input type="text" 
-                                       id="tax_number" 
-                                       name="tax_number" 
-                                       class="form-input @error('tax_number') error @enderror" 
-                                       value="{{ old('tax_number', $supplier->tax_number) }}">
-                                @error('tax_number')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="currency" class="form-label">العملة</label>
-                                <select id="currency" 
-                                        name="currency" 
-                                        class="form-select @error('currency') error @enderror">
-                                    <option value="IQD" {{ old('currency', $supplier->currency) == 'IQD' ? 'selected' : '' }}>دينار عراقي (IQD)</option>
-                                    <option value="USD" {{ old('currency', $supplier->currency) == 'USD' ? 'selected' : '' }}>دولار أمريكي (USD)</option>
-                                    <option value="EUR" {{ old('currency', $supplier->currency) == 'EUR' ? 'selected' : '' }}>يورو (EUR)</option>
-                                </select>
-                                @error('currency')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
+
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">مدة السداد (بالأيام)</label>
+                        <input type="number"
+                               id="payment_terms"
+                               name="payment_terms"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                               value="{{ old('payment_terms', $supplier->payment_terms) }}"
+                               min="0"
+                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        @error('payment_terms')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
                     </div>
-                    
-                    <!-- Additional Information -->
-                    <div class="form-section">
-                        <h4 class="section-title">
-                            <i class="fas fa-cogs"></i>
-                            معلومات إضافية
-                        </h4>
-                        
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="category" class="form-label">فئة المورد</label>
-                                <select id="category" 
-                                        name="category" 
-                                        class="form-select @error('category') error @enderror">
-                                    <option value="">اختر الفئة</option>
-                                    <option value="pharmaceutical" {{ old('category', $supplier->category) == 'pharmaceutical' ? 'selected' : '' }}>أدوية</option>
-                                    <option value="medical_equipment" {{ old('category', $supplier->category) == 'medical_equipment' ? 'selected' : '' }}>معدات طبية</option>
-                                    <option value="cosmetics" {{ old('category', $supplier->category) == 'cosmetics' ? 'selected' : '' }}>مستحضرات تجميل</option>
-                                    <option value="supplements" {{ old('category', $supplier->category) == 'supplements' ? 'selected' : '' }}>مكملات غذائية</option>
-                                    <option value="other" {{ old('category', $supplier->category) == 'other' ? 'selected' : '' }}>أخرى</option>
-                                </select>
-                                @error('category')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="status" class="form-label">الحالة</label>
-                                <select id="status" 
-                                        name="status" 
-                                        class="form-select @error('status') error @enderror">
-                                    <option value="active" {{ old('status', $supplier->status) == 'active' ? 'selected' : '' }}>نشط</option>
-                                    <option value="inactive" {{ old('status', $supplier->status) == 'inactive' ? 'selected' : '' }}>غير نشط</option>
-                                    <option value="suspended" {{ old('status', $supplier->status) == 'suspended' ? 'selected' : '' }}>معلق</option>
-                                </select>
-                                @error('status')
-                                    <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="notes" class="form-label">ملاحظات</label>
-                            <textarea id="notes" 
-                                      name="notes" 
-                                      class="form-textarea @error('notes') error @enderror" 
-                                      rows="4">{{ old('notes', $supplier->notes) }}</textarea>
-                            @error('notes')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
-                        </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">الرقم الضريبي</label>
+                        <input type="text"
+                               id="tax_number"
+                               name="tax_number"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                               value="{{ old('tax_number', $supplier->tax_number) }}"
+                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        @error('tax_number')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
                     </div>
-                    
-                    <!-- Form Actions -->
-                    <div class="form-actions">
-                        <a href="{{ route('tenant.purchasing.suppliers.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-times"></i>
-                            إلغاء
-                        </a>
-                        
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i>
-                            حفظ التغييرات
-                        </button>
+
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">العملة</label>
+                        <select id="currency"
+                                name="currency"
+                                style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                                onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                            <option value="IQD" {{ old('currency', $supplier->currency) == 'IQD' ? 'selected' : '' }}>دينار عراقي (IQD)</option>
+                            <option value="USD" {{ old('currency', $supplier->currency) == 'USD' ? 'selected' : '' }}>دولار أمريكي (USD)</option>
+                            <option value="EUR" {{ old('currency', $supplier->currency) == 'EUR' ? 'selected' : '' }}>يورو (EUR)</option>
+                        </select>
+                        @error('currency')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
+
+            <!-- Additional Information -->
+            <div style="margin-bottom: 30px;">
+                <h4 style="font-size: 18px; font-weight: 600; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
+                    <i class="fas fa-cogs" style="color: #8b5cf6; margin-left: 10px;"></i>
+                    معلومات إضافية
+                </h4>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">فئة المورد</label>
+                        <select id="category"
+                                name="category"
+                                style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                                onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                            <option value="">اختر الفئة</option>
+                            <option value="pharmaceutical" {{ old('category', $supplier->category) == 'pharmaceutical' ? 'selected' : '' }}>أدوية</option>
+                            <option value="medical_equipment" {{ old('category', $supplier->category) == 'medical_equipment' ? 'selected' : '' }}>معدات طبية</option>
+                            <option value="cosmetics" {{ old('category', $supplier->category) == 'cosmetics' ? 'selected' : '' }}>مستحضرات تجميل</option>
+                            <option value="supplements" {{ old('category', $supplier->category) == 'supplements' ? 'selected' : '' }}>مكملات غذائية</option>
+                            <option value="other" {{ old('category', $supplier->category) == 'other' ? 'selected' : '' }}>أخرى</option>
+                        </select>
+                        @error('category')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">الحالة</label>
+                        <select id="status"
+                                name="status"
+                                style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                                onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                            <option value="active" {{ old('status', $supplier->status) == 'active' ? 'selected' : '' }}>نشط</option>
+                            <option value="inactive" {{ old('status', $supplier->status) == 'inactive' ? 'selected' : '' }}>غير نشط</option>
+                            <option value="suspended" {{ old('status', $supplier->status) == 'suspended' ? 'selected' : '' }}>معلق</option>
+                        </select>
+                        @error('status')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">ملاحظات</label>
+                    <textarea id="notes"
+                              name="notes"
+                              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb; min-height: 120px; resize: vertical;"
+                              rows="4"
+                              onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                              onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">{{ old('notes', $supplier->notes) }}</textarea>
+                    @error('notes')
+                        <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div style="display: flex; gap: 15px; justify-content: flex-end; padding-top: 20px; border-top: 2px solid #f3f4f6;">
+                <a href="{{ route('tenant.purchasing.suppliers.index') }}"
+                   style="background: #6b7280; color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;"
+                   onmouseover="this.style.background='#4b5563'"
+                   onmouseout="this.style.background='#6b7280'">
+                    <i class="fas fa-times"></i>
+                    إلغاء
+                </a>
+
+                <button type="submit"
+                        style="background: #f59e0b; color: white; padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s ease;"
+                        onmouseover="this.style.background='#d97706'"
+                        onmouseout="this.style.background='#f59e0b'">
+                    <i class="fas fa-save"></i>
+                    حفظ التغييرات
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Sidebar -->
-    <div class="content-sidebar">
-        <!-- Supplier Info -->
-        <div class="content-card">
-            <div class="card-header">
-                <h4>
-                    <i class="fas fa-info-circle"></i>
-                    معلومات المورد
-                </h4>
+    <div class="content-card">
+        <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
+            <i class="fas fa-chart-bar" style="color: #f59e0b; margin-left: 10px;"></i>
+            معلومات المورد
+        </h3>
+
+        <div style="display: grid; gap: 15px;">
+            <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-right: 4px solid #10b981;">
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">تاريخ الإنشاء</div>
+                <div style="font-size: 16px; font-weight: 600; color: #2d3748;">{{ $supplier->created_at->format('Y-m-d') }}</div>
             </div>
-            <div class="card-body">
-                <div class="info-item">
-                    <span class="info-label">تاريخ الإنشاء</span>
-                    <span class="info-value">{{ $supplier->created_at->format('Y-m-d') }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">آخر تحديث</span>
-                    <span class="info-value">{{ $supplier->updated_at->format('Y-m-d') }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">الحالة الحالية</span>
-                    <span class="info-value">
-                        <span class="status-badge status-{{ $supplier->status }}">
-                            {{ $supplier->status == 'active' ? 'نشط' : ($supplier->status == 'inactive' ? 'غير نشط' : 'معلق') }}
-                        </span>
-                    </span>
+
+            <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-right: 4px solid #3b82f6;">
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">آخر تحديث</div>
+                <div style="font-size: 16px; font-weight: 600; color: #2d3748;">{{ $supplier->updated_at->format('Y-m-d') }}</div>
+            </div>
+
+            <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-right: 4px solid #f59e0b;">
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">الحالة الحالية</div>
+                <div style="font-size: 16px; font-weight: 600; color: #2d3748;">
+                    {{ $supplier->status == 'active' ? 'نشط' : ($supplier->status == 'inactive' ? 'غير نشط' : 'معلق') }}
                 </div>
             </div>
+
+            @if($supplier->rating)
+                <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-right: 4px solid #8b5cf6;">
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">التقييم</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #2d3748;">{{ $supplier->rating }}/5</div>
+                </div>
+            @endif
         </div>
 
         <!-- Quick Actions -->
-        <div class="content-card">
-            <div class="card-header">
-                <h4>
-                    <i class="fas fa-bolt"></i>
-                    إجراءات سريعة
-                </h4>
-            </div>
-            <div class="card-body">
-                <div class="quick-actions">
-                    <a href="{{ route('tenant.purchasing.suppliers.show', $supplier) }}" class="quick-action">
-                        <i class="fas fa-eye"></i>
-                        عرض التفاصيل
-                    </a>
-                    <a href="#" class="quick-action">
-                        <i class="fas fa-file-invoice"></i>
-                        إنشاء طلب شراء
-                    </a>
-                    <a href="#" class="quick-action">
-                        <i class="fas fa-history"></i>
-                        سجل المعاملات
-                    </a>
-                </div>
+        <div style="margin-top: 25px;">
+            <h4 style="font-size: 16px; font-weight: 600; color: #2d3748; margin-bottom: 15px; display: flex; align-items: center;">
+                <i class="fas fa-bolt" style="color: #8b5cf6; margin-left: 8px;"></i>
+                إجراءات سريعة
+            </h4>
+
+            <div style="display: grid; gap: 10px;">
+                <a href="{{ route('tenant.purchasing.suppliers.show', $supplier) }}"
+                   style="background: #f8fafc; color: #2d3748; padding: 12px 16px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; border: 1px solid #e5e7eb;"
+                   onmouseover="this.style.background='#e5e7eb'"
+                   onmouseout="this.style.background='#f8fafc'">
+                    <i class="fas fa-eye" style="color: #10b981;"></i>
+                    عرض التفاصيل
+                </a>
+                <a href="#"
+                   style="background: #f8fafc; color: #2d3748; padding: 12px 16px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; border: 1px solid #e5e7eb;"
+                   onmouseover="this.style.background='#e5e7eb'"
+                   onmouseout="this.style.background='#f8fafc'">
+                    <i class="fas fa-file-invoice" style="color: #3b82f6;"></i>
+                    إنشاء طلب شراء
+                </a>
+                <a href="#"
+                   style="background: #f8fafc; color: #2d3748; padding: 12px 16px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; border: 1px solid #e5e7eb;"
+                   onmouseover="this.style.background='#e5e7eb'"
+                   onmouseout="this.style.background='#f8fafc'">
+                    <i class="fas fa-history" style="color: #f59e0b;"></i>
+                    سجل المعاملات
+                </a>
             </div>
         </div>
     </div>
