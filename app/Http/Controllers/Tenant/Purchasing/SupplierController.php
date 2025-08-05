@@ -7,6 +7,7 @@ use App\Models\Supplier;
 use App\Exports\SuppliersExport;
 use App\Exports\SuppliersTemplateExport;
 use App\Imports\SuppliersImport;
+use App\Imports\SuppliersCollectionImport;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -279,30 +280,40 @@ class SupplierController extends Controller
             $file = $request->file('excel_file');
             $tenantId = auth()->user()->tenant_id;
 
-            $import = new SuppliersImport($tenantId);
+            // Use the Collection Import for better control
+            $import = new SuppliersCollectionImport($tenantId);
             Excel::import($import, $file);
 
             $imported = $import->getImportedCount();
-            $errors = $import->failures();
+            $errors = $import->getErrors();
 
             $message = "تم استيراد {$imported} مورد بنجاح";
 
             if (!empty($errors)) {
-                $errorMessages = [];
-                foreach ($errors as $failure) {
-                    $errorMessages[] = "الصف {$failure->row()}: " . implode(', ', $failure->errors());
-                }
-
-                $message .= ". الأخطاء: " . implode(', ', array_slice($errorMessages, 0, 3));
-                if (count($errorMessages) > 3) {
-                    $message .= " و " . (count($errorMessages) - 3) . " أخطاء أخرى";
+                $message .= ". الأخطاء: " . implode(', ', array_slice($errors, 0, 3));
+                if (count($errors) > 3) {
+                    $message .= " و " . (count($errors) - 3) . " أخطاء أخرى";
                 }
             }
+
+            // Log the import result
+            \Illuminate\Support\Facades\Log::info('Suppliers import completed', [
+                'tenant_id' => $tenantId,
+                'imported_count' => $imported,
+                'errors_count' => count($errors),
+                'file_name' => $file->getClientOriginalName()
+            ]);
 
             return redirect()->route('tenant.purchasing.suppliers.index')
                 ->with($imported > 0 ? 'success' : 'warning', $message);
 
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Suppliers import failed', [
+                'tenant_id' => auth()->user()->tenant_id ?? null,
+                'error' => $e->getMessage(),
+                'file_name' => $request->file('excel_file')?->getClientOriginalName()
+            ]);
+
             return redirect()->route('tenant.purchasing.suppliers.index')
                 ->with('error', 'خطأ في استيراد الملف: ' . $e->getMessage());
         }

@@ -3,21 +3,15 @@
 namespace App\Imports;
 
 use App\Models\Supplier;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
-use Maatwebsite\Excel\Concerns\SkipsOnError;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 
-class SuppliersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
+class SuppliersCollectionImport implements ToCollection, WithHeadingRow
 {
-    use Importable, SkipsErrors, SkipsFailures;
-
     protected $tenantId;
     protected $importedCount = 0;
+    protected $errors = [];
 
     public function __construct($tenantId)
     {
@@ -25,21 +19,34 @@ class SuppliersImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     }
 
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
+    * @param Collection $collection
     */
-    public function model(array $row)
+    public function collection(Collection $collection)
+    {
+        foreach ($collection as $index => $row) {
+            try {
+                $this->processRow($row->toArray(), $index + 2); // +2 because of header row and 0-based index
+            } catch (\Exception $e) {
+                $this->errors[] = "الصف " . ($index + 2) . ": " . $e->getMessage();
+                \Illuminate\Support\Facades\Log::error('SuppliersCollectionImport: Error processing row', [
+                    'row' => $index + 2,
+                    'error' => $e->getMessage(),
+                    'data' => $row->toArray()
+                ]);
+            }
+        }
+    }
+
+    private function processRow(array $row, int $rowNumber)
     {
         // Skip empty rows - check multiple possible column names
         $name = $row['اسم المورد*'] ?? $row['اسم_المورد'] ?? $row['name'] ?? null;
         if (empty($name)) {
-            return null;
+            return;
         }
 
-        // Generate code if not provided (use a temporary counter for code generation)
-        $tempCount = $this->importedCount + 1;
-        $code = $row['رمز المورد'] ?? $row['رمز_المورد'] ?? $row['code'] ?? 'SUP-' . str_pad($tempCount, 3, '0', STR_PAD_LEFT);
+        // Generate code if not provided
+        $code = $row['رمز المورد'] ?? $row['رمز_المورد'] ?? $row['code'] ?? 'SUP-' . str_pad($this->importedCount + 1, 3, '0', STR_PAD_LEFT);
 
         // Check if supplier already exists
         $existingSupplier = Supplier::where('tenant_id', $this->tenantId)
@@ -49,12 +56,12 @@ class SuppliersImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             })->first();
 
         if ($existingSupplier) {
-            // Skip if already exists
-            \Illuminate\Support\Facades\Log::info('SuppliersImport: Supplier already exists, skipping', [
+            \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Supplier already exists, skipping', [
                 'name' => $name,
-                'code' => $code
+                'code' => $code,
+                'row' => $rowNumber
             ]);
-            return null;
+            return;
         }
 
         $supplierData = [
@@ -75,53 +82,27 @@ class SuppliersImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             'notes' => $row['ملاحظات'] ?? $row['notes'] ?? null,
         ];
 
-        \Illuminate\Support\Facades\Log::info('SuppliersImport: Creating supplier', [
-            'name' => $name,
-            'code' => $code,
-            'tenant_id' => $this->tenantId,
-            'data' => $supplierData
+        // Create the supplier
+        $supplier = Supplier::create($supplierData);
+        $this->importedCount++;
+
+        \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Supplier created successfully', [
+            'supplier_id' => $supplier->id,
+            'name' => $supplier->name,
+            'code' => $supplier->code,
+            'row' => $rowNumber,
+            'imported_count' => $this->importedCount
         ]);
-
-        try {
-            // Create and save the supplier directly
-            $supplier = Supplier::create($supplierData);
-
-            // Only increment counter on successful creation
-            $this->importedCount++;
-
-            \Illuminate\Support\Facades\Log::info('SuppliersImport: Supplier created successfully', [
-                'supplier_id' => $supplier->id,
-                'name' => $supplier->name,
-                'imported_count' => $this->importedCount
-            ]);
-
-            return $supplier;
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('SuppliersImport: Error creating supplier', [
-                'error' => $e->getMessage(),
-                'name' => $name,
-                'code' => $code
-            ]);
-            throw $e;
-        }
-    }
-
-    public function rules(): array
-    {
-        return [
-            // Use either Arabic or English column names
-            'اسم_المورد' => 'sometimes|required|string|max:255',
-            'اسم المورد*' => 'sometimes|required|string|max:255',
-            'name' => 'sometimes|required|string|max:255',
-            'رمز_المورد' => 'nullable|string|max:50',
-            'رمز المورد' => 'nullable|string|max:50',
-            'code' => 'nullable|string|max:50',
-        ];
     }
 
     public function getImportedCount()
     {
         return $this->importedCount;
+    }
+
+    public function getErrors()
+    {
+        return $this->errors;
     }
 
     private function mapType($type)
