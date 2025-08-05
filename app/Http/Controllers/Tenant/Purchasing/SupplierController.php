@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Purchasing;
 use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use App\Exports\SuppliersExport;
+use App\Exports\SuppliersTemplateExport;
 use App\Imports\SuppliersImport;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -331,67 +332,9 @@ class SupplierController extends Controller
      */
     public function exportTemplate()
     {
-        $headers = [
-            'اسم المورد*',
-            'رمز المورد',
-            'نوع المورد',
-            'الحالة',
-            'الوصف',
-            'البريد الإلكتروني',
-            'الهاتف',
-            'الفاكس',
-            'الموقع الإلكتروني',
-            'العنوان',
-            'المدينة',
-            'المحافظة',
-            'البلد',
-            'شخص الاتصال',
-            'منصب شخص الاتصال',
-            'بريد شخص الاتصال',
-            'هاتف شخص الاتصال',
-            'رقم السجل التجاري',
-            'رقم الترخيص',
-            'شروط الدفع',
-            'العملة',
-            'المنتجات/الخدمات',
-            'ملاحظات'
-        ];
+        $filename = 'suppliers_template_' . date('Y-m-d') . '.xlsx';
 
-        $sampleData = [
-            'شركة الأدوية المتحدة',
-            'SUP-001',
-            'manufacturer',
-            'active',
-            'شركة متخصصة في تصنيع الأدوية',
-            'info@pharma-united.com',
-            '+964 770 123 4567',
-            '+964 1 234 5678',
-            'https://www.pharma-united.com',
-            'شارع الكندي، منطقة الكرادة',
-            'بغداد',
-            'بغداد',
-            'العراق',
-            'أحمد محمد',
-            'مدير المبيعات',
-            'ahmed@pharma-united.com',
-            '+964 770 987 6543',
-            '12345678',
-            'PH-2024-001',
-            'cash',
-            'IQD',
-            'أدوية، مستلزمات طبية',
-            'مورد موثوق'
-        ];
-
-        $csvContent = implode(',', $headers) . "\n";
-        $csvContent .= implode(',', array_map(function($value) {
-            return '"' . str_replace('"', '""', $value) . '"';
-        }, $sampleData));
-
-        return response($csvContent)
-            ->header('Content-Type', 'text/csv; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="suppliers_template.csv"')
-            ->header('Content-Transfer-Encoding', 'binary');
+        return Excel::download(new SuppliersTemplateExport(), $filename);
     }
 
     /**
