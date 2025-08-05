@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\TenantController;
@@ -1290,6 +1292,132 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             ]);
         }
     })->name('add.comprehensive.permissions');
+
+    // Route to create missing tables
+    Route::get('/create-missing-tables', function() {
+        if (!auth()->user()->hasRole('super-admin') && !auth()->user()->hasRole('tenant-admin')) {
+            abort(403, 'غير مصرح لك بتنفيذ هذا الإجراء');
+        }
+
+        try {
+            $results = [];
+
+            // Check and create supplier_contracts table
+            if (!Schema::hasTable('supplier_contracts')) {
+                Schema::create('supplier_contracts', function (Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
+                    $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+                    $table->string('contract_number')->unique();
+                    $table->string('title');
+                    $table->text('description')->nullable();
+                    $table->date('start_date');
+                    $table->date('end_date');
+                    $table->decimal('contract_value', 15, 2)->nullable();
+                    $table->string('currency', 3)->default('IQD');
+                    $table->enum('status', ['draft', 'active', 'expired', 'terminated'])->default('draft');
+                    $table->text('terms_and_conditions')->nullable();
+                    $table->string('payment_terms')->nullable();
+                    $table->string('delivery_terms')->nullable();
+                    $table->json('attachments')->nullable();
+                    $table->timestamps();
+
+                    $table->index(['tenant_id', 'supplier_id']);
+                    $table->index(['status', 'start_date', 'end_date']);
+                });
+                $results[] = 'تم إنشاء جدول supplier_contracts';
+            } else {
+                $results[] = 'جدول supplier_contracts موجود مسبقاً';
+            }
+
+            // Check and create suppliers table if missing
+            if (!Schema::hasTable('suppliers')) {
+                Schema::create('suppliers', function (Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
+                    $table->string('name');
+                    $table->string('company_name')->nullable();
+                    $table->string('email')->nullable();
+                    $table->string('phone')->nullable();
+                    $table->string('mobile')->nullable();
+                    $table->text('address')->nullable();
+                    $table->string('city')->nullable();
+                    $table->string('country')->default('Iraq');
+                    $table->string('tax_number')->nullable();
+                    $table->string('commercial_register')->nullable();
+                    $table->enum('status', ['active', 'inactive'])->default('active');
+                    $table->decimal('credit_limit', 15, 2)->default(0);
+                    $table->string('payment_terms')->nullable();
+                    $table->text('notes')->nullable();
+                    $table->timestamps();
+
+                    $table->index(['tenant_id', 'status']);
+                });
+                $results[] = 'تم إنشاء جدول suppliers';
+            } else {
+                $results[] = 'جدول suppliers موجود مسبقاً';
+            }
+
+            // Check and create purchase_orders table if missing
+            if (!Schema::hasTable('purchase_orders')) {
+                Schema::create('purchase_orders', function (Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
+                    $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+                    $table->string('order_number')->unique();
+                    $table->date('order_date');
+                    $table->date('expected_delivery_date')->nullable();
+                    $table->enum('status', ['draft', 'sent', 'confirmed', 'partially_received', 'completed', 'cancelled'])->default('draft');
+                    $table->decimal('subtotal', 15, 2)->default(0);
+                    $table->decimal('tax_amount', 15, 2)->default(0);
+                    $table->decimal('discount_amount', 15, 2)->default(0);
+                    $table->decimal('total_amount', 15, 2)->default(0);
+                    $table->string('currency', 3)->default('IQD');
+                    $table->text('notes')->nullable();
+                    $table->timestamps();
+
+                    $table->index(['tenant_id', 'supplier_id']);
+                    $table->index(['status', 'order_date']);
+                });
+                $results[] = 'تم إنشاء جدول purchase_orders';
+            } else {
+                $results[] = 'جدول purchase_orders موجود مسبقاً';
+            }
+
+            // Check and create purchase_order_items table if missing
+            if (!Schema::hasTable('purchase_order_items')) {
+                Schema::create('purchase_order_items', function (Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('purchase_order_id')->constrained()->onDelete('cascade');
+                    $table->foreignId('product_id')->constrained()->onDelete('cascade');
+                    $table->integer('quantity');
+                    $table->decimal('unit_price', 10, 2);
+                    $table->decimal('total_price', 15, 2);
+                    $table->integer('received_quantity')->default(0);
+                    $table->text('notes')->nullable();
+                    $table->timestamps();
+                });
+                $results[] = 'تم إنشاء جدول purchase_order_items';
+            } else {
+                $results[] = 'جدول purchase_order_items موجود مسبقاً';
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم فحص وإنشاء الجداول المفقودة',
+                'results' => $results,
+                'database_connection' => config('database.default')
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+        }
+    })->name('create.missing.tables');
 
     // Purchasing Management Routes
     Route::prefix('purchasing')->name('purchasing.')->group(function () {
