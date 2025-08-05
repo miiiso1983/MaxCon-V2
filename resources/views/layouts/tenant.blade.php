@@ -423,7 +423,7 @@
 
     <div class="main-container">
         <!-- New Collapsible Sidebar -->
-        @include('components.collapsible-sidebar')
+        @include('components.collapsible-sidebar-fixed')
 
         <!-- Legacy Sidebar (Hidden) -->
         <aside class="sidebar legacy" style="display: none;">
