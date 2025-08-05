@@ -27,6 +27,11 @@ class SuppliersExport implements FromCollection, WithHeadings, WithMapping, With
     */
     public function collection()
     {
+        // If no tenant ID provided, return empty collection
+        if (!$this->tenantId) {
+            return collect([]);
+        }
+
         $query = Supplier::where('tenant_id', $this->tenantId);
 
         // Apply filters
@@ -47,7 +52,12 @@ class SuppliersExport implements FromCollection, WithHeadings, WithMapping, With
             $query->where('type', $this->filters['type']);
         }
 
-        return $query->orderBy('name')->get();
+        $result = $query->orderBy('name')->get();
+
+        // Debug: Log the result count
+        \Illuminate\Support\Facades\Log::info('SuppliersExport: Found ' . $result->count() . ' suppliers for tenant ' . $this->tenantId);
+
+        return $result;
     }
 
     public function headings(): array
@@ -79,8 +89,8 @@ class SuppliersExport implements FromCollection, WithHeadings, WithMapping, With
         return [
             $supplier->code,
             $supplier->name,
-            $supplier->type_label,
-            $supplier->status_label,
+            $this->getTypeLabel($supplier->type),
+            $this->getStatusLabel($supplier->status),
             $supplier->contact_person,
             $supplier->phone,
             $supplier->email,
@@ -141,6 +151,29 @@ class SuppliersExport implements FromCollection, WithHeadings, WithMapping, With
     public function title(): string
     {
         return 'الموردين';
+    }
+
+    private function getTypeLabel($type)
+    {
+        return match($type) {
+            'manufacturer' => 'مصنع',
+            'distributor' => 'موزع',
+            'wholesaler' => 'تاجر جملة',
+            'retailer' => 'تاجر تجزئة',
+            'service_provider' => 'مقدم خدمة',
+            default => $type
+        };
+    }
+
+    private function getStatusLabel($status)
+    {
+        return match($status) {
+            'active' => 'نشط',
+            'inactive' => 'غير نشط',
+            'suspended' => 'معلق',
+            'blacklisted' => 'محظور',
+            default => $status
+        };
     }
 
     private function getPaymentTermsLabel($paymentTerms)
