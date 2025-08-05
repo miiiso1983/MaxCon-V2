@@ -3,258 +3,186 @@
 @section('title', 'تعديل المورد')
 
 @section('content')
-<!-- Modern Header with Gradient -->
-<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem 0; margin-bottom: 2rem; border-radius: 0 0 20px 20px;">
-    <div class="container-fluid">
-        <div style="display: flex; justify-content: space-between; align-items: center; color: white;">
-            <div>
-                <h1 style="font-size: 2rem; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <i class="fas fa-edit" style="margin-left: 15px; color: #fbbf24;"></i>
-                    تعديل المورد
-                </h1>
-                <div style="margin-top: 10px; opacity: 0.9;">
-                    <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 14px;">
-                        <i class="fas fa-home" style="margin-left: 5px;"></i>الرئيسية
-                    </span>
-                    <i class="fas fa-chevron-left" style="margin: 0 10px; font-size: 12px;"></i>
-                    <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 14px;">
-                        <i class="fas fa-truck" style="margin-left: 5px;"></i>الموردين
-                    </span>
-                    <i class="fas fa-chevron-left" style="margin: 0 10px; font-size: 12px;"></i>
-                    <span style="background: rgba(255,255,255,0.3); padding: 5px 15px; border-radius: 20px; font-size: 14px;">
-                        تعديل المورد
-                    </span>
-                </div>
-            </div>
-            <div>
-                <a href="{{ route('tenant.purchasing.suppliers.index') }}"
-                   style="background: rgba(255,255,255,0.2); color: white; padding: 12px 24px; border: none; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; transition: all 0.3s; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);"
-                   onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='translateY(-2px)';"
-                   onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(0)';">
-                    <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
-                    العودة للقائمة
-                </a>
-            </div>
+<div class="main-content">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="{{ route('tenant.dashboard') }}">الرئيسية</a>
+        <span class="mx-2">/</span>
+        <a href="{{ route('tenant.purchasing.suppliers.index') }}">الموردين</a>
+        <span class="mx-2">/</span>
+        <span class="current">تعديل المورد</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-primary me-2"></i>
+                تعديل المورد
+            </h1>
+            <p class="text-muted mb-0">قم بتحديث معلومات المورد</p>
+        </div>
+        <div>
+            <a href="{{ route('tenant.purchasing.suppliers.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+            </a>
         </div>
     </div>
-</div>
 
-<!-- Main Content -->
-<div class="container-fluid">
-    <div class="row" style="gap: 2rem;">
+    <div class="row">
         <!-- Main Form -->
         <div class="col-lg-8">
-            <div style="background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
-                <!-- Card Header -->
-                <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 1.5rem;">
-                    <h3 style="margin: 0; font-weight: 600; display: flex; align-items: center;">
-                        <i class="fas fa-user-edit" style="margin-left: 12px; color: #fbbf24;"></i>
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-edit me-2"></i>
                         تعديل بيانات المورد
-                    </h3>
-                    <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">قم بتحديث معلومات المورد أدناه</p>
+                    </h6>
                 </div>
-
-                <!-- Card Body -->
-                <div style="padding: 2rem;">
+                <div class="card-body">
                     <form action="{{ route('tenant.purchasing.suppliers.update', $supplier) }}" method="POST">
                         @csrf
                         @method('PUT')
 
-                        <!-- Basic Information Section -->
-                        <div style="margin-bottom: 2rem;">
-                            <div style="display: flex; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 12px;">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <h4 style="margin: 0; color: #1f2937; font-weight: 600;">المعلومات الأساسية</h4>
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-user me-2"></i>المعلومات الأساسية
+                                </h5>
                             </div>
-
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        اسم المورد <span style="color: #ef4444;">*</span>
-                                    </label>
-                                    <input type="text" name="name" value="{{ old('name', $supplier->name) }}" required
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('name') border-red-500 @enderror">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">اسم المورد <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                           id="name" name="name" value="{{ old('name', $supplier->name) }}" required>
                                     @error('name')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        اسم الشركة
-                                    </label>
-                                    <input type="text" name="company_name" value="{{ old('company_name', $supplier->company_name) }}"
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('company_name') border-red-500 @enderror">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="company_name" class="form-label">اسم الشركة</label>
+                                    <input type="text" class="form-control @error('company_name') is-invalid @enderror"
+                                           id="company_name" name="company_name" value="{{ old('company_name', $supplier->company_name) }}">
                                     @error('company_name')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Contact Information Section -->
-                        <div style="margin-bottom: 2rem;">
-                            <div style="display: flex; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 12px;">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <h4 style="margin: 0; color: #1f2937; font-weight: 600;">معلومات الاتصال</h4>
+                        <!-- Contact Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-info mb-3">
+                                    <i class="fas fa-phone me-2"></i>معلومات الاتصال
+                                </h5>
                             </div>
-
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        البريد الإلكتروني
-                                    </label>
-                                    <input type="email" name="email" value="{{ old('email', $supplier->email) }}"
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('email') border-red-500 @enderror">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">البريد الإلكتروني</label>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                           id="email" name="email" value="{{ old('email', $supplier->email) }}">
                                     @error('email')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        رقم الهاتف
-                                    </label>
-                                    <input type="text" name="phone" value="{{ old('phone', $supplier->phone) }}"
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('phone') border-red-500 @enderror">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">رقم الهاتف</label>
+                                    <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                           id="phone" name="phone" value="{{ old('phone', $supplier->phone) }}">
                                     @error('phone')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        رقم الجوال
-                                    </label>
-                                    <input type="text" name="mobile" value="{{ old('mobile', $supplier->mobile) }}"
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('mobile') border-red-500 @enderror">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="mobile" class="form-label">رقم الجوال</label>
+                                    <input type="text" class="form-control @error('mobile') is-invalid @enderror"
+                                           id="mobile" name="mobile" value="{{ old('mobile', $supplier->mobile) }}">
                                     @error('mobile')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Address Information Section -->
-                        <div style="margin-bottom: 2rem;">
-                            <div style="display: flex; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 12px;">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <h4 style="margin: 0; color: #1f2937; font-weight: 600;">معلومات العنوان</h4>
+                        <!-- Address Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-warning mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>معلومات العنوان
+                                </h5>
                             </div>
-
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        المدينة
-                                    </label>
-                                    <input type="text" name="city" value="{{ old('city', $supplier->city) }}"
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('city') border-red-500 @enderror">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="city" class="form-label">المدينة</label>
+                                    <input type="text" class="form-control @error('city') is-invalid @enderror"
+                                           id="city" name="city" value="{{ old('city', $supplier->city) }}">
                                     @error('city')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-
-                            <div>
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                    العنوان الكامل
-                                </label>
-                                <textarea name="address" rows="3"
-                                          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb; resize: vertical;"
-                                          onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                          onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                          class="@error('address') border-red-500 @enderror">{{ old('address', $supplier->address) }}</textarea>
-                                @error('address')
-                                    <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
-                                @enderror
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">العنوان الكامل</label>
+                                    <textarea class="form-control @error('address') is-invalid @enderror"
+                                              id="address" name="address" rows="3">{{ old('address', $supplier->address) }}</textarea>
+                                    @error('address')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Business Information Section -->
-                        <div style="margin-bottom: 2rem;">
-                            <div style="display: flex; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 12px;">
-                                    <i class="fas fa-building"></i>
-                                </div>
-                                <h4 style="margin: 0; color: #1f2937; font-weight: 600;">المعلومات التجارية والمالية</h4>
+                        <!-- Business Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-success mb-3">
+                                    <i class="fas fa-building me-2"></i>المعلومات التجارية والمالية
+                                </h5>
                             </div>
-
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        الرقم الضريبي
-                                    </label>
-                                    <input type="text" name="tax_number" value="{{ old('tax_number', $supplier->tax_number) }}"
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('tax_number') border-red-500 @enderror">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="tax_number" class="form-label">الرقم الضريبي</label>
+                                    <input type="text" class="form-control @error('tax_number') is-invalid @enderror"
+                                           id="tax_number" name="tax_number" value="{{ old('tax_number', $supplier->tax_number) }}">
                                     @error('tax_number')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        السجل التجاري
-                                    </label>
-                                    <input type="text" name="commercial_register" value="{{ old('commercial_register', $supplier->commercial_register) }}"
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('commercial_register') border-red-500 @enderror">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="commercial_register" class="form-label">السجل التجاري</label>
+                                    <input type="text" class="form-control @error('commercial_register') is-invalid @enderror"
+                                           id="commercial_register" name="commercial_register" value="{{ old('commercial_register', $supplier->commercial_register) }}">
                                     @error('commercial_register')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        حد الائتمان (دينار عراقي)
-                                    </label>
-                                    <input type="number" step="0.01" name="credit_limit" value="{{ old('credit_limit', $supplier->credit_limit) }}"
-                                           style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                           onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                           onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                           class="@error('credit_limit') border-red-500 @enderror">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="credit_limit" class="form-label">حد الائتمان (دينار عراقي)</label>
+                                    <input type="number" step="0.01" class="form-control @error('credit_limit') is-invalid @enderror"
+                                           id="credit_limit" name="credit_limit" value="{{ old('credit_limit', $supplier->credit_limit) }}">
                                     @error('credit_limit')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        شروط الدفع
-                                    </label>
-                                    <select name="payment_terms"
-                                            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                            onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                            onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                            class="@error('payment_terms') border-red-500 @enderror">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="payment_terms" class="form-label">شروط الدفع</label>
+                                    <select class="form-control @error('payment_terms') is-invalid @enderror"
+                                            id="payment_terms" name="payment_terms">
                                         <option value="">اختر شروط الدفع</option>
                                         <option value="cash" {{ old('payment_terms', $supplier->payment_terms) == 'cash' ? 'selected' : '' }}>نقداً</option>
                                         <option value="30_days" {{ old('payment_terms', $supplier->payment_terms) == '30_days' ? 'selected' : '' }}>30 يوم</option>
@@ -262,70 +190,51 @@
                                         <option value="90_days" {{ old('payment_terms', $supplier->payment_terms) == '90_days' ? 'selected' : '' }}>90 يوم</option>
                                     </select>
                                     @error('payment_terms')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Status and Notes Section -->
-                        <div style="margin-bottom: 2rem;">
-                            <div style="display: flex; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 12px;">
-                                    <i class="fas fa-cog"></i>
-                                </div>
-                                <h4 style="margin: 0; color: #1f2937; font-weight: 600;">الحالة والملاحظات</h4>
+                        <!-- Status and Notes -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-danger mb-3">
+                                    <i class="fas fa-cog me-2"></i>الحالة والملاحظات
+                                </h5>
                             </div>
-
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                        الحالة
-                                    </label>
-                                    <select name="status"
-                                            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb;"
-                                            onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                            onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                            class="@error('status') border-red-500 @enderror">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">الحالة</label>
+                                    <select class="form-control @error('status') is-invalid @enderror"
+                                            id="status" name="status">
                                         <option value="active" {{ old('status', $supplier->status) == 'active' ? 'selected' : '' }}>نشط</option>
                                         <option value="inactive" {{ old('status', $supplier->status) == 'inactive' ? 'selected' : '' }}>غير نشط</option>
                                     </select>
                                     @error('status')
-                                        <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-
-                            <div>
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
-                                    ملاحظات
-                                </label>
-                                <textarea name="notes" rows="4"
-                                          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f9fafb; resize: vertical;"
-                                          onfocus="this.style.borderColor='#3b82f6'; this.style.background='white';"
-                                          onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                                          class="@error('notes') border-red-500 @enderror">{{ old('notes', $supplier->notes) }}</textarea>
-                                @error('notes')
-                                    <div style="color: #ef4444; font-size: 12px; margin-top: 4px;">{{ $message }}</div>
-                                @enderror
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">ملاحظات</label>
+                                    <textarea class="form-control @error('notes') is-invalid @enderror"
+                                              id="notes" name="notes" rows="4">{{ old('notes', $supplier->notes) }}</textarea>
+                                    @error('notes')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 
                         <!-- Submit Buttons -->
-                        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid #e2e8f0;">
-                            <a href="{{ route('tenant.purchasing.suppliers.index') }}"
-                               style="background: #6b7280; color: white; padding: 12px 24px; border: none; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; transition: all 0.3s;"
-                               onmouseover="this.style.background='#4b5563'; this.style.transform='translateY(-2px)';"
-                               onmouseout="this.style.background='#6b7280'; this.style.transform='translateY(0)';">
-                                <i class="fas fa-times" style="margin-left: 8px;"></i>
-                                إلغاء
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ route('tenant.purchasing.suppliers.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>إلغاء
                             </a>
-                            <button type="submit"
-                                    style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 24px; border: none; border-radius: 12px; display: inline-flex; align-items: center; font-weight: 600; transition: all 0.3s; cursor: pointer;"
-                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(16, 185, 129, 0.3)';"
-                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                                <i class="fas fa-save" style="margin-left: 8px;"></i>
-                                حفظ التغييرات
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>حفظ التغييرات
                             </button>
                         </div>
                     </form>
@@ -336,29 +245,28 @@
         <!-- Sidebar -->
         <div class="col-lg-4">
             <!-- Supplier Info Card -->
-            <div style="background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 2rem;">
-                <div style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; padding: 1.5rem;">
-                    <h3 style="margin: 0; font-weight: 600; display: flex; align-items: center;">
-                        <i class="fas fa-info-circle" style="margin-left: 12px; color: #fbbf24;"></i>
-                        معلومات المورد
-                    </h3>
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle me-2"></i>معلومات المورد
+                    </h6>
                 </div>
-                <div style="padding: 1.5rem;">
-                    <div style="margin-bottom: 1rem;">
-                        <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">تاريخ الإنشاء</div>
-                        <div style="font-weight: 600; color: #1f2937;">{{ $supplier->created_at->format('Y-m-d H:i') }}</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">تاريخ الإنشاء</small>
+                        <div class="fw-bold">{{ $supplier->created_at->format('Y-m-d H:i') }}</div>
                     </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">آخر تحديث</div>
-                        <div style="font-weight: 600; color: #1f2937;">{{ $supplier->updated_at->format('Y-m-d H:i') }}</div>
+                    <div class="mb-3">
+                        <small class="text-muted">آخر تحديث</small>
+                        <div class="fw-bold">{{ $supplier->updated_at->format('Y-m-d H:i') }}</div>
                     </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">الحالة الحالية</div>
+                    <div class="mb-3">
+                        <small class="text-muted">الحالة الحالية</small>
                         <div>
                             @if($supplier->status == 'active')
-                                <span style="background: #10b981; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">نشط</span>
+                                <span class="badge bg-success">نشط</span>
                             @else
-                                <span style="background: #ef4444; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">غير نشط</span>
+                                <span class="badge bg-danger">غير نشط</span>
                             @endif
                         </div>
                     </div>
@@ -366,35 +274,22 @@
             </div>
 
             <!-- Quick Actions -->
-            <div style="background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
-                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 1.5rem;">
-                    <h3 style="margin: 0; font-weight: 600; display: flex; align-items: center;">
-                        <i class="fas fa-bolt" style="margin-left: 12px; color: #fbbf24;"></i>
-                        إجراءات سريعة
-                    </h3>
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-bolt me-2"></i>إجراءات سريعة
+                    </h6>
                 </div>
-                <div style="padding: 1.5rem;">
-                    <div style="display: flex; flex-direction: column; gap: 1rem;">
-                        <a href="{{ route('tenant.purchasing.suppliers.show', $supplier) }}"
-                           style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; padding: 12px 16px; border-radius: 12px; text-decoration: none; display: flex; align-items: center; font-weight: 600; transition: all 0.3s;"
-                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(6, 182, 212, 0.3)';"
-                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                            <i class="fas fa-eye" style="margin-left: 8px;"></i>
-                            عرض التفاصيل
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('tenant.purchasing.suppliers.show', $supplier) }}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-eye me-2"></i>عرض التفاصيل
                         </a>
-                        <a href="#"
-                           style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 12px 16px; border-radius: 12px; text-decoration: none; display: flex; align-items: center; font-weight: 600; transition: all 0.3s;"
-                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(139, 92, 246, 0.3)';"
-                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                            <i class="fas fa-file-contract" style="margin-left: 8px;"></i>
-                            العقود
+                        <a href="#" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-file-contract me-2"></i>العقود
                         </a>
-                        <a href="#"
-                           style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 16px; border-radius: 12px; text-decoration: none; display: flex; align-items: center; font-weight: 600; transition: all 0.3s;"
-                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(16, 185, 129, 0.3)';"
-                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                            <i class="fas fa-shopping-cart" style="margin-left: 8px;"></i>
-                            أوامر الشراء
+                        <a href="#" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-shopping-cart me-2"></i>أوامر الشراء
                         </a>
                     </div>
                 </div>
@@ -410,7 +305,7 @@ $(document).ready(function() {
     // Form validation
     $('form').on('submit', function(e) {
         let isValid = true;
-        
+
         // Check required fields
         $('input[required]').each(function() {
             if ($(this).val().trim() === '') {
@@ -420,13 +315,13 @@ $(document).ready(function() {
                 $(this).removeClass('is-invalid');
             }
         });
-        
+
         if (!isValid) {
             e.preventDefault();
             alert('يرجى ملء جميع الحقول المطلوبة');
         }
     });
-    
+
     // Remove validation errors on input
     $('input, select, textarea').on('input change', function() {
         $(this).removeClass('is-invalid');
