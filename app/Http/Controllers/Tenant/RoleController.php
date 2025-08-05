@@ -27,6 +27,13 @@ class RoleController extends Controller
         // Get available permissions
         $permissions = Permission::where('guard_name', 'web')->get();
 
+        // Debug: Log permission count
+        \Log::info('Permissions loaded in RoleController', [
+            'total_permissions' => $permissions->count(),
+            'database_connection' => config('database.default'),
+            'first_few_permissions' => $permissions->take(5)->pluck('name')->toArray()
+        ]);
+
         // Group permissions by category
         $permissionGroups = $permissions->groupBy(function($permission) {
             return explode('.', $permission->name)[0];

@@ -1133,12 +1133,38 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         }
 
         try {
+            // Clear permission cache first
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
             Artisan::call('db:seed', ['--class' => 'ComprehensivePermissionsSeeder']);
-            return redirect()->back()->with('success', 'تم تحديث الصلاحيات الشاملة بنجاح');
+
+            // Get current count
+            $totalPermissions = \Spatie\Permission\Models\Permission::count();
+
+            return redirect()->back()->with('success', "تم تحديث الصلاحيات الشاملة بنجاح! إجمالي الصلاحيات: {$totalPermissions}");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'خطأ في تحديث الصلاحيات: ' . $e->getMessage());
         }
     })->name('seed.permissions');
+
+    // Debug route to check permissions count
+    Route::get('/debug-permissions', function() {
+        if (!auth()->user()->hasRole('super-admin') && !auth()->user()->hasRole('tenant-admin')) {
+            abort(403, 'غير مصرح لك بتنفيذ هذا الإجراء');
+        }
+
+        $totalPermissions = \Spatie\Permission\Models\Permission::count();
+        $webPermissions = \Spatie\Permission\Models\Permission::where('guard_name', 'web')->count();
+        $samplePermissions = \Spatie\Permission\Models\Permission::take(10)->pluck('name')->toArray();
+
+        return response()->json([
+            'database_connection' => config('database.default'),
+            'total_permissions' => $totalPermissions,
+            'web_guard_permissions' => $webPermissions,
+            'sample_permissions' => $samplePermissions,
+            'database_path' => database_path('database.sqlite')
+        ]);
+    })->name('debug.permissions');
 
     // Purchasing Management Routes
     Route::prefix('purchasing')->name('purchasing.')->group(function () {
