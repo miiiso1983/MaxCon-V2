@@ -561,15 +561,26 @@
                         'inventory' => ['name' => '📦 إدارة المخزون', 'color' => '#4299e1'],
                         'accounting' => ['name' => '💰 النظام المحاسبي', 'color' => '#ed8936'],
                         'hr' => ['name' => '👥 الموارد البشرية', 'color' => '#9f7aea'],
-                        'procurement' => ['name' => '🚚 إدارة المشتريات', 'color' => '#38b2ac'],
+                        'purchasing' => ['name' => '🚚 إدارة المشتريات', 'color' => '#38b2ac'],
                         'regulatory' => ['name' => '🛡️ الشؤون التنظيمية', 'color' => '#f56565'],
-                        'ai' => ['name' => '🧠 الذكاء الاصطناعي', 'color' => '#667eea'],
-                        'guide' => ['name' => '📚 دليل النظام', 'color' => '#68d391'],
+                        'analytics' => ['name' => '📊 التحليلات والذكاء الاصطناعي', 'color' => '#667eea'],
+                        'system-guide' => ['name' => '📚 دليل النظام', 'color' => '#68d391'],
                         'reports' => ['name' => '📊 التقارير الديناميكية', 'color' => '#f6ad55'],
-                        'system' => ['name' => '⚙️ إدارة النظام', 'color' => '#fc8181'],
+                        'roles' => ['name' => '⚙️ إدارة الأدوار', 'color' => '#fc8181'],
+                        'permissions' => ['name' => '🔐 إدارة الصلاحيات', 'color' => '#805ad5'],
+                        'users' => ['name' => '👤 إدارة المستخدمين', 'color' => '#e53e3e'],
+                        'settings' => ['name' => '⚙️ إعدادات النظام', 'color' => '#718096'],
+                        'dashboard' => ['name' => '🏠 لوحات التحكم', 'color' => '#319795'],
+                        'sales-targets' => ['name' => '🎯 أهداف المبيعات', 'color' => '#d69e2e'],
                         'localization' => ['name' => '🌍 التوطين العراقي', 'color' => '#4fd1c7']
                     ];
                     @endphp
+
+                    <!-- Debug: Show total permissions count -->
+                    <div style="margin-bottom: 15px; padding: 10px; background: #e2e8f0; border-radius: 6px; font-size: 12px;">
+                        <strong>Debug Info:</strong> إجمالي الصلاحيات: {{ $permissions->count() }} |
+                        الوحدات المتاحة: {{ count($moduleGroups) }}
+                    </div>
 
                     @foreach($moduleGroups as $moduleKey => $moduleInfo)
                         @php
@@ -577,6 +588,14 @@
                             return str_starts_with($permission->name, $moduleKey . '.');
                         });
                         @endphp
+
+                        <!-- Debug: Show module info -->
+                        <div style="margin-bottom: 10px; padding: 8px; background: #f7fafc; border-radius: 4px; font-size: 11px; color: #4a5568;">
+                            <strong>{{ $moduleKey }}:</strong> {{ $modulePermissions->count() }} صلاحية
+                            @if($modulePermissions->count() > 0)
+                                ({{ $modulePermissions->pluck('name')->take(3)->implode(', ') }}...)
+                            @endif
+                        </div>
 
                         @if($modulePermissions->count() > 0)
                         <div style="margin-bottom: 20px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
