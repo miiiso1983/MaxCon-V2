@@ -42,13 +42,22 @@
                 </div>
             </div>
             
-            <div>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                 <button onclick="showCreateRoleModal()" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease; cursor: pointer;"
                    onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='translateY(-2px)';"
                    onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(0)';">
                     <i class="fas fa-plus"></i>
                     إنشاء دور جديد
                 </button>
+
+                <a href="{{ route('tenant.seed.permissions') }}"
+                   onclick="return confirm('هل أنت متأكد من تحديث جميع الصلاحيات؟ سيتم إضافة الصلاحيات الجديدة للنظام.')"
+                   style="background: rgba(102, 126, 234, 0.2); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(102, 126, 234, 0.3); transition: all 0.3s ease; text-decoration: none;"
+                   onmouseover="this.style.background='rgba(102, 126, 234, 0.3)'; this.style.transform='translateY(-2px)';"
+                   onmouseout="this.style.background='rgba(102, 126, 234, 0.2)'; this.style.transform='translateY(0)';">
+                    <i class="fas fa-sync-alt"></i>
+                    تحديث الصلاحيات الشاملة
+                </a>
             </div>
         </div>
     </div>
@@ -526,20 +535,123 @@
             
             <div style="margin-bottom: 25px;">
                 <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #4a5568;">الصلاحيات</label>
-                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;">
-                    @foreach($permissionGroups as $group => $groupPermissions)
-                    <div style="margin-bottom: 15px;">
-                        <h5 style="font-weight: 600; color: #2d3748; margin: 0 0 8px 0; font-size: 14px;">{{ ucfirst($group) }}</h5>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
-                            @foreach($groupPermissions as $permission)
-                            <label style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" style="margin-left: 8px;">
-                                <span style="font-size: 13px; color: #4a5568;">{{ $permission->name }}</span>
-                            </label>
-                            @endforeach
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background: #f8fafc;">
+
+                    <!-- Select All Controls -->
+                    <div style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="margin: 0; color: #2d3748; font-size: 16px;">
+                                <i class="fas fa-check-double" style="color: #48bb78; margin-left: 8px;"></i>
+                                التحكم السريع
+                            </h4>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" onclick="selectAllPermissions()" style="background: #48bb78; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                                <i class="fas fa-check-circle"></i> تحديد الكل
+                            </button>
+                            <button type="button" onclick="deselectAllPermissions()" style="background: #f56565; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                                <i class="fas fa-times-circle"></i> إلغاء تحديد الكل
+                            </button>
                         </div>
                     </div>
+
+                    @php
+                    $moduleGroups = [
+                        'sales' => ['name' => '📊 إدارة المبيعات', 'color' => '#48bb78'],
+                        'inventory' => ['name' => '📦 إدارة المخزون', 'color' => '#4299e1'],
+                        'accounting' => ['name' => '💰 النظام المحاسبي', 'color' => '#ed8936'],
+                        'hr' => ['name' => '👥 الموارد البشرية', 'color' => '#9f7aea'],
+                        'procurement' => ['name' => '🚚 إدارة المشتريات', 'color' => '#38b2ac'],
+                        'regulatory' => ['name' => '🛡️ الشؤون التنظيمية', 'color' => '#f56565'],
+                        'ai' => ['name' => '🧠 الذكاء الاصطناعي', 'color' => '#667eea'],
+                        'guide' => ['name' => '📚 دليل النظام', 'color' => '#68d391'],
+                        'reports' => ['name' => '📊 التقارير الديناميكية', 'color' => '#f6ad55'],
+                        'system' => ['name' => '⚙️ إدارة النظام', 'color' => '#fc8181'],
+                        'localization' => ['name' => '🌍 التوطين العراقي', 'color' => '#4fd1c7']
+                    ];
+                    @endphp
+
+                    @foreach($moduleGroups as $moduleKey => $moduleInfo)
+                        @php
+                        $modulePermissions = $permissions->filter(function($permission) use ($moduleKey) {
+                            return str_starts_with($permission->name, $moduleKey . '.');
+                        });
+                        @endphp
+
+                        @if($modulePermissions->count() > 0)
+                        <div style="margin-bottom: 20px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
+                            <div style="background: {{ $moduleInfo['color'] }}; color: white; padding: 15px; cursor: pointer;" onclick="toggleModulePermissions('{{ $moduleKey }}')">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <h5 style="margin: 0; font-size: 16px; font-weight: 600;">
+                                        {{ $moduleInfo['name'] }}
+                                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 10px;">
+                                            {{ $modulePermissions->count() }} صلاحية
+                                        </span>
+                                    </h5>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <label style="display: flex; align-items: center; cursor: pointer; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 6px;">
+                                            <input type="checkbox" onchange="toggleModuleCheckboxes('{{ $moduleKey }}', this.checked)" style="margin-left: 8px;">
+                                            <span style="font-size: 12px;">تحديد الكل</span>
+                                        </label>
+                                        <i class="fas fa-chevron-down" id="chevron-{{ $moduleKey }}" style="transition: transform 0.3s;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="permissions-{{ $moduleKey }}" style="padding: 20px; display: block;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                                    @foreach($modulePermissions as $permission)
+                                    <label style="display: flex; align-items: center; cursor: pointer; padding: 8px 12px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='transparent'">
+                                        <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="module-{{ $moduleKey }}" style="margin-left: 10px; transform: scale(1.2);">
+                                        <div>
+                                            <div style="font-size: 13px; color: #2d3748; font-weight: 500;">{{ $permission->description ?? $permission->name }}</div>
+                                            <div style="font-size: 11px; color: #718096; margin-top: 2px;">{{ $permission->name }}</div>
+                                        </div>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     @endforeach
+
+                    <!-- Other permissions not in modules -->
+                    @php
+                    $otherPermissions = $permissions->filter(function($permission) use ($moduleGroups) {
+                        foreach(array_keys($moduleGroups) as $moduleKey) {
+                            if(str_starts_with($permission->name, $moduleKey . '.')) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    });
+                    @endphp
+
+                    @if($otherPermissions->count() > 0)
+                    <div style="margin-bottom: 20px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
+                        <div style="background: #718096; color: white; padding: 15px;">
+                            <h5 style="margin: 0; font-size: 16px; font-weight: 600;">
+                                🔧 صلاحيات أخرى
+                                <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 10px;">
+                                    {{ $otherPermissions->count() }} صلاحية
+                                </span>
+                            </h5>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                                @foreach($otherPermissions as $permission)
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 8px 12px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='transparent'">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" style="margin-left: 10px; transform: scale(1.2);">
+                                    <div>
+                                        <div style="font-size: 13px; color: #2d3748; font-weight: 500;">{{ $permission->description ?? $permission->name }}</div>
+                                        <div style="font-size: 11px; color: #718096; margin-top: 2px;">{{ $permission->name }}</div>
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                 </div>
             </div>
             
@@ -564,6 +676,45 @@ function showCreateRoleModal() {
 
 function closeCreateRoleModal() {
     document.getElementById('createRoleModal').style.display = 'none';
+}
+
+// Select/Deselect all permissions
+function selectAllPermissions() {
+    const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
+    checkboxes.forEach(checkbox => checkbox.checked = true);
+
+    // Update module checkboxes
+    const moduleCheckboxes = document.querySelectorAll('input[onchange*="toggleModuleCheckboxes"]');
+    moduleCheckboxes.forEach(checkbox => checkbox.checked = true);
+}
+
+function deselectAllPermissions() {
+    const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+
+    // Update module checkboxes
+    const moduleCheckboxes = document.querySelectorAll('input[onchange*="toggleModuleCheckboxes"]');
+    moduleCheckboxes.forEach(checkbox => checkbox.checked = false);
+}
+
+// Toggle module permissions
+function toggleModuleCheckboxes(moduleKey, checked) {
+    const moduleCheckboxes = document.querySelectorAll(`.module-${moduleKey}`);
+    moduleCheckboxes.forEach(checkbox => checkbox.checked = checked);
+}
+
+// Toggle module visibility
+function toggleModulePermissions(moduleKey) {
+    const permissionsDiv = document.getElementById(`permissions-${moduleKey}`);
+    const chevron = document.getElementById(`chevron-${moduleKey}`);
+
+    if (permissionsDiv.style.display === 'none') {
+        permissionsDiv.style.display = 'block';
+        chevron.style.transform = 'rotate(0deg)';
+    } else {
+        permissionsDiv.style.display = 'none';
+        chevron.style.transform = 'rotate(-90deg)';
+    }
 }
 
 function showUserPermissionsModal(userId) {

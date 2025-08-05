@@ -1126,6 +1126,20 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
     Route::delete('/users/{user}/roles/{role}', [RoleController::class, 'removeRole'])->name('users.remove-role');
     Route::get('/users/{user}/details', [RoleController::class, 'getUserDetails'])->name('users.details');
 
+    // Seed comprehensive permissions (admin only)
+    Route::get('/seed-permissions', function() {
+        if (!auth()->user()->hasRole('super-admin') && !auth()->user()->hasRole('tenant-admin')) {
+            abort(403, 'غير مصرح لك بتنفيذ هذا الإجراء');
+        }
+
+        try {
+            Artisan::call('db:seed', ['--class' => 'ComprehensivePermissionsSeeder']);
+            return redirect()->back()->with('success', 'تم تحديث الصلاحيات الشاملة بنجاح');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'خطأ في تحديث الصلاحيات: ' . $e->getMessage());
+        }
+    })->name('seed.permissions');
+
     // Purchasing Management Routes
     Route::prefix('purchasing')->name('purchasing.')->group(function () {
         // Suppliers
