@@ -156,14 +156,14 @@
         }
 
         .sidebar {
-            background: linear-gradient(180deg, #4c63d2 0%, #5a67d8 50%, #667eea 100%);
+            background: linear-gradient(180deg, #5b73e8 0%, #4c63d2 30%, #667eea 70%, #7c3aed 100%);
             width: 280px;
             height: 100vh;
             position: fixed;
             right: 0;
             top: 0;
             z-index: 1000;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
             overflow-y: auto;
             overflow-x: hidden;
             scrollbar-width: thin;
@@ -195,8 +195,8 @@
             top: 0;
             right: 0;
             width: 280px;
-            height: 20px;
-            background: linear-gradient(180deg, #4c63d2 0%, transparent 100%);
+            height: 25px;
+            background: linear-gradient(180deg, #5b73e8 0%, transparent 100%);
             z-index: 1001;
             pointer-events: none;
         }
@@ -207,8 +207,8 @@
             bottom: 0;
             right: 0;
             width: 280px;
-            height: 20px;
-            background: linear-gradient(0deg, #667eea 0%, transparent 100%);
+            height: 25px;
+            background: linear-gradient(0deg, #7c3aed 0%, transparent 100%);
             z-index: 1001;
             pointer-events: none;
         }
@@ -431,21 +431,35 @@
             display: flex;
             align-items: center;
             padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
             margin: 2px 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.3s ease;
+            font-weight: 500;
+            border-right: 3px solid transparent;
+            position: relative;
         }
 
-        .nav-link:hover, .nav-link.active {
-            background: rgba(255, 255, 255, 0.1);
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.12);
             color: white;
+            transform: translateX(-3px);
+            border-right-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-right-color: #fbbf24;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .nav-link i {
             margin-left: 12px;
             width: 20px;
+            text-align: center;
+            font-size: 16px;
         }
 
         /* Navigation Section Styles */
@@ -456,27 +470,31 @@
         .nav-section-title {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.7);
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 2px 15px;
-            border-radius: 8px;
+            font-weight: 700;
+            text-transform: none;
+            letter-spacing: 0.3px;
+            margin: 5px 15px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .nav-section-title:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(-2px);
         }
 
         .nav-section:not(.collapsed) .nav-section-title {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.12);
             color: white;
+            border-color: rgba(255, 255, 255, 0.25);
         }
 
         .nav-section-title i {
@@ -499,6 +517,22 @@
             transform: rotate(-90deg);
         }
 
+        /* Add subtle glow effect to active items */
+        .nav-link.active {
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+        }
+
+        /* Improve section dividers */
+        .nav-section {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+        }
+
+        .nav-section:last-child {
+            border-bottom: none;
+        }
+
         .nav-section-title:active {
             transform: scale(0.98);
         }
@@ -518,6 +552,24 @@
             padding-right: 15px;
             border-right: 2px solid transparent;
             position: relative;
+            font-size: 14px;
+        }
+
+        .nav-section .nav-link:before {
+            content: '';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 0;
+            background: #fbbf24;
+            border-radius: 2px;
+            transition: height 0.3s ease;
+        }
+
+        .nav-section .nav-link.active:before {
+            height: 20px;
         }
 
         .nav-section .nav-link:hover,
@@ -560,14 +612,17 @@
                 <div style="background: linear-gradient(135deg, #fbbf24, #f59e0b, #ea580c); border-radius: 20px; padding: 20px; display: inline-block; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3); transform: perspective(1000px) rotateX(5deg); transition: all 0.3s ease;">
                     <i class="fas fa-crown crown-icon" style="color: white; font-size: 32px;"></i>
                 </div>
-                <h1 class="gradient-text-primary" style="font-size: 28px; font-weight: 800; margin-bottom: 10px; letter-spacing: 1px; text-align: center;">
-                    MaxCon Master
+                <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; text-align: center; color: #fbbf24; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    MaxCon
                 </h1>
-                <p class="gradient-text-secondary" style="font-size: 16px; font-weight: 600; text-align: center; margin-bottom: 15px;">
+                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; text-align: center; color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    Master
+                </h2>
+                <p style="font-size: 14px; font-weight: 600; text-align: center; margin-bottom: 15px; color: rgba(255,255,255,0.9); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
                     إدارة النظام الرئيسية
                 </p>
                 <div style="display: flex; justify-content: center; margin-top: 15px;">
-                    <div class="divider-line" style="width: 80px; height: 3px; border-radius: 2px;"></div>
+                    <div style="width: 80px; height: 3px; background: linear-gradient(90deg, #fbbf24, #f59e0b, #ea580c); border-radius: 2px;"></div>
                 </div>
                 <div style="margin-top: 10px; display: flex; justify-content: center; gap: 5px;">
                     <div style="width: 8px; height: 8px; background: #fbbf24; border-radius: 50%; animation: pulse 2s infinite;"></div>
