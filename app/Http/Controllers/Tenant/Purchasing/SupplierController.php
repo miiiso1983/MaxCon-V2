@@ -7,6 +7,7 @@ use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Schema;
 
 class SupplierController extends Controller
 {
@@ -199,11 +200,17 @@ class SupplierController extends Controller
         $data = $request->only([
             'name', 'code', 'type', 'status', 'contact_person',
             'phone', 'email', 'address', 'tax_number', 'payment_terms',
-            'credit_limit', 'currency', 'category', 'notes'
+            'credit_limit', 'notes'
         ]);
 
-        // Set default values if not provided
-        $data['currency'] = $data['currency'] ?? 'IQD';
+        // Add currency and category only if columns exist
+        if (Schema::hasColumn('suppliers', 'currency')) {
+            $data['currency'] = $request->input('currency', 'IQD');
+        }
+
+        if (Schema::hasColumn('suppliers', 'category')) {
+            $data['category'] = $request->input('category');
+        }
 
         $supplier->update($data);
 
