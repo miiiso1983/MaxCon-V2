@@ -68,6 +68,10 @@
                         <i class="fas fa-users"></i>
                         <span class="mr-3">العملاء</span>
                     </a>
+                    <a href="{{ route('tenant.sales.products.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.sales.products.*') ? 'active' : '' }}">
+                        <i class="fas fa-box"></i>
+                        <span class="mr-3">المنتجات</span>
+                    </a>
                 </div>
             </div>
 
@@ -104,13 +108,17 @@
                 </button>
                 
                 <div x-show="open && !isCollapsed" x-transition class="mr-6 mt-1 space-y-1">
-                    <a href="{{ route('tenant.inventory.products.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.inventory.products.*') ? 'active' : '' }}">
+                    <a href="{{ route('tenant.inventory.inventory-products.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.inventory.inventory-products.*') ? 'active' : '' }}">
                         <i class="fas fa-cube"></i>
                         <span class="mr-3">المنتجات</span>
                     </a>
                     <a href="{{ route('tenant.inventory.movements.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.inventory.movements.*') ? 'active' : '' }}">
                         <i class="fas fa-exchange-alt"></i>
                         <span class="mr-3">حركات المخزون</span>
+                    </a>
+                    <a href="{{ route('tenant.inventory.warehouses.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.inventory.warehouses.*') ? 'active' : '' }}">
+                        <i class="fas fa-warehouse"></i>
+                        <span class="mr-3">المستودعات</span>
                     </a>
                 </div>
             </div>
@@ -126,13 +134,17 @@
                 </button>
                 
                 <div x-show="open && !isCollapsed" x-transition class="mr-6 mt-1 space-y-1">
-                    <a href="{{ route('tenant.accounting.accounts.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.accounting.accounts.*') ? 'active' : '' }}">
+                    <a href="{{ route('tenant.accounting.chart-of-accounts.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.accounting.chart-of-accounts.*') ? 'active' : '' }}">
                         <i class="fas fa-list"></i>
                         <span class="mr-3">دليل الحسابات</span>
                     </a>
                     <a href="{{ route('tenant.accounting.journal-entries.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.accounting.journal-entries.*') ? 'active' : '' }}">
                         <i class="fas fa-book"></i>
                         <span class="mr-3">القيود اليومية</span>
+                    </a>
+                    <a href="{{ route('tenant.accounting.cost-centers.index') }}" class="nav-item text-sm {{ request()->routeIs('tenant.accounting.cost-centers.*') ? 'active' : '' }}">
+                        <i class="fas fa-building"></i>
+                        <span class="mr-3">مراكز التكلفة</span>
                     </a>
                 </div>
             </div>
