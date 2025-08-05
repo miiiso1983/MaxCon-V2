@@ -55,6 +55,17 @@ class SupplierController extends Controller
 
         $suppliers = $query->orderBy('name')->paginate(15);
 
+        // Debug logging
+        \Illuminate\Support\Facades\Log::info('Suppliers index page loaded', [
+            'tenant_id' => $tenantId,
+            'user_id' => $user->id,
+            'suppliers_count' => $suppliers->count(),
+            'total_suppliers' => $suppliers->total(),
+            'filters' => $request->only(['search', 'status', 'type', 'preferred']),
+            'query_sql' => $query->toSql(),
+            'query_bindings' => $query->getBindings()
+        ]);
+
         // Statistics
         $stats = [
             'total' => Supplier::where('tenant_id', $tenantId)->count(),

@@ -172,6 +172,16 @@
         </div>
     </div>
     
+    <!-- Debug Information -->
+    <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0; color: #0369a1;">معلومات التشخيص</h4>
+        <p style="margin: 5px 0; font-size: 14px;">عدد الموردين في الصفحة: {{ $suppliers->count() }}</p>
+        <p style="margin: 5px 0; font-size: 14px;">إجمالي الموردين: {{ $suppliers->total() }}</p>
+        <p style="margin: 5px 0; font-size: 14px;">الصفحة الحالية: {{ $suppliers->currentPage() }}</p>
+        <p style="margin: 5px 0; font-size: 14px;">عدد الموردين النشطين: {{ $stats['active'] }}</p>
+        <p style="margin: 5px 0; font-size: 14px;">إجمالي الموردين في الإحصائيات: {{ $stats['total'] }}</p>
+    </div>
+
     @if($suppliers->count() > 0)
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse;">

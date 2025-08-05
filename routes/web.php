@@ -1424,6 +1424,27 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         // Suppliers
         Route::get('suppliers/export-template', [SupplierController::class, 'exportTemplate'])->name('suppliers.export-template');
         Route::post('suppliers/import', [SupplierController::class, 'import'])->name('suppliers.import');
+
+        // Test route for creating supplier
+        Route::get('suppliers/test-create', function() {
+            $supplier = App\Models\Supplier::create([
+                'tenant_id' => auth()->user()->tenant_id,
+                'name' => 'مورد اختبار ' . now()->format('H:i:s'),
+                'code' => 'TEST-' . rand(1000, 9999),
+                'type' => 'distributor',
+                'status' => 'active',
+                'contact_person' => 'شخص الاختبار',
+                'phone' => '07901234567',
+                'email' => 'test' . rand(100, 999) . '@example.com',
+                'address' => 'عنوان الاختبار',
+                'payment_terms' => 'credit_30',
+                'currency' => 'IQD'
+            ]);
+
+            return redirect()->route('tenant.purchasing.suppliers.index')
+                ->with('success', 'تم إنشاء مورد اختبار: ' . $supplier->name);
+        })->name('suppliers.test-create');
+
         Route::resource('suppliers', SupplierController::class);
 
         // Purchase Requests
