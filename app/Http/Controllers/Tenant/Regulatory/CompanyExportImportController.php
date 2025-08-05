@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Tenant\Regulatory;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Regulatory\CompanyRegistration;
+use App\Imports\CompaniesCollectionImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CompanyExportImportController extends Controller
 {
@@ -103,94 +105,45 @@ class CompanyExportImportController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $file = $request->file('import_file');
-        $path = $file->getRealPath();
-        
-        $imported = 0;
-        $errors = [];
-        $skipped = 0;
-
         try {
-            if (($handle = fopen($path, 'r')) !== FALSE) {
-                // Skip header row
-                $header = fgetcsv($handle);
-                
-                $rowNumber = 1;
-                while (($data = fgetcsv($handle)) !== FALSE) {
-                    $rowNumber++;
-                    
-                    // Skip empty rows
-                    if (empty(array_filter($data))) {
-                        continue;
-                    }
+            $file = $request->file('import_file');
+            $tenantId = Auth::user()->tenant_id;
 
-                    // Validate required fields
-                    if (empty($data[0]) || empty($data[2]) || empty($data[3])) {
-                        $errors[] = "الصف {$rowNumber}: اسم الشركة ورقم التسجيل ورقم الترخيص مطلوبة";
-                        $skipped++;
-                        continue;
-                    }
+            // Use the Collection Import for better control
+            $import = new CompaniesCollectionImport($tenantId);
+            Excel::import($import, $file);
 
-                    // Check if company already exists
-                    $existingCompany = CompanyRegistration::where('tenant_id', Auth::user()->tenant_id)
-                        ->where(function($query) use ($data) {
-                            $query->where('registration_number', $data[2])
-                                  ->orWhere('license_number', $data[3]);
-                        })
-                        ->first();
+            $imported = $import->getImportedCount();
+            $errors = $import->getErrors();
 
-                    if ($existingCompany) {
-                        $errors[] = "الصف {$rowNumber}: الشركة موجودة مسبقاً (رقم التسجيل: {$data[2]})";
-                        $skipped++;
-                        continue;
-                    }
+            $message = "تم استيراد {$imported} شركة بنجاح";
 
-                    try {
-                        CompanyRegistration::create([
-                            'id' => Str::uuid(),
-                            'tenant_id' => Auth::user()->tenant_id,
-                            'company_name' => $data[0] ?? '',
-                            'company_name_en' => $data[1] ?? '',
-                            'registration_number' => $data[2] ?? '',
-                            'license_number' => $data[3] ?? '',
-                            'license_type' => $this->mapLicenseType($data[4] ?? ''),
-                            'regulatory_authority' => $data[5] ?? '',
-                            'registration_date' => $this->parseDate($data[6] ?? ''),
-                            'license_issue_date' => $this->parseDate($data[7] ?? ''),
-                            'license_expiry_date' => $this->parseDate($data[8] ?? ''),
-                            'compliance_status' => $this->mapComplianceStatus($data[9] ?? ''),
-                            'company_address' => $data[10] ?? '',
-                            'contact_person' => $data[11] ?? '',
-                            'contact_email' => $data[12] ?? '',
-                            'contact_phone' => $data[13] ?? '',
-                            'next_inspection_date' => $this->parseDate($data[14] ?? ''),
-                            'notes' => $data[15] ?? ''
-                        ]);
-                        
-                        $imported++;
-                    } catch (\Exception $e) {
-                        $errors[] = "الصف {$rowNumber}: خطأ في حفظ البيانات - " . $e->getMessage();
-                        $skipped++;
-                    }
+            if (!empty($errors)) {
+                $message .= ". الأخطاء: " . implode(', ', array_slice($errors, 0, 3));
+                if (count($errors) > 3) {
+                    $message .= " و " . (count($errors) - 3) . " أخطاء أخرى";
                 }
-                
-                fclose($handle);
             }
+
+            // Log the import result
+            \Illuminate\Support\Facades\Log::info('Companies import completed', [
+                'tenant_id' => $tenantId,
+                'imported_count' => $imported,
+                'errors_count' => count($errors),
+                'file_name' => $file->getClientOriginalName()
+            ]);
+
+            return redirect()->route('tenant.regulatory.companies.index')
+                ->with($imported > 0 ? 'success' : 'warning', $message);
         } catch (\Exception $e) {
-            return back()->with('error', 'خطأ في قراءة الملف: ' . $e->getMessage());
-        }
+            \Illuminate\Support\Facades\Log::error('Companies import failed', [
+                'tenant_id' => Auth::user()->tenant_id ?? null,
+                'error' => $e->getMessage(),
+                'file_name' => $request->file('import_file')?->getClientOriginalName()
+            ]);
 
-        $message = "تم استيراد {$imported} شركة بنجاح.";
-        if ($skipped > 0) {
-            $message .= " تم تخطي {$skipped} صف.";
+            return back()->with('error', 'خطأ في استيراد الملف: ' . $e->getMessage());
         }
-
-        if (!empty($errors)) {
-            return back()->with('warning', $message)->with('import_errors', $errors);
-        }
-
-        return redirect()->route('tenant.inventory.regulatory.companies.index')
-            ->with('success', $message);
     }
 
     /**

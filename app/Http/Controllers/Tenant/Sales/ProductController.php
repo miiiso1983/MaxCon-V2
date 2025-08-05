@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Sales;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Imports\ProductsImport;
+use App\Imports\ProductsCollectionImport;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -515,17 +516,16 @@ class ProductController extends Controller
                 'file_size' => $file->getSize()
             ]);
 
-            $import = new ProductsImport($tenantId);
+            // Use the Collection Import for better control
+            $import = new ProductsCollectionImport($tenantId);
             Excel::import($import, $file);
 
             $importedCount = $import->getImportedCount();
-            $skippedCount = $import->getSkippedCount();
-            $failures = $import->failures();
+            $errors = $import->getErrors();
 
             \Log::info('Import completed', [
                 'imported' => $importedCount,
-                'skipped' => $skippedCount,
-                'failures' => count($failures)
+                'errors' => count($errors)
             ]);
 
             // حساب الوقت المستغرق (تقدير تقريبي)
@@ -541,16 +541,13 @@ class ProductController extends Controller
             }
 
             $message = "✅ تم استيراد {$importedCount} منتج بنجاح";
-            if ($skippedCount > 0) {
-                $message .= " وتم تخطي {$skippedCount} منتج (موجود مسبقاً)";
-            }
             $message .= ". الوقت المستغرق: {$executionTime}.";
 
-            if (count($failures) > 0) {
-                $message .= " ⚠️ يوجد " . count($failures) . " خطأ في البيانات - راجع التفاصيل أدناه.";
-
-                // Store failures in session for display
-                session()->flash('import_failures', $failures);
+            if (!empty($errors)) {
+                $message .= " ⚠️ الأخطاء: " . implode(', ', array_slice($errors, 0, 3));
+                if (count($errors) > 3) {
+                    $message .= " و " . (count($errors) - 3) . " أخطاء أخرى";
+                }
             }
 
             \Log::info('Redirecting with success message', [

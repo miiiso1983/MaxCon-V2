@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Sales;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Imports\CustomersImport;
+use App\Imports\CustomersCollectionImport;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -215,29 +216,43 @@ class CustomerController extends Controller
         ]);
 
         try {
-            $import = new CustomersImport(auth()->user()->tenant_id);
-            Excel::import($import, $request->file('excel_file'));
+            $file = $request->file('excel_file');
+            $tenantId = auth()->user()->tenant_id;
 
-            $importedCount = $import->getImportedCount();
-            $skippedCount = $import->getSkippedCount();
-            $failures = $import->failures();
+            // Use the Collection Import for better control
+            $import = new CustomersCollectionImport($tenantId);
+            Excel::import($import, $file);
 
-            $message = "تم استيراد {$importedCount} عميل بنجاح";
-            if ($skippedCount > 0) {
-                $message .= " وتم تخطي {$skippedCount} عميل (مكرر أو بيانات ناقصة)";
+            $imported = $import->getImportedCount();
+            $errors = $import->getErrors();
+
+            $message = "تم استيراد {$imported} عميل بنجاح";
+
+            if (!empty($errors)) {
+                $message .= ". الأخطاء: " . implode(', ', array_slice($errors, 0, 3));
+                if (count($errors) > 3) {
+                    $message .= " و " . (count($errors) - 3) . " أخطاء أخرى";
+                }
             }
 
-            if (count($failures) > 0) {
-                $message .= ". يوجد " . count($failures) . " خطأ في البيانات";
-
-                // Store failures in session for display
-                session()->flash('import_failures', $failures);
-            }
+            // Log the import result
+            \Illuminate\Support\Facades\Log::info('Customers import completed', [
+                'tenant_id' => $tenantId,
+                'imported_count' => $imported,
+                'errors_count' => count($errors),
+                'file_name' => $file->getClientOriginalName()
+            ]);
 
             return redirect()->route('tenant.sales.customers.index')
-                ->with('success', $message);
+                ->with($imported > 0 ? 'success' : 'warning', $message);
 
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Customers import failed', [
+                'tenant_id' => auth()->user()->tenant_id ?? null,
+                'error' => $e->getMessage(),
+                'file_name' => $request->file('excel_file')?->getClientOriginalName()
+            ]);
+
             return back()->withInput()
                 ->with('error', 'حدث خطأ أثناء استيراد الملف: ' . $e->getMessage());
         }

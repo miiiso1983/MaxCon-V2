@@ -139,25 +139,27 @@ class ProductsImport implements
         }
 
         try {
-            // Force save to check for errors
-            $saved = $product->save();
+            // Use create instead of new + save for better reliability
+            $productData = $product->toArray();
+            $createdProduct = Product::create($productData);
+
             if ($this->importedCount < 3) {
-                \Log::info('ProductsImport: Product saved successfully', [
-                    'saved' => $saved,
-                    'product_id' => $product->id ?? 'not_set'
+                \Log::info('ProductsImport: Product created successfully', [
+                    'product_id' => $createdProduct->id,
+                    'product_name' => $createdProduct->name
                 ]);
             }
+
+            $this->importedCount++;
+            return $createdProduct;
         } catch (\Exception $e) {
-            \Log::error('ProductsImport: Error saving product', [
+            \Log::error('ProductsImport: Error creating product', [
                 'error' => $e->getMessage(),
                 'product_name' => $product->name,
                 'row_number' => $this->importedCount + $this->skippedCount + 1
             ]);
             throw $e;
         }
-
-        $this->importedCount++;
-        return $product;
     }
 
     /**
