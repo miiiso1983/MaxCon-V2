@@ -1166,6 +1166,131 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         ]);
     })->name('debug.permissions');
 
+    // Direct route to add comprehensive permissions
+    Route::get('/add-comprehensive-permissions', function() {
+        if (!auth()->user()->hasRole('super-admin') && !auth()->user()->hasRole('tenant-admin')) {
+            abort(403, 'غير مصرح لك بتنفيذ هذا الإجراء');
+        }
+
+        try {
+            // Clear permission cache first
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+            // Define comprehensive permissions directly
+            $permissions = [
+                // 📊 إدارة المبيعات (Sales Management)
+                'sales.dashboard.view' => 'عرض لوحة تحكم المبيعات',
+                'sales.orders.view' => 'عرض طلبات المبيعات',
+                'sales.orders.create' => 'إنشاء طلبات المبيعات',
+                'sales.orders.edit' => 'تعديل طلبات المبيعات',
+                'sales.orders.delete' => 'حذف طلبات المبيعات',
+                'sales.invoices.view' => 'عرض الفواتير',
+                'sales.invoices.create' => 'إنشاء الفواتير',
+                'sales.invoices.edit' => 'تعديل الفواتير',
+                'sales.invoices.delete' => 'حذف الفواتير',
+                'sales.invoices.print' => 'طباعة الفواتير',
+                'sales.invoices.send-email' => 'إرسال الفواتير بالبريد الإلكتروني',
+                'sales.customers.view' => 'عرض العملاء',
+                'sales.customers.create' => 'إضافة عملاء جدد',
+                'sales.customers.edit' => 'تعديل بيانات العملاء',
+                'sales.customers.delete' => 'حذف العملاء',
+                'sales.customers.import' => 'استيراد العملاء',
+                'sales.customers.export' => 'تصدير العملاء',
+                'sales.products.view' => 'عرض المنتجات',
+                'sales.products.create' => 'إضافة منتجات جديدة',
+                'sales.products.edit' => 'تعديل المنتجات',
+                'sales.products.delete' => 'حذف المنتجات',
+                'sales.products.import' => 'استيراد المنتجات',
+                'sales.products.export' => 'تصدير المنتجات',
+                'sales.returns.view' => 'عرض المرتجعات',
+                'sales.returns.create' => 'إنشاء مرتجعات',
+                'sales.returns.edit' => 'تعديل المرتجعات',
+                'sales.returns.complete' => 'إكمال المرتجعات',
+                'sales.returns.reject' => 'رفض المرتجعات',
+                'sales.targets.view' => 'عرض أهداف المبيعات',
+                'sales.targets.create' => 'إنشاء أهداف المبيعات',
+                'sales.targets.edit' => 'تعديل أهداف المبيعات',
+                'sales.targets.delete' => 'حذف أهداف المبيعات',
+
+                // 📦 إدارة المخزون (Inventory Management)
+                'inventory.view' => 'عرض المخزون الرئيسي',
+                'inventory.create' => 'إنشاء عناصر مخزون',
+                'inventory.edit' => 'تعديل عناصر المخزون',
+                'inventory.delete' => 'حذف عناصر المخزون',
+                'inventory.warehouses.view' => 'عرض المستودعات',
+                'inventory.warehouses.create' => 'إنشاء مستودعات',
+                'inventory.warehouses.edit' => 'تعديل المستودعات',
+                'inventory.warehouses.delete' => 'حذف المستودعات',
+                'inventory.movements.view' => 'عرض حركات المخزون',
+                'inventory.movements.create' => 'إنشاء حركات مخزون',
+                'inventory.movements.edit' => 'تعديل حركات المخزون',
+                'inventory.movements.delete' => 'حذف حركات المخزون',
+                'inventory.audits.view' => 'عرض مراجعات المخزون',
+                'inventory.audits.create' => 'إنشاء مراجعات مخزون',
+                'inventory.audits.edit' => 'تعديل مراجعات المخزون',
+                'inventory.audits.delete' => 'حذف مراجعات المخزون',
+                'inventory.adjustments.view' => 'عرض تسويات المخزون',
+                'inventory.adjustments.create' => 'إنشاء تسويات مخزون',
+                'inventory.adjustments.edit' => 'تعديل تسويات المخزون',
+                'inventory.adjustments.delete' => 'حذف تسويات المخزون',
+                'inventory.reports.view' => 'عرض تقارير المخزون',
+
+                // 💰 النظام المحاسبي (Accounting System)
+                'accounting.dashboard.view' => 'عرض لوحة تحكم المحاسبة',
+                'accounting.chart-of-accounts.view' => 'عرض دليل الحسابات',
+                'accounting.chart-of-accounts.create' => 'إنشاء حسابات جديدة',
+                'accounting.chart-of-accounts.edit' => 'تعديل الحسابات',
+                'accounting.chart-of-accounts.delete' => 'حذف الحسابات',
+                'accounting.cost-centers.view' => 'عرض مراكز التكلفة',
+                'accounting.cost-centers.create' => 'إنشاء مراكز تكلفة',
+                'accounting.cost-centers.edit' => 'تعديل مراكز التكلفة',
+                'accounting.cost-centers.delete' => 'حذف مراكز التكلفة',
+                'accounting.journal-entries.view' => 'عرض القيود المحاسبية',
+                'accounting.journal-entries.create' => 'إنشاء قيود محاسبية',
+                'accounting.journal-entries.edit' => 'تعديل القيود المحاسبية',
+                'accounting.journal-entries.delete' => 'حذف القيود المحاسبية',
+                'accounting.reports.trial-balance' => 'عرض ميزان المراجعة',
+                'accounting.reports.income-statement' => 'عرض قائمة الدخل',
+                'accounting.reports.balance-sheet' => 'عرض الميزانية العمومية',
+                'accounting.reports.cash-flow' => 'عرض قائمة التدفقات النقدية',
+            ];
+
+            $created = 0;
+            $existing = 0;
+
+            // Create permissions
+            foreach ($permissions as $name => $description) {
+                $permission = \Spatie\Permission\Models\Permission::firstOrCreate(
+                    ['name' => $name, 'guard_name' => 'web'],
+                    ['description' => $description]
+                );
+
+                if ($permission->wasRecentlyCreated) {
+                    $created++;
+                } else {
+                    $existing++;
+                }
+            }
+
+            $totalPermissions = \Spatie\Permission\Models\Permission::count();
+
+            return response()->json([
+                'success' => true,
+                'message' => "تم إضافة الصلاحيات بنجاح!",
+                'created_permissions' => $created,
+                'existing_permissions' => $existing,
+                'total_permissions' => $totalPermissions,
+                'sample_new_permissions' => array_keys(array_slice($permissions, 0, 5))
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    })->name('add.comprehensive.permissions');
+
     // Purchasing Management Routes
     Route::prefix('purchasing')->name('purchasing.')->group(function () {
         // Suppliers
