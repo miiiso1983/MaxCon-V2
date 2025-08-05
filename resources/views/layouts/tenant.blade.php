@@ -43,10 +43,7 @@
             box-sizing: border-box;
         }
 
-        /* Hide the dark sidebar - user wants the blue one */
-        .sidebar {
-            display: none !important;
-        }
+        /* Blue sidebar design matching the image */
         
         body {
             font-family: 'Cairo', sans-serif;
@@ -62,7 +59,7 @@
         
         .sidebar {
             width: 280px !important;
-            background: linear-gradient(135deg, #1f2937 0%, #374151 100%) !important;
+            background: linear-gradient(180deg, #5b73e8 0%, #4c63d2 30%, #667eea 70%, #7c3aed 100%) !important;
             color: white !important;
             padding: 20px 0 !important;
             position: fixed !important;
@@ -71,7 +68,7 @@
             height: 100vh !important;
             overflow-y: auto !important;
             z-index: 1000 !important;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1) !important;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15) !important;
             transition: all 0.3s ease !important;
             border: none !important;
             margin: 0 !important;
@@ -118,30 +115,39 @@
             display: flex !important;
             align-items: center !important;
             padding: 12px 20px !important;
-            color: rgba(255,255,255,0.8) !important;
+            color: rgba(255,255,255,0.85) !important;
             text-decoration: none !important;
             transition: all 0.3s ease !important;
             border-right: 3px solid transparent !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
+            border-radius: 10px !important;
+            margin: 2px 15px !important;
             font-weight: 500 !important;
             background: transparent !important;
             width: auto !important;
             height: auto !important;
             box-sizing: border-box !important;
+            position: relative !important;
         }
         
-        .sidebar-menu a:hover,
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            color: white !important;
+            transform: translateX(-3px) !important;
+            border-right-color: rgba(255, 255, 255, 0.3) !important;
+        }
+
         .sidebar-menu a.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-right-color: #10b981;
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: white !important;
+            border-right-color: #fbbf24 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
         }
         
         .sidebar-menu a i {
-            margin-left: 12px;
-            width: 20px;
-            text-align: center;
+            margin-left: 12px !important;
+            width: 20px !important;
+            text-align: center !important;
+            font-size: 16px !important;
         }
 
         /* Menu Sections & Submenus */

@@ -5,7 +5,7 @@
      :class="isCollapsed ? 'w-16' : 'w-72'">
      
     <!-- Sidebar Container -->
-    <div class="h-full bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl flex flex-col">
+    <div class="h-full shadow-2xl flex flex-col" style="background: linear-gradient(180deg, #5b73e8 0%, #4c63d2 30%, #667eea 70%, #7c3aed 100%);"
         
         <!-- Header Section -->
         <div class="p-4 border-b border-blue-500/30">
@@ -18,11 +18,12 @@
             
             <!-- Logo Section -->
             <div class="mt-4 text-center" x-show="!isCollapsed" x-transition>
-                <div class="w-16 h-16 mx-auto bg-white/10 rounded-full flex items-center justify-center mb-2">
-                    <i class="fas fa-chart-line text-2xl text-white"></i>
+                <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style="background: linear-gradient(135deg, #fbbf24, #f59e0b, #ea580c); box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);">
+                    <i class="fas fa-crown text-2xl text-white"></i>
                 </div>
-                <h2 class="text-white font-bold text-lg">MaxCon ERP</h2>
-                <p class="text-blue-200 text-sm">نظام إدارة المؤسسات</p>
+                <h1 class="font-bold text-xl mb-1" style="color: #fbbf24; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">MaxCon</h1>
+                <h2 class="font-bold text-lg mb-2" style="color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Master</h2>
+                <p class="text-sm" style="color: rgba(255,255,255,0.9); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">إدارة النظام الرئيسية</p>
             </div>
             
             <!-- Collapsed Logo -->
@@ -187,25 +188,32 @@
     .nav-item {
         display: flex;
         align-items: center;
-        padding: 0.625rem 0.75rem;
-        border-radius: 0.5rem;
-        color: rgba(255, 255, 255, 0.9);
-        transition: all 0.2s ease;
+        padding: 0.75rem 1rem;
+        border-radius: 0.625rem;
+        color: rgba(255, 255, 255, 0.85);
+        transition: all 0.3s ease;
         cursor: pointer;
         text-decoration: none;
+        margin: 0.125rem 0.5rem;
+        font-weight: 500;
+        border-right: 3px solid transparent;
+        position: relative;
     }
 
     .nav-item:hover {
         color: white;
-        background-color: rgba(255, 255, 255, 0.1);
-        transform: translateX(0.25rem);
+        background-color: rgba(255, 255, 255, 0.12);
+        transform: translateX(-0.1875rem);
         text-decoration: none;
+        border-right-color: rgba(255, 255, 255, 0.3);
     }
 
     .nav-item.active {
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.15);
         color: white;
         font-weight: 600;
+        border-right-color: #fbbf24;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     /* Submenu Item Styles */
