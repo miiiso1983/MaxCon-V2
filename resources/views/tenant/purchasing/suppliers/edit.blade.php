@@ -156,15 +156,52 @@
                     </div>
 
                     <div>
-                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">اسم الشركة</label>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">رمز المورد *</label>
                         <input type="text"
-                               id="company_name"
-                               name="company_name"
+                               id="code"
+                               name="code"
                                style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
-                               value="{{ old('company_name', $supplier->company_name) }}"
+                               value="{{ old('code', $supplier->code) }}"
+                               required
                                onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
                                onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
-                        @error('company_name')
+                        @error('code')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">نوع المورد *</label>
+                        <select id="type"
+                                name="type"
+                                style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                                required
+                                onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                            <option value="">اختر نوع المورد</option>
+                            <option value="manufacturer" {{ old('type', $supplier->type) == 'manufacturer' ? 'selected' : '' }}>مصنع</option>
+                            <option value="distributor" {{ old('type', $supplier->type) == 'distributor' ? 'selected' : '' }}>موزع</option>
+                            <option value="wholesaler" {{ old('type', $supplier->type) == 'wholesaler' ? 'selected' : '' }}>تاجر جملة</option>
+                            <option value="retailer" {{ old('type', $supplier->type) == 'retailer' ? 'selected' : '' }}>تاجر تجزئة</option>
+                            <option value="service_provider" {{ old('type', $supplier->type) == 'service_provider' ? 'selected' : '' }}>مقدم خدمة</option>
+                        </select>
+                        @error('type')
+                            <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">الشخص المسؤول</label>
+                        <input type="text"
+                               id="contact_person"
+                               name="contact_person"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                               value="{{ old('contact_person', $supplier->contact_person) }}"
+                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        @error('contact_person')
                             <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
                         @enderror
                     </div>
@@ -239,15 +276,22 @@
                     </div>
 
                     <div>
-                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">مدة السداد (بالأيام)</label>
-                        <input type="number"
-                               id="payment_terms"
-                               name="payment_terms"
-                               style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
-                               value="{{ old('payment_terms', $supplier->payment_terms) }}"
-                               min="0"
-                               onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
-                               onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                        <label style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; display: block;">شروط الدفع *</label>
+                        <select id="payment_terms"
+                                name="payment_terms"
+                                style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; background: #f9fafb;"
+                                required
+                                onfocus="this.style.borderColor='#f59e0b'; this.style.background='white';"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
+                            <option value="cash" {{ old('payment_terms', $supplier->payment_terms) == 'cash' ? 'selected' : '' }}>نقداً</option>
+                            <option value="credit_7" {{ old('payment_terms', $supplier->payment_terms) == 'credit_7' ? 'selected' : '' }}>آجل 7 أيام</option>
+                            <option value="credit_15" {{ old('payment_terms', $supplier->payment_terms) == 'credit_15' ? 'selected' : '' }}>آجل 15 يوم</option>
+                            <option value="credit_30" {{ old('payment_terms', $supplier->payment_terms) == 'credit_30' ? 'selected' : '' }}>آجل 30 يوم</option>
+                            <option value="credit_45" {{ old('payment_terms', $supplier->payment_terms) == 'credit_45' ? 'selected' : '' }}>آجل 45 يوم</option>
+                            <option value="credit_60" {{ old('payment_terms', $supplier->payment_terms) == 'credit_60' ? 'selected' : '' }}>آجل 60 يوم</option>
+                            <option value="credit_90" {{ old('payment_terms', $supplier->payment_terms) == 'credit_90' ? 'selected' : '' }}>آجل 90 يوم</option>
+                            <option value="custom" {{ old('payment_terms', $supplier->payment_terms) == 'custom' ? 'selected' : '' }}>مخصص</option>
+                        </select>
                         @error('payment_terms')
                             <span style="color: #ef4444; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
                         @enderror

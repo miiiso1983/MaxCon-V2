@@ -181,36 +181,29 @@ class SupplierController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'name_en' => 'nullable|string|max:255',
             'code' => 'required|string|max:50|unique:suppliers,code,' . $supplier->id,
             'type' => 'required|in:manufacturer,distributor,wholesaler,retailer,service_provider',
             'status' => 'required|in:active,inactive,suspended,blacklisted',
             'contact_person' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
-            'mobile' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
-            'website' => 'nullable|url|max:255',
             'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100',
             'tax_number' => 'nullable|string|max:50',
-            'commercial_registration' => 'nullable|string|max:50',
-            'license_number' => 'nullable|string|max:50',
-            'license_expiry' => 'nullable|date',
-            'bank_name' => 'nullable|string|max:255',
-            'bank_account' => 'nullable|string|max:50',
-            'iban' => 'nullable|string|max:50',
             'payment_terms' => 'required|in:cash,credit_7,credit_15,credit_30,credit_45,credit_60,credit_90,custom',
-            'credit_days' => 'nullable|integer|min:0',
             'credit_limit' => 'nullable|numeric|min:0',
-            'categories' => 'nullable|array',
-            'certifications' => 'nullable|array',
+            'currency' => 'nullable|string|max:3',
+            'category' => 'nullable|string',
             'notes' => 'nullable|string',
-            'is_preferred' => 'boolean',
         ]);
 
-        $data = $request->all();
-        $data['is_preferred'] = $request->has('is_preferred');
+        $data = $request->only([
+            'name', 'code', 'type', 'status', 'contact_person',
+            'phone', 'email', 'address', 'tax_number', 'payment_terms',
+            'credit_limit', 'currency', 'category', 'notes'
+        ]);
+
+        // Set default values if not provided
+        $data['currency'] = $data['currency'] ?? 'IQD';
 
         $supplier->update($data);
 

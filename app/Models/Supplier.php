@@ -44,6 +44,8 @@ class Supplier extends Model
         'credit_days',
         'credit_limit',
         'current_balance',
+        'currency',
+        'category',
         'categories',
         'certifications',
         'notes',
