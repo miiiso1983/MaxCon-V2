@@ -30,18 +30,23 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
 
         foreach ($collection as $index => $row) {
             try {
+                // Handle both array and Collection objects
+                $rowData = is_array($row) ? $row : $row->toArray();
+
                 \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Processing row', [
                     'row_number' => $index + 2,
-                    'row_data' => $row->toArray()
+                    'row_data' => $rowData,
+                    'row_type' => gettype($row)
                 ]);
 
-                $this->processRow($row->toArray(), $index + 2); // +2 because of header row and 0-based index
+                $this->processRow($rowData, $index + 2); // +2 because of header row and 0-based index
             } catch (\Exception $e) {
                 $this->errors[] = "الصف " . ($index + 2) . ": " . $e->getMessage();
                 \Illuminate\Support\Facades\Log::error('SuppliersCollectionImport: Error processing row', [
                     'row' => $index + 2,
                     'error' => $e->getMessage(),
-                    'data' => $row->toArray()
+                    'data' => is_array($row) ? $row : (method_exists($row, 'toArray') ? $row->toArray() : 'Cannot convert to array'),
+                    'row_type' => gettype($row)
                 ]);
             }
         }

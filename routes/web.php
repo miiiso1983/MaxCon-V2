@@ -1449,9 +1449,9 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::get('suppliers/test-import', function() {
             $tenantId = auth()->user()->tenant_id;
 
-            // Simulate Excel data
+            // Simulate Excel data - create Collection with objects that have toArray method
             $testData = collect([
-                [
+                collect([
                     'اسم المورد*' => 'شركة اختبار الاستيراد ' . now()->format('H:i:s'),
                     'رمز المورد' => 'IMP-' . rand(1000, 9999),
                     'نوع المورد' => 'distributor',
@@ -1466,22 +1466,27 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                     'العملة' => 'IQD',
                     'الفئة' => 'pharmaceutical',
                     'ملاحظات' => 'مورد تجريبي للاختبار'
-                ]
+                ])
             ]);
 
-            $import = new App\Imports\SuppliersCollectionImport($tenantId);
-            $import->collection($testData);
+            try {
+                $import = new App\Imports\SuppliersCollectionImport($tenantId);
+                $import->collection($testData);
 
-            $imported = $import->getImportedCount();
-            $errors = $import->getErrors();
+                $imported = $import->getImportedCount();
+                $errors = $import->getErrors();
 
-            $message = "تم اختبار الاستيراد: {$imported} مورد";
-            if (!empty($errors)) {
-                $message .= ". أخطاء: " . implode(', ', $errors);
+                $message = "تم اختبار الاستيراد: {$imported} مورد";
+                if (!empty($errors)) {
+                    $message .= ". أخطاء: " . implode(', ', $errors);
+                }
+
+                return redirect()->route('tenant.purchasing.suppliers.index')
+                    ->with($imported > 0 ? 'success' : 'error', $message);
+            } catch (\Exception $e) {
+                return redirect()->route('tenant.purchasing.suppliers.index')
+                    ->with('error', 'خطأ في اختبار الاستيراد: ' . $e->getMessage());
             }
-
-            return redirect()->route('tenant.purchasing.suppliers.index')
-                ->with($imported > 0 ? 'success' : 'error', $message);
         })->name('suppliers.test-import');
 
         Route::resource('suppliers', SupplierController::class);
