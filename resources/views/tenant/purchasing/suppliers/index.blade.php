@@ -180,6 +180,19 @@
         <p style="margin: 5px 0; font-size: 14px;">الصفحة الحالية: {{ $suppliers->currentPage() }}</p>
         <p style="margin: 5px 0; font-size: 14px;">عدد الموردين النشطين: {{ $stats['active'] }}</p>
         <p style="margin: 5px 0; font-size: 14px;">إجمالي الموردين في الإحصائيات: {{ $stats['total'] }}</p>
+        <p style="margin: 5px 0; font-size: 14px;">Tenant ID: {{ auth()->user()->tenant_id ?? 'غير محدد' }}</p>
+
+        <!-- Test buttons -->
+        <div style="margin-top: 15px;">
+            <a href="{{ route('tenant.purchasing.suppliers.test-create') }}"
+               style="background: #10b981; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; margin-right: 10px; font-size: 14px;">
+                إنشاء مورد اختبار
+            </a>
+            <a href="{{ route('tenant.purchasing.suppliers.test-import') }}"
+               style="background: #3b82f6; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px;">
+                اختبار الاستيراد
+            </a>
+        </div>
     </div>
 
     @if($suppliers->count() > 0)

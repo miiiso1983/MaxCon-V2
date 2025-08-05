@@ -23,8 +23,18 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
     */
     public function collection(Collection $collection)
     {
+        \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Starting import', [
+            'tenant_id' => $this->tenantId,
+            'rows_count' => $collection->count()
+        ]);
+
         foreach ($collection as $index => $row) {
             try {
+                \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Processing row', [
+                    'row_number' => $index + 2,
+                    'row_data' => $row->toArray()
+                ]);
+
                 $this->processRow($row->toArray(), $index + 2); // +2 because of header row and 0-based index
             } catch (\Exception $e) {
                 $this->errors[] = "الصف " . ($index + 2) . ": " . $e->getMessage();
@@ -35,6 +45,12 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
                 ]);
             }
         }
+
+        \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Import completed', [
+            'tenant_id' => $this->tenantId,
+            'imported_count' => $this->importedCount,
+            'errors_count' => count($this->errors)
+        ]);
     }
 
     private function processRow(array $row, int $rowNumber)

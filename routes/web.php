@@ -1445,6 +1445,45 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 ->with('success', 'تم إنشاء مورد اختبار: ' . $supplier->name);
         })->name('suppliers.test-create');
 
+        // Test import route
+        Route::get('suppliers/test-import', function() {
+            $tenantId = auth()->user()->tenant_id;
+
+            // Simulate Excel data
+            $testData = collect([
+                [
+                    'اسم المورد*' => 'شركة اختبار الاستيراد ' . now()->format('H:i:s'),
+                    'رمز المورد' => 'IMP-' . rand(1000, 9999),
+                    'نوع المورد' => 'distributor',
+                    'الحالة' => 'active',
+                    'شخص الاتصال' => 'محمد اختبار',
+                    'الهاتف' => '07901111111',
+                    'البريد الالكتروني' => 'import-test@example.com',
+                    'العنوان' => 'بغداد - اختبار الاستيراد',
+                    'الرقم الضريبي' => '111111111',
+                    'شروط الدفع' => 'credit_30',
+                    'حد الائتمان' => '25000',
+                    'العملة' => 'IQD',
+                    'الفئة' => 'pharmaceutical',
+                    'ملاحظات' => 'مورد تجريبي للاختبار'
+                ]
+            ]);
+
+            $import = new App\Imports\SuppliersCollectionImport($tenantId);
+            $import->collection($testData);
+
+            $imported = $import->getImportedCount();
+            $errors = $import->getErrors();
+
+            $message = "تم اختبار الاستيراد: {$imported} مورد";
+            if (!empty($errors)) {
+                $message .= ". أخطاء: " . implode(', ', $errors);
+            }
+
+            return redirect()->route('tenant.purchasing.suppliers.index')
+                ->with($imported > 0 ? 'success' : 'error', $message);
+        })->name('suppliers.test-import');
+
         Route::resource('suppliers', SupplierController::class);
 
         // Purchase Requests
