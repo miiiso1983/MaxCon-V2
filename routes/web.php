@@ -1715,6 +1715,50 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             }
         })->name('suppliers.test-user-format');
 
+        // Debug route to test actual Excel file upload
+        Route::post('suppliers/debug-excel-upload', function(Request $request) {
+            try {
+                $request->validate([
+                    'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:2048'
+                ]);
+
+                $file = $request->file('excel_file');
+                $tenantId = 4;
+
+                // Read the Excel file and show its contents
+                $import = new App\Imports\SuppliersCollectionImport($tenantId);
+
+                // Get raw data from Excel
+                $data = Excel::toCollection($import, $file);
+
+                return response()->json([
+                    'file_info' => [
+                        'name' => $file->getClientOriginalName(),
+                        'size' => $file->getSize(),
+                        'mime' => $file->getMimeType()
+                    ],
+                    'sheets_count' => $data->count(),
+                    'first_sheet_rows' => $data->first()->count(),
+                    'headers' => $data->first()->first()?->keys()->toArray() ?? [],
+                    'first_few_rows' => $data->first()->take(3)->toArray(),
+                    'message' => 'تم قراءة الملف بنجاح - يمكنك الآن معرفة محتوياته'
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => basename($e->getFile())
+                ]);
+            }
+        })->name('suppliers.debug-excel-upload');
+
+        // Debug page for Excel upload testing
+        Route::get('suppliers/debug-excel-page', function() {
+            return view('debug-excel-upload');
+        })->name('suppliers.debug-excel-page');
+
         Route::resource('suppliers', SupplierController::class);
 
         // Purchase Requests
