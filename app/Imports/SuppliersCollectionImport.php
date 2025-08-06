@@ -67,9 +67,11 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
             'tenant_id' => $this->tenantId
         ]);
 
-        // Extract name from multiple possible sources
+        // Extract name from multiple possible sources - support new file format
         $name = $row['اسم المورد*'] ?? $row['اسم_المورد'] ?? $row['name'] ??
-                $row['اسم الشركة'] ?? $row['شخص الاتصال'] ?? null;
+                $row['اسم الشركة'] ?? $row['شخص الاتصال'] ??
+                $row['suppliers_template1'] ?? // New format support
+                $row['13'] ?? null; // Contact person as fallback
 
         \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Extracted name', [
             'name' => $name,
@@ -85,9 +87,10 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
             return;
         }
 
-        // Generate code if not provided
+        // Generate code if not provided - support new format
         $code = $row['رمز المورد'] ?? $row['رمز_المورد'] ?? $row['code'] ??
-                $row['رقم السجل التجاري'] ?? 'SUP-' . str_pad($this->importedCount + 1, 3, '0', STR_PAD_LEFT);
+                $row['رقم السجل التجاري'] ?? $row['1'] ?? // New format: column 1 is supplier code
+                'SUP-' . str_pad($this->importedCount + 1, 3, '0', STR_PAD_LEFT);
 
         // Check if supplier already exists
         $existingSupplier = Supplier::where('tenant_id', $this->tenantId)
@@ -105,30 +108,31 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
             return;
         }
 
-        // Build supplier data with only safe fields
+        // Build supplier data with only safe fields - support new format
         $supplierData = [
             'tenant_id' => $this->tenantId,
             'name' => $name,
             'code' => $code,
-            'type' => $this->mapType($row['نوع المورد'] ?? $row['نوع_المورد'] ?? $row['type'] ?? 'distributor'),
-            'status' => $this->mapStatus($row['الحالة'] ?? $row['status'] ?? 'active'),
-            'payment_terms' => $this->mapPaymentTerms($row['شروط الدفع'] ?? $row['شروط_الدفع'] ?? $row['payment_terms'] ?? 'credit_30'),
+            'type' => $this->mapType($row['نوع المورد'] ?? $row['نوع_المورد'] ?? $row['type'] ?? $row['2'] ?? 'distributor'),
+            'status' => $this->mapStatus($row['الحالة'] ?? $row['status'] ?? $row['3'] ?? 'active'),
+            'payment_terms' => $this->mapPaymentTerms($row['شروط الدفع'] ?? $row['شروط_الدفع'] ?? $row['payment_terms'] ?? $row['19'] ?? 'credit_30'),
             'credit_limit' => floatval($row['حد الائتمان'] ?? $row['حد_الائتمان'] ?? $row['credit_limit'] ?? 0),
         ];
 
-        // Add optional fields only if they have values - support your file format
+        // Add optional fields only if they have values - support new file format
         $optionalFields = [
-            'contact_person' => $row['شخص الاتصال'] ?? $row['شخص_الاتصال'] ?? $row['contact_person'] ?? null,
-            'phone' => $row['الهاتف'] ?? $row['هاتف شخص الاتصال'] ?? $row['phone'] ?? null,
-            'email' => $row['البريد الالكتروني'] ?? $row['بريد شخص الاتصال'] ?? $row['البريد_الالكتروني'] ?? $row['email'] ?? null,
-            'address' => $row['العنوان'] ?? $row['address'] ?? null,
-            'city' => $row['المدينة'] ?? $row['city'] ?? null,
-            'country' => $row['البلد'] ?? $row['country'] ?? 'العراق',
+            'contact_person' => $row['شخص الاتصال'] ?? $row['شخص_الاتصال'] ?? $row['contact_person'] ?? $row['13'] ?? null,
+            'phone' => $row['الهاتف'] ?? $row['هاتف شخص الاتصال'] ?? $row['phone'] ?? $row['6'] ?? null,
+            'email' => $row['البريد الالكتروني'] ?? $row['بريد شخص الاتصال'] ?? $row['البريد_الالكتروني'] ?? $row['email'] ?? $row['5'] ?? $row['15'] ?? null,
+            'address' => $row['العنوان'] ?? $row['address'] ?? $row['9'] ?? null,
+            'city' => $row['المدينة'] ?? $row['city'] ?? $row['10'] ?? null,
+            'country' => $row['البلد'] ?? $row['country'] ?? $row['12'] ?? 'العراق',
             'tax_number' => $row['الرقم الضريبي'] ?? $row['الرقم_الضريبي'] ?? $row['tax_number'] ?? null,
-            'commercial_registration' => $row['رقم السجل التجاري'] ?? null,
-            'license_number' => $row['رقم الترخيص'] ?? null,
-            'website' => $row['الموقع الإلكتروني'] ?? $row['website'] ?? null,
-            'notes' => $row['ملاحظات'] ?? $row['المنتجات/الخدمات'] ?? $row['notes'] ?? null,
+            'commercial_registration' => $row['رقم السجل التجاري'] ?? $row['17'] ?? null,
+            'license_number' => $row['رقم الترخيص'] ?? $row['18'] ?? null,
+            'website' => $row['الموقع الإلكتروني'] ?? $row['website'] ?? $row['8'] ?? null,
+            'notes' => $row['ملاحظات'] ?? $row['المنتجات/الخدمات'] ?? $row['notes'] ?? $row['22'] ?? $row['21'] ?? null,
+            'description' => $row['الوصف'] ?? $row['description'] ?? $row['4'] ?? null,
         ];
 
         foreach ($optionalFields as $field => $value) {
@@ -137,9 +141,9 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
             }
         }
 
-        // Add currency and category only if columns exist and have values
+        // Add currency and category only if columns exist and have values - support new format
         if (Schema::hasColumn('suppliers', 'currency')) {
-            $currency = $row['العملة'] ?? $row['currency'] ?? 'IQD';
+            $currency = $row['العملة'] ?? $row['currency'] ?? $row['20'] ?? 'IQD';
             if (!empty($currency)) {
                 $supplierData['currency'] = $currency;
             }
