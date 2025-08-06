@@ -67,23 +67,27 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
             'tenant_id' => $this->tenantId
         ]);
 
-        // Skip empty rows - check multiple possible column names
-        $name = $row['اسم المورد*'] ?? $row['اسم_المورد'] ?? $row['name'] ?? null;
+        // Extract name from multiple possible sources
+        $name = $row['اسم المورد*'] ?? $row['اسم_المورد'] ?? $row['name'] ??
+                $row['اسم الشركة'] ?? $row['شخص الاتصال'] ?? null;
 
         \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Extracted name', [
             'name' => $name,
-            'row' => $rowNumber
+            'row' => $rowNumber,
+            'available_columns' => array_keys($row)
         ]);
 
         if (empty($name)) {
-            \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Skipping empty row', [
-                'row' => $rowNumber
+            \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Skipping empty row - no name found', [
+                'row' => $rowNumber,
+                'row_data' => $row
             ]);
             return;
         }
 
         // Generate code if not provided
-        $code = $row['رمز المورد'] ?? $row['رمز_المورد'] ?? $row['code'] ?? 'SUP-' . str_pad($this->importedCount + 1, 3, '0', STR_PAD_LEFT);
+        $code = $row['رمز المورد'] ?? $row['رمز_المورد'] ?? $row['code'] ??
+                $row['رقم السجل التجاري'] ?? 'SUP-' . str_pad($this->importedCount + 1, 3, '0', STR_PAD_LEFT);
 
         // Check if supplier already exists
         $existingSupplier = Supplier::where('tenant_id', $this->tenantId)
@@ -112,14 +116,19 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
             'credit_limit' => floatval($row['حد الائتمان'] ?? $row['حد_الائتمان'] ?? $row['credit_limit'] ?? 0),
         ];
 
-        // Add optional fields only if they have values
+        // Add optional fields only if they have values - support your file format
         $optionalFields = [
             'contact_person' => $row['شخص الاتصال'] ?? $row['شخص_الاتصال'] ?? $row['contact_person'] ?? null,
-            'phone' => $row['الهاتف'] ?? $row['phone'] ?? null,
-            'email' => $row['البريد الالكتروني'] ?? $row['البريد_الالكتروني'] ?? $row['email'] ?? null,
+            'phone' => $row['الهاتف'] ?? $row['هاتف شخص الاتصال'] ?? $row['phone'] ?? null,
+            'email' => $row['البريد الالكتروني'] ?? $row['بريد شخص الاتصال'] ?? $row['البريد_الالكتروني'] ?? $row['email'] ?? null,
             'address' => $row['العنوان'] ?? $row['address'] ?? null,
+            'city' => $row['المدينة'] ?? $row['city'] ?? null,
+            'country' => $row['البلد'] ?? $row['country'] ?? 'العراق',
             'tax_number' => $row['الرقم الضريبي'] ?? $row['الرقم_الضريبي'] ?? $row['tax_number'] ?? null,
-            'notes' => $row['ملاحظات'] ?? $row['notes'] ?? null,
+            'commercial_registration' => $row['رقم السجل التجاري'] ?? null,
+            'license_number' => $row['رقم الترخيص'] ?? null,
+            'website' => $row['الموقع الإلكتروني'] ?? $row['website'] ?? null,
+            'notes' => $row['ملاحظات'] ?? $row['المنتجات/الخدمات'] ?? $row['notes'] ?? null,
         ];
 
         foreach ($optionalFields as $field => $value) {
@@ -130,7 +139,7 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
 
         // Add currency and category only if columns exist and have values
         if (Schema::hasColumn('suppliers', 'currency')) {
-            $currency = $row['العملة'] ?? $row['currency'] ?? null;
+            $currency = $row['العملة'] ?? $row['currency'] ?? 'IQD';
             if (!empty($currency)) {
                 $supplierData['currency'] = $currency;
             }
