@@ -54,7 +54,6 @@ class Product extends Model
         'retail_price' => 'decimal:2',
         'unit_weight' => 'decimal:3',
         'unit_volume' => 'decimal:3',
-        'current_stock' => 'decimal:2',
         'stock_quantity' => 'decimal:2',
         'minimum_stock' => 'decimal:2',
         'maximum_stock' => 'decimal:2',
@@ -226,6 +225,22 @@ class Product extends Model
             'out_of_stock' => 'نفد المخزون',
             default => 'غير محدد'
         };
+    }
+
+    /**
+     * Get current stock - maps to stock_quantity
+     */
+    public function getCurrentStockAttribute()
+    {
+        return $this->stock_quantity ?? 0;
+    }
+
+    /**
+     * Get unit - maps to unit_of_measure
+     */
+    public function getUnitAttribute()
+    {
+        return $this->unit_of_measure ?? 'قطعة';
     }
 
     public function getStockStatusAttribute(): string

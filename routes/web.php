@@ -1715,23 +1715,61 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             }
         })->name('suppliers.test-user-format');
 
-        // Test currency system
-        Route::get('test-currency', function() {
+        // Test product stock values
+        Route::get('suppliers/test-product-stock', function() {
+            $products = App\Models\Product::where('tenant_id', 1)->get();
+
+            $result = [];
+            foreach ($products as $product) {
+                $result[] = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'stock_quantity' => $product->stock_quantity,
+                    'current_stock' => $product->current_stock,
+                    'unit_of_measure' => $product->unit_of_measure,
+                    'unit' => $product->unit,
+                    'selling_price' => $product->selling_price,
+                ];
+            }
+
             return response()->json([
-                'currency_options' => currency_options(),
-                'default_currency' => default_currency(),
-                'iqd_format' => currency_format(1500000, 'IQD'),
-                'usd_format' => currency_format(1500, 'USD'),
-                'iqd_symbol' => currency_symbol('IQD'),
-                'usd_symbol' => currency_symbol('USD'),
-                'iqd_name' => currency_name('IQD'),
-                'usd_name' => currency_name('USD'),
-                'conversion_iqd_to_usd' => currency_convert(1320000, 'IQD', 'USD'),
-                'conversion_usd_to_iqd' => currency_convert(1000, 'USD', 'IQD'),
-                'exchange_rate_usd_to_iqd' => currency_exchange_rate('USD', 'IQD'),
-                'exchange_rate_iqd_to_usd' => currency_exchange_rate('IQD', 'USD'),
+                'products_count' => $products->count(),
+                'products' => $result
             ]);
-        })->name('test.currency');
+        })->name('suppliers.test-product-stock');
+
+        // Test current user and products
+        Route::get('suppliers/test-user-products', function() {
+            $user = auth()->user();
+            $userTenantId = $user ? $user->tenant_id : null;
+
+            $allProducts = App\Models\Product::all();
+            $userProducts = $userTenantId ? App\Models\Product::where('tenant_id', $userTenantId)->get() : collect();
+
+            return response()->json([
+                'user_id' => $user ? $user->id : null,
+                'user_tenant_id' => $userTenantId,
+                'all_products_count' => $allProducts->count(),
+                'user_products_count' => $userProducts->count(),
+                'all_products' => $allProducts->map(function($p) {
+                    return [
+                        'id' => $p->id,
+                        'tenant_id' => $p->tenant_id,
+                        'name' => $p->name,
+                        'stock_quantity' => $p->stock_quantity,
+                        'current_stock' => $p->current_stock
+                    ];
+                }),
+                'user_products' => $userProducts->map(function($p) {
+                    return [
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'stock_quantity' => $p->stock_quantity,
+                        'current_stock' => $p->current_stock
+                    ];
+                })
+            ]);
+        })->name('suppliers.test-user-products');
 
         Route::resource('suppliers', SupplierController::class);
 
