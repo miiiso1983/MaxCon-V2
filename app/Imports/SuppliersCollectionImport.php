@@ -61,9 +61,24 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
 
     private function processRow(array $row, int $rowNumber)
     {
+        \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Processing row start', [
+            'row_number' => $rowNumber,
+            'row_data' => $row,
+            'tenant_id' => $this->tenantId
+        ]);
+
         // Skip empty rows - check multiple possible column names
         $name = $row['اسم المورد*'] ?? $row['اسم_المورد'] ?? $row['name'] ?? null;
+
+        \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Extracted name', [
+            'name' => $name,
+            'row' => $rowNumber
+        ]);
+
         if (empty($name)) {
+            \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Skipping empty row', [
+                'row' => $rowNumber
+            ]);
             return;
         }
 
@@ -112,8 +127,19 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
         }
 
         // Create the supplier
+        \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: About to create supplier', [
+            'supplier_data' => $supplierData,
+            'row' => $rowNumber
+        ]);
+
         $supplier = Supplier::create($supplierData);
         $this->importedCount++;
+
+        \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Supplier creation completed', [
+            'supplier_id' => $supplier->id,
+            'imported_count' => $this->importedCount,
+            'row' => $rowNumber
+        ]);
 
         \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Supplier created successfully', [
             'supplier_id' => $supplier->id,

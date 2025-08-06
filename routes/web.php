@@ -1536,6 +1536,57 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             }
         })->name('suppliers.debug-create');
 
+        // Debug route to test import process
+        Route::get('suppliers/debug-import', function() {
+            try {
+                $tenantId = 4;
+
+                // Create simple test data
+                $testData = collect([
+                    collect([
+                        'اسم المورد*' => 'مورد استيراد تجريبي ' . now()->format('H:i:s'),
+                        'رمز المورد' => 'IMP-' . rand(1000, 9999),
+                        'نوع المورد' => 'distributor',
+                        'الحالة' => 'active',
+                        'شخص الاتصال' => 'محمد التجريبي',
+                        'الهاتف' => '07901234567',
+                        'البريد الالكتروني' => 'import-test@example.com',
+                        'العنوان' => 'بغداد - اختبار',
+                        'شروط الدفع' => 'credit_30'
+                    ])
+                ]);
+
+                $import = new App\Imports\SuppliersCollectionImport($tenantId);
+                $import->collection($testData);
+
+                $imported = $import->getImportedCount();
+                $errors = $import->getErrors();
+
+                // Check if supplier was actually created
+                $suppliers = App\Models\Supplier::where('tenant_id', $tenantId)
+                    ->orderBy('created_at', 'desc')
+                    ->take(3)
+                    ->get(['id', 'name', 'code', 'created_at']);
+
+                return response()->json([
+                    'success' => true,
+                    'imported_count' => $imported,
+                    'errors' => $errors,
+                    'recent_suppliers' => $suppliers,
+                    'total_suppliers' => App\Models\Supplier::where('tenant_id', $tenantId)->count()
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        })->name('suppliers.debug-import');
+
         Route::resource('suppliers', SupplierController::class);
 
         // Purchase Requests
