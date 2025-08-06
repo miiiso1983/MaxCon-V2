@@ -385,36 +385,30 @@
 @push('scripts')
 <script>
 function exportSuppliers() {
-    // Create CSV content
-    let csv = 'الكود,الاسم,النوع,الحالة,الهاتف,البريد الإلكتروني,التقييم,إجمالي الطلبات,القيمة الإجمالية\n';
+    // Use the proper Laravel route for Excel export
+    const exportUrl = '{{ route("tenant.purchasing.suppliers.export") }}';
 
-    // Get data from table rows
-    const rows = document.querySelectorAll('tbody tr');
-    rows.forEach(row => {
-        if (row.style.display !== 'none') {
-            const cells = row.querySelectorAll('td');
-            if (cells.length >= 8) {
-                const code = cells[0].querySelector('div').textContent.trim();
-                const name = cells[1].querySelector('div').textContent.trim();
-                const type = cells[2].querySelector('div').textContent.trim();
-                const status = cells[3].querySelector('span').textContent.trim();
-                const phone = cells[4].querySelector('div').textContent.trim();
-                const email = cells[5].querySelector('div').textContent.trim();
-                const rating = cells[6].querySelector('div').textContent.trim();
-                const totalOrders = cells[7].querySelector('div').textContent.trim();
+    // Get current filters
+    const searchParam = new URLSearchParams(window.location.search).get('search') || '';
+    const statusParam = new URLSearchParams(window.location.search).get('status') || '';
+    const typeParam = new URLSearchParams(window.location.search).get('type') || '';
 
-                csv += `"${code}","${name}","${type}","${status}","${phone}","${email}","${rating}","${totalOrders}"\n`;
-            }
-        }
-    });
+    // Build URL with filters
+    let url = exportUrl;
+    const params = new URLSearchParams();
 
-    // Download CSV
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    if (searchParam) params.append('search', searchParam);
+    if (statusParam) params.append('status', statusParam);
+    if (typeParam) params.append('type', typeParam);
+
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+
+    // Create a temporary link and click it to download
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'suppliers_' + new Date().toISOString().split('T')[0] + '.csv');
-    link.style.visibility = 'hidden';
+    link.href = url;
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
