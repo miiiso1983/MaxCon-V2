@@ -1715,49 +1715,40 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             }
         })->name('suppliers.test-user-format');
 
-        // Debug route to test actual Excel file upload
-        Route::post('suppliers/debug-excel-upload', function(Request $request) {
-            try {
-                $request->validate([
-                    'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:2048'
-                ]);
+        // Debug export functionality
+        Route::get('suppliers/debug-export', function() {
+            $tenantId = 4;
 
-                $file = $request->file('excel_file');
-                $tenantId = 4;
+            // Check suppliers count
+            $suppliersCount = App\Models\Supplier::where('tenant_id', $tenantId)->count();
 
-                // Read the Excel file and show its contents
-                $import = new App\Imports\SuppliersCollectionImport($tenantId);
+            // Get some suppliers
+            $suppliers = App\Models\Supplier::where('tenant_id', $tenantId)
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get(['id', 'name', 'code', 'type', 'status', 'created_at']);
 
-                // Get raw data from Excel
-                $data = Excel::toCollection($import, $file);
+            // Test the export class
+            $export = new App\Exports\SuppliersExport($tenantId, []);
+            $collection = $export->collection();
 
-                return response()->json([
-                    'file_info' => [
-                        'name' => $file->getClientOriginalName(),
-                        'size' => $file->getSize(),
-                        'mime' => $file->getMimeType()
-                    ],
-                    'sheets_count' => $data->count(),
-                    'first_sheet_rows' => $data->first()->count(),
-                    'headers' => $data->first()->first()?->keys()->toArray() ?? [],
-                    'first_few_rows' => $data->first()->take(3)->toArray(),
-                    'message' => 'تم قراءة الملف بنجاح - يمكنك الآن معرفة محتوياته'
-                ]);
-
-            } catch (\Exception $e) {
-                return response()->json([
-                    'success' => false,
-                    'error' => $e->getMessage(),
-                    'line' => $e->getLine(),
-                    'file' => basename($e->getFile())
-                ]);
-            }
-        })->name('suppliers.debug-excel-upload');
-
-        // Debug page for Excel upload testing
-        Route::get('suppliers/debug-excel-page', function() {
-            return view('debug-excel-upload');
-        })->name('suppliers.debug-excel-page');
+            return response()->json([
+                'tenant_id' => $tenantId,
+                'suppliers_in_db' => $suppliersCount,
+                'recent_suppliers' => $suppliers,
+                'export_collection_count' => $collection->count(),
+                'export_collection_sample' => $collection->take(3)->map(function($supplier) {
+                    return [
+                        'id' => $supplier->id,
+                        'name' => $supplier->name,
+                        'code' => $supplier->code,
+                        'type' => $supplier->type,
+                        'status' => $supplier->status
+                    ];
+                }),
+                'headings' => $export->headings()
+            ]);
+        })->name('suppliers.debug-export');
 
         Route::resource('suppliers', SupplierController::class);
 
