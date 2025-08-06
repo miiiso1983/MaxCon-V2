@@ -117,6 +117,27 @@
         color: #2b6cb0;
     }
 
+    /* Ensure dropdown header remains clickable */
+    .dropdown-header {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+
+    .dropdown-header.disabled {
+        opacity: 0.6;
+        cursor: not-allowed !important;
+    }
+
+    /* Improve dropdown responsiveness */
+    .custom-dropdown {
+        position: relative;
+        z-index: 10;
+    }
+
+    .custom-dropdown.active {
+        z-index: 1000;
+    }
+
     .dropdown-option:last-child {
         border-bottom: none;
     }
@@ -1275,24 +1296,16 @@ function initializeCustomDropdown(dropdown) {
         console.log('Created hidden select with', hiddenSelect.options.length, 'options');
     }
 
-    // Add click event to header
+    // Mark header as initialized (event delegation will handle clicks)
     const header = dropdown.querySelector('.dropdown-header');
-    if (header && !header.hasAttribute('data-initialized')) {
-        header.addEventListener('click', function() {
-            toggleDropdown(this);
-        });
+    if (header) {
         header.setAttribute('data-initialized', 'true');
     }
 
-    // Add click events to options
+    // Mark options as initialized (event delegation will handle clicks)
     const options = dropdown.querySelectorAll('.dropdown-option');
     options.forEach(option => {
-        if (!option.hasAttribute('data-initialized')) {
-            option.addEventListener('click', function() {
-                selectOption(this);
-            });
-            option.setAttribute('data-initialized', 'true');
-        }
+        option.setAttribute('data-initialized', 'true');
     });
 
     // Add search functionality
@@ -1526,6 +1539,12 @@ function toggleDropdown(header) {
     const content = dropdown.querySelector('.dropdown-content');
     const arrow = header.querySelector('.dropdown-arrow');
 
+    // Check if header is disabled
+    if (header.classList.contains('disabled') || header.style.pointerEvents === 'none') {
+        console.log('Dropdown is disabled, ignoring click');
+        return;
+    }
+
     // Close all other dropdowns
     document.querySelectorAll('.custom-dropdown .dropdown-content.show').forEach(otherContent => {
         if (otherContent !== content) {
@@ -1535,16 +1554,23 @@ function toggleDropdown(header) {
     });
 
     // Toggle current dropdown
-    content.classList.toggle('show');
-    header.classList.toggle('active');
+    const isCurrentlyOpen = content.classList.contains('show');
 
-    // Focus search input if dropdown is opened
-    if (content.classList.contains('show')) {
+    if (isCurrentlyOpen) {
+        content.classList.remove('show');
+        header.classList.remove('active');
+    } else {
+        content.classList.add('show');
+        header.classList.add('active');
+
+        // Focus search input if dropdown is opened
         const searchInput = content.querySelector('.dropdown-search');
         if (searchInput) {
             setTimeout(() => searchInput.focus(), 100);
         }
     }
+
+    console.log('Dropdown toggled, now open:', !isCurrentlyOpen);
 }
 
 function selectOption(option) {
@@ -1553,6 +1579,8 @@ function selectOption(option) {
     const placeholder = header.querySelector('.dropdown-placeholder');
     const content = dropdown.querySelector('.dropdown-content');
     const hiddenSelect = dropdown.querySelector('select');
+
+    console.log('selectOption called for:', option.textContent.trim());
 
     // Update visual display
     placeholder.textContent = option.textContent.trim();
@@ -1587,6 +1615,12 @@ function selectOption(option) {
     // Trigger change event
     const changeEvent = new Event('change', { bubbles: true });
     hiddenSelect.dispatchEvent(changeEvent);
+
+    // Re-enable dropdown functionality
+    setTimeout(() => {
+        header.style.pointerEvents = 'auto';
+        header.classList.remove('disabled');
+    }, 100);
 
     // Handle custom onchange functions
     const onchangeFunction = dropdown.dataset.onchange;
@@ -1666,6 +1700,43 @@ function addItem() {
     // Initialize dropdowns for the new item
     initializeCustomDropdowns();
 }
+
+// Setup event delegation for better dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Event delegation for dropdown headers - this ensures clicks work even after DOM changes
+    document.addEventListener('click', function(e) {
+        const header = e.target.closest('.dropdown-header');
+        if (header) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Header clicked via delegation');
+            toggleDropdown(header);
+        }
+    });
+
+    // Event delegation for dropdown options
+    document.addEventListener('click', function(e) {
+        const option = e.target.closest('.dropdown-option');
+        if (option) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Option clicked via delegation:', option.textContent.trim());
+            selectOption(option);
+        }
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-dropdown')) {
+            document.querySelectorAll('.dropdown-content.show').forEach(content => {
+                content.classList.remove('show');
+                content.closest('.custom-dropdown').querySelector('.dropdown-header').classList.remove('active');
+            });
+        }
+    });
+
+    console.log('Event delegation setup complete');
+});
 </script>
 @endpush
 @endsection
