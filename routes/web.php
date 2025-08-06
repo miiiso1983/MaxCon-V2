@@ -1645,6 +1645,76 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             }
         })->name('suppliers.simple-import-test');
 
+        // Test import with user's actual Excel format
+        Route::get('suppliers/test-user-format', function() {
+            try {
+                $tenantId = 4;
+
+                // Create test data matching user's Excel format
+                $testData = collect([
+                    collect([
+                        'الهاتف' => '+964 770 123 4567',
+                        'الفاكس' => '+964 1 234 5678',
+                        'الموقع الإلكتروني' => 'https://www.pharma-united.com',
+                        'العنوان' => 'شارع الكندي، منطقة الكرادة',
+                        'المدينة' => 'بغداد',
+                        'المحافظة' => 'بغداد',
+                        'البلد' => 'العراق',
+                        'شخص الاتصال' => 'أحمد محمد',
+                        'منصب شخص الاتصال' => 'مدير المبيعات',
+                        'بريد شخص الاتصال' => 'ahmed@pharma-united.com',
+                        'هاتف شخص الاتصال' => '+964 770 987 6543',
+                        'رقم السجل التجاري' => '12345678',
+                        'رقم الترخيص' => 'PH-2024-001',
+                        'شروط الدفع' => 'cash',
+                        'العملة' => 'IQD',
+                        'المنتجات/الخدمات' => 'أدوية، مستلزمات طبية',
+                        'ملاحظات' => 'مورد موثوق'
+                    ]),
+                    collect([
+                        'الهاتف' => '7710432144',
+                        'الفاكس' => '7710432144',
+                        'الموقع الإلكتروني' => 'https://www.pharma-united.com',
+                        'العنوان' => 'شارع الكندي، منطقة الكرادة',
+                        'المدينة' => 'بغداد',
+                        'المحافظة' => 'بغداد',
+                        'البلد' => 'العراق',
+                        'شخص الاتصال' => 'qasim dawood',
+                        'منصب شخص الاتصال' => 'مدير المبيعات',
+                        'بريد شخص الاتصال' => 'q@com',
+                        'هاتف شخص الاتصال' => '+964 770 987 6590',
+                        'رقم السجل التجاري' => '12345679',
+                        'رقم الترخيص' => 'PH-2024-002',
+                        'شروط الدفع' => 'cash',
+                        'العملة' => 'IQD',
+                        'المنتجات/الخدمات' => 'أدوية، مستلزمات طبية',
+                        'ملاحظات' => 'مورد موثوق'
+                    ])
+                ]);
+
+                $import = new App\Imports\SuppliersCollectionImport($tenantId);
+                $import->collection($testData);
+
+                $imported = $import->getImportedCount();
+                $errors = $import->getErrors();
+
+                return response()->json([
+                    'success' => $imported > 0,
+                    'imported_count' => $imported,
+                    'errors' => $errors,
+                    'message' => $imported > 0 ? "تم استيراد {$imported} مورد بنجاح!" : 'فشل الاستيراد'
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => basename($e->getFile())
+                ]);
+            }
+        })->name('suppliers.test-user-format');
+
         Route::resource('suppliers', SupplierController::class);
 
         // Purchase Requests
