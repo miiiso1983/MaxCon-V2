@@ -1606,6 +1606,45 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             ]);
         })->name('suppliers.debug-index');
 
+        // Simple import test with minimal data
+        Route::get('suppliers/simple-import-test', function() {
+            try {
+                $tenantId = 4;
+
+                // Create very simple test data
+                $testData = collect([
+                    collect([
+                        'اسم المورد*' => 'مورد بسيط ' . now()->format('H:i:s'),
+                        'رمز المورد' => 'SIMPLE-' . rand(1000, 9999),
+                        'نوع المورد' => 'distributor',
+                        'الحالة' => 'active',
+                        'شروط الدفع' => 'credit_30'
+                    ])
+                ]);
+
+                $import = new App\Imports\SuppliersCollectionImport($tenantId);
+                $import->collection($testData);
+
+                $imported = $import->getImportedCount();
+                $errors = $import->getErrors();
+
+                return response()->json([
+                    'success' => $imported > 0,
+                    'imported_count' => $imported,
+                    'errors' => $errors,
+                    'message' => $imported > 0 ? 'نجح الاستيراد!' : 'فشل الاستيراد'
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => basename($e->getFile())
+                ]);
+            }
+        })->name('suppliers.simple-import-test');
+
         Route::resource('suppliers', SupplierController::class);
 
         // Purchase Requests

@@ -101,45 +101,75 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
             return;
         }
 
+        // Build supplier data with only safe fields
         $supplierData = [
             'tenant_id' => $this->tenantId,
             'name' => $name,
             'code' => $code,
             'type' => $this->mapType($row['نوع المورد'] ?? $row['نوع_المورد'] ?? $row['type'] ?? 'distributor'),
             'status' => $this->mapStatus($row['الحالة'] ?? $row['status'] ?? 'active'),
+            'payment_terms' => $this->mapPaymentTerms($row['شروط الدفع'] ?? $row['شروط_الدفع'] ?? $row['payment_terms'] ?? 'credit_30'),
+            'credit_limit' => floatval($row['حد الائتمان'] ?? $row['حد_الائتمان'] ?? $row['credit_limit'] ?? 0),
+        ];
+
+        // Add optional fields only if they have values
+        $optionalFields = [
             'contact_person' => $row['شخص الاتصال'] ?? $row['شخص_الاتصال'] ?? $row['contact_person'] ?? null,
             'phone' => $row['الهاتف'] ?? $row['phone'] ?? null,
             'email' => $row['البريد الالكتروني'] ?? $row['البريد_الالكتروني'] ?? $row['email'] ?? null,
             'address' => $row['العنوان'] ?? $row['address'] ?? null,
             'tax_number' => $row['الرقم الضريبي'] ?? $row['الرقم_الضريبي'] ?? $row['tax_number'] ?? null,
-            'payment_terms' => $this->mapPaymentTerms($row['شروط الدفع'] ?? $row['شروط_الدفع'] ?? $row['payment_terms'] ?? 'credit_30'),
-            'credit_limit' => $row['حد الائتمان'] ?? $row['حد_الائتمان'] ?? $row['credit_limit'] ?? 0,
             'notes' => $row['ملاحظات'] ?? $row['notes'] ?? null,
         ];
 
-        // Add currency and category if columns exist
+        foreach ($optionalFields as $field => $value) {
+            if (!empty($value)) {
+                $supplierData[$field] = $value;
+            }
+        }
+
+        // Add currency and category only if columns exist and have values
         if (Schema::hasColumn('suppliers', 'currency')) {
-            $supplierData['currency'] = $row['العملة'] ?? $row['currency'] ?? 'IQD';
+            $currency = $row['العملة'] ?? $row['currency'] ?? null;
+            if (!empty($currency)) {
+                $supplierData['currency'] = $currency;
+            }
         }
 
         if (Schema::hasColumn('suppliers', 'category')) {
-            $supplierData['category'] = $this->mapCategory($row['الفئة'] ?? $row['category'] ?? null);
+            $category = $this->mapCategory($row['الفئة'] ?? $row['category'] ?? null);
+            if (!empty($category)) {
+                $supplierData['category'] = $category;
+            }
         }
 
-        // Create the supplier
+        // Create the supplier with error handling
         \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: About to create supplier', [
             'supplier_data' => $supplierData,
             'row' => $rowNumber
         ]);
 
-        $supplier = Supplier::create($supplierData);
-        $this->importedCount++;
+        try {
+            $supplier = Supplier::create($supplierData);
+            $this->importedCount++;
 
-        \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Supplier creation completed', [
-            'supplier_id' => $supplier->id,
-            'imported_count' => $this->importedCount,
-            'row' => $rowNumber
-        ]);
+            \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Supplier creation completed', [
+                'supplier_id' => $supplier->id,
+                'imported_count' => $this->importedCount,
+                'row' => $rowNumber
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorMessage = "خطأ في قاعدة البيانات: " . $e->getMessage();
+            $this->errors[] = "الصف {$rowNumber}: {$errorMessage}";
+
+            \Illuminate\Support\Facades\Log::error('SuppliersCollectionImport: Database error', [
+                'error' => $e->getMessage(),
+                'supplier_data' => $supplierData,
+                'row' => $rowNumber
+            ]);
+
+            throw $e; // Re-throw to be caught by the outer try-catch
+        }
 
         \Illuminate\Support\Facades\Log::info('SuppliersCollectionImport: Supplier created successfully', [
             'supplier_id' => $supplier->id,
