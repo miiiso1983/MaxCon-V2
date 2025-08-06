@@ -53,7 +53,7 @@ class SupplierController extends Controller
             $query->where('is_preferred', $request->preferred === '1');
         }
 
-        $suppliers = $query->orderBy('name')->paginate(15);
+        $suppliers = $query->orderBy('created_at', 'desc')->paginate(15);
 
         // Debug logging
         \Illuminate\Support\Facades\Log::info('Suppliers index page loaded', [
