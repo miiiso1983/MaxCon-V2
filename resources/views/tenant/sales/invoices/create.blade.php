@@ -49,6 +49,94 @@
         transform: rotate(180deg);
     }
 
+    .dropdown-placeholder {
+        color: #a0aec0;
+    }
+
+    .dropdown-content {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-content.show {
+        display: block;
+    }
+
+    .dropdown-search {
+        width: 100%;
+        padding: 8px 12px;
+        border: none;
+        border-bottom: 1px solid #e2e8f0;
+        outline: none;
+        font-size: 14px;
+        background: #f7fafc;
+    }
+
+    .dropdown-search:focus {
+        background: white;
+        border-bottom-color: #4299e1;
+    }
+
+    .dropdown-options {
+        max-height: 250px;
+        overflow-y: auto;
+    }
+
+    .dropdown-option {
+        padding: 10px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #4a5568;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+
+    .dropdown-option:hover {
+        background: #edf2f7;
+        color: #2d3748;
+    }
+
+    .dropdown-option.selected {
+        background: #4299e1;
+        color: white;
+    }
+
+    .dropdown-option.highlighted {
+        background: #bee3f8;
+        color: #2b6cb0;
+    }
+
+    .dropdown-option:last-child {
+        border-bottom: none;
+    }
+
+    /* Loading state */
+    .dropdown-loading {
+        padding: 20px;
+        text-align: center;
+        color: #a0aec0;
+        font-style: italic;
+    }
+
+    /* No results state */
+    .dropdown-no-results {
+        padding: 20px;
+        text-align: center;
+        color: #a0aec0;
+        font-style: italic;
+    }
+
     .dropdown-content {
         position: absolute;
         top: 100%;
@@ -981,23 +1069,79 @@ function updateCreditInfo(creditLimit, currentBalance, currency) {
 
 // Update product information when product is selected
 function updateProductInfo(selectElement) {
-    const selectedOption = selectElement.options[selectElement.selectedIndex];
-    const itemDiv = selectElement.closest('.invoice-item');
+    console.log('updateProductInfo called with:', selectElement);
+
+    let selectedOption = null;
+    let itemDiv = null;
+
+    // Handle both custom dropdown and regular select
+    if (selectElement.tagName === 'SELECT') {
+        // Regular select element
+        selectedOption = selectElement.options[selectElement.selectedIndex];
+        itemDiv = selectElement.closest('.invoice-item');
+    } else {
+        // Custom dropdown - find the hidden select
+        const dropdown = selectElement.closest('.custom-dropdown');
+        if (dropdown) {
+            const hiddenSelect = dropdown.querySelector('select[name*="[product_id]"]');
+            if (hiddenSelect) {
+                selectedOption = hiddenSelect.options[hiddenSelect.selectedIndex];
+                itemDiv = dropdown.closest('.invoice-item');
+            }
+        }
+    }
+
+    if (!selectedOption || !itemDiv) {
+        console.log('Could not find selected option or item div');
+        return;
+    }
+
+    console.log('Selected option:', selectedOption);
+    console.log('Selected value:', selectedOption.value);
 
     if (selectedOption.value) {
-        const price = selectedOption.dataset.price;
-        const stock = selectedOption.dataset.stock;
+        const price = selectedOption.dataset.price || selectedOption.getAttribute('data-price');
+        const stock = selectedOption.dataset.stock || selectedOption.getAttribute('data-stock');
+        const unit = selectedOption.dataset.unit || selectedOption.getAttribute('data-unit');
+
+        console.log('Product data:', { price, stock, unit });
 
         // Update unit price
         const unitPriceInput = itemDiv.querySelector('input[name*="[unit_price]"]');
-        unitPriceInput.value = price;
+        if (unitPriceInput && price) {
+            unitPriceInput.value = price;
+            console.log('Updated unit price to:', price);
+        }
 
         // Update quantity max
         const quantityInput = itemDiv.querySelector('input[name*="[quantity]"]');
-        quantityInput.max = stock;
+        if (quantityInput && stock) {
+            quantityInput.max = stock;
+            console.log('Updated max quantity to:', stock);
+        }
+
+        // Update unit display if exists
+        const unitDisplay = itemDiv.querySelector('.unit-display');
+        if (unitDisplay && unit) {
+            unitDisplay.textContent = unit;
+        }
 
         // Calculate total
-        calculateItemTotal(unitPriceInput);
+        if (unitPriceInput) {
+            calculateItemTotal(unitPriceInput);
+        }
+    } else {
+        // Clear fields when no product selected
+        const unitPriceInput = itemDiv.querySelector('input[name*="[unit_price]"]');
+        const quantityInput = itemDiv.querySelector('input[name*="[quantity]"]');
+
+        if (unitPriceInput) unitPriceInput.value = '';
+        if (quantityInput) {
+            quantityInput.value = '';
+            quantityInput.removeAttribute('max');
+        }
+
+        calculateTotals();
     }
 }
 
@@ -1011,11 +1155,19 @@ function calculateItemTotal(element) {
 
     // Check stock availability
     const productSelect = itemDiv.querySelector('select[name*="[product_id]"]');
-    const selectedOption = productSelect.options[productSelect.selectedIndex];
     const ignoreStockCheck = document.getElementById('ignore_stock_check').checked;
 
-    if (selectedOption.value && !ignoreStockCheck) {
-        const stock = parseFloat(selectedOption.dataset.stock) || 0;
+    let selectedOption = null;
+    let stock = 0;
+
+    if (productSelect) {
+        selectedOption = productSelect.options[productSelect.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            stock = parseFloat(selectedOption.dataset.stock || selectedOption.getAttribute('data-stock')) || 0;
+        }
+    }
+
+    if (selectedOption && selectedOption.value && !ignoreStockCheck) {
         const quantityInput = itemDiv.querySelector('input[name*="[quantity]"]');
 
         if (quantity > stock) {
@@ -1067,8 +1219,165 @@ function addItem() {
         }
     });
 
-    document.getElementById('invoiceItems').appendChild(newItem);
+    // Update custom dropdown data-name attributes
+    const customDropdowns = newItem.querySelectorAll('.custom-dropdown');
+    customDropdowns.forEach(dropdown => {
+        if (dropdown.dataset.name) {
+            dropdown.dataset.name = dropdown.dataset.name.replace('INDEX', itemIndex);
+        }
+    });
+
+    // Append to container
+    const container = document.getElementById('invoiceItems');
+    container.appendChild(newItem);
+
+    // Initialize custom dropdowns for the new item
+    const newDropdowns = container.querySelectorAll('.invoice-item:last-child .custom-dropdown');
+    newDropdowns.forEach(dropdown => {
+        initializeCustomDropdown(dropdown);
+    });
+
     itemIndex++;
+
+    console.log('Added new item with index:', itemIndex - 1);
+}
+
+// Initialize a single custom dropdown
+function initializeCustomDropdown(dropdown) {
+    console.log('Initializing dropdown:', dropdown);
+
+    // Create hidden select if it doesn't exist
+    let hiddenSelect = dropdown.querySelector('select');
+    if (!hiddenSelect) {
+        hiddenSelect = document.createElement('select');
+        hiddenSelect.name = dropdown.dataset.name;
+        hiddenSelect.style.display = 'none';
+        if (dropdown.dataset.required === 'true') {
+            hiddenSelect.required = true;
+        }
+
+        // Add options from dropdown-options
+        const options = dropdown.querySelectorAll('.dropdown-option');
+        options.forEach(option => {
+            const selectOption = document.createElement('option');
+            selectOption.value = option.dataset.value || '';
+            selectOption.textContent = option.textContent.trim();
+
+            // Copy all data attributes
+            Object.keys(option.dataset).forEach(key => {
+                selectOption.setAttribute('data-' + key, option.dataset[key]);
+            });
+
+            hiddenSelect.appendChild(selectOption);
+        });
+
+        dropdown.appendChild(hiddenSelect);
+        console.log('Created hidden select with', hiddenSelect.options.length, 'options');
+    }
+
+    // Add click event to header
+    const header = dropdown.querySelector('.dropdown-header');
+    if (header && !header.hasAttribute('data-initialized')) {
+        header.addEventListener('click', function() {
+            toggleDropdown(this);
+        });
+        header.setAttribute('data-initialized', 'true');
+    }
+
+    // Add click events to options
+    const options = dropdown.querySelectorAll('.dropdown-option');
+    options.forEach(option => {
+        if (!option.hasAttribute('data-initialized')) {
+            option.addEventListener('click', function() {
+                selectOption(this);
+            });
+            option.setAttribute('data-initialized', 'true');
+        }
+    });
+
+    // Add search functionality
+    const searchInput = dropdown.querySelector('.dropdown-search');
+    if (searchInput && !searchInput.hasAttribute('data-initialized')) {
+        searchInput.addEventListener('input', function() {
+            filterDropdownOptions(this);
+        });
+
+        // Handle keyboard navigation
+        searchInput.addEventListener('keydown', function(e) {
+            const options = dropdown.querySelectorAll('.dropdown-option:not([style*="display: none"])');
+            let currentIndex = -1;
+
+            // Find currently highlighted option
+            options.forEach((option, index) => {
+                if (option.classList.contains('highlighted')) {
+                    currentIndex = index;
+                }
+            });
+
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (currentIndex < options.length - 1) {
+                        if (currentIndex >= 0) options[currentIndex].classList.remove('highlighted');
+                        options[currentIndex + 1].classList.add('highlighted');
+                    }
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (currentIndex > 0) {
+                        options[currentIndex].classList.remove('highlighted');
+                        options[currentIndex - 1].classList.add('highlighted');
+                    }
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (currentIndex >= 0) {
+                        selectOption(options[currentIndex]);
+                    }
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    dropdown.querySelector('.dropdown-content').classList.remove('show');
+                    dropdown.querySelector('.dropdown-header').classList.remove('active');
+                    break;
+            }
+        });
+
+        searchInput.setAttribute('data-initialized', 'true');
+    }
+}
+
+// Filter dropdown options based on search
+function filterDropdownOptions(searchInput) {
+    const dropdown = searchInput.closest('.custom-dropdown');
+    const options = dropdown.querySelectorAll('.dropdown-option');
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    let visibleCount = 0;
+
+    options.forEach(option => {
+        const text = option.textContent.toLowerCase();
+        const isEmptyOption = option.dataset.value === '';
+        const shouldShow = isEmptyOption || text.includes(searchTerm);
+
+        option.style.display = shouldShow ? 'block' : 'none';
+        if (shouldShow && !isEmptyOption) {
+            visibleCount++;
+        }
+    });
+
+    // Show/hide no results message
+    let noResultsDiv = dropdown.querySelector('.dropdown-no-results');
+    if (visibleCount === 0 && searchTerm.length > 0) {
+        if (!noResultsDiv) {
+            noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'dropdown-no-results';
+            noResultsDiv.textContent = 'لا توجد نتائج مطابقة';
+            dropdown.querySelector('.dropdown-options').appendChild(noResultsDiv);
+        }
+        noResultsDiv.style.display = 'block';
+    } else if (noResultsDiv) {
+        noResultsDiv.style.display = 'none';
+    }
 }
 
 // Remove item
@@ -1257,9 +1566,10 @@ function selectOption(option) {
     if (selectOption) {
         Object.keys(option.dataset).forEach(key => {
             if (key !== 'value') {
-                selectOption.dataset[key] = option.dataset[key];
+                selectOption.setAttribute('data-' + key, option.dataset[key]);
             }
         });
+        console.log('Updated select option with data:', selectOption.dataset);
     }
 
     // Mark as selected
@@ -1309,49 +1619,13 @@ function filterOptions(searchInput) {
 
 function initializeCustomDropdowns() {
     console.log('initializeCustomDropdowns called');
-    const dropdowns = document.querySelectorAll('.custom-dropdown');
-    console.log('Found', dropdowns.length, 'custom dropdowns');
+    const dropdowns = document.querySelectorAll('.custom-dropdown:not([data-initialized])');
+    console.log('Found', dropdowns.length, 'uninitialized custom dropdowns');
 
-    // Set initial selected values based on data-selected attribute
+    // Initialize each dropdown
     dropdowns.forEach(dropdown => {
-        const selectedOption = dropdown.querySelector('.dropdown-option[data-selected="true"]');
-        if (selectedOption) {
-            const header = dropdown.querySelector('.dropdown-header');
-            const placeholder = header.querySelector('.dropdown-placeholder');
-            placeholder.textContent = selectedOption.textContent.trim();
-            placeholder.classList.remove('dropdown-placeholder');
-            selectedOption.classList.add('selected');
-            console.log('Initialized dropdown with selected value:', selectedOption.textContent.trim());
-        }
-
-        // Add click event listener to dropdown header
-        const header = dropdown.querySelector('.dropdown-header');
-        if (header && !header.hasAttribute('data-initialized')) {
-            header.setAttribute('data-initialized', 'true');
-            header.addEventListener('click', function() {
-                toggleDropdown(this);
-            });
-        }
-
-        // Add click event listeners to dropdown options
-        const options = dropdown.querySelectorAll('.dropdown-option');
-        options.forEach(option => {
-            if (!option.hasAttribute('data-initialized')) {
-                option.setAttribute('data-initialized', 'true');
-                option.addEventListener('click', function() {
-                    selectOption(this);
-                });
-            }
-        });
-
-        // Add keyup event listener to search input
-        const searchInput = dropdown.querySelector('.dropdown-search');
-        if (searchInput && !searchInput.hasAttribute('data-initialized')) {
-            searchInput.setAttribute('data-initialized', 'true');
-            searchInput.addEventListener('keyup', function() {
-                filterOptions(this);
-            });
-        }
+        initializeCustomDropdown(dropdown);
+        dropdown.setAttribute('data-initialized', 'true');
     });
 
     // Close dropdowns when clicking outside (only add once)
