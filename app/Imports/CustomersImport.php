@@ -102,7 +102,7 @@ class CustomersImport implements
             'customer_type' => 'nullable|in:individual,company',
             'payment_terms' => 'nullable|in:cash,credit_7,credit_15,credit_30,credit_60,credit_90',
             'credit_limit' => 'nullable|numeric|min:0',
-            'currency' => 'nullable|in:SAR,AED,USD,EUR',
+            'currency' => 'nullable|in:IQD,USD',
             'country' => 'nullable|string|max:2',
         ];
     }

@@ -135,16 +135,12 @@ class IraqCurrencyService
     {
         $rates = [
             'USD' => self::USD_EXCHANGE_RATE,
-            'EUR' => self::USD_EXCHANGE_RATE * 1.1, // Approximate
-            'GBP' => self::USD_EXCHANGE_RATE * 1.25, // Approximate
-            'SAR' => self::USD_EXCHANGE_RATE / 3.75, // Approximate
-            'AED' => self::USD_EXCHANGE_RATE / 3.67, // Approximate
         ];
-        
+
         if (!isset($rates[$fromCurrency])) {
-            throw new \InvalidArgumentException("Currency {$fromCurrency} not supported");
+            throw new \InvalidArgumentException("Currency {$fromCurrency} not supported. Only USD is supported for conversion to IQD.");
         }
-        
+
         return $amount * $rates[$fromCurrency];
     }
 
@@ -155,16 +151,12 @@ class IraqCurrencyService
     {
         $rates = [
             'USD' => 1 / self::USD_EXCHANGE_RATE,
-            'EUR' => 1 / (self::USD_EXCHANGE_RATE * 1.1),
-            'GBP' => 1 / (self::USD_EXCHANGE_RATE * 1.25),
-            'SAR' => 3.75 / self::USD_EXCHANGE_RATE,
-            'AED' => 3.67 / self::USD_EXCHANGE_RATE,
         ];
-        
+
         if (!isset($rates[$toCurrency])) {
-            throw new \InvalidArgumentException("Currency {$toCurrency} not supported");
+            throw new \InvalidArgumentException("Currency {$toCurrency} not supported. Only USD is supported for conversion from IQD.");
         }
-        
+
         return $amount * $rates[$toCurrency];
     }
 

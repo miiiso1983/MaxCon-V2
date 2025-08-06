@@ -29,11 +29,25 @@ return [
         'thousands_separator' => ',',
         'decimal_separator' => '.',
         'exchange_rates' => [
-            'USD' => 1320,
-            'EUR' => 1452,
-            'GBP' => 1650,
-            'SAR' => 352,
-            'AED' => 359,
+            'USD' => 1320, // 1 USD = 1320 IQD
+        ],
+        'supported_currencies' => [
+            'IQD' => [
+                'code' => 'IQD',
+                'symbol' => 'د.ع',
+                'name_ar' => 'دينار عراقي',
+                'name_en' => 'Iraqi Dinar',
+                'decimal_places' => 3,
+                'symbol_position' => 'after'
+            ],
+            'USD' => [
+                'code' => 'USD',
+                'symbol' => '$',
+                'name_ar' => 'دولار أمريكي',
+                'name_en' => 'US Dollar',
+                'decimal_places' => 2,
+                'symbol_position' => 'before'
+            ]
         ],
     ],
 

@@ -338,8 +338,6 @@
                         <select class="form-input" id="currency">
                             <option value="IQD" selected>دينار عراقي (IQD)</option>
                             <option value="USD">دولار أمريكي (USD)</option>
-                            <option value="EUR">يورو (EUR)</option>
-                            <option value="SAR">ريال سعودي (SAR)</option>
                         </select>
                     </div>
                     

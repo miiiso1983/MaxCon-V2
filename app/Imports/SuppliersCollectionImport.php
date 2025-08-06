@@ -144,8 +144,11 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
         // Add currency and category only if columns exist and have values - support new format
         if (Schema::hasColumn('suppliers', 'currency')) {
             $currency = $row['العملة'] ?? $row['currency'] ?? $row['20'] ?? 'IQD';
-            if (!empty($currency)) {
+            // Validate currency - only allow IQD and USD
+            if (!empty($currency) && in_array($currency, ['IQD', 'USD'])) {
                 $supplierData['currency'] = $currency;
+            } else {
+                $supplierData['currency'] = 'IQD'; // Default to IQD
             }
         }
 

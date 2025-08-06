@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Supplier;
+use App\Helpers\CurrencyHelper;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -54,13 +55,8 @@ class SuppliersExport implements FromCollection, WithHeadings, WithMapping, With
 
         $result = $query->orderBy('name')->get();
 
-        // Debug: Log the result count and details
-        \Illuminate\Support\Facades\Log::info('SuppliersExport: Query executed', [
-            'tenant_id' => $this->tenantId,
-            'filters' => $this->filters,
-            'found_suppliers' => $result->count(),
-            'sample_suppliers' => $result->take(3)->pluck('name', 'id')->toArray()
-        ]);
+        // Debug: Log the result count
+        \Illuminate\Support\Facades\Log::info('SuppliersExport: Found ' . $result->count() . ' suppliers for tenant ' . $this->tenantId);
 
         return $result;
     }
@@ -103,7 +99,7 @@ class SuppliersExport implements FromCollection, WithHeadings, WithMapping, With
             $supplier->tax_number,
             $this->getPaymentTermsLabel($supplier->payment_terms),
             $supplier->credit_limit,
-            $supplier->currency ?? 'IQD',
+            CurrencyHelper::nameAr($supplier->currency ?? 'IQD'),
             $this->getCategoryLabel($supplier->category),
             $supplier->rating,
             $supplier->total_orders,

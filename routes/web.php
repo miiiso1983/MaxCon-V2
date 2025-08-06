@@ -1422,7 +1422,6 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
     // Purchasing Management Routes
     Route::prefix('purchasing')->name('purchasing.')->group(function () {
         // Suppliers
-        Route::get('suppliers/export', [SupplierController::class, 'export'])->name('suppliers.export');
         Route::get('suppliers/export-template', [SupplierController::class, 'exportTemplate'])->name('suppliers.export-template');
         Route::post('suppliers/import', [SupplierController::class, 'import'])->name('suppliers.import');
 
@@ -1715,6 +1714,24 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 ]);
             }
         })->name('suppliers.test-user-format');
+
+        // Test currency system
+        Route::get('test-currency', function() {
+            return response()->json([
+                'currency_options' => currency_options(),
+                'default_currency' => default_currency(),
+                'iqd_format' => currency_format(1500000, 'IQD'),
+                'usd_format' => currency_format(1500, 'USD'),
+                'iqd_symbol' => currency_symbol('IQD'),
+                'usd_symbol' => currency_symbol('USD'),
+                'iqd_name' => currency_name('IQD'),
+                'usd_name' => currency_name('USD'),
+                'conversion_iqd_to_usd' => currency_convert(1320000, 'IQD', 'USD'),
+                'conversion_usd_to_iqd' => currency_convert(1000, 'USD', 'IQD'),
+                'exchange_rate_usd_to_iqd' => currency_exchange_rate('USD', 'IQD'),
+                'exchange_rate_iqd_to_usd' => currency_exchange_rate('IQD', 'USD'),
+            ]);
+        })->name('test.currency');
 
         Route::resource('suppliers', SupplierController::class);
 
