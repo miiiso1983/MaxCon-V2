@@ -1500,6 +1500,42 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             }
         })->name('suppliers.test-import');
 
+        // Debug route to test direct supplier creation
+        Route::get('suppliers/debug-create', function() {
+            try {
+                $supplier = App\Models\Supplier::create([
+                    'tenant_id' => 4,
+                    'name' => 'مورد تجريبي ' . now()->format('H:i:s'),
+                    'code' => 'DEBUG-' . rand(1000, 9999),
+                    'type' => 'distributor',
+                    'status' => 'active',
+                    'contact_person' => 'شخص تجريبي',
+                    'phone' => '07901234567',
+                    'email' => 'debug@example.com',
+                    'address' => 'عنوان تجريبي',
+                    'payment_terms' => 'credit_30'
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم إنشاء المورد بنجاح',
+                    'supplier' => [
+                        'id' => $supplier->id,
+                        'name' => $supplier->name,
+                        'code' => $supplier->code,
+                        'created_at' => $supplier->created_at
+                    ]
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+            }
+        })->name('suppliers.debug-create');
+
         Route::resource('suppliers', SupplierController::class);
 
         // Purchase Requests
