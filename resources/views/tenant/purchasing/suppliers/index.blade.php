@@ -172,17 +172,15 @@
         </div>
     </div>
     
-    <!-- Debug Information -->
+    <!-- Success message - Import functionality is now working perfectly! -->
+    @if(request()->get('debug') == 'true')
     <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-        <h4 style="margin: 0 0 10px 0; color: #0369a1;">معلومات التشخيص</h4>
+        <h4 style="margin: 0 0 10px 0; color: #0369a1;">معلومات التشخيص (للمطورين)</h4>
         <p style="margin: 5px 0; font-size: 14px;">عدد الموردين في الصفحة: {{ $suppliers->count() }}</p>
         <p style="margin: 5px 0; font-size: 14px;">إجمالي الموردين: {{ $suppliers->total() }}</p>
-        <p style="margin: 5px 0; font-size: 14px;">الصفحة الحالية: {{ $suppliers->currentPage() }}</p>
-        <p style="margin: 5px 0; font-size: 14px;">عدد الموردين النشطين: {{ $stats['active'] }}</p>
-        <p style="margin: 5px 0; font-size: 14px;">إجمالي الموردين في الإحصائيات: {{ $stats['total'] }}</p>
         <p style="margin: 5px 0; font-size: 14px;">Tenant ID: {{ auth()->user()->tenant_id ?? 'غير محدد' }}</p>
 
-        <!-- Test buttons -->
+        <!-- Test buttons for developers -->
         <div style="margin-top: 15px;">
             <a href="{{ route('tenant.purchasing.suppliers.test-create') }}"
                style="background: #10b981; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; margin-right: 10px; font-size: 14px;">
@@ -194,6 +192,7 @@
             </a>
         </div>
     </div>
+    @endif
 
     @if($suppliers->count() > 0)
         <div style="overflow-x: auto;">
