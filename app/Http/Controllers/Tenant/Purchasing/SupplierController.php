@@ -337,6 +337,13 @@ class SupplierController extends Controller
     {
         $tenantId = auth()->user()->tenant_id;
 
+        // Debug: Log the export request
+        \Illuminate\Support\Facades\Log::info('Suppliers export requested', [
+            'tenant_id' => $tenantId,
+            'user_id' => auth()->user()->id,
+            'filters' => $request->all()
+        ]);
+
         // Get filters from request
         $filters = [
             'search' => $request->get('search'),

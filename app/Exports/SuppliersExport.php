@@ -54,8 +54,13 @@ class SuppliersExport implements FromCollection, WithHeadings, WithMapping, With
 
         $result = $query->orderBy('name')->get();
 
-        // Debug: Log the result count
-        \Illuminate\Support\Facades\Log::info('SuppliersExport: Found ' . $result->count() . ' suppliers for tenant ' . $this->tenantId);
+        // Debug: Log the result count and details
+        \Illuminate\Support\Facades\Log::info('SuppliersExport: Query executed', [
+            'tenant_id' => $this->tenantId,
+            'filters' => $this->filters,
+            'found_suppliers' => $result->count(),
+            'sample_suppliers' => $result->take(3)->pluck('name', 'id')->toArray()
+        ]);
 
         return $result;
     }
