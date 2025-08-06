@@ -1587,6 +1587,25 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             }
         })->name('suppliers.debug-import');
 
+        // Debug route to check what index method returns
+        Route::get('suppliers/debug-index', function() {
+            $user = auth()->user();
+            $tenantId = $user->tenant_id;
+
+            $query = App\Models\Supplier::where('tenant_id', $tenantId);
+            $suppliers = $query->orderBy('name')->paginate(15);
+
+            return response()->json([
+                'tenant_id' => $tenantId,
+                'total_suppliers' => App\Models\Supplier::where('tenant_id', $tenantId)->count(),
+                'suppliers_on_page' => $suppliers->count(),
+                'current_page' => $suppliers->currentPage(),
+                'total_pages' => $suppliers->lastPage(),
+                'suppliers_data' => $suppliers->items(),
+                'request_params' => request()->all()
+            ]);
+        })->name('suppliers.debug-index');
+
         Route::resource('suppliers', SupplierController::class);
 
         // Purchase Requests
