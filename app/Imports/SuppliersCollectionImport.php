@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Supplier;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -98,10 +99,17 @@ class SuppliersCollectionImport implements ToCollection, WithHeadingRow
             'tax_number' => $row['الرقم الضريبي'] ?? $row['الرقم_الضريبي'] ?? $row['tax_number'] ?? null,
             'payment_terms' => $this->mapPaymentTerms($row['شروط الدفع'] ?? $row['شروط_الدفع'] ?? $row['payment_terms'] ?? 'credit_30'),
             'credit_limit' => $row['حد الائتمان'] ?? $row['حد_الائتمان'] ?? $row['credit_limit'] ?? 0,
-            'currency' => $row['العملة'] ?? $row['currency'] ?? 'IQD',
-            'category' => $this->mapCategory($row['الفئة'] ?? $row['category'] ?? null),
             'notes' => $row['ملاحظات'] ?? $row['notes'] ?? null,
         ];
+
+        // Add currency and category if columns exist
+        if (Schema::hasColumn('suppliers', 'currency')) {
+            $supplierData['currency'] = $row['العملة'] ?? $row['currency'] ?? 'IQD';
+        }
+
+        if (Schema::hasColumn('suppliers', 'category')) {
+            $supplierData['category'] = $this->mapCategory($row['الفئة'] ?? $row['category'] ?? null);
+        }
 
         // Create the supplier
         $supplier = Supplier::create($supplierData);

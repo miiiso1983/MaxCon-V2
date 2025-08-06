@@ -1437,8 +1437,8 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 'phone' => '07901234567',
                 'email' => 'test' . rand(100, 999) . '@example.com',
                 'address' => 'عنوان الاختبار',
-                'payment_terms' => 'credit_30',
-                'currency' => 'IQD'
+                'payment_terms' => 'credit_30'
+                // Removed currency temporarily to test
             ]);
 
             return redirect()->route('tenant.purchasing.suppliers.index')
