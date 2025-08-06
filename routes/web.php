@@ -1422,6 +1422,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
     // Purchasing Management Routes
     Route::prefix('purchasing')->name('purchasing.')->group(function () {
         // Suppliers
+        Route::get('suppliers/export', [SupplierController::class, 'export'])->name('suppliers.export');
         Route::get('suppliers/export-template', [SupplierController::class, 'exportTemplate'])->name('suppliers.export-template');
         Route::post('suppliers/import', [SupplierController::class, 'import'])->name('suppliers.import');
 
@@ -1714,41 +1715,6 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 ]);
             }
         })->name('suppliers.test-user-format');
-
-        // Debug export functionality
-        Route::get('suppliers/debug-export', function() {
-            $tenantId = 4;
-
-            // Check suppliers count
-            $suppliersCount = App\Models\Supplier::where('tenant_id', $tenantId)->count();
-
-            // Get some suppliers
-            $suppliers = App\Models\Supplier::where('tenant_id', $tenantId)
-                ->orderBy('created_at', 'desc')
-                ->take(5)
-                ->get(['id', 'name', 'code', 'type', 'status', 'created_at']);
-
-            // Test the export class
-            $export = new App\Exports\SuppliersExport($tenantId, []);
-            $collection = $export->collection();
-
-            return response()->json([
-                'tenant_id' => $tenantId,
-                'suppliers_in_db' => $suppliersCount,
-                'recent_suppliers' => $suppliers,
-                'export_collection_count' => $collection->count(),
-                'export_collection_sample' => $collection->take(3)->map(function($supplier) {
-                    return [
-                        'id' => $supplier->id,
-                        'name' => $supplier->name,
-                        'code' => $supplier->code,
-                        'type' => $supplier->type,
-                        'status' => $supplier->status
-                    ];
-                }),
-                'headings' => $export->headings()
-            ]);
-        })->name('suppliers.debug-export');
 
         Route::resource('suppliers', SupplierController::class);
 
