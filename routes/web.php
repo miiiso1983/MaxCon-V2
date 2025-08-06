@@ -1427,7 +1427,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
 
         // Test route for creating supplier
         Route::get('suppliers/test-create', function() {
-            $supplier = App\Models\Supplier::create([
+            $data = [
                 'tenant_id' => auth()->user()->tenant_id,
                 'name' => 'مورد اختبار ' . now()->format('H:i:s'),
                 'code' => 'TEST-' . rand(1000, 9999),
@@ -1438,8 +1438,19 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 'email' => 'test' . rand(100, 999) . '@example.com',
                 'address' => 'عنوان الاختبار',
                 'payment_terms' => 'credit_30'
-                // Removed currency temporarily to test
-            ]);
+            ];
+
+            // Add currency if column exists
+            if (Schema::hasColumn('suppliers', 'currency')) {
+                $data['currency'] = 'IQD';
+            }
+
+            // Add category if column exists
+            if (Schema::hasColumn('suppliers', 'category')) {
+                $data['category'] = 'pharmaceutical';
+            }
+
+            $supplier = App\Models\Supplier::create($data);
 
             return redirect()->route('tenant.purchasing.suppliers.index')
                 ->with('success', 'تم إنشاء مورد اختبار: ' . $supplier->name);
