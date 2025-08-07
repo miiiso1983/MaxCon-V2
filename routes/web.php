@@ -1791,7 +1791,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             ]);
         })->name('test.products');
 
-        // Test invoice data for debugging
+        // Test invoice data and create test data if needed
         Route::get('test-invoices', function() {
             $user = auth()->user();
             $userTenantId = $user ? $user->tenant_id : null;
@@ -1816,6 +1816,89 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 })
             ]);
         })->name('test.invoices');
+
+        // Create test data for tenant 4
+        Route::get('create-test-data', function() {
+            $user = auth()->user();
+            if (!$user || $user->tenant_id != 4) {
+                return response()->json(['error' => 'User must be in tenant 4', 'current_tenant' => $user ? $user->tenant_id : null]);
+            }
+
+            try {
+                // Create customer if not exists
+                $customer = App\Models\Customer::where('tenant_id', 4)->first();
+                if (!$customer) {
+                    $customer = App\Models\Customer::create([
+                        'tenant_id' => 4,
+                        'customer_code' => 'CUST001',
+                        'name' => 'عميل تجريبي',
+                        'email' => 'test@customer.com',
+                        'phone' => '07901234567',
+                        'address' => 'بغداد - العراق',
+                        'is_active' => 1,
+                    ]);
+                }
+
+                // Create product if not exists
+                $product = App\Models\Product::where('tenant_id', 4)->first();
+                if (!$product) {
+                    $product = App\Models\Product::create([
+                        'tenant_id' => 4,
+                        'product_code' => 'PROD001',
+                        'name' => 'منتج تجريبي',
+                        'unit' => 'قطعة',
+                        'current_stock' => 100,
+                        'unit_price' => 10.00,
+                        'is_active' => 1,
+                    ]);
+                }
+
+                // Create invoice if not exists
+                $invoice = App\Models\Invoice::where('tenant_id', 4)->first();
+                if (!$invoice) {
+                    $invoice = App\Models\Invoice::create([
+                        'tenant_id' => 4,
+                        'invoice_number' => 'INV-TEST-001',
+                        'customer_id' => $customer->id,
+                        'created_by' => $user->id,
+                        'invoice_date' => now()->format('Y-m-d'),
+                        'due_date' => now()->addDays(30)->format('Y-m-d'),
+                        'type' => 'sales',
+                        'status' => 'pending',
+                        'currency' => 'IQD',
+                        'sales_representative' => 'مندوب تجريبي',
+                        'subtotal_amount' => 100.00,
+                        'tax_amount' => 15.00,
+                        'total_amount' => 115.00,
+                    ]);
+
+                    // Create invoice item
+                    App\Models\InvoiceItem::create([
+                        'invoice_id' => $invoice->id,
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'product_code' => $product->product_code,
+                        'quantity' => 10,
+                        'unit_price' => 10.00,
+                        'line_total' => 100.00,
+                        'total_amount' => 100.00,
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Test data created successfully',
+                    'customer_id' => $customer->id,
+                    'product_id' => $product->id,
+                    'invoice_id' => $invoice->id,
+                ]);
+
+            } catch (Exception $e) {
+                return response()->json([
+                    'error' => 'Failed to create test data: ' . $e->getMessage()
+                ]);
+            }
+        })->name('create.test.data');
 
         Route::post('invoices/{invoice}/send-email', [InvoiceController::class, 'sendEmail'])->name('invoices.send-email');
         Route::post('invoices/{invoice}/send-whatsapp', [InvoiceController::class, 'sendWhatsApp'])->name('invoices.send-whatsapp');
