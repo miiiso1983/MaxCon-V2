@@ -1827,7 +1827,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                     ]);
                 }
 
-                // Create invoice with minimal fields
+                // Create invoice with only basic fields
                 $invoice = App\Models\Invoice::where('tenant_id', $user->tenant_id)->first();
                 if (!$invoice) {
                     $invoice = App\Models\Invoice::create([
@@ -1838,22 +1838,15 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                         'invoice_date' => now()->format('Y-m-d'),
                         'due_date' => now()->addDays(30)->format('Y-m-d'),
                         'status' => 'pending',
-                        'currency' => 'IQD',
-                        'subtotal_amount' => 100.00,
-                        'tax_amount' => 15.00,
-                        'total_amount' => 115.00,
                     ]);
 
-                    // Create invoice item
+                    // Create invoice item with basic fields
                     App\Models\InvoiceItem::create([
                         'invoice_id' => $invoice->id,
                         'product_id' => $product->id,
                         'product_name' => $product->name,
-                        'product_code' => $product->product_code,
                         'quantity' => 10,
                         'unit_price' => 10.00,
-                        'line_total' => 100.00,
-                        'total_amount' => 100.00,
                     ]);
                 }
 
