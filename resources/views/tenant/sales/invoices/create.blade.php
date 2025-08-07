@@ -1684,8 +1684,8 @@ function initializeCustomDropdowns() {
     });
 
     // Close dropdowns when clicking outside (only add once)
-    if (!document.hasAttribute('data-dropdown-listener-added')) {
-        document.setAttribute('data-dropdown-listener-added', 'true');
+    if (!document.body.hasAttribute('data-dropdown-listener-added')) {
+        document.body.setAttribute('data-dropdown-listener-added', 'true');
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.custom-dropdown')) {
                 document.querySelectorAll('.dropdown-content.show').forEach(content => {
