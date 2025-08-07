@@ -1811,14 +1811,11 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                     ]
                 );
 
-                // Create product
+                // Create product with minimal fields
                 $product = App\Models\Product::firstOrCreate(
                     ['tenant_id' => $user->tenant_id, 'product_code' => 'PROD001'],
                     [
                         'name' => 'منتج تجريبي',
-                        'unit' => 'قطعة',
-                        'current_stock' => 100,
-                        'unit_price' => 10.00,
                         'is_active' => 1,
                     ]
                 );
