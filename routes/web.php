@@ -1422,7 +1422,6 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
     // Purchasing Management Routes
     Route::prefix('purchasing')->name('purchasing.')->group(function () {
         // Suppliers
-        Route::get('suppliers/export', [SupplierController::class, 'export'])->name('suppliers.export');
         Route::get('suppliers/export-template', [SupplierController::class, 'exportTemplate'])->name('suppliers.export-template');
         Route::post('suppliers/import', [SupplierController::class, 'import'])->name('suppliers.import');
 
@@ -1791,6 +1790,33 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 })
             ]);
         })->name('test.products');
+
+        // Test invoice data for debugging
+        Route::get('test-invoices', function() {
+            $user = auth()->user();
+            $userTenantId = $user ? $user->tenant_id : null;
+
+            $allInvoices = App\Models\Invoice::all();
+            $userInvoices = $userTenantId ? App\Models\Invoice::where('tenant_id', $userTenantId)->get() : collect();
+
+            return response()->json([
+                'user_id' => $user ? $user->id : null,
+                'user_tenant_id' => $userTenantId,
+                'all_invoices_count' => $allInvoices->count(),
+                'user_invoices_count' => $userInvoices->count(),
+                'user_invoices' => $userInvoices->map(function($i) {
+                    return [
+                        'id' => $i->id,
+                        'invoice_number' => $i->invoice_number,
+                        'tenant_id' => $i->tenant_id,
+                        'status' => $i->status,
+                        'total_amount' => $i->total_amount,
+                        'created_at' => $i->created_at
+                    ];
+                })
+            ]);
+        })->name('test.invoices');
+
         Route::post('invoices/{invoice}/send-email', [InvoiceController::class, 'sendEmail'])->name('invoices.send-email');
         Route::post('invoices/{invoice}/send-whatsapp', [InvoiceController::class, 'sendWhatsApp'])->name('invoices.send-whatsapp');
         Route::patch('invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
