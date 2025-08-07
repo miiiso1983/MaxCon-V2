@@ -1493,9 +1493,15 @@ function loadOrderItems() {
 
     // Add form validation before submit
     document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+        console.log('Form submission started');
+
         // Check if at least one item exists (excluding template)
-        const items = document.querySelectorAll('.invoice-item:not(template .invoice-item)');
-        if (items.length === 0) {
+        const items = document.querySelectorAll('.invoice-item');
+        const validItems = Array.from(items).filter(item => !item.closest('template'));
+
+        console.log('Found items:', validItems.length);
+
+        if (validItems.length === 0) {
             e.preventDefault();
             alert('يجب إضافة عنصر واحد على الأقل للفاتورة');
             return false;
@@ -1503,22 +1509,36 @@ function loadOrderItems() {
 
         // Check if all required fields are filled (excluding template)
         let hasErrors = false;
-        items.forEach(item => {
-            // Skip if this is inside a template
-            if (item.closest('template')) return;
+        let errorMessages = [];
 
+        validItems.forEach((item, index) => {
             const productSelect = item.querySelector('select[name*="[product_id]"]');
             const quantityInput = item.querySelector('input[name*="[quantity]"]');
             const unitPriceInput = item.querySelector('input[name*="[unit_price]"]');
 
-            if (!productSelect.value || !quantityInput.value || !unitPriceInput.value) {
+            console.log(`Item ${index + 1}:`, {
+                product: productSelect ? productSelect.value : 'not found',
+                quantity: quantityInput ? quantityInput.value : 'not found',
+                unitPrice: unitPriceInput ? unitPriceInput.value : 'not found'
+            });
+
+            if (!productSelect || !productSelect.value) {
                 hasErrors = true;
+                errorMessages.push(`العنصر ${index + 1}: يجب اختيار منتج`);
+            }
+            if (!quantityInput || !quantityInput.value) {
+                hasErrors = true;
+                errorMessages.push(`العنصر ${index + 1}: يجب إدخال الكمية`);
+            }
+            if (!unitPriceInput || !unitPriceInput.value) {
+                hasErrors = true;
+                errorMessages.push(`العنصر ${index + 1}: يجب إدخال سعر الوحدة`);
             }
         });
 
         if (hasErrors) {
             e.preventDefault();
-            alert('يرجى ملء جميع الحقول المطلوبة لكل عنصر');
+            alert('يرجى ملء جميع الحقول المطلوبة:\n' + errorMessages.join('\n'));
             return false;
         }
 
@@ -1529,6 +1549,7 @@ function loadOrderItems() {
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
         }
 
+        console.log('Form validation passed, submitting...');
         return true;
     });
 

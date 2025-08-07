@@ -119,7 +119,13 @@ class InvoiceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Debug: Log the request data
-        Log::info('Invoice store request:', $request->all());
+        Log::info('Invoice store request received:', [
+            'url' => $request->url(),
+            'method' => $request->method(),
+            'user_id' => auth()->id(),
+            'tenant_id' => auth()->user()->tenant_id ?? null,
+            'request_data' => $request->all()
+        ]);
 
         // Check if user is authenticated and has tenant_id
         if (!Auth::check()) {
