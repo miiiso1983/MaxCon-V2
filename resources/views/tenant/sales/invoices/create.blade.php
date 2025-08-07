@@ -4,49 +4,160 @@
 @section('page-description', 'إنشاء فاتورة مبيعات احترافية مع QR Code')
 
 @push('styles')
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+    :root {
+        --primary-color: #4f46e5;
+        --primary-light: #6366f1;
+        --primary-dark: #3730a3;
+        --secondary-color: #f59e0b;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+        --info-color: #3b82f6;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --border-radius: 12px;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
     body, .content-card, .form-container {
         font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     }
 
-    /* Custom Searchable Dropdown Styles */
+    /* Modern Page Layout */
+    .invoice-page {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .invoice-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .page-icon {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Modern Custom Dropdown Styles */
     .custom-dropdown {
         position: relative;
         width: 100%;
+        margin-bottom: 1rem;
     }
 
     .dropdown-header {
         width: 100%;
-        padding: 12px 40px 12px 12px;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
+        padding: 1rem 3rem 1rem 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--border-radius);
         background: white;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 14px;
-        color: #4a5568;
-        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        color: var(--gray-700);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dropdown-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
     }
 
     .dropdown-header:hover {
-        border-color: #cbd5e0;
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+    }
+
+    .dropdown-header:hover::before {
+        transform: scaleX(1);
     }
 
     .dropdown-header.active {
-        border-color: #4299e1;
-        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .dropdown-header.active::before {
+        transform: scaleX(1);
     }
 
     .dropdown-arrow {
-        transition: transform 0.3s ease;
-        color: #a0aec0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--gray-400);
+        font-size: 1.2rem;
+        background: var(--gray-50);
+        padding: 0.5rem;
+        border-radius: 50%;
     }
 
     .dropdown-header.active .dropdown-arrow {
         transform: rotate(180deg);
+        color: var(--primary-color);
+        background: rgba(79, 70, 229, 0.1);
+    }
+
+    .dropdown-placeholder {
+        color: var(--gray-400);
+        font-style: italic;
     }
 
     .dropdown-placeholder {
@@ -55,18 +166,30 @@
 
     .dropdown-content {
         position: absolute;
-        top: 100%;
+        top: calc(100% + 0.5rem);
         left: 0;
         right: 0;
         background: white;
-        border: 2px solid #e2e8f0;
-        border-top: none;
-        border-radius: 0 0 8px 8px;
-        max-height: 300px;
-        overflow-y: auto;
+        border: 2px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        max-height: 350px;
+        overflow: hidden;
         z-index: 1000;
         display: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-xl);
+        backdrop-filter: blur(10px);
+        animation: dropdownSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes dropdownSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
 
     .dropdown-content.show {
@@ -75,46 +198,202 @@
 
     .dropdown-search {
         width: 100%;
-        padding: 8px 12px;
+        padding: 1rem;
         border: none;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 2px solid var(--gray-100);
         outline: none;
-        font-size: 14px;
-        background: #f7fafc;
+        font-size: 0.95rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        font-family: 'Cairo', sans-serif;
+        transition: all 0.3s ease;
     }
 
     .dropdown-search:focus {
         background: white;
-        border-bottom-color: #4299e1;
+        border-bottom-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+    }
+
+    .dropdown-search::placeholder {
+        color: var(--gray-400);
+        font-style: italic;
     }
 
     .dropdown-options {
         max-height: 250px;
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary-color) var(--gray-100);
+    }
+
+    .dropdown-options::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .dropdown-options::-webkit-scrollbar-track {
+        background: var(--gray-100);
+    }
+
+    .dropdown-options::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 3px;
     }
 
     .dropdown-option {
-        padding: 10px 12px;
+        padding: 1rem;
         cursor: pointer;
-        font-size: 14px;
-        color: #4a5568;
-        border-bottom: 1px solid #f1f5f9;
-        transition: all 0.2s ease;
+        border-bottom: 1px solid var(--gray-100);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.95rem;
+        color: var(--gray-700);
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .dropdown-option:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-option::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--primary-color);
+        transform: scaleY(0);
+        transition: transform 0.2s ease;
     }
 
     .dropdown-option:hover {
-        background: #edf2f7;
-        color: #2d3748;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: var(--gray-800);
+        transform: translateX(4px);
+        padding-left: 1.25rem;
+    }
+
+    .dropdown-option:hover::before {
+        transform: scaleY(1);
     }
 
     .dropdown-option.selected {
-        background: #4299e1;
-        color: white;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+        color: var(--primary-color);
+        font-weight: 600;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .dropdown-option.selected::before {
+        transform: scaleY(1);
     }
 
     .dropdown-option.highlighted {
-        background: #bee3f8;
-        color: #2b6cb0;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+        color: var(--primary-color);
+        transform: translateX(4px);
+        padding-left: 1.25rem;
+    }
+
+    .dropdown-option.highlighted::before {
+        transform: scaleY(1);
+    }
+
+    /* Modern Form Cards */
+    .form-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s ease;
+    }
+
+    .form-card:hover {
+        box-shadow: var(--shadow-xl);
+        transform: translateY(-2px);
+    }
+
+    .form-card-header {
+        background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 2px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .form-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-card-icon {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.75rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .form-card-body {
+        padding: 2rem;
+    }
+
+    /* Modern Form Groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-label.required::after {
+        content: '*';
+        color: var(--danger-color);
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        font-size: 0.95rem;
+        color: var(--gray-700);
+        background: white;
+        transition: all 0.3s ease;
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .form-control:hover {
+        border-color: var(--gray-300);
     }
 
     /* Ensure dropdown header remains clickable */
@@ -136,6 +415,157 @@
 
     .custom-dropdown.active {
         z-index: 1000;
+    }
+
+    /* Modern Invoice Items Table */
+    .invoice-items-container {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        margin: 2rem 0;
+    }
+
+    .invoice-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    .invoice-items-table th {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        padding: 1.25rem 1rem;
+        text-align: center;
+        font-weight: 600;
+        color: white;
+        font-size: 0.95rem;
+        position: relative;
+        border: none;
+    }
+
+    .invoice-items-table th::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+    }
+
+    .invoice-items-table td {
+        padding: 1.25rem 1rem;
+        text-align: center;
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
+        background: white;
+        transition: all 0.2s ease;
+    }
+
+    .invoice-items-table tr:hover td {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    .invoice-items-table input,
+    .invoice-items-table select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        font-size: 0.9rem;
+        text-align: center;
+        background: white;
+        transition: all 0.3s ease;
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .invoice-items-table input:focus,
+    .invoice-items-table select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    /* Modern Buttons */
+    .btn {
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        font-family: 'Cairo', sans-serif;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #047857 0%, var(--success-color) 100%);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #b91c1c 0%, var(--danger-color) 100%);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, var(--gray-500) 0%, var(--gray-600) 100%);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, var(--gray-600) 0%, var(--gray-700) 100%);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
     }
 
     .dropdown-option:last-child {
@@ -232,56 +662,48 @@
 @endpush
 
 @section('content')
-<!-- Page Header -->
-<div style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
-    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-
-    <div style="position: relative; z-index: 2;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-                <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                    <div style="background: rgba(255,255,255,0.2); border-radius: 15px; padding: 15px; margin-left: 20px;">
-                        <i class="fas fa-file-invoice-dollar" style="font-size: 32px;"></i>
+<div class="invoice-page">
+    <div class="invoice-container">
+        <!-- Modern Page Header -->
+        <div class="page-header">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div class="page-title">
+                    <div class="page-icon">
+                        <i class="fas fa-file-invoice-dollar" style="font-size: 1.5rem;"></i>
                     </div>
                     <div>
-                        <h1 style="font-size: 32px; font-weight: 800; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                            إنشاء فاتورة جديدة 📄
-                        </h1>
-                        <p style="font-size: 18px; margin: 5px 0 0 0; opacity: 0.9;">
-                            فاتورة مبيعات احترافية مع QR Code ودعم العملات المتعددة
-                        </p>
+                        <h1 style="margin: 0; font-size: 2rem; font-weight: 700;">إنشاء فاتورة جديدة</h1>
+                        <p class="page-subtitle">فاتورة مبيعات احترافية مع QR Code ودعم العملات المتعددة</p>
                     </div>
                 </div>
-            </div>
 
-            <div>
-                <a href="{{ route('tenant.sales.invoices.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease;"
-                   onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='translateY(-2px)';"
-                   onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(0)';">
-                    <i class="fas fa-arrow-right"></i>
-                    العودة للقائمة
-                </a>
+                <div>
+                    <a href="{{ route('tenant.sales.invoices.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        العودة للقائمة
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Invoice Form -->
-<form method="POST" action="{{ route('tenant.sales.invoices.store') }}" id="invoiceForm">
-    @csrf
+        <!-- Invoice Form -->
+        <form method="POST" action="{{ route('tenant.sales.invoices.store') }}" id="invoiceForm">
+            @csrf
 
-    <!-- Invoice Header Information -->
-    <div class="content-card" style="margin-bottom: 25px;">
-        <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
-            <i class="fas fa-info-circle" style="color: #ed8936; margin-left: 10px;"></i>
-            معلومات الفاتورة
-        </h3>
+            <!-- Invoice Header Information -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <div class="form-card-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h3 class="form-card-title">معلومات الفاتورة الأساسية</h3>
+                </div>
+                <div class="form-card-body">
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            <!-- Customer -->
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">العميل *</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                        <!-- Customer -->
+                        <div class="form-group">
+                            <label class="form-label required">العميل</label>
                 <div class="custom-dropdown" data-name="customer_id" data-required="true" data-onchange="updateCustomerInfo">
                     <div class="dropdown-header">
                         <span class="dropdown-placeholder">اختر العميل</span>
@@ -325,9 +747,9 @@
                 @enderror
             </div>
 
-            <!-- Invoice Type -->
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع الفاتورة *</label>
+                        <!-- Invoice Type -->
+                        <div class="form-group">
+                            <label class="form-label required">نوع الفاتورة</label>
                 <div class="custom-dropdown" data-name="type" data-required="true">
                     <div class="dropdown-header">
                         <span class="dropdown-placeholder">اختر نوع الفاتورة</span>
@@ -530,15 +952,113 @@
         </div>
     </div>
 
-    <!-- Invoice Items -->
-    <div class="content-card" style="margin-bottom: 25px;">
-        <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
-            <i class="fas fa-list" style="color: #9f7aea; margin-left: 10px;"></i>
-            عناصر الفاتورة
-        </h3>
+            <!-- Invoice Items -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <div class="form-card-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <h3 class="form-card-title">عناصر الفاتورة</h3>
+                    <div style="margin-right: auto;">
+                        <button type="button" onclick="addInvoiceItem()" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            إضافة عنصر جديد
+                        </button>
+                    </div>
+                </div>
+                <div class="form-card-body">
 
-        <div id="invoiceItems">
-            <!-- Item Template (Hidden) -->
+                    <div class="invoice-items-container">
+                        <table class="invoice-items-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%;">المنتج</th>
+                                    <th style="width: 12%;">الكمية</th>
+                                    <th style="width: 15%;">سعر الوحدة</th>
+                                    <th style="width: 15%;">الخصم</th>
+                                    <th style="width: 15%;">الإجمالي</th>
+                                    <th style="width: 8%;">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoiceItems">
+                                <!-- Initial Item Row -->
+                                <tr class="invoice-item">
+                                    <td>
+                                        <div class="custom-dropdown" data-name="items[0][product_id]" data-required="true" data-onchange="updateProductInfo">
+                                            <div class="dropdown-header">
+                                                <span class="dropdown-placeholder">اختر المنتج</span>
+                                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                            </div>
+                                            <div class="dropdown-content">
+                                                <input type="text" class="dropdown-search" placeholder="البحث عن منتج...">
+                                                <div class="dropdown-options">
+                                                    <div class="dropdown-option" data-value="" data-price="" data-stock="" data-unit="">
+                                                        اختر المنتج
+                                                    </div>
+                                                    @foreach($products as $product)
+                                                        <div class="dropdown-option"
+                                                             data-value="{{ $product->id }}"
+                                                             data-price="{{ $product->selling_price ?? 0 }}"
+                                                             data-stock="{{ $product->current_stock ?? 0 }}"
+                                                             data-unit="{{ $product->unit ?? 'قطعة' }}">
+                                                            {{ $product->name }}
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                            <select name="items[0][product_id]" required style="display: none;">
+                                                <option value="">اختر المنتج</option>
+                                                @foreach($products as $product)
+                                                    <option value="{{ $product->id }}"
+                                                            data-price="{{ $product->selling_price ?? 0 }}"
+                                                            data-stock="{{ $product->current_stock ?? 0 }}"
+                                                            data-unit="{{ $product->unit ?? 'قطعة' }}">
+                                                        {{ $product->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="items[0][quantity]" min="1" step="1" required
+                                               class="form-control" placeholder="1" onchange="calculateItemTotal(this)">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
+                                               class="form-control" placeholder="0.00" onchange="calculateItemTotal(this)">
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
+                                                   class="form-control" placeholder="0" onchange="calculateItemTotal(this)" style="flex: 1;">
+                                            <select name="items[0][discount_type]" class="form-control" style="width: 80px;">
+                                                <option value="fixed">ثابت</option>
+                                                <option value="percentage">%</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="items[0][total_amount]" readonly
+                                               class="form-control" placeholder="0.00" style="background: var(--gray-50);">
+                                    </td>
+                                    <td>
+                                        <button type="button" onclick="removeItem(this)" class="btn btn-danger" style="padding: 0.5rem;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button type="button" onclick="addInvoiceItem()" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            إضافة عنصر آخر
+                        </button>
+                    </div>
+
+                    <!-- Item Template (Hidden) -->
             <template id="itemTemplate">
                 <div class="invoice-item" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 15px; position: relative;">
                     <button type="button" onclick="removeItem(this)" style="position: absolute; top: 10px; left: 10px; background: #f56565; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
@@ -940,22 +1460,28 @@
         </div>
     </div>
 
-    <!-- Form Actions -->
-    <div style="display: flex; gap: 15px; justify-content: flex-end;">
-        <a href="{{ route('tenant.sales.invoices.index') }}" style="padding: 12px 24px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; color: #4a5568; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-times"></i>
-            إلغاء
-        </a>
-        <button type="submit" name="action" value="draft" style="padding: 12px 24px; border: 2px solid #6b7280; border-radius: 8px; background: white; color: #6b7280; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-save"></i>
-            حفظ كمسودة
-        </button>
-        <button type="submit" name="action" value="finalize" class="btn-orange" style="padding: 12px 24px;">
-            <i class="fas fa-check"></i>
-            إنهاء الفاتورة
-        </button>
+            <!-- Form Actions -->
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center;">
+                        <a href="{{ route('tenant.sales.invoices.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            إلغاء
+                        </a>
+                        <button type="submit" name="action" value="draft" class="btn btn-secondary">
+                            <i class="fas fa-save"></i>
+                            حفظ كمسودة
+                        </button>
+                        <button type="submit" name="action" value="finalize" class="btn btn-success">
+                            <i class="fas fa-check"></i>
+                            إنهاء الفاتورة
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
-</form>
+</div>
 
 @push('scripts')
 <script>
