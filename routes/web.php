@@ -1422,6 +1422,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
     // Purchasing Management Routes
     Route::prefix('purchasing')->name('purchasing.')->group(function () {
         // Suppliers
+        Route::get('suppliers/export', [SupplierController::class, 'export'])->name('suppliers.export');
         Route::get('suppliers/export-template', [SupplierController::class, 'exportTemplate'])->name('suppliers.export-template');
         Route::post('suppliers/import', [SupplierController::class, 'import'])->name('suppliers.import');
 
@@ -1773,41 +1774,6 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::post('returns/{return}/reject', [ReturnController::class, 'reject'])->name('returns.reject');
 
         Route::get('test-free-samples', function() { return view('test-free-samples'); })->name('test.free-samples');
-
-        // Test invoice creation and listing
-        Route::get('test-invoices', function() {
-            $user = auth()->user();
-            $userTenantId = $user ? $user->tenant_id : null;
-
-            $allInvoices = App\Models\Invoice::all();
-            $userInvoices = $userTenantId ? App\Models\Invoice::where('tenant_id', $userTenantId)->get() : collect();
-
-            return response()->json([
-                'user_id' => $user ? $user->id : null,
-                'user_tenant_id' => $userTenantId,
-                'all_invoices_count' => $allInvoices->count(),
-                'user_invoices_count' => $userInvoices->count(),
-                'all_invoices' => $allInvoices->map(function($i) {
-                    return [
-                        'id' => $i->id,
-                        'tenant_id' => $i->tenant_id,
-                        'invoice_number' => $i->invoice_number,
-                        'status' => $i->status,
-                        'total_amount' => $i->total_amount,
-                        'created_at' => $i->created_at
-                    ];
-                }),
-                'user_invoices' => $userInvoices->map(function($i) {
-                    return [
-                        'id' => $i->id,
-                        'invoice_number' => $i->invoice_number,
-                        'status' => $i->status,
-                        'total_amount' => $i->total_amount,
-                        'created_at' => $i->created_at
-                    ];
-                })
-            ]);
-        })->name('test.invoices');
         Route::get('test-products', function() {
             $user = auth()->user();
             $tenantId = $user ? $user->tenant_id : null;
