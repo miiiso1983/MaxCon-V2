@@ -1791,45 +1791,19 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             ]);
         })->name('test.products');
 
-        // Test invoice data and create test data if needed
-        Route::get('test-invoices', function() {
-            $user = auth()->user();
-            $userTenantId = $user ? $user->tenant_id : null;
-
-            $allInvoices = App\Models\Invoice::all();
-            $userInvoices = $userTenantId ? App\Models\Invoice::where('tenant_id', $userTenantId)->get() : collect();
-
-            return response()->json([
-                'user_id' => $user ? $user->id : null,
-                'user_tenant_id' => $userTenantId,
-                'all_invoices_count' => $allInvoices->count(),
-                'user_invoices_count' => $userInvoices->count(),
-                'user_invoices' => $userInvoices->map(function($i) {
-                    return [
-                        'id' => $i->id,
-                        'invoice_number' => $i->invoice_number,
-                        'tenant_id' => $i->tenant_id,
-                        'status' => $i->status,
-                        'total_amount' => $i->total_amount,
-                        'created_at' => $i->created_at
-                    ];
-                })
-            ]);
-        })->name('test.invoices');
-
-        // Create test data for tenant 4
+        // Create test data for tenant 4 (simplified)
         Route::get('create-test-data', function() {
             $user = auth()->user();
-            if (!$user || $user->tenant_id != 4) {
-                return response()->json(['error' => 'User must be in tenant 4', 'current_tenant' => $user ? $user->tenant_id : null]);
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated']);
             }
 
             try {
                 // Create customer if not exists
-                $customer = App\Models\Customer::where('tenant_id', 4)->first();
+                $customer = App\Models\Customer::where('tenant_id', $user->tenant_id)->first();
                 if (!$customer) {
                     $customer = App\Models\Customer::create([
-                        'tenant_id' => 4,
+                        'tenant_id' => $user->tenant_id,
                         'customer_code' => 'CUST001',
                         'name' => 'عميل تجريبي',
                         'email' => 'test@customer.com',
@@ -1840,10 +1814,10 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 }
 
                 // Create product if not exists
-                $product = App\Models\Product::where('tenant_id', 4)->first();
+                $product = App\Models\Product::where('tenant_id', $user->tenant_id)->first();
                 if (!$product) {
                     $product = App\Models\Product::create([
-                        'tenant_id' => 4,
+                        'tenant_id' => $user->tenant_id,
                         'product_code' => 'PROD001',
                         'name' => 'منتج تجريبي',
                         'unit' => 'قطعة',
@@ -1853,20 +1827,18 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                     ]);
                 }
 
-                // Create invoice if not exists
-                $invoice = App\Models\Invoice::where('tenant_id', 4)->first();
+                // Create invoice with minimal fields
+                $invoice = App\Models\Invoice::where('tenant_id', $user->tenant_id)->first();
                 if (!$invoice) {
                     $invoice = App\Models\Invoice::create([
-                        'tenant_id' => 4,
+                        'tenant_id' => $user->tenant_id,
                         'invoice_number' => 'INV-TEST-001',
                         'customer_id' => $customer->id,
                         'created_by' => $user->id,
                         'invoice_date' => now()->format('Y-m-d'),
                         'due_date' => now()->addDays(30)->format('Y-m-d'),
-                        'type' => 'sales',
                         'status' => 'pending',
                         'currency' => 'IQD',
-                        'sales_representative' => 'مندوب تجريبي',
                         'subtotal_amount' => 100.00,
                         'tax_amount' => 15.00,
                         'total_amount' => 115.00,
@@ -1888,14 +1860,15 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 return response()->json([
                     'success' => true,
                     'message' => 'Test data created successfully',
+                    'tenant_id' => $user->tenant_id,
                     'customer_id' => $customer->id,
                     'product_id' => $product->id,
                     'invoice_id' => $invoice->id,
                 ]);
 
-            } catch (Exception $e) {
+            } catch (Exception \$e) {
                 return response()->json([
-                    'error' => 'Failed to create test data: ' . $e->getMessage()
+                    'error' => 'Failed to create test data: ' . \$e->getMessage()
                 ]);
             }
         })->name('create.test.data');
