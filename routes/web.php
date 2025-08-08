@@ -1786,7 +1786,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
                 ->get();
 
             return view('tenant.sales.invoices.create-professional', compact('customers', 'products', 'salesOrders'));
-        })->name('invoices.create-professional');
+        })->name('tenant.sales.invoices.create-professional');
         Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
         Route::get('invoices/{invoice}/view-pdf', [InvoiceController::class, 'viewPdf'])->name('invoices.view-pdf');
         Route::get('invoices/{invoice}/qr-test', [InvoiceController::class, 'testQrCode'])->name('invoices.qr-test');
