@@ -26,54 +26,81 @@ class InvoiceController extends Controller
      */
     public function index(Request $request): View
     {
-        $user = Auth::user();
-        if (!$user || !$user->tenant_id) {
-            abort(403, 'غير مصرح لك بالوصول');
+        try {
+            $user = Auth::user();
+            if (!$user || !$user->tenant_id) {
+                abort(403, 'غير مصرح لك بالوصول');
+            }
+
+            $query = Invoice::with(['customer', 'createdBy', 'salesOrder'])
+                ->where('tenant_id', $user->tenant_id);
+
+            // Apply filters
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            if ($request->filled('customer_id')) {
+                $query->where('customer_id', $request->customer_id);
+            }
+
+            if ($request->filled('date_from')) {
+                $query->where('invoice_date', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->where('invoice_date', '<=', $request->date_to);
+            }
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('invoice_number', 'like', "%{$search}%")
+                      ->orWhereHas('customer', function($customerQuery) use ($search) {
+                          $customerQuery->where('name', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            $invoices = $query->orderBy('created_at', 'desc')->paginate(15);
+
+            $customers = Customer::where('tenant_id', $user->tenant_id)
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
+
+            $statusCounts = Invoice::where('tenant_id', $user->tenant_id)
+                ->selectRaw('status, count(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->toArray();
+
+            // Ensure all status counts exist
+            $defaultCounts = [
+                'draft' => 0,
+                'sent' => 0,
+                'paid' => 0,
+                'overdue' => 0,
+                'cancelled' => 0
+            ];
+
+            $statusCounts = array_merge($defaultCounts, $statusCounts);
+
+            return view('tenant.sales.invoices.index', compact('invoices', 'customers', 'statusCounts'));
+        } catch (\Exception $e) {
+            Log::error('Error in InvoiceController@index: ' . $e->getMessage());
+            return view('tenant.sales.invoices.index', [
+                'invoices' => collect()->paginate(15),
+                'customers' => collect(),
+                'statusCounts' => [
+                    'draft' => 0,
+                    'sent' => 0,
+                    'paid' => 0,
+                    'overdue' => 0,
+                    'cancelled' => 0
+                ]
+            ]);
         }
-
-        $query = Invoice::with(['customer', 'createdBy', 'salesOrder'])
-            ->forTenant($user->tenant_id);
-
-        // Apply filters
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('customer_id')) {
-            $query->where('customer_id', $request->customer_id);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->where('invoice_date', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('invoice_date', '<=', $request->date_to);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function($customerQuery) use ($search) {
-                      $customerQuery->where('name', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        $invoices = $query->orderBy('created_at', 'desc')->paginate(15);
-
-        $customers = Customer::forTenant($user->tenant_id)
-            ->active()
-            ->orderBy('name')
-            ->get();
-
-        $statusCounts = Invoice::forTenant($user->tenant_id)
-            ->selectRaw('status, count(*) as count')
-            ->groupBy('status')
-            ->pluck('count', 'status');
-
-        return view('tenant.sales.invoices.index', compact('invoices', 'customers', 'statusCounts'));
     }
 
     /**

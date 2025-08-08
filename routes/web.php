@@ -1810,7 +1810,85 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
         })->name('invoices.create-simple');
 
-        Route::resource('invoices', InvoiceController::class);
+        // Simple Invoice Index (override the resource route)
+        Route::get('invoices', function() {
+            $user = Auth::user();
+            if (!$user || !$user->tenant_id) {
+                abort(403, 'غير مصرح لك بالوصول');
+            }
+
+            try {
+                $query = \App\Models\Invoice::with(['customer', 'createdBy', 'salesOrder'])
+                    ->where('tenant_id', $user->tenant_id);
+
+                // Apply filters
+                if (request()->filled('status')) {
+                    $query->where('status', request('status'));
+                }
+
+                if (request()->filled('customer_id')) {
+                    $query->where('customer_id', request('customer_id'));
+                }
+
+                if (request()->filled('date_from')) {
+                    $query->where('invoice_date', '>=', request('date_from'));
+                }
+
+                if (request()->filled('date_to')) {
+                    $query->where('invoice_date', '<=', request('date_to'));
+                }
+
+                if (request()->filled('search')) {
+                    $search = request('search');
+                    $query->where(function($q) use ($search) {
+                        $q->where('invoice_number', 'like', "%{$search}%")
+                          ->orWhereHas('customer', function($customerQuery) use ($search) {
+                              $customerQuery->where('name', 'like', "%{$search}%");
+                          });
+                    });
+                }
+
+                $invoices = $query->orderBy('created_at', 'desc')->paginate(15);
+
+                $customers = \App\Models\Customer::where('tenant_id', $user->tenant_id)
+                    ->where('is_active', true)
+                    ->orderBy('name')
+                    ->get();
+
+                $statusCounts = \App\Models\Invoice::where('tenant_id', $user->tenant_id)
+                    ->selectRaw('status, count(*) as count')
+                    ->groupBy('status')
+                    ->pluck('count', 'status')
+                    ->toArray();
+
+                // Ensure all status counts exist
+                $defaultCounts = [
+                    'draft' => 0,
+                    'sent' => 0,
+                    'paid' => 0,
+                    'overdue' => 0,
+                    'cancelled' => 0
+                ];
+
+                $statusCounts = array_merge($defaultCounts, $statusCounts);
+
+                return view('tenant.sales.invoices.index-simple', compact('invoices', 'customers', 'statusCounts'));
+            } catch (\Exception $e) {
+                return view('tenant.sales.invoices.index-simple', [
+                    'invoices' => collect()->paginate(15),
+                    'customers' => collect(),
+                    'statusCounts' => [
+                        'draft' => 0,
+                        'sent' => 0,
+                        'paid' => 0,
+                        'overdue' => 0,
+                        'cancelled' => 0
+                    ]
+                ]);
+            }
+        })->name('invoices.index');
+
+        Route::resource('invoices', InvoiceController::class)->except(['index']);
         Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
         Route::get('invoices/{invoice}/view-pdf', [InvoiceController::class, 'viewPdf'])->name('invoices.view-pdf');
         Route::get('invoices/{invoice}/qr-test', [InvoiceController::class, 'testQrCode'])->name('invoices.qr-test');
