@@ -5,6 +5,87 @@
 
 @push('styles')
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Select2 Custom Styling */
+    .select2-container--default .select2-selection--single {
+        height: 3.5rem !important;
+        border: 2px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 1rem !important;
+        font-family: 'Cairo', sans-serif !important;
+        background: white !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .select2-container--default .select2-selection--single:focus,
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+        outline: none !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #374151 !important;
+        line-height: 2rem !important;
+        padding: 0 !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 3.5rem !important;
+        right: 1rem !important;
+    }
+
+    .select2-dropdown {
+        border: 2px solid #4f46e5 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        font-family: 'Cairo', sans-serif !important;
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        border: 2px solid #e5e7eb !important;
+        border-radius: 8px !important;
+        padding: 0.75rem !important;
+        font-family: 'Cairo', sans-serif !important;
+        margin: 0.5rem !important;
+        width: calc(100% - 1rem) !important;
+    }
+
+    .select2-search--dropdown .select2-search__field:focus {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+        outline: none !important;
+    }
+
+    .select2-results__option {
+        padding: 1rem !important;
+        font-family: 'Cairo', sans-serif !important;
+        border-bottom: 1px solid #f3f4f6 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .select2-results__option--highlighted {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+        color: white !important;
+    }
+
+    .select2-results__option[aria-selected="true"] {
+        background: rgba(79, 70, 229, 0.1) !important;
+        color: #4f46e5 !important;
+        font-weight: 600 !important;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-selection__placeholder {
+        color: #9ca3af !important;
+        font-style: italic !important;
+    }
+
 <style>
     * {
         font-family: 'Cairo', sans-serif !important;
@@ -350,7 +431,7 @@
                             <i class="fas fa-user-tie" style="color: #4f46e5;"></i>
                             العميل
                         </label>
-                        <select name="customer_id" required class="form-control">
+                        <select name="customer_id" required class="form-control select2-customer" data-placeholder="اختر العميل">
                             <option value="">اختر العميل</option>
                             @foreach($customers as $customer)
                                 <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
@@ -464,7 +545,8 @@
                         <tbody id="invoiceItems">
                             <tr>
                                 <td>
-                                    <select name="items[0][product_id]" required class="form-control" onchange="updatePrice(this)">
+                                    <select name="items[0][product_id]" required class="form-control select2-product"
+                                            data-placeholder="اختر المنتج" onchange="updatePrice(this)">
                                         <option value="">اختر المنتج</option>
                                         @foreach($products as $product)
                                             <option value="{{ $product->id }}"
@@ -544,8 +626,42 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 let itemIndex = 1;
+
+// Initialize Select2 for existing elements
+function initializeSelect2() {
+    // Customer dropdown
+    $('.select2-customer').select2({
+        placeholder: 'اختر العميل',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            },
+            searching: function() {
+                return "جاري البحث...";
+            }
+        }
+    });
+
+    // Product dropdowns
+    $('.select2-product').select2({
+        placeholder: 'اختر المنتج',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            },
+            searching: function() {
+                return "جاري البحث...";
+            }
+        }
+    });
+}
 
 function addItem() {
     const tbody = document.getElementById('invoiceItems');
@@ -553,7 +669,8 @@ function addItem() {
 
     newRow.innerHTML = `
         <td>
-            <select name="items[${itemIndex}][product_id]" required class="form-control" onchange="updatePrice(this)">
+            <select name="items[${itemIndex}][product_id]" required class="form-control select2-product"
+                    data-placeholder="اختر المنتج" onchange="updatePrice(this)">
                 <option value="">اختر المنتج</option>
                 @foreach($products as $product)
                     <option value="{{ $product->id }}" data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}">
@@ -582,6 +699,22 @@ function addItem() {
     `;
 
     tbody.appendChild(newRow);
+
+    // Initialize Select2 for the new dropdown
+    $(newRow).find('.select2-product').select2({
+        placeholder: 'اختر المنتج',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            },
+            searching: function() {
+                return "جاري البحث...";
+            }
+        }
+    });
+
     itemIndex++;
 }
 
@@ -636,6 +769,9 @@ function calculateGrandTotal() {
 
 // Initialize calculations on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2
+    initializeSelect2();
+
     calculateGrandTotal();
 
     // Add event listeners to existing inputs
@@ -645,10 +781,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.querySelectorAll('select[name*="[product_id]"]').forEach(select => {
-        select.addEventListener('change', function() {
-            updatePrice(this);
-        });
+    // Handle Select2 change events
+    $(document).on('change', '.select2-product', function() {
+        updatePrice(this);
     });
 });
 

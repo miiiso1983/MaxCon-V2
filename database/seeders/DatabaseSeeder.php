@@ -13,16 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed permissions first
-        $this->call([
-            ComprehensivePermissionsSeeder::class,
+        // Create admin user
+        User::factory()->create([
+            'name' => 'مدير النظام',
+            'email' => 'admin@maxcon.app',
+            'password' => bcrypt('password'),
         ]);
 
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Run basic data seeder
+        $this->call([
+            BasicDataSeeder::class,
+            ComprehensivePermissionsSeeder::class,
         ]);
     }
 }
