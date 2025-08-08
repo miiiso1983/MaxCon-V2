@@ -1,6 +1,7 @@
-@extends('layouts.tenant')
+@extends('layouts.modern')
 
-@section('title', 'إنشاء فاتورة احترافية')
+@section('page-title', 'إنشاء فاتورة احترافية')
+@section('page-description', 'إنشاء فاتورة احترافية بنفس نمط صفحة طلبات المبيعات')
 
 @push('styles')
 <link href="{{ asset('css/professional-invoice.css') }}" rel="stylesheet">
