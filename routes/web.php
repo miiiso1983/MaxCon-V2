@@ -1738,32 +1738,7 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::resource('orders', SalesOrderController::class);
         Route::patch('orders/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('orders.update-status');
 
-        // Professional Invoice Creation (alternative route)
-        Route::get('invoices/professional', function() {
-            $user = Auth::user();
-            if (!$user || !$user->tenant_id) {
-                abort(403, 'غير مصرح لك بالوصول');
-            }
 
-            $customers = \App\Models\Customer::forTenant($user->tenant_id)
-                ->active()
-                ->orderBy('name')
-                ->get();
-
-            $products = \App\Models\Product::forTenant($user->tenant_id)
-                ->active()
-                ->orderBy('name')
-                ->get();
-
-            $salesOrders = \App\Models\SalesOrder::forTenant($user->tenant_id)
-                ->whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])
-                ->whereDoesntHave('invoice')
-                ->with('customer')
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-            return view('tenant.sales.invoices.create-professional', compact('customers', 'products', 'salesOrders'));
-        })->name('invoices.professional');
 
         // Customers
         Route::resource('customers', CustomerController::class);
