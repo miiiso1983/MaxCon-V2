@@ -60,7 +60,7 @@ if ($disabled) {
 echo "<h2>Laravel Environment</h2>";
 if (file_exists('../.env')) {
     echo "<p class='ok'>✅ .env file exists</p>";
-    
+
     $env_content = file_get_contents('../.env');
     if (strpos($env_content, 'APP_DEBUG=true') !== false) {
         echo "<p class='warning'>⚠️ APP_DEBUG is set to true</p>";
@@ -70,6 +70,46 @@ if (file_exists('../.env')) {
     }
 } else {
     echo "<p class='error'>❌ .env file not found</p>";
+}
+
+// Check Database Connection
+echo "<h2>Database Connection Test</h2>";
+$db_configs = [
+    ['host' => 'localhost', 'db' => 'rrpkfnxwgn_maxcon', 'user' => 'rrpkfnxwgn_maxcon', 'pass' => 'maxcon2024!'],
+    ['host' => '127.0.0.1', 'db' => 'rrpkfnxwgn_maxcon', 'user' => 'rrpkfnxwgn_maxcon', 'pass' => 'maxcon2024!'],
+    ['host' => 'localhost', 'db' => 'maxcon', 'user' => 'root', 'pass' => ''],
+];
+
+foreach ($db_configs as $i => $config) {
+    echo "<h3>Configuration " . ($i + 1) . "</h3>";
+    echo "<p>Host: {$config['host']}, Database: {$config['db']}, User: {$config['user']}</p>";
+
+    try {
+        $pdo = new PDO(
+            "mysql:host={$config['host']};dbname={$config['db']};charset=utf8mb4",
+            $config['user'],
+            $config['pass'],
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+
+        echo "<p class='ok'>✅ Connection successful!</p>";
+
+        // Test tables
+        $tables = ['customers', 'products', 'invoices'];
+        foreach ($tables as $table) {
+            try {
+                $stmt = $pdo->query("SELECT COUNT(*) as count FROM {$table} WHERE tenant_id = 4");
+                $result = $stmt->fetch();
+                echo "<p class='ok'>✅ Table '{$table}': {$result['count']} records</p>";
+            } catch (Exception $e) {
+                echo "<p class='error'>❌ Table '{$table}': {$e->getMessage()}</p>";
+            }
+        }
+        break;
+
+    } catch (Exception $e) {
+        echo "<p class='error'>❌ Connection failed: " . $e->getMessage() . "</p>";
+    }
 }
 
 // Check Symfony version

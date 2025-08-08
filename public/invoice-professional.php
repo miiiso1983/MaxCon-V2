@@ -14,75 +14,139 @@ $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 // Start session for authentication
 session_start();
 
+// Try different methods to connect to database
+$db_connected = false;
+$customers = [];
+$products = [];
+$tenant_id = 4; // Default tenant ID
+
+// Method 1: Try to use Laravel's database connection
 try {
-    // Database configuration
-    $host = 'localhost';
-    $dbname = 'rrpkfnxwgn_maxcon';
-    $username = 'rrpkfnxwgn_maxcon';
-    $password = 'maxcon2024!';
-    $tenant_id = 4; // Default tenant ID
+    if (file_exists('../bootstrap/app.php')) {
+        require_once '../vendor/autoload.php';
+        $app = require_once '../bootstrap/app.php';
 
-    // Connect to database
-    $pdo = new PDO(
-        "mysql:host={$host};dbname={$dbname};charset=utf8mb4",
-        $username,
-        $password,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
-        ]
-    );
+        // Get database configuration
+        $config = [
+            'host' => env('DB_HOST', 'localhost'),
+            'database' => env('DB_DATABASE', 'rrpkfnxwgn_maxcon'),
+            'username' => env('DB_USERNAME', 'rrpkfnxwgn_maxcon'),
+            'password' => env('DB_PASSWORD', 'maxcon2024!')
+        ];
 
-    // Fetch customers from database
-    $stmt = $pdo->prepare("
-        SELECT id, name, phone, email,
-               COALESCE(credit_limit, 0) as credit_limit,
-               COALESCE((
-                   SELECT SUM(total_amount - COALESCE(paid_amount, 0))
-                   FROM invoices
-                   WHERE customer_id = customers.id
-                   AND status IN ('sent', 'pending', 'overdue')
-                   AND tenant_id = ?
-               ), 0) as previous_balance
-        FROM customers
-        WHERE tenant_id = ? AND status = 'active'
-        ORDER BY name
-    ");
-    $stmt->execute([$tenant_id, $tenant_id]);
-    $customers = $stmt->fetchAll();
+        $pdo = new PDO(
+            "mysql:host={$config['host']};dbname={$config['database']};charset=utf8mb4",
+            $config['username'],
+            $config['password'],
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+            ]
+        );
 
-    // Fetch products from database
-    $stmt = $pdo->prepare("
-        SELECT id, name, code,
-               COALESCE(selling_price, 0) as price,
-               COALESCE(stock_quantity, 0) as stock,
-               COALESCE(manufacturer, 'غير محدد') as company
-        FROM products
-        WHERE tenant_id = ? AND status = 'active'
-        ORDER BY name
-    ");
-    $stmt->execute([$tenant_id]);
-    $products = $stmt->fetchAll();
-
-    $db_connected = true;
-
+        $db_connected = true;
+    }
 } catch (Exception $e) {
-    $db_connected = false;
-    $error_message = $e->getMessage();
+    // Method 2: Try direct connection with common configurations
+    $configs = [
+        ['host' => 'localhost', 'db' => 'rrpkfnxwgn_maxcon', 'user' => 'rrpkfnxwgn_maxcon', 'pass' => 'maxcon2024!'],
+        ['host' => '127.0.0.1', 'db' => 'rrpkfnxwgn_maxcon', 'user' => 'rrpkfnxwgn_maxcon', 'pass' => 'maxcon2024!'],
+        ['host' => 'localhost', 'db' => 'maxcon', 'user' => 'root', 'pass' => ''],
+        ['host' => '127.0.0.1', 'db' => 'maxcon', 'user' => 'root', 'pass' => '']
+    ];
 
-    // Fallback to mock data if database connection fails
+    foreach ($configs as $config) {
+        try {
+            $pdo = new PDO(
+                "mysql:host={$config['host']};dbname={$config['db']};charset=utf8mb4",
+                $config['user'],
+                $config['pass'],
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+                ]
+            );
+            $db_connected = true;
+            break;
+        } catch (Exception $e2) {
+            continue;
+        }
+    }
+}
+
+// If connected, fetch data
+if ($db_connected) {
+    try {
+        // Fetch customers from database
+        $stmt = $pdo->prepare("
+            SELECT id, name, phone, email,
+                   COALESCE(credit_limit, 0) as credit_limit,
+                   COALESCE((
+                       SELECT SUM(total_amount - COALESCE(paid_amount, 0))
+                       FROM invoices
+                       WHERE customer_id = customers.id
+                       AND status IN ('sent', 'pending', 'overdue')
+                       AND tenant_id = ?
+                   ), 0) as previous_balance
+            FROM customers
+            WHERE tenant_id = ? AND status = 'active'
+            ORDER BY name
+            LIMIT 50
+        ");
+        $stmt->execute([$tenant_id, $tenant_id]);
+        $customers = $stmt->fetchAll();
+
+        // Fetch products from database
+        $stmt = $pdo->prepare("
+            SELECT id, name, code,
+                   COALESCE(selling_price, 0) as price,
+                   COALESCE(stock_quantity, 0) as stock,
+                   COALESCE(manufacturer, 'غير محدد') as company
+            FROM products
+            WHERE tenant_id = ? AND status = 'active'
+            ORDER BY name
+            LIMIT 100
+        ");
+        $stmt->execute([$tenant_id]);
+        $products = $stmt->fetchAll();
+
+    } catch (Exception $e) {
+        $db_connected = false;
+        $error_message = $e->getMessage();
+    }
+}
+
+// Fallback data if no database connection
+if (!$db_connected || empty($customers) || empty($products)) {
+    $db_connected = false;
+
+    // Enhanced fallback data - more realistic for pharmaceutical business
     $customers = [
-        ['id' => 1, 'name' => 'عميل تجريبي 1', 'phone' => '07901234567', 'email' => 'test1@example.com', 'credit_limit' => 5000, 'previous_balance' => 1200],
-        ['id' => 2, 'name' => 'عميل تجريبي 2', 'phone' => '07907654321', 'email' => 'test2@example.com', 'credit_limit' => 10000, 'previous_balance' => 800],
-        ['id' => 3, 'name' => 'صيدلية الشفاء', 'phone' => '07801234567', 'email' => 'shifa@example.com', 'credit_limit' => 15000, 'previous_balance' => 2500],
+        ['id' => 1, 'name' => 'صيدلية الشفاء المركزية', 'phone' => '07901234567', 'email' => 'shifa.central@gmail.com', 'credit_limit' => 25000, 'previous_balance' => 3200],
+        ['id' => 2, 'name' => 'صيدلية النور الطبية', 'phone' => '07907654321', 'email' => 'alnoor.pharmacy@gmail.com', 'credit_limit' => 15000, 'previous_balance' => 1800],
+        ['id' => 3, 'name' => 'صيدلية الحياة للأدوية', 'phone' => '07801234567', 'email' => 'alhayat.drugs@gmail.com', 'credit_limit' => 30000, 'previous_balance' => 4500],
+        ['id' => 4, 'name' => 'صيدلية الأمل الحديثة', 'phone' => '07751234567', 'email' => 'alamal.modern@gmail.com', 'credit_limit' => 20000, 'previous_balance' => 2100],
+        ['id' => 5, 'name' => 'صيدلية الرحمة الطبية', 'phone' => '07711234567', 'email' => 'alrahma.medical@gmail.com', 'credit_limit' => 18000, 'previous_balance' => 950],
+        ['id' => 6, 'name' => 'مستشفى بغداد التخصصي', 'phone' => '07641234567', 'email' => 'baghdad.hospital@gmail.com', 'credit_limit' => 50000, 'previous_balance' => 8200],
+        ['id' => 7, 'name' => 'مركز الكرخ الطبي', 'phone' => '07781234567', 'email' => 'karkh.medical@gmail.com', 'credit_limit' => 35000, 'previous_balance' => 5600],
+        ['id' => 8, 'name' => 'صيدلية الزهراء', 'phone' => '07821234567', 'email' => 'alzahra.pharmacy@gmail.com', 'credit_limit' => 12000, 'previous_balance' => 1400],
     ];
 
     $products = [
-        ['id' => 1, 'name' => 'باراسيتامول 500 مغ', 'code' => 'PAR500', 'price' => 2.50, 'stock' => 100, 'company' => 'شركة الأدوية العراقية'],
-        ['id' => 2, 'name' => 'أموكسيسيلين 250 مغ', 'code' => 'AMX250', 'price' => 8.75, 'stock' => 50, 'company' => 'شركة الصحة'],
-        ['id' => 3, 'name' => 'فيتامين د 1000 وحدة', 'code' => 'VIT1000', 'price' => 12.00, 'stock' => 75, 'company' => 'شركة الفيتامينات'],
-        ['id' => 4, 'name' => 'أسبرين 100 مغ', 'code' => 'ASP100', 'price' => 1.25, 'stock' => 200, 'company' => 'شركة القلب'],
+        ['id' => 1, 'name' => 'باراسيتامول 500 مغ - 20 قرص', 'code' => 'PAR500-20', 'price' => 2500, 'stock' => 150, 'company' => 'شركة الأدوية العراقية'],
+        ['id' => 2, 'name' => 'أموكسيسيلين 250 مغ - 14 كبسولة', 'code' => 'AMX250-14', 'price' => 8750, 'stock' => 80, 'company' => 'شركة الصحة الدولية'],
+        ['id' => 3, 'name' => 'فيتامين د3 1000 وحدة - 30 قرص', 'code' => 'VIT1000-30', 'price' => 12000, 'stock' => 120, 'company' => 'شركة الفيتامينات المتقدمة'],
+        ['id' => 4, 'name' => 'أسبرين 100 مغ - 30 قرص', 'code' => 'ASP100-30', 'price' => 1250, 'stock' => 200, 'company' => 'شركة القلب والأوعية'],
+        ['id' => 5, 'name' => 'أوميجا 3 - 60 كبسولة', 'code' => 'OMG3-60', 'price' => 18500, 'stock' => 90, 'company' => 'شركة المكملات الطبية'],
+        ['id' => 6, 'name' => 'كريم مضاد حيوي - 15 غرام', 'code' => 'ANT-CR-15', 'price' => 6500, 'stock' => 110, 'company' => 'شركة الجلدية المتخصصة'],
+        ['id' => 7, 'name' => 'شراب السعال للأطفال - 120 مل', 'code' => 'COUGH-120', 'price' => 4200, 'stock' => 75, 'company' => 'شركة أدوية الأطفال'],
+        ['id' => 8, 'name' => 'قطرة عين مضادة للالتهاب - 10 مل', 'code' => 'EYE-10', 'price' => 9800, 'stock' => 60, 'company' => 'شركة طب العيون'],
+        ['id' => 9, 'name' => 'أقراص الضغط - 28 قرص', 'code' => 'BP-28', 'price' => 15600, 'stock' => 95, 'company' => 'شركة أمراض القلب'],
+        ['id' => 10, 'name' => 'مرهم للجروح - 25 غرام', 'code' => 'WOUND-25', 'price' => 7800, 'stock' => 85, 'company' => 'شركة العناية بالجروح'],
+        ['id' => 11, 'name' => 'فيتامين ب المركب - 30 قرص', 'code' => 'VITB-30', 'price' => 8900, 'stock' => 140, 'company' => 'شركة الفيتامينات المتقدمة'],
+        ['id' => 12, 'name' => 'مضاد حيوي واسع المجال - 10 أقراص', 'code' => 'ANTI-10', 'price' => 22500, 'stock' => 45, 'company' => 'شركة المضادات الحيوية'],
     ];
 }
 ?>
@@ -484,7 +548,10 @@ try {
                 <div class="invoice-subtitle">
                     نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي
                     <?php if (!$db_connected): ?>
-                        <br><small style="color: #fbbf24;">⚠️ وضع تجريبي - لا يوجد اتصال بقاعدة البيانات</small>
+                        <br><small style="color: #fbbf24;">⚠️ وضع تجريبي - بيانات احتياطية (<?= count($customers) ?> عميل، <?= count($products) ?> منتج)</small>
+                        <?php if (isset($error_message)): ?>
+                            <br><small style="color: #ef4444; font-size: 11px;">خطأ الاتصال: <?= htmlspecialchars(substr($error_message, 0, 100)) ?>...</small>
+                        <?php endif; ?>
                     <?php else: ?>
                         <br><small style="color: #10b981;">✅ متصل بقاعدة البيانات - <?= count($customers) ?> عميل، <?= count($products) ?> منتج</small>
                     <?php endif; ?>
@@ -688,6 +755,16 @@ try {
             <!-- Action Buttons -->
             <div class="actions-section">
                 <div class="actions-grid">
+                    <?php if (!$db_connected): ?>
+                        <button type="button" onclick="window.location.reload()" class="btn btn-primary">
+                            <i class="fas fa-sync"></i>
+                            إعادة محاولة الاتصال
+                        </button>
+                        <a href="/debug-symfony.php" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-bug"></i>
+                            تشخيص المشكلة
+                        </a>
+                    <?php endif; ?>
                     <button type="button" onclick="showNotification('معاينة الفاتورة قريباً!', 'info')" class="btn btn-primary">
                         <i class="fas fa-eye"></i>
                         معاينة الفاتورة
