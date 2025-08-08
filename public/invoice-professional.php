@@ -118,9 +118,13 @@ if ($db_connected) {
     }
 }
 
-// Fallback data if no database connection
-if (!$db_connected || empty($customers) || empty($products)) {
-    $db_connected = false;
+// Show database status and data count
+$db_status = $db_connected ? "متصل" : "غير متصل";
+$customer_count = count($customers);
+$product_count = count($products);
+
+// Use fallback data only if database is not connected
+if (!$db_connected) {
 
     // Enhanced fallback data - more realistic for pharmaceutical business
     $customers = [
@@ -547,13 +551,16 @@ if (!$db_connected || empty($customers) || empty($products)) {
                 </div>
                 <div class="invoice-subtitle">
                     نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي
-                    <?php if (!$db_connected): ?>
-                        <br><small style="color: #fbbf24;">⚠️ وضع تجريبي - بيانات احتياطية (<?= count($customers) ?> عميل، <?= count($products) ?> منتج)</small>
+                    <?php if ($db_connected): ?>
+                        <br><small style="color: #10b981;">✅ متصل بقاعدة البيانات - <?= $customer_count ?> عميل، <?= $product_count ?> منتج</small>
+                        <?php if ($customer_count == 0 || $product_count == 0): ?>
+                            <br><small style="color: #f59e0b;">⚠️ لا توجد بيانات في قاعدة البيانات - يرجى إضافة عملاء ومنتجات</small>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <br><small style="color: #fbbf24;">⚠️ وضع تجريبي - بيانات احتياطية (<?= $customer_count ?> عميل، <?= $product_count ?> منتج)</small>
                         <?php if (isset($error_message)): ?>
                             <br><small style="color: #ef4444; font-size: 11px;">خطأ الاتصال: <?= htmlspecialchars(substr($error_message, 0, 100)) ?>...</small>
                         <?php endif; ?>
-                    <?php else: ?>
-                        <br><small style="color: #10b981;">✅ متصل بقاعدة البيانات - <?= count($customers) ?> عميل، <?= count($products) ?> منتج</small>
                     <?php endif; ?>
                 </div>
             </div>
