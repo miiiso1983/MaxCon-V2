@@ -263,8 +263,8 @@ class InvoiceController extends Controller
                 }
             }
 
-            // Set status based on action
-            $invoice->status = $request->input('action') === 'finalize' ? 'pending' : 'draft';
+            // Set status based on action (use 'sent' for finalized to appear in index filters)
+            $invoice->status = $request->input('action') === 'finalize' ? 'sent' : 'draft';
 
             Log::info('About to save invoice', ['invoice_data' => $invoice->toArray()]);
             $invoice->save();
@@ -285,7 +285,7 @@ class InvoiceController extends Controller
                 $invoiceItem->unit_price = $itemData['unit_price'];
                 $invoiceItem->discount_amount = $itemData['discount_amount'] ?? 0;
                 $invoiceItem->discount_type = $itemData['discount_type'] ?? 'fixed';
-                $invoiceItem->total_amount = $itemData['total_amount'];
+                $invoiceItem->total_amount = $itemData['total_amount'] ?? ($itemData['quantity'] * $itemData['unit_price']);
                 $invoiceItem->notes = $itemData['notes'] ?? null;
                 $invoiceItem->save();
 
