@@ -33,6 +33,7 @@ class Invoice extends Model
         'previous_balance',
         'credit_limit',
         'sales_representative',
+        'warehouse_name',
         'whatsapp_history',
         'paid_amount',
         'remaining_amount',

@@ -149,6 +149,7 @@ class InvoiceController extends Controller
             'additional_charges' => 'nullable|numeric|min:0',
             'discount_amount' => 'nullable|numeric|min:0',
             'discount_type' => 'nullable|in:fixed,percentage',
+            'warehouse_name' => 'nullable|string|max:255',
             'subtotal_amount' => 'nullable|numeric|min:0',
             'tax_amount' => 'nullable|numeric|min:0',
             'total_amount' => 'nullable|numeric|min:0',
@@ -218,7 +219,6 @@ class InvoiceController extends Controller
             $invoice->exchange_rate = 1.0;
             $invoice->shipping_cost = $validated['shipping_cost'] ?? 0;
             $invoice->additional_charges = $validated['additional_charges'] ?? 0;
-            $invoice->discount_amount = $validated['discount_amount'] ?? 0;
             $invoice->discount_type = $validated['discount_type'] ?? 'fixed';
 
             // Calculate totals from items
@@ -226,14 +226,42 @@ class InvoiceController extends Controller
             foreach ($validated['items'] as $item) {
                 $subtotal += floatval($item['total_amount'] ?? 0);
             }
-            $taxAmount = $subtotal * 0.1; // 10% tax
-            $totalAmount = $subtotal + $taxAmount;
+
+            // Apply discount
+            $discountAmount = floatval($validated['discount_amount'] ?? 0);
+            if (($validated['discount_type'] ?? 'fixed') === 'percentage') {
+                $discountAmount = min($subtotal, $subtotal * ($discountAmount / 100));
+            } else {
+                $discountAmount = min($subtotal, $discountAmount);
+            }
+
+            $invoice->discount_amount = $discountAmount;
+
+            // Calculate totals from items
+            $subtotal = 0;
+            foreach ($validated['items'] as $item) {
+                $subtotal += floatval($item['total_amount'] ?? 0);
+            }
+            $taxableBase = max(0, $subtotal - $discountAmount);
+            $taxAmount = $taxableBase * 0.1; // 10% tax
+            $totalAmount = $taxableBase + $taxAmount;
 
             $invoice->subtotal_amount = $subtotal;
             $invoice->tax_amount = $taxAmount;
             $invoice->total_amount = $totalAmount;
             $invoice->previous_balance = $validated['previous_balance'] ?? 0;
             $invoice->credit_limit = $validated['credit_limit'] ?? 0;
+            $invoice->warehouse_name = $validated['warehouse_name'] ?? null;
+
+            // Enforce credit limit if finalizing
+            if (($request->input('action') === 'finalize') && ($invoice->credit_limit > 0)) {
+                $totalDebt = ($invoice->previous_balance ?? 0) + $totalAmount;
+                if ($totalDebt > $invoice->credit_limit) {
+                    return back()->withInput()->withErrors([
+                        'credit_limit' => 'لا يمكن إنهاء الفاتورة: إجمالي المديونية يتجاوز سقف المديونية المحدد للعميل.'
+                    ]);
+                }
+            }
 
             // Set status based on action
             $invoice->status = $request->input('action') === 'finalize' ? 'pending' : 'draft';

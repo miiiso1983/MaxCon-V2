@@ -434,7 +434,10 @@
                         <select name="customer_id" required class="form-control select2-customer" data-placeholder="اختر العميل">
                             <option value="">اختر العميل</option>
                             @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                <option value="{{ $customer->id }}"
+                                        data-credit-limit="{{ $customer->credit_limit ?? 0 }}"
+                                        data-previous-balance="{{ $customer->current_balance ?? ($customer->previous_balance ?? 0) }}"
+                                        {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
                                     {{ $customer->name }} {{ $customer->customer_code ? '(' . $customer->customer_code . ')' : '' }}
                                 </option>
                             @endforeach
@@ -515,6 +518,91 @@
                         @error('sales_representative')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
+        <!-- Financials & Discounts -->
+        <div class="form-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <div class="card-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    المعلومات المالية والخصومات
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <!-- Discount Type -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-percentage" style="color:#10b981"></i>
+                            نوع الخصم
+                        </label>
+                        <select name="discount_type" id="discountType" class="form-control">
+                            <option value="fixed" {{ old('discount_type','fixed')=='fixed'?'selected':'' }}>مبلغ ثابت</option>
+                            <option value="percentage" {{ old('discount_type')=='percentage'?'selected':'' }}>نسبة مئوية</option>
+                        </select>
+                    </div>
+
+                    <!-- Discount Amount -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-tags" style="color:#ef4444"></i>
+                            قيمة الخصم
+                        </label>
+                        <input type="number" name="discount_amount" id="discountAmount" min="0" step="0.01"
+                               value="{{ old('discount_amount',0) }}" class="form-control" placeholder="0.00">
+                    </div>
+
+                    <!-- Credit Limit -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-credit-card" style="color:#0ea5e9"></i>
+                            سقف المديونية
+                        </label>
+                        <input type="number" name="credit_limit" id="creditLimit" min="0" step="0.01"
+                               value="{{ old('credit_limit',0) }}" class="form-control" placeholder="0.00" readonly>
+                    </div>
+
+                    <!-- Previous Balance -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-money-bill-wave" style="color:#f59e0b"></i>
+                            المديونية السابقة
+                        </label>
+                        <input type="number" name="previous_balance" id="previousBalance" min="0" step="0.01"
+                               value="{{ old('previous_balance',0) }}" class="form-control" placeholder="0.00" readonly>
+                    </div>
+
+                    <!-- Warehouse Name -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-warehouse" style="color:#6366f1"></i>
+                            اسم المخزن
+                        </label>
+                        <input type="text" name="warehouse_name" id="warehouseName"
+                               value="{{ old('warehouse_name') }}" class="form-control" placeholder="مثال: مخزن الرئيسي">
+                    </div>
+                </div>
+
+                <div class="mt-4" style="display:flex; gap:1rem; flex-wrap: wrap;">
+                    <div>
+                        <span style="font-weight:700; color:#374151">المجموع الفرعي:</span>
+                        <span id="uiSubtotal" style="margin-inline-start:.5rem">0.00</span>
+                    </div>
+                    <div>
+                        <span style="font-weight:700; color:#374151">الخصم:</span>
+                        <span id="uiDiscount" style="margin-inline-start:.5rem">0.00</span>
+                    </div>
+                    <div>
+                        <span style="font-weight:700; color:#374151">الضريبة:</span>
+                        <span id="uiTax" style="margin-inline-start:.5rem">0.00</span>
+                    </div>
+                    <div>
+                        <span style="font-weight:700; color:#374151">الإجمالي:</span>
+                        <span id="uiTotal" style="margin-inline-start:.5rem">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
                     </div>
                 </div>
             </div>
@@ -597,12 +685,8 @@
         <input type="hidden" name="subtotal_amount" id="subtotalAmount" value="{{ old('subtotal_amount', 0) }}">
         <input type="hidden" name="tax_amount" id="taxAmount" value="{{ old('tax_amount', 0) }}">
         <input type="hidden" name="total_amount" id="totalAmount" value="{{ old('total_amount', 0) }}">
-        <input type="hidden" name="discount_amount" value="{{ old('discount_amount', 0) }}">
-        <input type="hidden" name="discount_type" value="{{ old('discount_type', 'fixed') }}">
         <input type="hidden" name="shipping_cost" value="{{ old('shipping_cost', 0) }}">
         <input type="hidden" name="additional_charges" value="{{ old('additional_charges', 0) }}">
-        <input type="hidden" name="previous_balance" value="{{ old('previous_balance', 0) }}">
-        <input type="hidden" name="credit_limit" value="{{ old('credit_limit', 0) }}">
 
         <!-- Submit Buttons -->
         <div class="actions-card">
@@ -758,14 +842,78 @@ function calculateGrandTotal() {
         subtotal += parseFloat(input.value) || 0;
     });
 
-    const taxRate = 0.1; // 10% tax
-    const taxAmount = subtotal * taxRate;
-    const grandTotal = subtotal + taxAmount;
+    // Discount calculation
+    const discountType = (document.getElementById('discountType')?.value || 'fixed');
+    const discountValue = parseFloat(document.getElementById('discountAmount')?.value || 0);
 
+    let discountAmount = 0;
+    if (discountType === 'percentage') {
+        discountAmount = Math.min(subtotal, subtotal * (discountValue / 100));
+    } else {
+        discountAmount = Math.min(subtotal, discountValue);
+    }
+
+    // Tax calculation (10%)
+    const taxRate = 0.1;
+    const taxableBase = Math.max(0, subtotal - discountAmount);
+    const taxAmount = taxableBase * taxRate;
+
+    const grandTotal = taxableBase + taxAmount;
+
+    // Update hidden fields
     document.getElementById('subtotalAmount').value = subtotal.toFixed(2);
     document.getElementById('taxAmount').value = taxAmount.toFixed(2);
     document.getElementById('totalAmount').value = grandTotal.toFixed(2);
+
+    // Update UI labels
+    const fmt = (n) => (parseFloat(n)||0).toFixed(2);
+    document.getElementById('uiSubtotal').innerText = fmt(subtotal);
+    document.getElementById('uiDiscount').innerText = fmt(discountAmount);
+    document.getElementById('uiTax').innerText = fmt(taxAmount);
+    document.getElementById('uiTotal').innerText = fmt(grandTotal);
 }
+
+// React to discount inputs
+$(document).on('input change', '#discountAmount, #discountType', function() {
+    calculateGrandTotal();
+});
+
+// Update credit limit and previous balance when customer changes
+$(document).on('change', '.select2-customer', function() {
+    const selected = $(this).find('option:selected');
+    const creditLimit = parseFloat(selected.data('credit-limit') || 0);
+    const previousBalance = parseFloat(selected.data('previous-balance') || 0);
+
+    $('#creditLimit').val(creditLimit.toFixed(2));
+    $('#previousBalance').val(previousBalance.toFixed(2));
+
+    // Re-validate credit limit after selection
+    calculateGrandTotal();
+});
+
+// Validate credit limit on submit
+$('#invoiceForm').on('submit', function(e) {
+    const action = $('button[type="submit"][clicked=true]').val() || 'draft';
+    const creditLimit = parseFloat($('#creditLimit').val() || 0);
+    const previousBalance = parseFloat($('#previousBalance').val() || 0);
+    const totalAmount = parseFloat($('#totalAmount').val() || 0);
+
+    // Only enforce on finalize
+    if (action === 'finalize') {
+        const totalDebt = previousBalance + totalAmount;
+        if (creditLimit > 0 && totalDebt > creditLimit) {
+            e.preventDefault();
+            alert('لا يمكن إنهاء الفاتورة: إجمالي المديونية يتجاوز سقف المديونية المحدد للعميل.');
+            return false;
+        }
+    }
+});
+
+// Track which submit button was clicked
+$('button[type="submit"]').on('click', function() {
+    $('button[type="submit"]').removeAttr('clicked');
+    $(this).attr('clicked', 'true');
+});
 
 // Initialize calculations on page load
 document.addEventListener('DOMContentLoaded', function() {
