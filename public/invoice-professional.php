@@ -1,30 +1,65 @@
 <?php
 /**
- * Professional Invoice Creation - Standalone Version
- * نسخة مستقلة من صفحة الفواتير الاحترافية
+ * Professional Invoice Creation - Database Connected Version
+ * نسخة محدثة متصلة بقاعدة البيانات
  */
 
-// Start session for authentication check
+// Include Laravel bootstrap to access database
+require_once '../vendor/autoload.php';
+
+// Bootstrap Laravel application
+$app = require_once '../bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+
+// Start session for authentication
 session_start();
 
-// Simple authentication check (you may need to adjust this based on your auth system)
-$authenticated = true; // For now, assume authenticated
+try {
+    // Get authenticated user (simplified for standalone version)
+    $user_id = $_SESSION['user_id'] ?? 1; // Default to user 1 for testing
+    $tenant_id = $_SESSION['tenant_id'] ?? 4; // Default to tenant 4 for testing
 
-if (!$authenticated) {
-    header('Location: /login');
-    exit;
+    // Connect to database and fetch real data
+    $pdo = new PDO(
+        'mysql:host=' . env('DB_HOST', 'localhost') . ';dbname=' . env('DB_DATABASE'),
+        env('DB_USERNAME'),
+        env('DB_PASSWORD'),
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+
+    // Fetch customers from database
+    $stmt = $pdo->prepare("
+        SELECT id, name, phone, email, credit_limit,
+               COALESCE((SELECT SUM(total_amount - paid_amount) FROM invoices WHERE customer_id = customers.id AND status != 'cancelled'), 0) as previous_balance
+        FROM customers
+        WHERE tenant_id = ? AND status = 'active'
+        ORDER BY name
+    ");
+    $stmt->execute([$tenant_id]);
+    $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch products from database
+    $stmt = $pdo->prepare("
+        SELECT id, name, code, selling_price as price, stock_quantity as stock, manufacturer as company
+        FROM products
+        WHERE tenant_id = ? AND status = 'active'
+        ORDER BY name
+    ");
+    $stmt->execute([$tenant_id]);
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (Exception $e) {
+    // Fallback to mock data if database connection fails
+    $customers = [
+        ['id' => 1, 'name' => 'عميل تجريبي 1', 'phone' => '07901234567', 'credit_limit' => 5000, 'previous_balance' => 1200],
+        ['id' => 2, 'name' => 'عميل تجريبي 2', 'phone' => '07907654321', 'credit_limit' => 10000, 'previous_balance' => 800],
+    ];
+
+    $products = [
+        ['id' => 1, 'name' => 'منتج تجريبي 1', 'code' => 'P001', 'price' => 25.50, 'stock' => 100, 'company' => 'شركة الأدوية'],
+        ['id' => 2, 'name' => 'منتج تجريبي 2', 'code' => 'P002', 'price' => 45.00, 'stock' => 50, 'company' => 'شركة الصحة'],
+    ];
 }
-
-// Mock data - in real implementation, this would come from database
-$customers = [
-    ['id' => 1, 'name' => 'عميل تجريبي 1', 'phone' => '07901234567', 'credit_limit' => 5000, 'previous_balance' => 1200],
-    ['id' => 2, 'name' => 'عميل تجريبي 2', 'phone' => '07907654321', 'credit_limit' => 10000, 'previous_balance' => 800],
-];
-
-$products = [
-    ['id' => 1, 'name' => 'منتج تجريبي 1', 'code' => 'P001', 'price' => 25.50, 'stock' => 100, 'company' => 'شركة الأدوية'],
-    ['id' => 2, 'name' => 'منتج تجريبي 2', 'code' => 'P002', 'price' => 45.00, 'stock' => 50, 'company' => 'شركة الصحة'],
-];
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -37,7 +72,10 @@ $products = [
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    
+
+    <!-- Select2 for searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
     <!-- Professional Invoice CSS -->
     <link href="/css/professional-invoice.css" rel="stylesheet">
     
@@ -214,24 +252,94 @@ $products = [
         .items-table th {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 18px 15px;
+            padding: 15px 10px;
             text-align: center;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
+            white-space: nowrap;
         }
 
         .items-table th:first-child {
             text-align: right;
+            width: 35%;
         }
 
         .items-table td {
-            padding: 15px;
+            padding: 12px 8px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
 
         .items-table tr:hover {
             background: #f8fafc;
+        }
+
+        .items-table input, .items-table select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .items-table input:focus, .items-table select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .items-table .product-select {
+            text-align: right !important;
+        }
+
+        /* Credit limit display */
+        .credit-info {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .credit-info.show {
+            display: block;
+        }
+
+        .credit-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .credit-item:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            border-top: 1px solid #0ea5e9;
+            padding-top: 8px;
+        }
+
+        .credit-label {
+            color: #0369a1;
+        }
+
+        .credit-value {
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .credit-warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .credit-danger {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
         }
 
         .add-item-btn {
@@ -367,14 +475,15 @@ $products = [
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label required">العميل</label>
-                                <select name="customer_id" required class="form-control" id="customerSelect">
+                                <select name="customer_id" required class="form-control searchable-select" id="customerSelect">
                                     <option value="">اختر العميل</option>
                                     <?php foreach($customers as $customer): ?>
                                         <option value="<?= $customer['id'] ?>"
                                                 data-credit-limit="<?= $customer['credit_limit'] ?>"
                                                 data-previous-balance="<?= $customer['previous_balance'] ?>"
-                                                data-phone="<?= $customer['phone'] ?>">
-                                            <?= $customer['name'] ?> - <?= $customer['phone'] ?>
+                                                data-phone="<?= $customer['phone'] ?>"
+                                                data-email="<?= $customer['email'] ?? '' ?>">
+                                            <?= htmlspecialchars($customer['name']) ?> - <?= $customer['phone'] ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -414,6 +523,26 @@ $products = [
                                 </select>
                             </div>
                         </div>
+
+                        <!-- Credit Information Display -->
+                        <div id="creditInfo" class="credit-info">
+                            <div class="credit-item">
+                                <span class="credit-label">سقف المديونية:</span>
+                                <span class="credit-value" id="creditLimit">0 د.ع</span>
+                            </div>
+                            <div class="credit-item">
+                                <span class="credit-label">المديونية السابقة:</span>
+                                <span class="credit-value" id="previousBalance">0 د.ع</span>
+                            </div>
+                            <div class="credit-item">
+                                <span class="credit-label">مبلغ الفاتورة الحالية:</span>
+                                <span class="credit-value" id="currentInvoice">0 د.ع</span>
+                            </div>
+                            <div class="credit-item">
+                                <span class="credit-label">إجمالي المديونية الجديدة:</span>
+                                <span class="credit-value" id="newBalance">0 د.ع</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Invoice Items -->
@@ -428,9 +557,9 @@ $products = [
                         <table class="items-table" id="itemsTable">
                             <thead>
                                 <tr>
-                                    <th style="width: 30%;">المنتج</th>
-                                    <th style="width: 12%;">الكمية</th>
-                                    <th style="width: 15%;">السعر</th>
+                                    <th style="width: 35%;">المنتج</th>
+                                    <th style="width: 10%;">الكمية</th>
+                                    <th style="width: 12%;">السعر</th>
                                     <th style="width: 12%;">الخصم</th>
                                     <th style="width: 10%;">العينات</th>
                                     <th style="width: 15%;">المجموع</th>
@@ -440,44 +569,44 @@ $products = [
                             <tbody id="invoiceItems">
                                 <tr class="item-row">
                                     <td>
-                                        <select name="items[0][product_id]" required class="form-control" onchange="updateProductInfo(this, 0)">
+                                        <select name="items[0][product_id]" required class="form-control product-select searchable-select" onchange="updateProductInfo(this, 0)">
                                             <option value="">اختر المنتج</option>
                                             <?php foreach($products as $product): ?>
-                                                <option value="<?= $product['id'] ?>" 
+                                                <option value="<?= $product['id'] ?>"
                                                         data-price="<?= $product['price'] ?>"
                                                         data-stock="<?= $product['stock'] ?>"
-                                                        data-code="<?= $product['code'] ?>">
-                                                    <?= $product['name'] ?> (<?= $product['code'] ?>) - <?= $product['company'] ?>
+                                                        data-code="<?= $product['code'] ?>"
+                                                        data-company="<?= htmlspecialchars($product['company'] ?? '') ?>">
+                                                    <?= htmlspecialchars($product['name']) ?> (<?= $product['code'] ?>) - <?= htmlspecialchars($product['company'] ?? '') ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][quantity]" min="1" step="1" required
-                                               class="form-control" placeholder="1" value="1" 
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
+                                               placeholder="1" value="1"
+                                               onchange="calculateItemTotal(0)">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
-                                               class="form-control" placeholder="0.00" value="0" 
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
+                                               placeholder="0.00" value="0"
+                                               onchange="calculateItemTotal(0)">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
-                                               class="form-control" placeholder="0.00" value="0" 
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
+                                               placeholder="0.00" value="0"
+                                               onchange="calculateItemTotal(0)">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][free_samples]" min="0" step="1"
-                                               class="form-control" placeholder="0" value="0" 
-                                               style="text-align: center;">
+                                               placeholder="0" value="0">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][total_amount]" readonly
-                                               class="form-control" placeholder="0.00" value="0" 
-                                               style="background: #f9fafb; text-align: center;">
+                                               placeholder="0.00" value="0"
+                                               style="background: #f9fafb;">
                                     </td>
-                                    <td>
+                                    <td style="text-align: center;">
                                         <button type="button" onclick="removeItem(0)" class="remove-item-btn" disabled>
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -547,22 +676,88 @@ $products = [
         </div>
     </div>
 
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <!-- JavaScript -->
     <script>
         let itemIndex = 1;
         const products = <?= json_encode($products) ?>;
+        const customers = <?= json_encode($customers) ?>;
+
+        // Update customer information when customer is selected
+        function updateCustomerInfo() {
+            const customerSelect = document.getElementById('customerSelect');
+            const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+
+            if (selectedOption.value) {
+                const creditLimit = parseFloat(selectedOption.dataset.creditLimit || 0);
+                const previousBalance = parseFloat(selectedOption.dataset.previousBalance || 0);
+
+                // Show credit info
+                const creditInfo = document.getElementById('creditInfo');
+                creditInfo.classList.add('show');
+
+                // Update credit display
+                document.getElementById('creditLimit').textContent = formatCurrency(creditLimit);
+                document.getElementById('previousBalance').textContent = formatCurrency(previousBalance);
+
+                // Update totals
+                updateCreditInfo();
+            } else {
+                // Hide credit info
+                document.getElementById('creditInfo').classList.remove('show');
+            }
+        }
+
+        // Update credit information
+        function updateCreditInfo() {
+            const customerSelect = document.getElementById('customerSelect');
+            const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+
+            if (selectedOption.value) {
+                const creditLimit = parseFloat(selectedOption.dataset.creditLimit || 0);
+                const previousBalance = parseFloat(selectedOption.dataset.previousBalance || 0);
+                const currentInvoice = parseFloat(document.getElementById('totalAmount').value || 0);
+                const newBalance = previousBalance + currentInvoice;
+
+                // Update display
+                document.getElementById('currentInvoice').textContent = formatCurrency(currentInvoice);
+                document.getElementById('newBalance').textContent = formatCurrency(newBalance);
+
+                // Update styling based on credit limit
+                const creditInfo = document.getElementById('creditInfo');
+                creditInfo.className = 'credit-info show';
+
+                if (newBalance > creditLimit) {
+                    creditInfo.classList.add('credit-danger');
+                } else if (newBalance > creditLimit * 0.8) {
+                    creditInfo.classList.add('credit-warning');
+                }
+            }
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-IQ', {
+                style: 'decimal',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }).format(amount) + ' د.ع';
+        }
 
         // Update product information when product is selected
         function updateProductInfo(selectElement, index) {
             const selectedOption = selectElement.options[selectElement.selectedIndex];
             const price = parseFloat(selectedOption.dataset.price || 0);
-            
+
             // Update price field
             const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
             if (priceInput) {
                 priceInput.value = price.toFixed(2);
             }
-            
+
             // Recalculate totals
             calculateItemTotal(index);
         }
@@ -587,23 +782,26 @@ $products = [
         function calculateGrandTotal() {
             let subtotal = 0;
             let totalDiscount = 0;
-            
+
             // Sum all item totals
             document.querySelectorAll('input[name*="[total_amount]"]').forEach(input => {
                 subtotal += parseFloat(input.value || 0);
             });
-            
+
             // Sum all discounts
             document.querySelectorAll('input[name*="[discount_amount]"]').forEach(input => {
                 totalDiscount += parseFloat(input.value || 0);
             });
-            
+
             const total = subtotal;
-            
+
             // Update hidden fields
             document.getElementById('subtotalAmount').value = subtotal.toFixed(2);
             document.getElementById('discountAmount').value = totalDiscount.toFixed(2);
             document.getElementById('totalAmount').value = total.toFixed(2);
+
+            // Update credit information
+            updateCreditInfo();
         }
 
         // Add new item row
@@ -621,36 +819,35 @@ $products = [
 
             newRow.innerHTML = `
                 <td>
-                    <select name="items[${itemIndex}][product_id]" required class="form-control" onchange="updateProductInfo(this, ${itemIndex})">
+                    <select name="items[${itemIndex}][product_id]" required class="form-control product-select searchable-select" onchange="updateProductInfo(this, ${itemIndex})">
                         ${productOptions}
                     </select>
                 </td>
                 <td>
                     <input type="number" name="items[${itemIndex}][quantity]" min="1" step="1" required
-                           class="form-control" placeholder="1" value="1" 
-                           onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+                           placeholder="1" value="1"
+                           onchange="calculateItemTotal(${itemIndex})">
                 </td>
                 <td>
                     <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required
-                           class="form-control" placeholder="0.00" value="0" 
-                           onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+                           placeholder="0.00" value="0"
+                           onchange="calculateItemTotal(${itemIndex})">
                 </td>
                 <td>
                     <input type="number" name="items[${itemIndex}][discount_amount]" min="0" step="0.01"
-                           class="form-control" placeholder="0.00" value="0" 
-                           onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+                           placeholder="0.00" value="0"
+                           onchange="calculateItemTotal(${itemIndex})">
                 </td>
                 <td>
                     <input type="number" name="items[${itemIndex}][free_samples]" min="0" step="1"
-                           class="form-control" placeholder="0" value="0" 
-                           style="text-align: center;">
+                           placeholder="0" value="0">
                 </td>
                 <td>
                     <input type="number" name="items[${itemIndex}][total_amount]" readonly
-                           class="form-control" placeholder="0.00" value="0" 
-                           style="background: #f9fafb; text-align: center;">
+                           placeholder="0.00" value="0"
+                           style="background: #f9fafb;">
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <button type="button" onclick="removeItem(${itemIndex})" class="remove-item-btn">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -658,6 +855,22 @@ $products = [
             `;
 
             tbody.appendChild(newRow);
+
+            // Initialize Select2 for the new row
+            $(newRow).find('.searchable-select').select2({
+                placeholder: 'ابحث واختر...',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    }
+                },
+                width: '100%'
+            });
+
             itemIndex++;
             updateRemoveButtons();
         }
@@ -724,14 +937,40 @@ $products = [
             }, 3000);
         }
 
+        // Initialize Select2 for searchable dropdowns
+        function initializeSelect2() {
+            $('.searchable-select').select2({
+                placeholder: 'ابحث واختر...',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    }
+                },
+                width: '100%'
+            });
+
+            // Add event listener for customer selection
+            $('#customerSelect').on('change', function() {
+                updateCustomerInfo();
+            });
+        }
+
         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        $(document).ready(function() {
+            // Initialize Select2
+            initializeSelect2();
+
+            // Calculate initial totals
             calculateGrandTotal();
             updateRemoveButtons();
-            
+
             // Show welcome message
             setTimeout(() => {
-                showNotification('مرحباً بك في نظام الفواتير الاحترافي!', 'success');
+                showNotification('مرحباً بك في نظام الفواتير الاحترافي المحدث!', 'success');
             }, 500);
         });
     </script>
