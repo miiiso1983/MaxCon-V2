@@ -289,21 +289,21 @@ class InvoiceController extends Controller
                 $invoiceItem->notes = $itemData['notes'] ?? null;
                 $invoiceItem->save();
 
-                // Update product stock if invoice is finalized
-                if ($invoice->status === 'finalized') {
+                // Update product stock if invoice is finalized (sent)
+                if ($invoice->status === 'sent') {
                     $product->current_stock -= $itemData['quantity'];
                     $product->save();
                 }
             }
 
-            // Generate QR Code if finalized
-            if ($invoice->status === 'finalized') {
-                // Generate QR code here if needed
+            // Generate QR Code if finalized (sent)
+            if ($invoice->status === 'sent') {
+                // QR code already generated above; keep here if extra actions are needed
             }
 
             DB::commit();
 
-            $message = $invoice->status === 'finalized' ? 'تم إنشاء الفاتورة وإنهاؤها بنجاح' : 'تم حفظ الفاتورة كمسودة';
+            $message = $invoice->status === 'sent' ? 'تم إنشاء الفاتورة وإنهاؤها بنجاح' : 'تم حفظ الفاتورة كمسودة';
 
             return redirect()->route('tenant.sales.invoices.show', $invoice)
                 ->with('success', $message);
