@@ -8,7 +8,7 @@
 <style>
     /* Modern Professional Invoice Design */
     .invoice-container {
-        background: #f8fafc;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         min-height: 100vh;
         padding: 20px 0;
     }
@@ -48,6 +48,7 @@
         grid-template-columns: 2fr 1fr;
         gap: 30px;
         margin-bottom: 30px;
+        align-items: start;
     }
 
     .main-form {
@@ -55,6 +56,7 @@
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         overflow: hidden;
+        border: 1px solid rgba(102, 126, 234, 0.1);
     }
 
     .sidebar-info {
@@ -65,83 +67,109 @@
         height: fit-content;
         position: sticky;
         top: 20px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
     }
 
     .form-section {
         padding: 30px;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+        position: relative;
     }
 
     .form-section:last-child {
         border-bottom: none;
     }
 
+    .form-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        opacity: 0.1;
+    }
+
     .section-title {
         font-size: 18px;
         font-weight: 700;
         color: #1e293b;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f1f5f9;
     }
 
     .section-icon {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        width: 35px;
-        height: 35px;
-        border-radius: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
+        font-size: 16px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
 
     .form-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 25px;
+        align-items: end;
     }
 
     .form-group {
         position: relative;
+        display: flex;
+        flex-direction: column;
     }
 
     .form-label {
         display: block;
         font-weight: 600;
         color: #374151;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 
     .form-label.required::after {
         content: ' *';
         color: #ef4444;
+        font-weight: 700;
     }
 
     .form-control {
         width: 100%;
-        padding: 14px 16px;
+        padding: 16px 18px;
         border: 2px solid #e5e7eb;
         border-radius: 12px;
         font-size: 14px;
         transition: all 0.3s ease;
         background: #ffffff;
         font-family: 'Cairo', sans-serif;
+        min-height: 50px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .form-control:focus {
         outline: none;
         border-color: #667eea;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        transform: translateY(-1px);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
     }
 
     .form-control:hover {
-        border-color: #d1d5db;
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
     }
 
     /* Custom Select Styling */
@@ -168,9 +196,10 @@
 
     /* Invoice Items Table */
     .items-section {
-        background: #f8fafc;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         margin: 0 -30px;
-        padding: 30px;
+        padding: 35px;
+        border-radius: 0 0 20px 20px;
     }
 
     .items-table {
@@ -178,18 +207,32 @@
         border-collapse: separate;
         border-spacing: 0;
         background: white;
-        border-radius: 15px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
     }
 
     .items-table th {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 18px 15px;
+        padding: 20px 15px;
         text-align: center;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 14px;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        position: relative;
+    }
+
+    .items-table th::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(255,255,255,0.2);
     }
 
     .items-table th:first-child {
@@ -197,17 +240,20 @@
     }
 
     .items-table td {
-        padding: 15px;
+        padding: 18px 15px;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
+        background: white;
+        transition: all 0.2s ease;
     }
 
     .items-table tr:last-child td {
         border-bottom: none;
     }
 
-    .items-table tr:hover {
+    .items-table tr:hover td {
         background: #f8fafc;
+        transform: scale(1.005);
     }
 
     .item-row {
@@ -229,20 +275,41 @@
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
         border: none;
-        padding: 12px 25px;
-        border-radius: 12px;
-        font-weight: 600;
+        padding: 16px 28px;
+        border-radius: 14px;
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 15px;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px auto 0;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        font-size: 14px;
+        min-width: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .add-item-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .add-item-btn:hover::before {
+        left: 100%;
     }
 
     .add-item-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
     }
 
     .remove-item-btn {
@@ -262,29 +329,55 @@
 
     /* Sidebar Info Styling */
     .info-card {
-        background: #f8fafc;
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 20px;
-        border: 1px solid #e5e7eb;
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 2px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border-color: #667eea;
     }
 
     .info-title {
         font-size: 16px;
         font-weight: 700;
         color: #1e293b;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .info-title i {
+        color: #667eea;
+        font-size: 18px;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 8px;
+        border-radius: 8px;
     }
 
     .info-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+
+    .info-item:hover {
+        background: rgba(102, 126, 234, 0.02);
+        margin: 0 -10px;
+        padding: 12px 10px;
+        border-radius: 8px;
     }
 
     .info-item:last-child {
@@ -292,15 +385,18 @@
     }
 
     .info-label {
-        font-weight: 500;
-        color: #6b7280;
+        font-weight: 600;
+        color: #64748b;
         font-size: 14px;
     }
 
     .info-value {
-        font-weight: 600;
+        font-weight: 700;
         color: #1e293b;
         font-size: 14px;
+        background: rgba(102, 126, 234, 0.05);
+        padding: 4px 8px;
+        border-radius: 6px;
     }
 
     .debt-warning {
@@ -324,18 +420,19 @@
 
     /* Action Buttons */
     .actions-section {
-        background: white;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        padding: 30px;
+        padding: 35px;
         margin-top: 30px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
     }
 
     .actions-grid {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        align-items: center;
     }
 
     .btn {
@@ -393,15 +490,18 @@
     }
 
     /* Responsive Design */
-    @media (max-width: 1024px) {
+    @media (max-width: 1200px) {
         .invoice-grid {
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 25px;
         }
 
         .sidebar-info {
             position: static;
             order: -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
         }
     }
 
@@ -411,7 +511,7 @@
         }
 
         .invoice-header {
-            padding: 20px;
+            padding: 25px 20px;
             text-align: center;
         }
 
@@ -421,17 +521,17 @@
         }
 
         .form-section {
-            padding: 20px;
+            padding: 25px 20px;
         }
 
         .form-row {
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 20px;
         }
 
         .items-section {
             margin: 0 -20px;
-            padding: 20px;
+            padding: 25px 20px;
         }
 
         .items-table {
@@ -440,16 +540,55 @@
 
         .items-table th,
         .items-table td {
-            padding: 10px 8px;
+            padding: 12px 8px;
+        }
+
+        .actions-section {
+            padding: 25px 20px;
         }
 
         .actions-grid {
-            flex-direction: column;
+            grid-template-columns: 1fr;
+            gap: 15px;
         }
 
         .btn {
             width: 100%;
             justify-content: center;
+            min-height: 50px;
+        }
+
+        .sidebar-info {
+            grid-template-columns: 1fr;
+        }
+
+        .info-card {
+            padding: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .section-title {
+            font-size: 16px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .section-icon {
+            width: 35px;
+            height: 35px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            padding: 12px 16px;
+            min-height: 45px;
+        }
+
+        .add-item-btn {
+            min-width: 150px;
+            padding: 14px 20px;
         }
     }
 
