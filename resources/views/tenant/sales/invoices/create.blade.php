@@ -82,7 +82,7 @@
         font-weight: 600 !important;
     }
 
-<style>
+
     * {
         font-family: 'Cairo', sans-serif !important;
     }
@@ -706,6 +706,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI/t0Oyy1lG3Gk6fYPMJ0H+RmE5ZkT2Qq8H0U5wE=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 let itemIndex = 1;
