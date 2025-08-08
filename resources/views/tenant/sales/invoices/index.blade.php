@@ -5,65 +5,41 @@
 
 @push('head')
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<link rel="stylesheet" href="{{ asset('css/professional-invoice.css') }}">
 @endpush
 
 @section('content')
 <!-- Page Header -->
-<div style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
-    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-    
-    <div style="position: relative; z-index: 2;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-                <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                    <div style="background: rgba(255,255,255,0.2); border-radius: 15px; padding: 15px; margin-left: 20px;">
-                        <i class="fas fa-file-invoice" style="font-size: 32px;"></i>
-                    </div>
-                    <div>
-                        <h1 style="font-size: 32px; font-weight: 800; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                            إدارة الفواتير 📄
-                        </h1>
-                        <p style="font-size: 18px; margin: 5px 0 0 0; opacity: 0.9;">
-                            إدارة شاملة للفواتير والمدفوعات مع QR Code
-                        </p>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
-                        <i class="fas fa-file-invoice" style="margin-left: 8px;"></i>
-                        <span style="font-size: 14px; font-weight: 600;">{{ $invoices->total() ?? 0 }} فاتورة</span>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
-                        <i class="fas fa-clock" style="margin-left: 8px;"></i>
-                        <span style="font-size: 14px;">{{ $statusCounts['sent'] ?? 0 }} مرسلة</span>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
-                        <i class="fas fa-check-circle" style="margin-left: 8px; color: #4ade80;"></i>
-                        <span style="font-size: 14px;">{{ $statusCounts['paid'] ?? 0 }} مدفوعة</span>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 16px; backdrop-filter: blur(10px);">
-                        <i class="fas fa-exclamation-triangle" style="margin-left: 8px; color: #fbbf24;"></i>
-                        <span style="font-size: 14px;">{{ $statusCounts['overdue'] ?? 0 }} متأخرة</span>
-                    </div>
+<div class="hero-gradient fade-in-down">
+    <div class="hero-shape"></div>
+    <div class="hero-shape-2"></div>
+
+    <div class="hero-inner">
+        <div>
+            <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+                <div class="stat-chip"><i class="fas fa-file-invoice"></i></div>
+                <div>
+                    <h1 class="text-shadow-strong" style="font-size:28px; font-weight:800; margin:0;">إدارة الفواتير</h1>
+                    <p style="margin:4px 0 0; opacity:.9;">إدارة شاملة للفواتير والمدفوعات مع QR Code</p>
                 </div>
             </div>
-            
-            <div style="display: flex; gap: 15px; align-items: center;">
-                <a href="{{ route('tenant.sales.invoices.create-professional') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease;"
-                   onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='translateY(-2px)';"
-                   onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(0)';">
-                    <i class="fas fa-plus-circle"></i>
-                    إنشاء فاتورة احترافية
-                </a>
-                <a href="{{ route('tenant.sales.invoices.create') }}" style="background: rgba(255,255,255,0.15); color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; font-size: 14px;"
-                   onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-1px)';"
-                   onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)';">
-                    <i class="fas fa-plus"></i>
-                    الفاتورة العادية
-                </a>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <div class="stat-chip"><i class="fas fa-file-invoice"></i><span style="font-size:14px; font-weight:600;">{{ $invoices->total() ?? 0 }} فاتورة</span></div>
+                <div class="stat-chip"><i class="fas fa-clock"></i><span style="font-size:14px;">{{ $statusCounts['sent'] ?? 0 }} مرسلة</span></div>
+                <div class="stat-chip"><i class="fas fa-check-circle" style="color:#4ade80;"></i><span style="font-size:14px;">{{ $statusCounts['paid'] ?? 0 }} مدفوعة</span></div>
+                <div class="stat-chip"><i class="fas fa-exclamation-triangle" style="color:#fbbf24;"></i><span style="font-size:14px;">{{ $statusCounts['overdue'] ?? 0 }} متأخرة</span></div>
             </div>
+        </div>
+
+        <div style="display:flex; gap:12px; align-items:center;">
+            <a href="{{ route('tenant.sales.invoices.create-professional') }}" class="btn-glass">
+                <i class="fas fa-plus-circle"></i>
+                <span>إنشاء فاتورة احترافية</span>
+            </a>
+            <a href="{{ route('tenant.sales.invoices.create') }}" class="btn-glass btn-glass--sub">
+                <i class="fas fa-plus"></i>
+                <span>الفاتورة العادية</span>
+            </a>
         </div>
     </div>
 </div>

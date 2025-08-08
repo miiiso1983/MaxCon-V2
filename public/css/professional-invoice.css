@@ -419,11 +419,11 @@
     .form-control {
         border-width: 3px;
     }
-    
+
     .btn {
         border: 2px solid currentColor;
     }
-    
+
     .items-table th,
     .items-table td {
         border: 2px solid currentColor;
@@ -440,3 +440,36 @@
         transition-duration: 0.01ms !important;
     }
 }
+
+/* --- MaxCon Professional Header Enhancements --- */
+.hero-gradient {
+    position: relative;
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 28px;
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    overflow: hidden;
+}
+.hero-gradient .hero-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; position: relative; z-index: 2; }
+.hero-shape, .hero-shape-2 {
+    position: absolute; border-radius: 50%; filter: blur(2px); opacity: .18;
+}
+.hero-shape { width: 220px; height: 220px; top: -60px; right: -60px; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), rgba(255,255,255,0)); }
+.hero-shape-2 { width: 180px; height: 180px; bottom: -50px; left: -50px; background: radial-gradient(circle at 70% 70%, rgba(255,255,255,.25), rgba(255,255,255,0)); }
+
+.stat-chip { background: rgba(255,255,255,0.16); border-radius: 22px; padding: 8px 14px; backdrop-filter: blur(10px); display: inline-flex; align-items: center; gap: 8px; }
+
+.btn-glass { background: rgba(255,255,255,0.18); color: #fff; padding: 12px 22px; border-radius: 14px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.28); transition: all .25s ease; }
+.btn-glass:hover { background: rgba(255,255,255,0.28); transform: translateY(-2px); }
+
+.btn-glass--sub { background: rgba(255,255,255,0.14); padding: 10px 18px; border-radius: 12px; font-weight: 500; font-size: 14px; border: 1px solid rgba(255,255,255,0.22); }
+.btn-glass--sub:hover { background: rgba(255,255,255,0.22); transform: translateY(-1px); }
+
+.action-tile { display: block; background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 30%, #3b82f6 100%); color: #fff; padding: 20px 22px; border-radius: 18px; text-decoration: none; font-weight: 800; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform .25s ease, box-shadow .25s ease; }
+.action-tile:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+.action-tile .tile-sub { font-weight: 600; opacity: .9; font-size: 14px; margin-top: 8px; display: block; }
+.action-tile i { font-size: 20px; margin-left: 8px; opacity: .95; }
+
+/* Utility */
+.text-shadow-strong { text-shadow: 0 6px 16px rgba(0,0,0,0.25); }

@@ -809,13 +809,20 @@
 <div class="invoice-container">
     <div class="invoice-wrapper">
         <!-- Header -->
-        <div class="invoice-header">
-            <div class="invoice-title">
-                <i class="fas fa-file-invoice"></i>
-                إنشاء فاتورة احترافية
-            </div>
-            <div class="invoice-subtitle">
-                نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي
+        <div class="hero-gradient fade-in-down">
+            <div class="hero-shape"></div>
+            <div class="hero-shape-2"></div>
+            <div class="hero-inner">
+                <div>
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+                        <div class="stat-chip"><i class="fas fa-file-invoice"></i></div>
+                        <h1 class="text-shadow-strong" style="font-size:26px; font-weight:800; margin:0;">إنشاء فاتورة احترافية</h1>
+                    </div>
+                    <p style="margin:0; opacity:.9;">نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي</p>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="{{ route('tenant.sales.invoices.index') }}" class="btn-glass btn-glass--sub"><i class="fas fa-arrow-right"></i><span>عودة للفواتير</span></a>
+                </div>
             </div>
         </div>
 
