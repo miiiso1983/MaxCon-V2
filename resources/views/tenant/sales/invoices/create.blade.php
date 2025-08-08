@@ -5,262 +5,541 @@
 
 @push('styles')
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
-    body {
+    * {
         font-family: 'Cairo', sans-serif !important;
     }
-    
-    .form-input {
-        @apply w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white;
+
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
     }
-    
-    .form-label {
-        @apply block text-sm font-semibold text-gray-700 mb-2;
+
+    .invoice-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
     }
-    
-    .card {
-        @apply bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden;
+
+    .professional-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     }
-    
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 15px;
+        font-size: 2rem;
+    }
+
+    .header-text h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .header-text p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .btn {
+        padding: 1rem 1.5rem;
+        border-radius: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-back {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
     .card-header {
-        @apply bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 px-8 py-6;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 2px solid #e2e8f0;
     }
-    
+
+    .card-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .card-icon {
+        background: #4f46e5;
+        color: white;
+        padding: 0.75rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+    }
+
     .card-body {
-        @apply p-8;
+        padding: 2rem;
     }
-    
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-label i {
+        margin-left: 0.5rem;
+    }
+
+    .required::after {
+        content: ' *';
+        color: #ef4444;
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-control:hover {
+        border-color: #d1d5db;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .invoice-table th {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        color: white;
+        padding: 1.25rem 1rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .invoice-table td {
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+    }
+
+    .invoice-table tr:hover {
+        background: #f8fafc;
+    }
+
     .btn-primary {
-        @apply bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 rtl:space-x-reverse;
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        color: white;
     }
-    
-    .btn-secondary {
-        @apply bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 rtl:space-x-reverse;
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #3730a3 0%, #4f46e5 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
     }
-    
+
     .btn-success {
-        @apply bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 rtl:space-x-reverse;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
     }
-    
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+    }
+
     .btn-danger {
-        @apply bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold transition-all duration-200;
+        background: #ef4444;
+        color: white;
+        padding: 0.75rem;
+        border-radius: 10px;
     }
-    
-    .table-header {
-        @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-center py-4;
+
+    .btn-danger:hover {
+        background: #dc2626;
+        transform: scale(1.05);
     }
-    
-    .table-cell {
-        @apply border-b border-gray-100 p-4 text-center;
+
+    .error-message {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
     }
-    
-    .table-row:hover {
-        @apply bg-blue-50;
+
+    .add-item-section {
+        text-align: center;
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-top: 2px solid #e5e7eb;
+    }
+
+    .actions-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .actions-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+        .invoice-container {
+            padding: 1rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .actions-buttons {
+            justify-content: center;
+        }
+
+        .invoice-table {
+            font-size: 0.875rem;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: 0.75rem 0.5rem;
+        }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Professional Header -->
-        <div class="card mb-8">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4 rtl:space-x-reverse">
-                        <div class="bg-white/20 p-3 rounded-xl">
-                            <i class="fas fa-file-invoice-dollar text-2xl text-white"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-white">إنشاء فاتورة جديدة</h1>
-                            <p class="text-blue-100 mt-1">فاتورة مبيعات احترافية مع QR Code</p>
-                        </div>
+<div class="invoice-container">
+    <!-- Professional Header -->
+    <div class="professional-header">
+        <div class="header-content">
+            <div class="header-title">
+                <div class="header-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="header-text">
+                    <h1>إنشاء فاتورة جديدة</h1>
+                    <p>فاتورة مبيعات احترافية مع QR Code ودعم العملات المتعددة</p>
+                </div>
+            </div>
+            <a href="{{ route('tenant.sales.invoices.index') }}" class="btn btn-back">
+                <i class="fas fa-arrow-right"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Professional Invoice Form -->
+    <form method="POST" action="{{ route('tenant.sales.invoices.store') }}" id="invoiceForm">
+        @csrf
+
+        <!-- Basic Information -->
+        <div class="form-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <div class="card-icon">
+                        <i class="fas fa-info-circle"></i>
                     </div>
-                    <a href="{{ route('tenant.sales.invoices.index') }}" class="btn-secondary">
-                        <i class="fas fa-arrow-right"></i>
-                        <span>العودة للقائمة</span>
-                    </a>
+                    معلومات الفاتورة الأساسية
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <!-- Customer -->
+                    <div class="form-group">
+                        <label class="form-label required">
+                            <i class="fas fa-user-tie" style="color: #4f46e5;"></i>
+                            العميل
+                        </label>
+                        <select name="customer_id" required class="form-control">
+                            <option value="">اختر العميل</option>
+                            @foreach($customers as $customer)
+                                <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                    {{ $customer->name }} {{ $customer->customer_code ? '(' . $customer->customer_code . ')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('customer_id')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Invoice Type -->
+                    <div class="form-group">
+                        <label class="form-label required">
+                            <i class="fas fa-file-alt" style="color: #10b981;"></i>
+                            نوع الفاتورة
+                        </label>
+                        <select name="type" required class="form-control">
+                            <option value="sales" {{ old('type', 'sales') == 'sales' ? 'selected' : '' }}>فاتورة مبيعات</option>
+                            <option value="proforma" {{ old('type') == 'proforma' ? 'selected' : '' }}>فاتورة أولية</option>
+                        </select>
+                        @error('type')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Invoice Date -->
+                    <div class="form-group">
+                        <label class="form-label required">
+                            <i class="fas fa-calendar" style="color: #8b5cf6;"></i>
+                            تاريخ الفاتورة
+                        </label>
+                        <input type="date" name="invoice_date" required
+                               value="{{ old('invoice_date', date('Y-m-d')) }}"
+                               class="form-control">
+                        @error('invoice_date')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Due Date -->
+                    <div class="form-group">
+                        <label class="form-label required">
+                            <i class="fas fa-clock" style="color: #f59e0b;"></i>
+                            تاريخ الاستحقاق
+                        </label>
+                        <input type="date" name="due_date" required
+                               value="{{ old('due_date', date('Y-m-d', strtotime('+30 days'))) }}"
+                               class="form-control">
+                        @error('due_date')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Currency -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-coins" style="color: #eab308;"></i>
+                            العملة
+                        </label>
+                        <select name="currency" class="form-control">
+                            <option value="IQD" {{ old('currency', 'IQD') == 'IQD' ? 'selected' : '' }}>دينار عراقي (IQD)</option>
+                            <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>دولار أمريكي (USD)</option>
+                            <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>يورو (EUR)</option>
+                        </select>
+                        @error('currency')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Sales Representative -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user-tie" style="color: #6366f1;"></i>
+                            مندوب المبيعات
+                        </label>
+                        <input type="text" name="sales_representative"
+                               value="{{ old('sales_representative', auth()->user()->name) }}"
+                               class="form-control" placeholder="اسم مندوب المبيعات">
+                        @error('sales_representative')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Professional Invoice Form -->
-        <form method="POST" action="{{ route('tenant.sales.invoices.store') }}" id="invoiceForm" class="space-y-8">
-            @csrf
-
-            <!-- Basic Information -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                        <div class="bg-emerald-500 p-3 rounded-xl">
-                            <i class="fas fa-info-circle text-white text-lg"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800">معلومات الفاتورة الأساسية</h3>
+        <!-- Invoice Items -->
+        <div class="form-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <div class="card-icon">
+                        <i class="fas fa-list"></i>
                     </div>
+                    عناصر الفاتورة
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 35%;">المنتج</th>
+                                <th style="width: 15%;">الكمية</th>
+                                <th style="width: 20%;">سعر الوحدة</th>
+                                <th style="width: 20%;">الإجمالي</th>
+                                <th style="width: 10%;">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceItems">
+                            <tr>
+                                <td>
+                                    <select name="items[0][product_id]" required class="form-control" onchange="updatePrice(this)">
+                                        <option value="">اختر المنتج</option>
+                                        @foreach($products as $product)
+                                            <option value="{{ $product->id }}"
+                                                    data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}"
+                                                    {{ old('items.0.product_id') == $product->id ? 'selected' : '' }}>
+                                                {{ $product->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="items[0][quantity]" min="1" step="1" required
+                                           class="form-control" placeholder="1"
+                                           value="{{ old('items.0.quantity', 1) }}"
+                                           onchange="calculateItemTotal(this)">
+                                </td>
+                                <td>
+                                    <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
+                                           class="form-control" placeholder="0.00"
+                                           value="{{ old('items.0.unit_price', 0) }}"
+                                           onchange="calculateItemTotal(this)">
+                                </td>
+                                <td>
+                                    <input type="number" name="items[0][total_amount]" readonly
+                                           class="form-control" placeholder="0.00"
+                                           value="{{ old('items.0.total_amount', 0) }}"
+                                           style="background: #f9fafb;">
+                                </td>
+                                <td>
+                                    <button type="button" onclick="removeItem(this)" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <!-- Customer -->
-                        <div>
-                            <label class="form-label">
-                                <i class="fas fa-user-tie text-blue-500 mr-2"></i>
-                                العميل <span class="text-red-500">*</span>
-                            </label>
-                            <select name="customer_id" required class="form-input">
-                                <option value="">اختر العميل</option>
-                                @foreach($customers as $customer)
-                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('customer_id')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Invoice Type -->
-                        <div>
-                            <label class="form-label">
-                                <i class="fas fa-file-alt text-green-500 mr-2"></i>
-                                نوع الفاتورة <span class="text-red-500">*</span>
-                            </label>
-                            <select name="type" class="form-input">
-                                <option value="sales">فاتورة مبيعات</option>
-                                <option value="proforma">فاتورة أولية</option>
-                            </select>
-                        </div>
-
-                        <!-- Invoice Date -->
-                        <div>
-                            <label class="form-label">
-                                <i class="fas fa-calendar text-purple-500 mr-2"></i>
-                                تاريخ الفاتورة <span class="text-red-500">*</span>
-                            </label>
-                            <input type="date" name="invoice_date" required value="{{ date('Y-m-d') }}" class="form-input">
-                        </div>
-
-                        <!-- Due Date -->
-                        <div>
-                            <label class="form-label">
-                                <i class="fas fa-clock text-orange-500 mr-2"></i>
-                                تاريخ الاستحقاق <span class="text-red-500">*</span>
-                            </label>
-                            <input type="date" name="due_date" required value="{{ date('Y-m-d', strtotime('+30 days')) }}" class="form-input">
-                        </div>
-
-                        <!-- Currency -->
-                        <div>
-                            <label class="form-label">
-                                <i class="fas fa-coins text-yellow-500 mr-2"></i>
-                                العملة
-                            </label>
-                            <select name="currency" class="form-input">
-                                <option value="IQD">دينار عراقي (IQD)</option>
-                                <option value="USD">دولار أمريكي (USD)</option>
-                            </select>
-                        </div>
-
-                        <!-- Sales Representative -->
-                        <div>
-                            <label class="form-label">
-                                <i class="fas fa-user-tie text-indigo-500 mr-2"></i>
-                                مندوب المبيعات
-                            </label>
-                            <input type="text" name="sales_representative" value="{{ auth()->user()->name }}" class="form-input">
-                        </div>
-                    </div>
+                <div class="add-item-section">
+                    <button type="button" onclick="addItem()" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        إضافة عنصر جديد
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Invoice Items -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                            <div class="bg-purple-500 p-3 rounded-xl">
-                                <i class="fas fa-list text-white text-lg"></i>
-                            </div>
-                            <h3 class="text-2xl font-bold text-gray-800">عناصر الفاتورة</h3>
-                        </div>
-                        <button type="button" onclick="addItem()" class="btn-primary">
-                            <i class="fas fa-plus"></i>
-                            <span>إضافة عنصر</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th class="table-header">المنتج</th>
-                                    <th class="table-header">الكمية</th>
-                                    <th class="table-header">سعر الوحدة</th>
-                                    <th class="table-header">الإجمالي</th>
-                                    <th class="table-header">الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="invoiceItems">
-                                <tr class="table-row">
-                                    <td class="table-cell">
-                                        <select name="items[0][product_id]" required class="form-input">
-                                            <option value="">اختر المنتج</option>
-                                            @foreach($products as $product)
-                                                <option value="{{ $product->id }}" data-price="{{ $product->selling_price ?? 0 }}">
-                                                    {{ $product->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td class="table-cell">
-                                        <input type="number" name="items[0][quantity]" min="1" required class="form-input" placeholder="1" onchange="calculateTotal(this)">
-                                    </td>
-                                    <td class="table-cell">
-                                        <input type="number" name="items[0][unit_price]" min="0" step="0.01" required class="form-input" placeholder="0.00" onchange="calculateTotal(this)">
-                                    </td>
-                                    <td class="table-cell">
-                                        <input type="number" name="items[0][total_amount]" readonly class="form-input bg-gray-50" placeholder="0.00">
-                                    </td>
-                                    <td class="table-cell">
-                                        <button type="button" onclick="removeItem(this)" class="btn-danger">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <!-- Hidden Fields -->
+        <input type="hidden" name="subtotal_amount" id="subtotalAmount" value="{{ old('subtotal_amount', 0) }}">
+        <input type="hidden" name="tax_amount" id="taxAmount" value="{{ old('tax_amount', 0) }}">
+        <input type="hidden" name="total_amount" id="totalAmount" value="{{ old('total_amount', 0) }}">
+        <input type="hidden" name="discount_amount" value="{{ old('discount_amount', 0) }}">
+        <input type="hidden" name="discount_type" value="{{ old('discount_type', 'fixed') }}">
+        <input type="hidden" name="shipping_cost" value="{{ old('shipping_cost', 0) }}">
+        <input type="hidden" name="additional_charges" value="{{ old('additional_charges', 0) }}">
+        <input type="hidden" name="previous_balance" value="{{ old('previous_balance', 0) }}">
+        <input type="hidden" name="credit_limit" value="{{ old('credit_limit', 0) }}">
+
+        <!-- Submit Buttons -->
+        <div class="actions-card">
+            <div class="actions-buttons">
+                <a href="{{ route('tenant.sales.invoices.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    إلغاء
+                </a>
+                <button type="submit" name="action" value="draft" class="btn btn-secondary">
+                    <i class="fas fa-save"></i>
+                    حفظ كمسودة
+                </button>
+                <button type="submit" name="action" value="finalize" class="btn btn-success">
+                    <i class="fas fa-check"></i>
+                    إنهاء الفاتورة
+                </button>
             </div>
-
-            <!-- Hidden Fields -->
-            <input type="hidden" name="subtotal_amount" id="subtotalAmount" value="0">
-            <input type="hidden" name="tax_amount" id="taxAmount" value="0">
-            <input type="hidden" name="total_amount" id="totalAmount" value="0">
-            <input type="hidden" name="discount_amount" value="0">
-            <input type="hidden" name="discount_type" value="fixed">
-
-            <!-- Submit Buttons -->
-            <div class="card">
-                <div class="card-body">
-                    <div class="flex justify-end space-x-4 rtl:space-x-reverse">
-                        <a href="{{ route('tenant.sales.invoices.index') }}" class="btn-secondary">
-                            <i class="fas fa-times"></i>
-                            <span>إلغاء</span>
-                        </a>
-                        <button type="submit" name="action" value="draft" class="btn-secondary">
-                            <i class="fas fa-save"></i>
-                            <span>حفظ كمسودة</span>
-                        </button>
-                        <button type="submit" name="action" value="finalize" class="btn-success">
-                            <i class="fas fa-check"></i>
-                            <span>إنهاء الفاتورة</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 @endsection
 
@@ -270,34 +549,39 @@ let itemIndex = 1;
 
 function addItem() {
     const tbody = document.getElementById('invoiceItems');
-    const newRow = tbody.insertRow();
-    newRow.className = 'table-row';
-    
+    const newRow = document.createElement('tr');
+
     newRow.innerHTML = `
-        <td class="table-cell">
-            <select name="items[${itemIndex}][product_id]" required class="form-input">
+        <td>
+            <select name="items[${itemIndex}][product_id]" required class="form-control" onchange="updatePrice(this)">
                 <option value="">اختر المنتج</option>
                 @foreach($products as $product)
-                    <option value="{{ $product->id }}" data-price="{{ $product->selling_price ?? 0 }}">{{ $product->name }}</option>
+                    <option value="{{ $product->id }}" data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}">
+                        {{ $product->name }}
+                    </option>
                 @endforeach
             </select>
         </td>
-        <td class="table-cell">
-            <input type="number" name="items[${itemIndex}][quantity]" min="1" required class="form-input" placeholder="1" onchange="calculateTotal(this)">
+        <td>
+            <input type="number" name="items[${itemIndex}][quantity]" min="1" step="1" required
+                   class="form-control" placeholder="1" value="1" onchange="calculateItemTotal(this)">
         </td>
-        <td class="table-cell">
-            <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required class="form-input" placeholder="0.00" onchange="calculateTotal(this)">
+        <td>
+            <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required
+                   class="form-control" placeholder="0.00" value="0" onchange="calculateItemTotal(this)">
         </td>
-        <td class="table-cell">
-            <input type="number" name="items[${itemIndex}][total_amount]" readonly class="form-input bg-gray-50" placeholder="0.00">
+        <td>
+            <input type="number" name="items[${itemIndex}][total_amount]" readonly
+                   class="form-control" placeholder="0.00" value="0" style="background: #f9fafb;">
         </td>
-        <td class="table-cell">
-            <button type="button" onclick="removeItem(this)" class="btn-danger">
+        <td>
+            <button type="button" onclick="removeItem(this)" class="btn btn-danger">
                 <i class="fas fa-trash"></i>
             </button>
         </td>
     `;
-    
+
+    tbody.appendChild(newRow);
     itemIndex++;
 }
 
@@ -311,40 +595,94 @@ function removeItem(button) {
     }
 }
 
-function calculateTotal(input) {
+function updatePrice(selectElement) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const price = selectedOption.getAttribute('data-price') || 0;
+    const row = selectElement.closest('tr');
+    const priceInput = row.querySelector('input[name*="[unit_price]"]');
+
+    if (priceInput && price > 0) {
+        priceInput.value = parseFloat(price).toFixed(2);
+        calculateItemTotal(priceInput);
+    }
+}
+
+function calculateItemTotal(input) {
     const row = input.closest('tr');
     const quantity = parseFloat(row.querySelector('input[name*="[quantity]"]').value) || 0;
     const unitPrice = parseFloat(row.querySelector('input[name*="[unit_price]"]').value) || 0;
     const total = quantity * unitPrice;
-    
+
     row.querySelector('input[name*="[total_amount]"]').value = total.toFixed(2);
     calculateGrandTotal();
 }
 
 function calculateGrandTotal() {
     const totalInputs = document.querySelectorAll('input[name*="[total_amount]"]');
-    let grandTotal = 0;
-    
+    let subtotal = 0;
+
     totalInputs.forEach(input => {
-        grandTotal += parseFloat(input.value) || 0;
+        subtotal += parseFloat(input.value) || 0;
     });
-    
-    document.getElementById('subtotalAmount').value = grandTotal.toFixed(2);
+
+    const taxRate = 0.1; // 10% tax
+    const taxAmount = subtotal * taxRate;
+    const grandTotal = subtotal + taxAmount;
+
+    document.getElementById('subtotalAmount').value = subtotal.toFixed(2);
+    document.getElementById('taxAmount').value = taxAmount.toFixed(2);
     document.getElementById('totalAmount').value = grandTotal.toFixed(2);
 }
 
-// Auto-fill price when product is selected
-document.addEventListener('change', function(e) {
-    if (e.target.name && e.target.name.includes('[product_id]')) {
-        const selectedOption = e.target.options[e.target.selectedIndex];
-        const price = selectedOption.getAttribute('data-price') || 0;
-        const row = e.target.closest('tr');
-        const priceInput = row.querySelector('input[name*="[unit_price]"]');
-        if (priceInput) {
-            priceInput.value = price;
-            calculateTotal(priceInput);
-        }
+// Initialize calculations on page load
+document.addEventListener('DOMContentLoaded', function() {
+    calculateGrandTotal();
+
+    // Add event listeners to existing inputs
+    document.querySelectorAll('input[name*="[quantity]"], input[name*="[unit_price]"]').forEach(input => {
+        input.addEventListener('input', function() {
+            calculateItemTotal(this);
+        });
+    });
+
+    document.querySelectorAll('select[name*="[product_id]"]').forEach(select => {
+        select.addEventListener('change', function() {
+            updatePrice(this);
+        });
+    });
+});
+
+// Form validation before submit
+document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+    const customerSelect = document.querySelector('select[name="customer_id"]');
+    const productSelects = document.querySelectorAll('select[name*="[product_id]"]');
+
+    if (!customerSelect.value) {
+        e.preventDefault();
+        alert('يرجى اختيار العميل');
+        customerSelect.focus();
+        return false;
     }
+
+    let hasValidItems = false;
+    productSelects.forEach(select => {
+        if (select.value) {
+            hasValidItems = true;
+        }
+    });
+
+    if (!hasValidItems) {
+        e.preventDefault();
+        alert('يرجى إضافة منتج واحد على الأقل');
+        return false;
+    }
+
+    // Show loading state
+    const submitButtons = document.querySelectorAll('button[type="submit"]');
+    submitButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    });
 });
 </script>
 @endpush
