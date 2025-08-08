@@ -79,13 +79,17 @@ $redirect_url = '/tenant/sales/invoices/create';
         <div id="options" style="display: none;">
             <h3 class="text-xl font-semibold mb-4 text-gray-700">اختر طريقة الوصول:</h3>
             <div class="space-y-3">
+                <a href="/invoice-professional.php" class="btn w-full justify-center bg-green-500">
+                    <i class="fas fa-star"></i>
+                    الفاتورة الاحترافية (متوفرة الآن!)
+                </a>
                 <a href="/tenant/sales/invoices/create" class="btn w-full justify-center">
                     <i class="fas fa-file-alt"></i>
-                    الفاتورة العادية (متوفرة الآن)
+                    الفاتورة العادية
                 </a>
-                <button onclick="tryProfessional()" class="btn w-full justify-center bg-green-500">
-                    <i class="fas fa-star"></i>
-                    المحاولة مرة أخرى - الفاتورة الاحترافية
+                <button onclick="tryProfessional()" class="btn w-full justify-center bg-blue-500">
+                    <i class="fas fa-sync"></i>
+                    تحديث - تحقق من الـ Routes
                 </button>
                 <a href="/tenant/sales/invoices" class="btn w-full justify-center bg-gray-500">
                     <i class="fas fa-list"></i>
