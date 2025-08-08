@@ -15,49 +15,74 @@ $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 session_start();
 
 try {
-    // Get authenticated user (simplified for standalone version)
-    $user_id = $_SESSION['user_id'] ?? 1; // Default to user 1 for testing
-    $tenant_id = $_SESSION['tenant_id'] ?? 4; // Default to tenant 4 for testing
+    // Database configuration
+    $host = 'localhost';
+    $dbname = 'rrpkfnxwgn_maxcon';
+    $username = 'rrpkfnxwgn_maxcon';
+    $password = 'maxcon2024!';
+    $tenant_id = 4; // Default tenant ID
 
-    // Connect to database and fetch real data
+    // Connect to database
     $pdo = new PDO(
-        'mysql:host=' . env('DB_HOST', 'localhost') . ';dbname=' . env('DB_DATABASE'),
-        env('DB_USERNAME'),
-        env('DB_PASSWORD'),
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        "mysql:host={$host};dbname={$dbname};charset=utf8mb4",
+        $username,
+        $password,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+        ]
     );
 
     // Fetch customers from database
     $stmt = $pdo->prepare("
-        SELECT id, name, phone, email, credit_limit,
-               COALESCE((SELECT SUM(total_amount - paid_amount) FROM invoices WHERE customer_id = customers.id AND status != 'cancelled'), 0) as previous_balance
+        SELECT id, name, phone, email,
+               COALESCE(credit_limit, 0) as credit_limit,
+               COALESCE((
+                   SELECT SUM(total_amount - COALESCE(paid_amount, 0))
+                   FROM invoices
+                   WHERE customer_id = customers.id
+                   AND status IN ('sent', 'pending', 'overdue')
+                   AND tenant_id = ?
+               ), 0) as previous_balance
         FROM customers
         WHERE tenant_id = ? AND status = 'active'
         ORDER BY name
     ");
-    $stmt->execute([$tenant_id]);
-    $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute([$tenant_id, $tenant_id]);
+    $customers = $stmt->fetchAll();
 
     // Fetch products from database
     $stmt = $pdo->prepare("
-        SELECT id, name, code, selling_price as price, stock_quantity as stock, manufacturer as company
+        SELECT id, name, code,
+               COALESCE(selling_price, 0) as price,
+               COALESCE(stock_quantity, 0) as stock,
+               COALESCE(manufacturer, 'غير محدد') as company
         FROM products
         WHERE tenant_id = ? AND status = 'active'
         ORDER BY name
     ");
     $stmt->execute([$tenant_id]);
-    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $products = $stmt->fetchAll();
+
+    $db_connected = true;
 
 } catch (Exception $e) {
+    $db_connected = false;
+    $error_message = $e->getMessage();
+
     // Fallback to mock data if database connection fails
     $customers = [
-        ['id' => 1, 'name' => 'عميل تجريبي 1', 'phone' => '07901234567', 'credit_limit' => 5000, 'previous_balance' => 1200],
-        ['id' => 2, 'name' => 'عميل تجريبي 2', 'phone' => '07907654321', 'credit_limit' => 10000, 'previous_balance' => 800],
+        ['id' => 1, 'name' => 'عميل تجريبي 1', 'phone' => '07901234567', 'email' => 'test1@example.com', 'credit_limit' => 5000, 'previous_balance' => 1200],
+        ['id' => 2, 'name' => 'عميل تجريبي 2', 'phone' => '07907654321', 'email' => 'test2@example.com', 'credit_limit' => 10000, 'previous_balance' => 800],
+        ['id' => 3, 'name' => 'صيدلية الشفاء', 'phone' => '07801234567', 'email' => 'shifa@example.com', 'credit_limit' => 15000, 'previous_balance' => 2500],
     ];
 
     $products = [
-        ['id' => 1, 'name' => 'منتج تجريبي 1', 'code' => 'P001', 'price' => 25.50, 'stock' => 100, 'company' => 'شركة الأدوية'],
-        ['id' => 2, 'name' => 'منتج تجريبي 2', 'code' => 'P002', 'price' => 45.00, 'stock' => 50, 'company' => 'شركة الصحة'],
+        ['id' => 1, 'name' => 'باراسيتامول 500 مغ', 'code' => 'PAR500', 'price' => 2.50, 'stock' => 100, 'company' => 'شركة الأدوية العراقية'],
+        ['id' => 2, 'name' => 'أموكسيسيلين 250 مغ', 'code' => 'AMX250', 'price' => 8.75, 'stock' => 50, 'company' => 'شركة الصحة'],
+        ['id' => 3, 'name' => 'فيتامين د 1000 وحدة', 'code' => 'VIT1000', 'price' => 12.00, 'stock' => 75, 'company' => 'شركة الفيتامينات'],
+        ['id' => 4, 'name' => 'أسبرين 100 مغ', 'code' => 'ASP100', 'price' => 1.25, 'stock' => 200, 'company' => 'شركة القلب'],
     ];
 }
 ?>
@@ -67,6 +92,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إنشاء فاتورة احترافية - MaxCon</title>
+    <meta name="csrf-token" content="<?= bin2hex(random_bytes(16)) ?>">
     
     <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css" rel="stylesheet">
@@ -457,6 +483,11 @@ try {
                 </div>
                 <div class="invoice-subtitle">
                     نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي
+                    <?php if (!$db_connected): ?>
+                        <br><small style="color: #fbbf24;">⚠️ وضع تجريبي - لا يوجد اتصال بقاعدة البيانات</small>
+                    <?php else: ?>
+                        <br><small style="color: #10b981;">✅ متصل بقاعدة البيانات - <?= count($customers) ?> عميل، <?= count($products) ?> منتج</small>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -554,66 +585,68 @@ try {
                             عناصر الفاتورة
                         </div>
                         
-                        <table class="items-table" id="itemsTable">
-                            <thead>
-                                <tr>
-                                    <th style="width: 35%;">المنتج</th>
-                                    <th style="width: 10%;">الكمية</th>
-                                    <th style="width: 12%;">السعر</th>
-                                    <th style="width: 12%;">الخصم</th>
-                                    <th style="width: 10%;">العينات</th>
-                                    <th style="width: 15%;">المجموع</th>
-                                    <th style="width: 6%;">حذف</th>
-                                </tr>
-                            </thead>
-                            <tbody id="invoiceItems">
-                                <tr class="item-row">
-                                    <td>
-                                        <select name="items[0][product_id]" required class="form-control product-select searchable-select" onchange="updateProductInfo(this, 0)">
-                                            <option value="">اختر المنتج</option>
-                                            <?php foreach($products as $product): ?>
-                                                <option value="<?= $product['id'] ?>"
-                                                        data-price="<?= $product['price'] ?>"
-                                                        data-stock="<?= $product['stock'] ?>"
-                                                        data-code="<?= $product['code'] ?>"
-                                                        data-company="<?= htmlspecialchars($product['company'] ?? '') ?>">
-                                                    <?= htmlspecialchars($product['name']) ?> (<?= $product['code'] ?>) - <?= htmlspecialchars($product['company'] ?? '') ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][quantity]" min="1" step="1" required
-                                               placeholder="1" value="1"
-                                               onchange="calculateItemTotal(0)">
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
-                                               placeholder="0.00" value="0"
-                                               onchange="calculateItemTotal(0)">
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
-                                               placeholder="0.00" value="0"
-                                               onchange="calculateItemTotal(0)">
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][free_samples]" min="0" step="1"
-                                               placeholder="0" value="0">
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][total_amount]" readonly
-                                               placeholder="0.00" value="0"
-                                               style="background: #f9fafb;">
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <button type="button" onclick="removeItem(0)" class="remove-item-btn" disabled>
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div style="overflow-x: auto;">
+                            <table class="items-table" id="itemsTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 35%; text-align: right;">المنتج</th>
+                                        <th style="width: 10%; text-align: center;">الكمية</th>
+                                        <th style="width: 12%; text-align: center;">السعر</th>
+                                        <th style="width: 12%; text-align: center;">الخصم</th>
+                                        <th style="width: 10%; text-align: center;">العينات</th>
+                                        <th style="width: 15%; text-align: center;">المجموع</th>
+                                        <th style="width: 6%; text-align: center;">حذف</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceItems">
+                                    <tr class="item-row">
+                                        <td style="text-align: right;">
+                                            <select name="items[0][product_id]" required class="form-control product-select searchable-select" onchange="updateProductInfo(this, 0)" style="width: 100%; text-align: right;">
+                                                <option value="">اختر المنتج</option>
+                                                <?php foreach($products as $product): ?>
+                                                    <option value="<?= $product['id'] ?>"
+                                                            data-price="<?= $product['price'] ?>"
+                                                            data-stock="<?= $product['stock'] ?>"
+                                                            data-code="<?= $product['code'] ?>"
+                                                            data-company="<?= htmlspecialchars($product['company'] ?? '') ?>">
+                                                        <?= htmlspecialchars($product['name']) ?> (<?= $product['code'] ?>) - <?= htmlspecialchars($product['company'] ?? '') ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="number" name="items[0][quantity]" min="1" step="1" required
+                                                   placeholder="1" value="1"
+                                                   onchange="calculateItemTotal(0)" style="width: 100%; text-align: center;">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
+                                                   placeholder="0.00" value="0"
+                                                   onchange="calculateItemTotal(0)" style="width: 100%; text-align: center;">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
+                                                   placeholder="0.00" value="0"
+                                                   onchange="calculateItemTotal(0)" style="width: 100%; text-align: center;">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="number" name="items[0][free_samples]" min="0" step="1"
+                                                   placeholder="0" value="0" style="width: 100%; text-align: center;">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="number" name="items[0][total_amount]" readonly
+                                                   placeholder="0.00" value="0"
+                                                   style="background: #f9fafb; width: 100%; text-align: center;">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <button type="button" onclick="removeItem(0)" class="remove-item-btn" disabled>
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                         
                         <button type="button" onclick="addItem()" class="add-item-btn">
                             <i class="fas fa-plus"></i>
@@ -818,34 +851,34 @@ try {
             });
 
             newRow.innerHTML = `
-                <td>
-                    <select name="items[${itemIndex}][product_id]" required class="form-control product-select searchable-select" onchange="updateProductInfo(this, ${itemIndex})">
+                <td style="text-align: right;">
+                    <select name="items[${itemIndex}][product_id]" required class="form-control product-select searchable-select" onchange="updateProductInfo(this, ${itemIndex})" style="width: 100%; text-align: right;">
                         ${productOptions}
                     </select>
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <input type="number" name="items[${itemIndex}][quantity]" min="1" step="1" required
                            placeholder="1" value="1"
-                           onchange="calculateItemTotal(${itemIndex})">
+                           onchange="calculateItemTotal(${itemIndex})" style="width: 100%; text-align: center;">
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required
                            placeholder="0.00" value="0"
-                           onchange="calculateItemTotal(${itemIndex})">
+                           onchange="calculateItemTotal(${itemIndex})" style="width: 100%; text-align: center;">
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <input type="number" name="items[${itemIndex}][discount_amount]" min="0" step="0.01"
                            placeholder="0.00" value="0"
-                           onchange="calculateItemTotal(${itemIndex})">
+                           onchange="calculateItemTotal(${itemIndex})" style="width: 100%; text-align: center;">
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <input type="number" name="items[${itemIndex}][free_samples]" min="0" step="1"
-                           placeholder="0" value="0">
+                           placeholder="0" value="0" style="width: 100%; text-align: center;">
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <input type="number" name="items[${itemIndex}][total_amount]" readonly
                            placeholder="0.00" value="0"
-                           style="background: #f9fafb;">
+                           style="background: #f9fafb; width: 100%; text-align: center;">
                 </td>
                 <td style="text-align: center;">
                     <button type="button" onclick="removeItem(${itemIndex})" class="remove-item-btn">
@@ -898,12 +931,91 @@ try {
         // Save invoice
         function saveInvoice(action) {
             showNotification(`جاري ${action === 'draft' ? 'حفظ المسودة' : 'حفظ الفاتورة'}...`, 'info');
-            
-            // Here you would normally submit to your Laravel backend
-            // For now, just show a success message
-            setTimeout(() => {
-                showNotification(`تم ${action === 'draft' ? 'حفظ المسودة' : 'حفظ الفاتورة'} بنجاح!`, 'success');
-            }, 2000);
+
+            // Collect form data
+            const formData = new FormData();
+            const customerSelect = document.getElementById('customerSelect');
+
+            if (!customerSelect.value) {
+                showNotification('يرجى اختيار العميل أولاً', 'error');
+                return;
+            }
+
+            // Basic invoice data
+            formData.append('customer_id', customerSelect.value);
+            formData.append('invoice_date', document.querySelector('input[name="invoice_date"]').value);
+            formData.append('due_date', document.querySelector('input[name="due_date"]').value);
+            formData.append('sales_representative', document.querySelector('input[name="sales_representative"]').value);
+            formData.append('warehouse_name', document.querySelector('input[name="warehouse_name"]').value);
+            formData.append('type', document.querySelector('select[name="type"]').value);
+            formData.append('notes', document.querySelector('textarea[name="notes"]').value);
+            formData.append('payment_terms', document.querySelector('textarea[name="payment_terms"]').value);
+            formData.append('status', action === 'draft' ? 'draft' : 'sent');
+
+            // Invoice totals
+            formData.append('subtotal_amount', document.getElementById('subtotalAmount').value);
+            formData.append('discount_amount', document.getElementById('discountAmount').value);
+            formData.append('total_amount', document.getElementById('totalAmount').value);
+
+            // Invoice items
+            const items = [];
+            document.querySelectorAll('#invoiceItems tr').forEach((row, index) => {
+                const productSelect = row.querySelector('select[name*="product_id"]');
+                const quantity = row.querySelector('input[name*="quantity"]');
+                const unitPrice = row.querySelector('input[name*="unit_price"]');
+                const discount = row.querySelector('input[name*="discount_amount"]');
+                const freeSamples = row.querySelector('input[name*="free_samples"]');
+                const total = row.querySelector('input[name*="total_amount"]');
+
+                if (productSelect && productSelect.value) {
+                    items.push({
+                        product_id: productSelect.value,
+                        quantity: quantity.value,
+                        unit_price: unitPrice.value,
+                        discount_amount: discount.value,
+                        free_samples: freeSamples.value,
+                        total_amount: total.value
+                    });
+                }
+            });
+
+            if (items.length === 0) {
+                showNotification('يرجى إضافة منتج واحد على الأقل', 'error');
+                return;
+            }
+
+            formData.append('items', JSON.stringify(items));
+
+            // Send to server
+            fetch('/tenant/sales/invoices', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`تم ${action === 'draft' ? 'حفظ المسودة' : 'حفظ الفاتورة'} بنجاح!`, 'success');
+
+                    // Redirect to invoice view after 2 seconds
+                    setTimeout(() => {
+                        if (data.invoice_id) {
+                            window.location.href = `/tenant/sales/invoices/${data.invoice_id}`;
+                        } else {
+                            window.location.href = '/tenant/sales/invoices';
+                        }
+                    }, 2000);
+                } else {
+                    showNotification(data.message || 'حدث خطأ أثناء الحفظ', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('حدث خطأ في الاتصال بالخادم', 'error');
+            });
         }
 
         // Show notification
