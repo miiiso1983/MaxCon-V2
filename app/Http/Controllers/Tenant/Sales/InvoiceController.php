@@ -253,34 +253,29 @@ class InvoiceController extends Controller
                 $invoiceItem = new InvoiceItem();
                 $invoiceItem->invoice_id = $invoice->id;
                 $invoiceItem->product_id = $product->id;
-                $invoiceItem->product_name = $product->name;
-                $invoiceItem->product_code = $product->product_code;
-                $invoiceItem->batch_number = $product->batch_number;
-                $invoiceItem->expiry_date = $product->expiry_date;
                 $invoiceItem->quantity = $itemData['quantity'];
                 $invoiceItem->unit_price = $itemData['unit_price'];
                 $invoiceItem->discount_amount = $itemData['discount_amount'] ?? 0;
-                $invoiceItem->discount_type = $itemData['discount_type'];
+                $invoiceItem->discount_type = $itemData['discount_type'] ?? 'fixed';
                 $invoiceItem->total_amount = $itemData['total_amount'];
-                $invoiceItem->line_total = $itemData['total_amount']; // Set line_total same as total_amount
                 $invoiceItem->notes = $itemData['notes'] ?? null;
                 $invoiceItem->save();
 
                 // Update product stock if invoice is finalized
-                if ($invoice->status === 'pending') {
+                if ($invoice->status === 'finalized') {
                     $product->current_stock -= $itemData['quantity'];
                     $product->save();
                 }
             }
 
             // Generate QR Code if finalized
-            if ($invoice->status === 'pending') {
-                $invoice->generateQrCode();
+            if ($invoice->status === 'finalized') {
+                // Generate QR code here if needed
             }
 
             DB::commit();
 
-            $message = $invoice->status === 'pending' ? 'تم إنشاء الفاتورة وإنهاؤها بنجاح' : 'تم حفظ الفاتورة كمسودة';
+            $message = $invoice->status === 'finalized' ? 'تم إنشاء الفاتورة وإنهاؤها بنجاح' : 'تم حفظ الفاتورة كمسودة';
 
             return redirect()->route('tenant.sales.invoices.show', $invoice)
                 ->with('success', $message);
