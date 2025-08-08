@@ -1,16 +1,40 @@
-@extends('layouts.modern')
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>إنشاء فاتورة احترافية - {{ config('app.name') }}</title>
 
-@section('page-title', 'إنشاء فاتورة احترافية')
-@section('page-description', 'إنشاء فاتورة احترافية بنفس نمط صفحة طلبات المبيعات')
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-@push('styles')
-<link href="{{ asset('css/professional-invoice.css') }}" rel="stylesheet">
-<style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+
+    <!-- Custom Select Styles -->
+    <link rel="stylesheet" href="{{ asset('css/custom-select.css') }}">
+
+    <!-- MaxCon Enhanced Styles -->
+    <link rel="stylesheet" href="{{ asset('css/maxcon-enhancements.css') }}">
+
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+        }
     /* Modern Professional Invoice Design */
     .invoice-container {
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        min-height: 100vh;
-        padding: 20px 0;
+        min-height: calc(100vh - 70px);
+        padding: 30px 0;
     }
 
     .invoice-wrapper {
@@ -506,18 +530,35 @@
     }
 
     @media (max-width: 768px) {
+        .nav-container {
+            padding: 0 15px;
+        }
+
+        .nav-links {
+            gap: 10px;
+        }
+
+        .nav-link {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
         .invoice-wrapper {
             padding: 0 15px;
         }
 
-        .invoice-header {
+        .page-header {
             padding: 25px 20px;
             text-align: center;
         }
 
-        .invoice-title {
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .header-title h1 {
             font-size: 24px;
-            justify-content: center;
         }
 
         .form-section {
@@ -942,26 +983,189 @@
             background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
         }
     }
-</style>
-@endpush
 
-@section('content')
+        /* Navigation Bar */
+        .top-nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .title-icon {
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title-icon i {
+            font-size: 24px;
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-back {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-back:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="top-nav">
+    <div class="nav-container">
+        <a href="{{ route('tenant.dashboard') }}" class="nav-brand">
+            <i class="fas fa-cube"></i>
+            MaxCon ERP
+        </a>
+        <div class="nav-links">
+            <a href="{{ route('tenant.sales.invoices.index') }}" class="nav-link">
+                <i class="fas fa-file-invoice"></i>
+                إدارة الفواتير
+            </a>
+            <a href="{{ route('tenant.sales.orders.index') }}" class="nav-link">
+                <i class="fas fa-shopping-cart"></i>
+                طلبات المبيعات
+            </a>
+            <a href="{{ route('tenant.dashboard') }}" class="nav-link">
+                <i class="fas fa-home"></i>
+                الرئيسية
+            </a>
+        </div>
+    </div>
+</nav>
+
 <div class="invoice-container">
     <div class="invoice-wrapper">
         <!-- Header -->
-        <div class="hero-gradient fade-in-down">
-            <div class="hero-shape"></div>
-            <div class="hero-shape-2"></div>
-            <div class="hero-inner">
-                <div>
-                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
-                        <div class="stat-chip"><i class="fas fa-file-invoice"></i></div>
-                        <h1 class="text-shadow-strong" style="font-size:26px; font-weight:800; margin:0;">إنشاء فاتورة احترافية</h1>
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-info">
+                    <div class="header-title">
+                        <div class="title-icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <h1>إنشاء فاتورة احترافية</h1>
                     </div>
-                    <p style="margin:0; opacity:.9;">نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي</p>
+                    <p class="header-subtitle">نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي</p>
                 </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <a href="{{ route('tenant.sales.invoices.index') }}" class="btn-glass btn-glass--sub"><i class="fas fa-arrow-right"></i><span>عودة للفواتير</span></a>
+                <div class="header-actions">
+                    <a href="{{ route('tenant.sales.invoices.index') }}" class="btn-back">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>عودة للفواتير</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -1245,17 +1449,6 @@
 
 <!-- Include Preview Modal -->
 @include('tenant.sales.invoices.preview-modal')
-@endsection
-
-@push('scripts')
-<!-- Bootstrap Modal (if not already included) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Custom Select JavaScript -->
-<script src="{{ asset('js/custom-select.js') }}"></script>
-<script src="{{ asset('js/universal-dropdowns.js') }}"></script>
-<script src="{{ asset('js/dropdown-initializer.js') }}"></script>
-<script src="{{ asset('js/invoice-validation.js') }}"></script>
-<script src="{{ asset('js/professional-invoice.js') }}"></script>
 
 <script>
 let itemIndex = 1;
@@ -1903,4 +2096,15 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     showNotification('جاري حفظ الفاتورة...', 'info', 10000);
 });
 </script>
-@endpush
+
+<!-- Bootstrap Modal (if not already included) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom Select JavaScript -->
+<script src="{{ asset('js/custom-select.js') }}"></script>
+<script src="{{ asset('js/universal-dropdowns.js') }}"></script>
+<script src="{{ asset('js/dropdown-initializer.js') }}"></script>
+<script src="{{ asset('js/invoice-validation.js') }}"></script>
+<script src="{{ asset('js/professional-invoice.js') }}"></script>
+
+</body>
+</html>
