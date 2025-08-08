@@ -50,12 +50,18 @@
                 </div>
             </div>
             
-            <div>
-                <a href="{{ route('tenant.sales.invoices.create') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease;"
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <a href="{{ route('tenant.sales.invoices.create-professional') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease;"
                    onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='translateY(-2px)';"
                    onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(0)';">
+                    <i class="fas fa-plus-circle"></i>
+                    إنشاء فاتورة احترافية
+                </a>
+                <a href="{{ route('tenant.sales.invoices.create') }}" style="background: rgba(255,255,255,0.15); color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; font-size: 14px;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-1px)';"
+                   onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)';">
                     <i class="fas fa-plus"></i>
-                    إنشاء فاتورة جديدة
+                    الفاتورة العادية
                 </a>
             </div>
         </div>

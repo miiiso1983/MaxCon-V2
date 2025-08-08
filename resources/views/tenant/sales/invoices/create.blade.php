@@ -427,7 +427,7 @@
                             <i class="fas fa-user-tie" style="color: #4f46e5;"></i>
                             العميل
                         </label>
-                        <select name="customer_id" required class="form-control select2-customer" data-placeholder="اختر العميل">
+                        <select name="customer_id" required class="form-control" data-custom-select data-placeholder="اختر العميل" data-searchable="true">
                             <option value="">اختر العميل</option>
                             @foreach($customers as $customer)
                                 <option value="{{ $customer->id }}"
@@ -629,8 +629,8 @@
                         <tbody id="invoiceItems">
                             <tr>
                                 <td>
-                                    <select name="items[0][product_id]" required class="form-control select2-product"
-                                            data-placeholder="اختر المنتج" onchange="updatePrice(this)">
+                                    <select name="items[0][product_id]" required class="form-control" data-custom-select
+                                            data-placeholder="اختر المنتج" data-searchable="true" onchange="updatePrice(this)">
                                         <option value="">اختر المنتج</option>
                                         @foreach($products as $product)
                                             <option value="{{ $product->id }}"
@@ -711,37 +711,14 @@
 <script>
 let itemIndex = 1;
 
-// Initialize Select2 for existing elements
-function initializeSelect2() {
-    // Customer dropdown
-    $('.select2-customer').select2({
-        placeholder: 'اختر العميل',
-        allowClear: true,
-        width: '100%',
-        language: {
-            noResults: function() {
-                return "لا توجد نتائج";
-            },
-            searching: function() {
-                return "جاري البحث...";
-            }
-        }
-    });
-
-    // Product dropdowns
-    $('.select2-product').select2({
-        placeholder: 'اختر المنتج',
-        allowClear: true,
-        width: '100%',
-        language: {
-            noResults: function() {
-                return "لا توجد نتائج";
-            },
-            searching: function() {
-                return "جاري البحث...";
-            }
-        }
-    });
+// Initialize custom selects for existing elements
+function initializeCustomSelects() {
+    // Initialize all custom selects
+    if (window.initCustomSelects) {
+        window.initCustomSelects();
+    } else if (window.UniversalDropdowns) {
+        window.UniversalDropdowns.initializeAllSelects();
+    }
 }
 
 function addItem() {
@@ -750,8 +727,8 @@ function addItem() {
 
     newRow.innerHTML = `
         <td>
-            <select name="items[${itemIndex}][product_id]" required class="form-control select2-product"
-                    data-placeholder="اختر المنتج" onchange="updatePrice(this)">
+            <select name="items[${itemIndex}][product_id]" required class="form-control" data-custom-select
+                    data-placeholder="اختر المنتج" data-searchable="true" onchange="updatePrice(this)">
                 <option value="">اختر المنتج</option>
                 @foreach($products as $product)
                     <option value="{{ $product->id }}" data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}">
@@ -781,20 +758,12 @@ function addItem() {
 
     tbody.appendChild(newRow);
 
-    // Initialize Select2 for the new dropdown
-    $(newRow).find('.select2-product').select2({
-        placeholder: 'اختر المنتج',
-        allowClear: true,
-        width: '100%',
-        language: {
-            noResults: function() {
-                return "لا توجد نتائج";
-            },
-            searching: function() {
-                return "جاري البحث...";
-            }
-        }
-    });
+    // Initialize custom select for the new dropdown
+    if (window.initCustomSelects) {
+        window.initCustomSelects(newRow);
+    } else if (window.UniversalDropdowns) {
+        window.UniversalDropdowns.initializeAllSelects(newRow);
+    }
 
     itemIndex++;
 }
@@ -876,7 +845,7 @@ $(document).on('input change', '#discountAmount, #discountType', function() {
 });
 
 // Update credit limit and previous balance when customer changes
-$(document).on('change', '.select2-customer', function() {
+$(document).on('change', 'select[name="customer_id"]', function() {
     const selected = $(this).find('option:selected');
     const creditLimit = parseFloat(selected.data('credit-limit') || 0);
     const previousBalance = parseFloat(selected.data('previous-balance') || 0);
@@ -914,8 +883,8 @@ $('button[type="submit"]').on('click', function() {
 
 // Initialize calculations on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Select2
-    initializeSelect2();
+    // Initialize custom selects
+    initializeCustomSelects();
 
     calculateGrandTotal();
 
@@ -926,8 +895,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle Select2 change events
-    $(document).on('change', '.select2-product', function() {
+    // Handle product select change events
+    $(document).on('change', 'select[name*="[product_id]"]', function() {
         updatePrice(this);
     });
 });

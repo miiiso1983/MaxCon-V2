@@ -327,7 +327,10 @@
         @foreach($categories as $slug => $category)
         <a href="{{ route('tenant.system-guide.videos', $slug) }}" 
            class="category-btn {{ $moduleSlug == $slug ? 'active' : '' }}"
-           style="{{ $moduleSlug == $slug ? 'border-color: ' . $category['color'] . '; background: ' . $category['color'] . ';' : '' }}"
+           @php
+               $activeStyle = ($moduleSlug == $slug) ? 'border-color: ' . $category['color'] . '; background: ' . $category['color'] . ';' : '';
+           @endphp
+           @if(!empty($activeStyle)) style="{{ $activeStyle }}" @endif>
             <i class="{{ $category['icon'] }}"></i>
             {{ $category['name'] }}
         </a>
