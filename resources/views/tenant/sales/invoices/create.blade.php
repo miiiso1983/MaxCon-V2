@@ -1060,118 +1060,71 @@
 
                     <!-- Item Template (Hidden) -->
             <template id="itemTemplate">
-                <div class="invoice-item" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 15px; position: relative;">
-                    <button type="button" onclick="removeItem(this)" style="position: absolute; top: 10px; left: 10px; background: #f56565; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-times"></i>
-                    </button>
-
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <!-- Product -->
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
-                            <div class="custom-dropdown" data-name="items[INDEX][product_id]" data-required="true" data-onchange="updateProductInfo">
-                                <div class="dropdown-header">
-                                    <span class="dropdown-placeholder">اختر المنتج</span>
-                                    <i class="fas fa-chevron-down dropdown-arrow"></i>
-                                </div>
-                                <div class="dropdown-content">
-                                    <input type="text" class="dropdown-search" placeholder="البحث عن منتج...">
-                                    <div class="dropdown-options">
-                                        <div class="dropdown-option" data-value="" data-price="" data-stock="" data-unit="">
-                                            اختر المنتج
-                                        </div>
-                                        @foreach($products as $product)
-                                            <div class="dropdown-option"
-                                                 data-value="{{ $product->id }}"
-                                                 data-price="{{ $product->selling_price }}"
-                                                 data-stock="{{ $product->current_stock }}"
-                                                 data-unit="{{ $product->unit }}">
-                                                {{ $product->name }} ({{ $product->current_stock }} {{ $product->unit }})
-                                            </div>
-                                        @endforeach
+                <tr class="invoice-item">
+                    <td>
+                        <div class="custom-dropdown" data-name="items[INDEX][product_id]" data-required="true" data-onchange="updateProductInfo">
+                            <div class="dropdown-header">
+                                <span class="dropdown-placeholder">اختر المنتج</span>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </div>
+                            <div class="dropdown-content">
+                                <input type="text" class="dropdown-search" placeholder="البحث عن منتج...">
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="" data-price="" data-stock="" data-unit="">
+                                        اختر المنتج
                                     </div>
-                                </div>
-                                <select name="items[INDEX][product_id]" required style="display: none;">
-                                    <option value="">اختر المنتج</option>
                                     @foreach($products as $product)
-                                        <option value="{{ $product->id }}"
-                                                data-price="{{ $product->selling_price }}"
-                                                data-stock="{{ $product->current_stock }}"
-                                                data-unit="{{ $product->unit }}">
-                                            {{ $product->name }} ({{ $product->current_stock }} {{ $product->unit }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Quantity -->
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الكمية *</label>
-                            <input type="number" name="items[INDEX][quantity]" min="1" step="1" required
-                                   style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;"
-                                   placeholder="1" onchange="calculateItemTotal(this)">
-                        </div>
-
-                        <!-- Unit Price -->
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">سعر الوحدة *</label>
-                            <input type="number" name="items[INDEX][unit_price]" min="0" step="0.01" required
-                                   style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;"
-                                   placeholder="0.00" onchange="calculateItemTotal(this)">
-                        </div>
-
-                        <!-- Discount -->
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الخصم</label>
-                            <div style="display: flex; gap: 5px;">
-                                <input type="number" name="items[INDEX][discount_amount]" min="0" step="0.01"
-                                       style="flex: 1; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;"
-                                       placeholder="0.00" onchange="calculateItemTotal(this)">
-                                <div class="custom-dropdown" data-name="items[INDEX][discount_type]" style="width: 80px;">
-                                    <div class="dropdown-header" style="padding: 10px 8px;">
-                                        <span class="dropdown-placeholder">اختر نوع الخصم</span>
-                                        <i class="fas fa-chevron-down dropdown-arrow" style="font-size: 10px;"></i>
-                                    </div>
-                                    <div class="dropdown-content">
-                                        <input type="text" class="dropdown-search" placeholder="البحث عن نوع الخصم...">
-                                        <div class="dropdown-options">
-                                            <div class="dropdown-option" data-value="">
-                                                اختر نوع الخصم
-                                            </div>
-                                            <div class="dropdown-option" data-value="fixed" data-selected="true">
-                                                ثابت
-                                            </div>
-                                            <div class="dropdown-option" data-value="percentage">
-                                                %
-                                            </div>
+                                        <div class="dropdown-option"
+                                             data-value="{{ $product->id }}"
+                                             data-price="{{ $product->selling_price ?? 0 }}"
+                                             data-stock="{{ $product->current_stock ?? 0 }}"
+                                             data-unit="{{ $product->unit ?? 'قطعة' }}">
+                                            {{ $product->name }}
                                         </div>
-                                    </div>
-                                    <select name="items[INDEX][discount_type]" style="display: none;">
-                                        <option value="fixed">ثابت</option>
-                                        <option value="percentage">%</option>
-                                    </select>
+                                    @endforeach
                                 </div>
                             </div>
+                            <select name="items[INDEX][product_id]" required style="display: none;">
+                                <option value="">اختر المنتج</option>
+                                @foreach($products as $product)
+                                    <option value="{{ $product->id }}"
+                                            data-price="{{ $product->selling_price ?? 0 }}"
+                                            data-stock="{{ $product->current_stock ?? 0 }}"
+                                            data-unit="{{ $product->unit ?? 'قطعة' }}">
+                                        {{ $product->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-
-                        <!-- Total -->
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الإجمالي</label>
-                            <input type="number" name="items[INDEX][total_amount]" readonly
-                                   style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f7fafc;"
-                                   placeholder="0.00">
+                    </td>
+                    <td>
+                        <input type="number" name="items[INDEX][quantity]" min="1" step="1" required
+                               class="form-control" placeholder="1" onchange="calculateItemTotal(this)">
+                    </td>
+                    <td>
+                        <input type="number" name="items[INDEX][unit_price]" min="0" step="0.01" required
+                               class="form-control" placeholder="0.00" onchange="calculateItemTotal(this)">
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="number" name="items[INDEX][discount_amount]" min="0" step="0.01"
+                                   class="form-control" placeholder="0" onchange="calculateItemTotal(this)" style="flex: 1;">
+                            <select name="items[INDEX][discount_type]" class="form-control" style="width: 80px;">
+                                <option value="fixed">ثابت</option>
+                                <option value="percentage">%</option>
+                            </select>
                         </div>
-
-                        <!-- Notes -->
-                        <div style="grid-column: 1 / -1;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">ملاحظات</label>
-                            <input type="text" name="items[INDEX][notes]"
-                                   style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;"
-                                   placeholder="ملاحظات إضافية للعنصر...">
-                        </div>
-                    </div>
-                </div>
+                    </td>
+                    <td>
+                        <input type="number" name="items[INDEX][total_amount]" readonly
+                               class="form-control" placeholder="0.00" style="background: var(--gray-50);">
+                    </td>
+                    <td>
+                        <button type="button" onclick="removeItem(this)" class="btn btn-danger" style="padding: 0.5rem;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
             </template>
 
             <!-- Initial Item -->
@@ -1397,9 +1350,13 @@
         </div>
 
         <!-- Hidden fields for totals -->
-        <input type="hidden" name="subtotal_amount" id="subtotalAmount">
-        <input type="hidden" name="tax_amount" id="taxAmount">
-        <input type="hidden" name="total_amount" id="totalAmount">
+        <input type="hidden" name="subtotal_amount" id="subtotalAmount" value="0">
+        <input type="hidden" name="tax_amount" id="taxAmount" value="0">
+        <input type="hidden" name="total_amount" id="totalAmount" value="0">
+        <input type="hidden" name="discount_amount" id="discountAmount" value="0">
+        <input type="hidden" name="discount_type" value="fixed">
+        <input type="hidden" name="shipping_cost" value="0">
+        <input type="hidden" name="additional_charges" value="0">
 
         <!-- Hidden fields for customer credit info -->
         <input type="hidden" name="previous_balance" id="previousBalance" value="0">
@@ -1753,40 +1710,45 @@ function calculateItemTotal(element) {
     calculateTotals();
 }
 
-// Add new item
-function addItem() {
+// Add new item to table
+function addInvoiceItem() {
     const template = document.getElementById('itemTemplate');
-    const newItem = template.content.cloneNode(true);
+    const newRow = template.content.cloneNode(true);
+    const tbody = document.querySelector('#invoiceItems');
+    const itemCount = tbody.querySelectorAll('.invoice-item').length;
 
     // Update all name attributes with new index
-    const inputs = newItem.querySelectorAll('input, select');
+    const inputs = newRow.querySelectorAll('input, select');
     inputs.forEach(input => {
         if (input.name) {
-            input.name = input.name.replace('INDEX', itemIndex);
+            input.name = input.name.replace('INDEX', itemCount);
         }
     });
 
     // Update custom dropdown data-name attributes
-    const customDropdowns = newItem.querySelectorAll('.custom-dropdown');
+    const customDropdowns = newRow.querySelectorAll('.custom-dropdown');
     customDropdowns.forEach(dropdown => {
         if (dropdown.dataset.name) {
-            dropdown.dataset.name = dropdown.dataset.name.replace('INDEX', itemIndex);
+            dropdown.dataset.name = dropdown.dataset.name.replace('INDEX', itemCount);
         }
     });
 
-    // Append to container
-    const container = document.getElementById('invoiceItems');
-    container.appendChild(newItem);
+    // Append to table body
+    tbody.appendChild(newRow);
 
     // Initialize custom dropdowns for the new item
-    const newDropdowns = container.querySelectorAll('.invoice-item:last-child .custom-dropdown');
+    const newDropdowns = tbody.querySelectorAll('.invoice-item:last-child .custom-dropdown');
     newDropdowns.forEach(dropdown => {
         initializeCustomDropdown(dropdown);
     });
 
-    itemIndex++;
+    calculateTotals();
+    console.log('Added new item with index:', itemCount);
+}
 
-    console.log('Added new item with index:', itemIndex - 1);
+// Legacy function for compatibility
+function addItem() {
+    addInvoiceItem();
 }
 
 // Initialize a single custom dropdown
