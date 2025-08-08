@@ -1790,6 +1790,26 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             return view('tenant.sales.invoices.create-professional', compact('customers', 'products', 'salesOrders'));
         })->name('invoices.create-professional');
 
+        // Simple Invoice Creation
+        Route::get('invoices/create-simple', function() {
+            $user = Auth::user();
+            if (!$user || !$user->tenant_id) {
+                abort(403, 'غير مصرح لك بالوصول');
+            }
+
+            $customers = \App\Models\Customer::forTenant($user->tenant_id)
+                ->active()
+                ->orderBy('name')
+                ->get();
+
+            $products = \App\Models\Product::forTenant($user->tenant_id)
+                ->active()
+                ->orderBy('name')
+                ->get();
+
+            return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+        })->name('invoices.create-simple');
+
         Route::resource('invoices', InvoiceController::class);
         Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
         Route::get('invoices/{invoice}/view-pdf', [InvoiceController::class, 'viewPdf'])->name('invoices.view-pdf');
