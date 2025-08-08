@@ -206,23 +206,32 @@ class InvoiceController extends Controller
             $invoice->tenant_id = $user->tenant_id;
             $invoice->invoice_number = $invoice->generateInvoiceNumber();
             $invoice->customer_id = $validated['customer_id'];
-            $invoice->sales_order_id = $validated['sales_order_id'];
+            $invoice->sales_order_id = $validated['sales_order_id'] ?? null;
             $invoice->created_by = $user->id;
             $invoice->invoice_date = $validated['invoice_date'];
             $invoice->due_date = $validated['due_date'];
-            $invoice->type = $validated['type'];
-            $invoice->notes = $validated['notes'];
-            $invoice->free_samples = $validated['free_samples'];
-            $invoice->currency = $validated['currency'];
-            $invoice->sales_representative = $validated['sales_representative'];
-            $invoice->exchange_rate = 1.0; // Default exchange rate
+            $invoice->type = $validated['type'] ?? 'sales';
+            $invoice->notes = $validated['notes'] ?? null;
+            $invoice->free_samples = $validated['free_samples'] ?? null;
+            $invoice->currency = $validated['currency'] ?? 'IQD';
+            $invoice->sales_representative = $validated['sales_representative'] ?? $user->name;
+            $invoice->exchange_rate = 1.0;
             $invoice->shipping_cost = $validated['shipping_cost'] ?? 0;
             $invoice->additional_charges = $validated['additional_charges'] ?? 0;
             $invoice->discount_amount = $validated['discount_amount'] ?? 0;
-            $invoice->discount_type = $validated['discount_type'];
-            $invoice->subtotal_amount = $validated['subtotal_amount'];
-            $invoice->tax_amount = $validated['tax_amount'];
-            $invoice->total_amount = $validated['total_amount'];
+            $invoice->discount_type = $validated['discount_type'] ?? 'fixed';
+
+            // Calculate totals from items
+            $subtotal = 0;
+            foreach ($validated['items'] as $item) {
+                $subtotal += floatval($item['total_amount'] ?? 0);
+            }
+            $taxAmount = $subtotal * 0.1; // 10% tax
+            $totalAmount = $subtotal + $taxAmount;
+
+            $invoice->subtotal_amount = $subtotal;
+            $invoice->tax_amount = $taxAmount;
+            $invoice->total_amount = $totalAmount;
             $invoice->previous_balance = $validated['previous_balance'] ?? 0;
             $invoice->credit_limit = $validated['credit_limit'] ?? 0;
 
