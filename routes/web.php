@@ -2938,5 +2938,34 @@ Route::get('/invoice-create-real', function() {
     }
 })->name('invoice.create.real');
 
+// Enhanced Invoice Management Routes
+Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
+    Route::prefix('sales/invoices')->name('tenant.sales.invoices.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Tenant\InvoiceController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Tenant\InvoiceController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\Tenant\InvoiceController::class, 'store'])->name('store');
+        Route::get('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'show'])->name('show');
+        Route::get('/{invoice}/edit', [App\Http\Controllers\Tenant\InvoiceController::class, 'edit'])->name('edit');
+        Route::put('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'update'])->name('update');
+        Route::delete('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'destroy'])->name('destroy');
+
+        // Printing and PDF
+        Route::get('/{invoice}/print', [App\Http\Controllers\Tenant\InvoiceController::class, 'print'])->name('print');
+        Route::get('/{invoice}/print-thermal', [App\Http\Controllers\Tenant\InvoiceController::class, 'printThermal'])->name('print-thermal');
+        Route::get('/{invoice}/download-pdf', [App\Http\Controllers\Tenant\InvoiceController::class, 'downloadPdf'])->name('download-pdf');
+
+        // Communication
+        Route::post('/{invoice}/send-email', [App\Http\Controllers\Tenant\InvoiceController::class, 'sendEmail'])->name('send-email');
+        Route::post('/{invoice}/send-whatsapp', [App\Http\Controllers\Tenant\InvoiceController::class, 'sendWhatsApp'])->name('send-whatsapp');
+
+        // Payments
+        Route::post('/{invoice}/add-payment', [App\Http\Controllers\Tenant\InvoiceController::class, 'addPayment'])->name('add-payment');
+
+        // AJAX helpers
+        Route::get('/customer/{customer}/debt', [App\Http\Controllers\Tenant\InvoiceController::class, 'getCustomerDebt'])->name('customer-debt');
+        Route::get('/warehouse/{warehouse}/product/{product}/stock', [App\Http\Controllers\Tenant\InvoiceController::class, 'getWarehouseStock'])->name('warehouse-stock');
+    });
+});
+
 // Include customer routes
 require __DIR__.'/customer.php';

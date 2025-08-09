@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class Invoice extends Model
 {
@@ -274,19 +275,33 @@ class Invoice extends Model
         }
     }
 
-    public function addPayment($amount)
+    public function addPayment($amount, $paymentMethod = 'cash', $referenceNumber = null, $notes = null)
     {
-        $this->paid_amount += $amount;
+        $payment = $this->payments()->create([
+            'amount' => $amount,
+            'payment_date' => now(),
+            'payment_method' => $paymentMethod,
+            'reference_number' => $referenceNumber,
+            'notes' => $notes,
+            'created_by' => Auth::id() ?? 1,
+        ]);
 
-        if ($this->paid_amount >= $this->total_amount) {
+        $this->paid_amount += $amount;
+        $this->remaining_amount = $this->total_amount - $this->paid_amount;
+
+        // Update payment status
+        if ($this->remaining_amount <= 0) {
+            $this->payment_status = 'paid';
             $this->status = 'paid';
             $this->paid_at = now();
         } elseif ($this->paid_amount > 0) {
+            $this->payment_status = 'partial';
             $this->status = 'partial_paid';
         }
 
-        $this->remaining_amount = $this->total_amount - $this->paid_amount;
         $this->save();
+
+        return $payment;
     }
 
     public function isOverdue(): bool
