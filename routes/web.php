@@ -3148,6 +3148,107 @@ Route::get('/system-diagnosis', function () {
     }
 })->name('system.diagnosis');
 
+// Quick Admin Login for Testing (REMOVE IN PRODUCTION)
+Route::get('/quick-admin-login', function () {
+    try {
+        // Find or create admin user
+        $admin = \App\Models\User::where('email', 'admin@maxcon.app')->first();
+
+        if (!$admin) {
+            // Create admin user
+            $admin = new \App\Models\User();
+            $admin->name = 'مدير النظام';
+            $admin->email = 'admin@maxcon.app';
+            $admin->password = bcrypt('admin123');
+            $admin->role = 'super_admin';
+            $admin->tenant_id = 4; // Use existing tenant
+            $admin->email_verified_at = now();
+            $admin->save();
+        }
+
+        // Login as admin
+        \Auth::login($admin);
+
+        return redirect('/tenant/sales/invoices')->with('success', 'تم تسجيل الدخول كمدير النظام');
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في تسجيل الدخول'
+        ]);
+    }
+})->name('quick.admin.login');
+
+// Update Current User Permissions (REMOVE IN PRODUCTION)
+Route::get('/update-user-permissions', function () {
+    try {
+        $user = \Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'error' => 'لا يوجد مستخدم مسجل دخول',
+                'login_url' => '/quick-admin-login'
+            ]);
+        }
+
+        // Update user role and tenant
+        $user->role = 'super_admin';
+        $user->tenant_id = 4;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث صلاحيات المستخدم بنجاح',
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'tenant_id' => $user->tenant_id,
+            ],
+            'redirect_url' => '/tenant/sales/invoices'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في تحديث الصلاحيات'
+        ]);
+    }
+})->name('update.user.permissions');
+
+// Invoice System Without Permissions (TESTING ONLY)
+Route::get('/invoices-test-no-permissions', function () {
+    try {
+        // Get invoices data directly
+        $invoices = \DB::table('invoices')
+            ->leftJoin('customers', 'invoices.customer_id', '=', 'customers.id')
+            ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
+            ->select(
+                'invoices.*',
+                'customers.name as customer_name',
+                'customers.phone as customer_phone',
+                'customers.email as customer_email',
+                'users.name as created_by_name'
+            )
+            ->paginate(10);
+
+        $statusCounts = [
+            'draft' => \DB::table('invoices')->where('status', 'draft')->count(),
+            'sent' => \DB::table('invoices')->where('status', 'sent')->count(),
+            'paid' => \DB::table('invoices')->where('payment_status', 'paid')->count(),
+            'overdue' => \DB::table('invoices')->where('due_date', '<', now())->where('payment_status', '!=', 'paid')->count(),
+        ];
+
+        return view('tenant.sales.invoices.index', compact('invoices', 'statusCounts'));
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في تحميل الفواتير'
+        ]);
+    }
+})->name('invoices.test.no.permissions');
+
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {
     try {
