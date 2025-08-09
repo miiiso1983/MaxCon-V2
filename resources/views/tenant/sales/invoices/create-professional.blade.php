@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ENHANCED INVOICE CREATION WITH FOC COLUMN AND MODERN DESIGN - UPDATED 2024 -->
+<!-- ENHANCED INVOICE CREATION WITH MODERN DESIGN - UPDATED 2024 -->
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8">
@@ -1041,68 +1041,7 @@
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
     }
 
-    .foc-container {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 6px !important;
-        padding: 8px !important;
-    }
 
-    .foc-switch {
-        position: relative !important;
-        display: inline-block !important;
-        width: 44px !important;
-        height: 24px !important;
-    }
-
-    .foc-switch input {
-        opacity: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
-    }
-
-    .foc-slider {
-        position: absolute !important;
-        cursor: pointer !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        background: #e2e8f0 !important;
-        transition: all 0.3s ease !important;
-        border-radius: 24px !important;
-        border: 2px solid #e2e8f0 !important;
-    }
-
-    .foc-slider:before {
-        position: absolute !important;
-        content: "" !important;
-        height: 16px !important;
-        width: 16px !important;
-        left: 2px !important;
-        bottom: 2px !important;
-        background: white !important;
-        transition: all 0.3s ease !important;
-        border-radius: 50% !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-    }
-
-    input:checked + .foc-slider {
-        background: #10b981 !important;
-        border-color: #10b981 !important;
-    }
-
-    input:checked + .foc-slider:before {
-        transform: translateX(20px) !important;
-    }
-
-    .foc-label {
-        font-size: 10px !important;
-        color: #64748b !important;
-        font-weight: 600 !important;
-        text-align: center !important;
-    }
 
     /* Enhanced input fallback */
     .enhanced-input {
@@ -1224,78 +1163,7 @@
         background: white;
     }
 
-    /* FOC (Free of Charge) Column Styles */
-    .foc-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        padding: 8px;
-    }
 
-    .foc-switch {
-        position: relative;
-        display: inline-block;
-        width: 44px;
-        height: 24px;
-    }
-
-    .foc-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .foc-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-        transition: all 0.3s ease;
-        border-radius: 24px;
-        border: 2px solid #e2e8f0;
-    }
-
-    .foc-slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 2px;
-        bottom: 2px;
-        background: white;
-        transition: all 0.3s ease;
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    input:checked + .foc-slider {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        border-color: #10b981;
-    }
-
-    input:checked + .foc-slider:before {
-        transform: translateX(20px);
-        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-    }
-
-    .foc-slider:hover {
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .foc-label {
-        font-size: 10px;
-        color: #64748b;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    input:checked ~ .foc-label {
-        color: #10b981;
-    }
 
     /* Enhanced Total Display */
     .total-display {
@@ -2093,7 +1961,7 @@
 <div id="verificationBanner" style="position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: linear-gradient(45deg, #ff0000, #ff6b6b); color: white; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; box-shadow: 0 4px 20px rgba(255,0,0,0.5); border-bottom: 5px solid #ffffff;">
     🔥 ENHANCED VERSION LOADED SUCCESSFULLY! 🔥
     <br>
-    <span style="font-size: 16px;">Enhanced FOC Column & Modern Design Active - Version 2024</span>
+    <span style="font-size: 16px;">Enhanced Product Dropdowns & Modern Design Active - Version 2024</span>
     <button onclick="document.getElementById('verificationBanner').style.display='none'" style="position: absolute; top: 10px; right: 20px; background: white; color: red; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold;">✕ Close</button>
 </div>
 
@@ -2131,14 +1999,14 @@
                         <div class="title-icon">
                             <i class="fas fa-file-invoice"></i>
                         </div>
-                        <h1>إنشاء فاتورة احترافية - مع عمود FOC المحسن</h1>
+                        <h1>إنشاء فاتورة احترافية - مع التصميم المحسن</h1>
                     </div>
                     <p class="header-subtitle">نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي (تحديث 2024)</p>
 
                     <!-- VERIFICATION BANNER -->
                     <div style="background: linear-gradient(45deg, #10b981, #059669); color: white; padding: 20px; border-radius: 15px; margin: 20px 0; text-align: center; font-weight: bold; font-size: 18px; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); border: 3px solid #ffffff;">
                         <i class="fas fa-check-circle" style="margin-left: 10px; font-size: 24px;"></i>
-                        ✅ النسخة المحسنة مع عمود FOC وتصميم المنتجات المطور
+                        ✅ النسخة المحسنة مع تصميم المنتجات المطور
                         <br>
                         <span style="font-size: 14px; opacity: 0.9;">إذا كنت ترى هذه الرسالة فالتحديث يعمل بنجاح!</span>
                     </div>
@@ -2245,13 +2113,12 @@
                         <table class="items-table" id="itemsTable">
                             <thead>
                                 <tr>
-                                    <th style="width: 28%;">المنتج</th>
-                                    <th style="width: 10%;">الكمية</th>
-                                    <th style="width: 12%;">السعر</th>
-                                    <th style="width: 10%;">الخصم</th>
-                                    <th style="width: 8%;">العينات</th>
-                                    <th style="width: 8%; background: linear-gradient(45deg, #10b981, #059669) !important; color: white !important; font-weight: bold !important; text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;">FOC مجاني</th>
-                                    <th style="width: 18%;">المجموع</th>
+                                    <th style="width: 35%;">المنتج</th>
+                                    <th style="width: 12%;">الكمية</th>
+                                    <th style="width: 15%;">السعر</th>
+                                    <th style="width: 12%;">الخصم</th>
+                                    <th style="width: 10%;">العينات</th>
+                                    <th style="width: 10%;">المجموع</th>
                                     <th style="width: 6%;">حذف</th>
                                 </tr>
                             </thead>
@@ -2319,15 +2186,6 @@
                                         <input type="number" name="items[0][free_samples]" min="0" step="1"
                                                class="form-control enhanced-input" placeholder="0" value="0"
                                                style="text-align: center;">
-                                    </td>
-                                    <td style="background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important; border: 2px solid #10b981 !important;">
-                                        <div class="foc-container" style="padding: 15px !important;">
-                                            <label class="foc-switch" style="width: 60px !important; height: 30px !important;">
-                                                <input type="checkbox" name="items[0][is_foc]" value="1" onchange="simpleFOCToggle(this, 0)">
-                                                <span class="foc-slider" style="border-radius: 30px !important; background: #ef4444 !important;"></span>
-                                            </label>
-                                            <span class="foc-label" style="font-size: 12px !important; font-weight: bold !important; color: #059669 !important;">مجاني FOC</span>
-                                        </div>
                                     </td>
                                     <td>
                                         <div class="total-display">
@@ -2910,15 +2768,6 @@ function addItem() {
             <input type="number" name="items[${itemIndex}][free_samples]" min="0" step="1"
                    class="form-control enhanced-input" placeholder="0" value="0"
                    style="text-align: center;">
-        </td>
-        <td style="background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important; border: 2px solid #10b981 !important;">
-            <div class="foc-container" style="padding: 15px !important;">
-                <label class="foc-switch" style="width: 60px !important; height: 30px !important;">
-                    <input type="checkbox" name="items[${itemIndex}][is_foc]" value="1" onchange="simpleFOCToggle(this, ${itemIndex})">
-                    <span class="foc-slider" style="border-radius: 30px !important; background: #ef4444 !important;"></span>
-                </label>
-                <span class="foc-label" style="font-size: 12px !important; font-weight: bold !important; color: #059669 !important;">مجاني FOC</span>
-            </div>
         </td>
         <td>
             <div class="total-display">
@@ -3927,79 +3776,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Simple FOC toggle function that works without external dependencies
-function simpleFOCToggle(checkbox, index) {
-    console.log('FOC toggle clicked for index:', index, 'checked:', checkbox.checked);
 
-    const row = checkbox.closest('tr');
-    const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
-    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
-    const discountInput = document.querySelector(`input[name="items[${index}][discount_amount]"]`);
-    const quantityInput = document.querySelector(`input[name="items[${index}][quantity]"]`);
-
-    if (checkbox.checked) {
-        // FOC mode - set total to 0
-        if (totalInput) {
-            totalInput.value = '0.00';
-            totalInput.style.background = '#dcfce7';
-            totalInput.style.color = '#059669';
-            totalInput.style.fontWeight = 'bold';
-        }
-
-        // Add visual feedback to row
-        if (row) {
-            row.style.background = 'linear-gradient(135deg, #f0fdf4, #dcfce7)';
-            row.style.border = '2px solid #10b981';
-        }
-
-        // Disable price and discount inputs
-        if (priceInput) {
-            priceInput.disabled = true;
-            priceInput.style.opacity = '0.5';
-        }
-        if (discountInput) {
-            discountInput.disabled = true;
-            discountInput.style.opacity = '0.5';
-        }
-
-        console.log('Item set to FOC - total set to 0.00');
-
-    } else {
-        // Normal mode - recalculate total
-        if (row) {
-            row.style.background = '';
-            row.style.border = '';
-        }
-
-        if (totalInput) {
-            totalInput.style.background = '';
-            totalInput.style.color = '';
-            totalInput.style.fontWeight = '';
-        }
-
-        // Re-enable inputs
-        if (priceInput) {
-            priceInput.disabled = false;
-            priceInput.style.opacity = '1';
-        }
-        if (discountInput) {
-            discountInput.disabled = false;
-            discountInput.style.opacity = '1';
-        }
-
-        // Recalculate total
-        const quantity = parseFloat(quantityInput ? quantityInput.value || 0 : 0);
-        const price = parseFloat(priceInput ? priceInput.value || 0 : 0);
-        const discount = parseFloat(discountInput ? discountInput.value || 0 : 0);
-        const total = Math.max(0, (quantity * price) - discount);
-
-        if (totalInput) {
-            totalInput.value = total.toFixed(2);
-        }
-
-        console.log('Item removed from FOC - total recalculated to:', total.toFixed(2));
-    }
-}
 
 // Enhanced product info update function
 function simpleUpdateProductInfo(selectElement, index) {
@@ -4096,18 +3873,23 @@ function simpleCalculateTotal(index) {
     const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
     const discountInput = document.querySelector(`input[name="items[${index}][discount_amount]"]`);
     const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
-    const focCheckbox = document.querySelector(`input[name="items[${index}][is_foc]"]`);
 
     if (quantityInput && priceInput && totalInput) {
         const quantity = parseFloat(quantityInput.value || 0);
         const price = parseFloat(priceInput.value || 0);
         const discount = parseFloat(discountInput ? discountInput.value || 0 : 0);
-        const isFOC = focCheckbox ? focCheckbox.checked : false;
 
-        const total = isFOC ? 0 : Math.max(0, (quantity * price) - discount);
+        const total = Math.max(0, (quantity * price) - discount);
         totalInput.value = total.toFixed(2);
 
-        console.log('Total calculated:', total.toFixed(2), 'FOC:', isFOC);
+        // Add visual feedback
+        totalInput.style.background = '#f0f9ff';
+        totalInput.style.transition = 'background 0.3s ease';
+        setTimeout(() => {
+            totalInput.style.background = '';
+        }, 500);
+
+        console.log('Total calculated:', total.toFixed(2));
     }
 }
 
