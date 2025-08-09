@@ -3713,6 +3713,8 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     console.log('Form element:', this);
     console.log('Form action:', this.action);
     console.log('Form method:', this.method);
+    console.log('Event object:', e);
+    console.log('Event defaultPrevented:', e.defaultPrevented);
 
     // Run validation with detailed logging
     const isValid = validateForm();
@@ -3733,6 +3735,13 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 
     // Let the form submit normally - don't prevent it
     console.log('🚀 Allowing form to submit naturally...');
+
+    // Add a small delay to see if form actually submits
+    setTimeout(() => {
+        console.log('⏰ 2 seconds after form submission attempt...');
+        console.log('📍 Current URL:', window.location.href);
+        console.log('🔄 If you still see this message, the form did not submit');
+    }, 2000);
 
     // Clear draft on successful submission
     clearDraft();
