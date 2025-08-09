@@ -2709,59 +2709,156 @@ Route::get('/create-sample-data', function () {
     }
 })->name('create.sample.data');
 
-// الرابط الأساسي لإنشاء الفواتير (خارج tenant group لتجنب مشاكل الـ middleware)
+// الرابط الأساسي لإنشاء الفواتير (بدون اتصال بقاعدة البيانات لتجنب الأخطاء)
 Route::get('/invoice-create', function() {
+    // استخدام بيانات ثابتة لتجنب مشاكل قاعدة البيانات
+    $customers = collect([
+        (object)[
+            'id' => 1,
+            'name' => 'شركة الأدوية المتقدمة',
+            'customer_code' => 'CUST001',
+            'phone' => '07901234567',
+            'current_balance' => 1500.00,
+            'credit_limit' => 10000.00,
+            'tenant_id' => 1
+        ],
+        (object)[
+            'id' => 2,
+            'name' => 'صيدلية النور الطبية',
+            'customer_code' => 'CUST002',
+            'phone' => '07801234567',
+            'current_balance' => 750.50,
+            'credit_limit' => 5000.00,
+            'tenant_id' => 1
+        ],
+        (object)[
+            'id' => 3,
+            'name' => 'مستشفى بغداد التخصصي',
+            'customer_code' => 'CUST003',
+            'phone' => '07701234567',
+            'current_balance' => 2250.75,
+            'credit_limit' => 15000.00,
+            'tenant_id' => 1
+        ]
+    ]);
+
+    $products = collect([
+        (object)[
+            'id' => 1,
+            'name' => 'باراسيتامول 500 مجم',
+            'product_code' => 'PARA500',
+            'selling_price' => 15.50,
+            'unit_price' => 12.00,
+            'stock_quantity' => 100,
+            'tenant_id' => 1
+        ],
+        (object)[
+            'id' => 2,
+            'name' => 'أموكسيسيلين 250 مجم',
+            'product_code' => 'AMOX250',
+            'selling_price' => 25.00,
+            'unit_price' => 20.00,
+            'stock_quantity' => 75,
+            'tenant_id' => 1
+        ],
+        (object)[
+            'id' => 3,
+            'name' => 'فيتامين د 1000 وحدة',
+            'product_code' => 'VITD1000',
+            'selling_price' => 35.75,
+            'unit_price' => 28.00,
+            'stock_quantity' => 50,
+            'tenant_id' => 1
+        ],
+        (object)[
+            'id' => 4,
+            'name' => 'أوميجا 3 كبسولات',
+            'product_code' => 'OMEGA3',
+            'selling_price' => 45.25,
+            'unit_price' => 35.00,
+            'stock_quantity' => 30,
+            'tenant_id' => 1
+        ],
+        (object)[
+            'id' => 5,
+            'name' => 'أسبرين 100 مجم',
+            'product_code' => 'ASP100',
+            'selling_price' => 12.00,
+            'unit_price' => 8.00,
+            'stock_quantity' => 200,
+            'tenant_id' => 1
+        ]
+    ]);
+
+    return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+})->name('main.invoice.create');
+
+// اختبار بسيط لتشخيص مشكلة قاعدة البيانات
+Route::get('/test-db-simple', function() {
     try {
-        \Log::info('Starting main invoice create route');
+        // اختبار الاتصال بقاعدة البيانات بأبسط طريقة
+        $dbConnection = \DB::connection()->getPdo();
 
-        // جلب جميع العملاء من قاعدة البيانات
-        $customers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit', 'tenant_id')
-            ->whereNotNull('name')
-            ->where('name', '!=', '')
-            ->orderBy('name')
-            ->get();
-
-        \Log::info('All customers found: ' . $customers->count());
-
-        // جلب جميع المنتجات من قاعدة البيانات
-        $products = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity', 'tenant_id')
-            ->whereNotNull('name')
-            ->where('name', '!=', '')
-            ->orderBy('name')
-            ->get();
-
-        \Log::info('All products found: ' . $products->count());
-
-        // إذا لم توجد بيانات، استخدم مجموعة فارغة
-        if ($customers->count() == 0) {
-            \Log::warning('No customers found in database');
-            $customers = collect();
-        }
-
-        if ($products->count() == 0) {
-            \Log::warning('No products found in database');
-            $products = collect();
-        }
-
-        \Log::info('Final counts - Customers: ' . $customers->count() . ', Products: ' . $products->count());
-
-        return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Database connection successful',
+            'connection' => 'Connected',
+            'timestamp' => now()
+        ]);
 
     } catch (\Exception $e) {
-        \Log::error('Error in main invoice create route: ' . $e->getMessage());
-        \Log::error('Stack trace: ' . $e->getTraceAsString());
-
-        // في حالة الخطأ، استخدم بيانات احتياطية
-        $customers = collect([
-            (object)['id' => 999, 'name' => 'عميل احتياطي - خطأ في قاعدة البيانات', 'current_balance' => 0, 'credit_limit' => 1000, 'customer_code' => 'ERROR', 'phone' => '']
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Database connection failed',
+            'error' => $e->getMessage(),
+            'timestamp' => now()
         ]);
-        $products = collect([
-            (object)['id' => 999, 'name' => 'منتج احتياطي - خطأ في قاعدة البيانات', 'selling_price' => 10, 'stock_quantity' => 10, 'product_code' => 'ERROR']
-        ]);
-
-        return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
     }
-})->name('main.invoice.create');
+})->name('test.db.simple');
+
+// اختبار جلب البيانات تدريجياً
+Route::get('/test-db-data', function() {
+    try {
+        $result = [];
+
+        // اختبار جلب العملاء
+        try {
+            $customerCount = \DB::table('customers')->count();
+            $result['customers'] = [
+                'status' => 'success',
+                'count' => $customerCount
+            ];
+        } catch (\Exception $e) {
+            $result['customers'] = [
+                'status' => 'error',
+                'error' => $e->getMessage()
+            ];
+        }
+
+        // اختبار جلب المنتجات
+        try {
+            $productCount = \DB::table('products')->count();
+            $result['products'] = [
+                'status' => 'success',
+                'count' => $productCount
+            ];
+        } catch (\Exception $e) {
+            $result['products'] = [
+                'status' => 'error',
+                'error' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($result);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'General error',
+            'error' => $e->getMessage()
+        ]);
+    }
+})->name('test.db.data');
 
 // Include customer routes
 require __DIR__.'/customer.php';
