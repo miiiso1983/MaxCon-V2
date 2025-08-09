@@ -60,6 +60,27 @@ Route::get('/demo-maxcon', function () {
     return view('admin.tenants.maxcon-index');
 })->name('demo.maxcon');
 
+// Quick login for testing
+Route::get('/quick-login', function () {
+    $user = \DB::table('users')->where('id', 1)->first();
+    if ($user) {
+        $userModel = new \App\Models\User();
+        $userModel->id = $user->id;
+        $userModel->name = $user->name;
+        $userModel->email = $user->email;
+        $userModel->role = $user->role;
+        $userModel->tenant_id = $user->tenant_id;
+        $userModel->exists = true;
+
+        \Auth::login($userModel);
+
+        return redirect('/tenant/sales/invoices/create-professional')
+            ->with('success', 'تم تسجيل الدخول بنجاح كـ ' . $user->role);
+    }
+
+    return 'User not found';
+})->name('quick.login');
+
 // Test route for modern sidebar (remove in production)
 Route::get('/test-sidebar', function () {
     return view('test-sidebar');
