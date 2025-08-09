@@ -4,7 +4,6 @@ namespace App\Imports;
 
 use App\Models\Product;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Carbon\Carbon;
@@ -13,6 +12,7 @@ class ProductsCollectionImport implements ToCollection, WithHeadingRow
 {
     protected $tenantId;
     protected $importedCount = 0;
+    protected $skippedCount = 0;
     protected $errors = [];
 
     public function __construct($tenantId)
@@ -44,6 +44,7 @@ class ProductsCollectionImport implements ToCollection, WithHeadingRow
         // Skip empty rows
         $name = $row['name'] ?? $row['اسم المنتج'] ?? null;
         if (empty($name)) {
+            $this->skippedCount++;
             return;
         }
 
@@ -61,6 +62,7 @@ class ProductsCollectionImport implements ToCollection, WithHeadingRow
             ->first();
 
         if ($existingProduct) {
+            $this->skippedCount++;
             \Illuminate\Support\Facades\Log::info('ProductsCollectionImport: Product already exists, skipping', [
                 'name' => $productName,
                 'barcode' => $productBarcode,
@@ -98,7 +100,7 @@ class ProductsCollectionImport implements ToCollection, WithHeadingRow
         if (!empty($row['expiry_date'])) {
             try {
                 $productData['expiry_date'] = Carbon::parse($row['expiry_date']);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $productData['expiry_date'] = null;
             }
         }
@@ -119,6 +121,11 @@ class ProductsCollectionImport implements ToCollection, WithHeadingRow
     public function getImportedCount()
     {
         return $this->importedCount;
+    }
+
+    public function getSkippedCount()
+    {
+        return $this->skippedCount;
     }
 
     public function getErrors()

@@ -145,7 +145,7 @@ class ProductController extends Controller
             'session_id' => session()->getId(),
             'auth_check' => auth()->check(),
             'auth_id' => auth()->id(),
-            'guard' => auth()->getDefaultDriver()
+            'guard' => config('auth.defaults.guard')
         ]);
 
         // إذا لم يكن المستخدم مسجل دخول، سجل دخول مؤقت للاختبار
@@ -522,9 +522,12 @@ class ProductController extends Controller
 
             $importedCount = $import->getImportedCount();
             $errors = $import->getErrors();
+            $skippedCount = $import->getSkippedCount() ?? 0; // إضافة المتغير المفقود
+            $failures = $errors; // استخدام الأخطاء كـ failures
 
             \Log::info('Import completed', [
                 'imported' => $importedCount,
+                'skipped' => $skippedCount,
                 'errors' => count($errors)
             ]);
 
@@ -541,6 +544,9 @@ class ProductController extends Controller
             }
 
             $message = "✅ تم استيراد {$importedCount} منتج بنجاح";
+            if ($skippedCount > 0) {
+                $message .= " وتم تخطي {$skippedCount} منتج";
+            }
             $message .= ". الوقت المستغرق: {$executionTime}.";
 
             if (!empty($errors)) {
@@ -875,7 +881,7 @@ class ProductController extends Controller
             $product->description = $validated['description'];
             $product->product_code = 'SECURE-' . time() . '-' . $currentTenantId;
 
-            $saved = $product->save();
+            $product->save();
 
             \Log::info('Secure product created successfully', [
                 'product_id' => $product->id,
