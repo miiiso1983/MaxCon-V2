@@ -1790,75 +1790,95 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             return view('tenant.sales.invoices.create-professional', compact('customers', 'products', 'salesOrders'));
         })->name('invoices.create-professional');
 
-        // Simple Invoice Creation
+        // Simple Invoice Creation - الرابط الأساسي الموحد
         Route::get('invoices/create-simple', function() {
-            // Use the same data as the working test route
-            $customers = collect([
-                (object)[
-                    'id' => 1,
-                    'name' => 'شركة الأدوية المتقدمة',
-                    'customer_code' => 'CUST001',
-                    'phone' => '07901234567',
-                    'current_balance' => 1500.00,
-                    'credit_limit' => 10000.00
-                ],
-                (object)[
-                    'id' => 2,
-                    'name' => 'صيدلية النور الطبية',
-                    'customer_code' => 'CUST002',
-                    'phone' => '07801234567',
-                    'current_balance' => 750.50,
-                    'credit_limit' => 5000.00
-                ],
-                (object)[
-                    'id' => 3,
-                    'name' => 'مستشفى بغداد التخصصي',
-                    'customer_code' => 'CUST003',
-                    'phone' => '07701234567',
-                    'current_balance' => 2250.75,
-                    'credit_limit' => 15000.00
-                ]
-            ]);
+            try {
+                // جلب البيانات من قاعدة البيانات
+                $customers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit', 'tenant_id')
+                    ->whereNotNull('name')
+                    ->where('name', '!=', '')
+                    ->orderBy('name')
+                    ->limit(50)
+                    ->get();
 
-            $products = collect([
-                (object)[
-                    'id' => 1,
-                    'name' => 'باراسيتامول 500 مجم',
-                    'product_code' => 'PARA500',
-                    'selling_price' => 15.50,
-                    'stock_quantity' => 100
-                ],
-                (object)[
-                    'id' => 2,
-                    'name' => 'أموكسيسيلين 250 مجم',
-                    'product_code' => 'AMOX250',
-                    'selling_price' => 25.00,
-                    'stock_quantity' => 75
-                ],
-                (object)[
-                    'id' => 3,
-                    'name' => 'فيتامين د 1000 وحدة',
-                    'product_code' => 'VITD1000',
-                    'selling_price' => 35.75,
-                    'stock_quantity' => 50
-                ],
-                (object)[
-                    'id' => 4,
-                    'name' => 'أوميجا 3 كبسولات',
-                    'product_code' => 'OMEGA3',
-                    'selling_price' => 45.25,
-                    'stock_quantity' => 30
-                ],
-                (object)[
-                    'id' => 5,
-                    'name' => 'أسبرين 100 مجم',
-                    'product_code' => 'ASP100',
-                    'selling_price' => 12.00,
-                    'stock_quantity' => 200
-                ]
-            ]);
+                $products = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity', 'tenant_id')
+                    ->whereNotNull('name')
+                    ->where('name', '!=', '')
+                    ->orderBy('name')
+                    ->limit(100)
+                    ->get();
 
-            return view('tenant.sales.invoices.create-minimal', compact('customers', 'products'));
+                // بيانات احتياطية في حالة عدم وجود بيانات
+                if ($customers->isEmpty()) {
+                    $customers = collect([
+                        (object)[
+                            'id' => 1,
+                            'name' => 'شركة الأدوية المتقدمة',
+                            'customer_code' => 'CUST001',
+                            'phone' => '07901234567',
+                            'current_balance' => 1500.00,
+                            'credit_limit' => 10000.00
+                        ],
+                        (object)[
+                            'id' => 2,
+                            'name' => 'صيدلية النور الطبية',
+                            'customer_code' => 'CUST002',
+                            'phone' => '07801234567',
+                            'current_balance' => 750.50,
+                            'credit_limit' => 5000.00
+                        ],
+                        (object)[
+                            'id' => 3,
+                            'name' => 'مستشفى بغداد التخصصي',
+                            'customer_code' => 'CUST003',
+                            'phone' => '07701234567',
+                            'current_balance' => 2250.75,
+                            'credit_limit' => 15000.00
+                        ]
+                    ]);
+                }
+
+                if ($products->isEmpty()) {
+                    $products = collect([
+                        (object)[
+                            'id' => 1,
+                            'name' => 'باراسيتامول 500 مجم',
+                            'product_code' => 'PARA500',
+                            'selling_price' => 15.50,
+                            'stock_quantity' => 100
+                        ],
+                        (object)[
+                            'id' => 2,
+                            'name' => 'أموكسيسيلين 250 مجم',
+                            'product_code' => 'AMOX250',
+                            'selling_price' => 25.00,
+                            'stock_quantity' => 75
+                        ],
+                        (object)[
+                            'id' => 3,
+                            'name' => 'فيتامين د 1000 وحدة',
+                            'product_code' => 'VITD1000',
+                            'selling_price' => 35.75,
+                            'stock_quantity' => 50
+                        ]
+                    ]);
+                }
+
+                return view('tenant.sales.invoices.create-minimal', compact('customers', 'products'));
+
+            } catch (\Exception $e) {
+                \Log::error('Error in create-simple route: ' . $e->getMessage());
+
+                // بيانات احتياطية في حالة الخطأ
+                $customers = collect([
+                    (object)['id' => 1, 'name' => 'عميل افتراضي', 'current_balance' => 0, 'credit_limit' => 1000, 'customer_code' => 'DEFAULT', 'phone' => '']
+                ]);
+                $products = collect([
+                    (object)['id' => 1, 'name' => 'منتج افتراضي', 'selling_price' => 10, 'stock_quantity' => 10, 'product_code' => 'DEFAULT']
+                ]);
+
+                return view('tenant.sales.invoices.create-minimal', compact('customers', 'products'));
+            }
         })->name('invoices.create-simple');
 
         // Test route for debugging
@@ -2552,171 +2572,8 @@ Route::get('/test-new-tenant-guide-direct', function () {
     ]);
 })->name('test.new-tenant-guide');
 
-// Test invoice creation (outside tenant group)
-Route::get('/test-invoice-create', function () {
-    // Always use fallback data to avoid database issues
-    $customers = collect([
-        (object)[
-            'id' => 1,
-            'name' => 'شركة الأدوية المتقدمة',
-            'customer_code' => 'CUST001',
-            'phone' => '07901234567',
-            'current_balance' => 1500.00,
-            'credit_limit' => 10000.00
-        ],
-        (object)[
-            'id' => 2,
-            'name' => 'صيدلية النور الطبية',
-            'customer_code' => 'CUST002',
-            'phone' => '07801234567',
-            'current_balance' => 750.50,
-            'credit_limit' => 5000.00
-        ],
-        (object)[
-            'id' => 3,
-            'name' => 'مستشفى بغداد التخصصي',
-            'customer_code' => 'CUST003',
-            'phone' => '07701234567',
-            'current_balance' => 2250.75,
-            'credit_limit' => 15000.00
-        ]
-    ]);
-
-    $products = collect([
-        (object)[
-            'id' => 1,
-            'name' => 'باراسيتامول 500 مجم',
-            'product_code' => 'PARA500',
-            'selling_price' => 15.50,
-            'stock_quantity' => 100
-        ],
-        (object)[
-            'id' => 2,
-            'name' => 'أموكسيسيلين 250 مجم',
-            'product_code' => 'AMOX250',
-            'selling_price' => 25.00,
-            'stock_quantity' => 75
-        ],
-        (object)[
-            'id' => 3,
-            'name' => 'فيتامين د 1000 وحدة',
-            'product_code' => 'VITD1000',
-            'selling_price' => 35.75,
-            'stock_quantity' => 50
-        ],
-        (object)[
-            'id' => 4,
-            'name' => 'أوميجا 3 كبسولات',
-            'product_code' => 'OMEGA3',
-            'selling_price' => 45.25,
-            'stock_quantity' => 30
-        ],
-        (object)[
-            'id' => 5,
-            'name' => 'أسبرين 100 مجم',
-            'product_code' => 'ASP100',
-            'selling_price' => 12.00,
-            'stock_quantity' => 200
-        ]
-    ]);
-
-    return view('tenant.sales.invoices.create-minimal', compact('customers', 'products'));
-})->name('test.invoice.create');
-
-// Alternative route for tenant invoice creation (bypass middleware issues)
-Route::get('/tenant-invoice-create', function () {
-    try {
-        // Try to get data from database first
-        $customers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit', 'tenant_id')
-            ->whereNotNull('name')
-            ->where('name', '!=', '')
-            ->orderBy('name')
-            ->limit(50) // Limit to avoid performance issues
-            ->get();
-
-        $products = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity', 'tenant_id')
-            ->whereNotNull('name')
-            ->where('name', '!=', '')
-            ->orderBy('name')
-            ->limit(100) // Limit to avoid performance issues
-            ->get();
-
-        // If no data found, use fallback data
-        if ($customers->isEmpty()) {
-            $customers = collect([
-                (object)[
-                    'id' => 1,
-                    'name' => 'شركة الأدوية المتقدمة',
-                    'customer_code' => 'CUST001',
-                    'phone' => '07901234567',
-                    'current_balance' => 1500.00,
-                    'credit_limit' => 10000.00
-                ],
-                (object)[
-                    'id' => 2,
-                    'name' => 'صيدلية النور الطبية',
-                    'customer_code' => 'CUST002',
-                    'phone' => '07801234567',
-                    'current_balance' => 750.50,
-                    'credit_limit' => 5000.00
-                ],
-                (object)[
-                    'id' => 3,
-                    'name' => 'مستشفى بغداد التخصصي',
-                    'customer_code' => 'CUST003',
-                    'phone' => '07701234567',
-                    'current_balance' => 2250.75,
-                    'credit_limit' => 15000.00
-                ]
-            ]);
-        }
-
-        if ($products->isEmpty()) {
-            $products = collect([
-                (object)[
-                    'id' => 1,
-                    'name' => 'باراسيتامول 500 مجم',
-                    'product_code' => 'PARA500',
-                    'selling_price' => 15.50,
-                    'stock_quantity' => 100
-                ],
-                (object)[
-                    'id' => 2,
-                    'name' => 'أموكسيسيلين 250 مجم',
-                    'product_code' => 'AMOX250',
-                    'selling_price' => 25.00,
-                    'stock_quantity' => 75
-                ],
-                (object)[
-                    'id' => 3,
-                    'name' => 'فيتامين د 1000 وحدة',
-                    'product_code' => 'VITD1000',
-                    'selling_price' => 35.75,
-                    'stock_quantity' => 50
-                ]
-            ]);
-        }
-
-        \Log::info('Invoice Create - Customers found: ' . $customers->count());
-        \Log::info('Invoice Create - Products found: ' . $products->count());
-
-        return view('tenant.sales.invoices.create-minimal', compact('customers', 'products'));
-
-    } catch (\Exception $e) {
-        \Log::error('Error in tenant-invoice-create: ' . $e->getMessage());
-        \Log::error('Stack trace: ' . $e->getTraceAsString());
-
-        // Fallback data in case of any error
-        $customers = collect([
-            (object)['id' => 1, 'name' => 'عميل افتراضي', 'current_balance' => 0, 'credit_limit' => 1000, 'customer_code' => 'DEFAULT', 'phone' => '']
-        ]);
-        $products = collect([
-            (object)['id' => 1, 'name' => 'منتج افتراضي', 'selling_price' => 10, 'stock_quantity' => 10, 'product_code' => 'DEFAULT']
-        ]);
-
-        return view('tenant.sales.invoices.create-minimal', compact('customers', 'products'));
-    }
-})->name('tenant.invoice.create.alt');
+// ملاحظة: تم توحيد جميع routes إنشاء الفواتير في الرابط الأساسي أعلاه
+// الرابط الموحد: /tenant/sales/invoices/create-simple
 
 // Database test route
 Route::get('/test-database-connection', function () {
