@@ -2967,5 +2967,102 @@ Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
     });
 });
 
+// Test Enhanced Invoice System (Alternative route)
+Route::get('/invoice-system-test', function () {
+    try {
+        // Check if we have the required data
+        $tenants = \DB::table('tenants')->count();
+        $customers = \DB::table('customers')->count();
+        $products = \DB::table('products')->count();
+        $warehouses = \App\Models\Warehouse::count();
+        $invoices = \DB::table('invoices')->count();
+
+        $stats = [
+            'tenants' => $tenants,
+            'customers' => $customers,
+            'products' => $products,
+            'warehouses' => $warehouses,
+            'invoices' => $invoices,
+        ];
+
+        // Sample data for testing
+        $sampleCustomer = \DB::table('customers')->first();
+        $sampleProducts = \DB::table('products')->limit(3)->get();
+        $sampleWarehouse = \App\Models\Warehouse::first();
+
+        return view('test-enhanced-invoices', compact('stats', 'sampleCustomer', 'sampleProducts', 'sampleWarehouse'));
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في تحميل بيانات النظام'
+        ]);
+    }
+})->name('invoice.system.test');
+
+// Direct Invoice Test (No Auth Required)
+Route::get('/invoice-test-direct', function () {
+    try {
+        // Simple test without authentication
+        $invoiceController = new \App\Http\Controllers\Tenant\InvoiceController();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice Controller loaded successfully',
+            'routes' => [
+                'index' => route('tenant.sales.invoices.index'),
+                'create' => route('tenant.sales.invoices.create'),
+            ],
+            'models' => [
+                'Invoice' => class_exists('\App\Models\Invoice'),
+                'InvoiceItem' => class_exists('\App\Models\InvoiceItem'),
+                'Warehouse' => class_exists('\App\Models\Warehouse'),
+                'WarehouseStock' => class_exists('\App\Models\WarehouseStock'),
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]);
+    }
+})->name('invoice.test.direct');
+
+// Test Enhanced Invoice System
+Route::get('/test-enhanced-invoices', function () {
+    try {
+        // Check if we have the required data
+        $tenants = \DB::table('tenants')->count();
+        $customers = \DB::table('customers')->count();
+        $products = \DB::table('products')->count();
+        $warehouses = \App\Models\Warehouse::count();
+        $invoices = \DB::table('invoices')->count();
+
+        $stats = [
+            'tenants' => $tenants,
+            'customers' => $customers,
+            'products' => $products,
+            'warehouses' => $warehouses,
+            'invoices' => $invoices,
+        ];
+
+        // Sample data for testing
+        $sampleCustomer = \DB::table('customers')->first();
+        $sampleProducts = \DB::table('products')->limit(3)->get();
+        $sampleWarehouse = \App\Models\Warehouse::first();
+
+        return view('test-enhanced-invoices', compact('stats', 'sampleCustomer', 'sampleProducts', 'sampleWarehouse'));
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في تحميل بيانات النظام'
+        ]);
+    }
+})->name('test.enhanced.invoices');
+
 // Include customer routes
 require __DIR__.'/customer.php';
