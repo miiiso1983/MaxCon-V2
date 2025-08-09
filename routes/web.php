@@ -3063,6 +3063,67 @@ Route::get('/invoices-no-auth', function () {
     }
 })->name('invoices.no.auth');
 
+// System Diagnosis Page
+Route::get('/system-diagnosis', function () {
+    try {
+        $diagnosis = [
+            'php_version' => PHP_VERSION,
+            'laravel_version' => app()->version(),
+            'environment' => app()->environment(),
+            'database' => [
+                'connection' => config('database.default'),
+                'host' => config('database.connections.mysql.host'),
+                'database' => config('database.connections.mysql.database'),
+            ],
+            'tables' => [],
+            'models' => [],
+            'routes' => [],
+            'errors' => []
+        ];
+
+        // Test database tables
+        try {
+            $diagnosis['tables']['tenants'] = \DB::table('tenants')->count();
+            $diagnosis['tables']['customers'] = \DB::table('customers')->count();
+            $diagnosis['tables']['products'] = \DB::table('products')->count();
+            $diagnosis['tables']['invoices'] = \DB::table('invoices')->count();
+            $diagnosis['tables']['warehouses'] = \DB::table('warehouses')->count();
+        } catch (\Exception $e) {
+            $diagnosis['errors']['database'] = $e->getMessage();
+        }
+
+        // Test models
+        try {
+            $diagnosis['models']['Invoice'] = class_exists('\App\Models\Invoice');
+            $diagnosis['models']['InvoiceItem'] = class_exists('\App\Models\InvoiceItem');
+            $diagnosis['models']['Warehouse'] = class_exists('\App\Models\Warehouse');
+            $diagnosis['models']['WarehouseStock'] = class_exists('\App\Models\WarehouseStock');
+        } catch (\Exception $e) {
+            $diagnosis['errors']['models'] = $e->getMessage();
+        }
+
+        // Test routes
+        try {
+            $diagnosis['routes']['invoice_index'] = route('tenant.sales.invoices.index');
+            $diagnosis['routes']['invoice_create'] = route('tenant.sales.invoices.create');
+            $diagnosis['routes']['test_enhanced'] = route('test.enhanced.invoices');
+        } catch (\Exception $e) {
+            $diagnosis['errors']['routes'] = $e->getMessage();
+        }
+
+        return response()->json($diagnosis, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'critical_error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->name('system.diagnosis');
+
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {
     try {
