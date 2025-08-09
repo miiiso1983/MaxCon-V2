@@ -2938,32 +2938,56 @@ Route::get('/invoice-create-real', function() {
     }
 })->name('invoice.create.real');
 
-// Enhanced Invoice Management Routes
+// Enhanced Invoice Management Routes with Permissions
 Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
     Route::prefix('sales/invoices')->name('tenant.sales.invoices.')->group(function () {
-        Route::get('/', [App\Http\Controllers\Tenant\InvoiceController::class, 'index'])->name('index');
-        Route::get('/create', [App\Http\Controllers\Tenant\InvoiceController::class, 'create'])->name('create');
-        Route::post('/', [App\Http\Controllers\Tenant\InvoiceController::class, 'store'])->name('store');
-        Route::get('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'show'])->name('show');
-        Route::get('/{invoice}/edit', [App\Http\Controllers\Tenant\InvoiceController::class, 'edit'])->name('edit');
-        Route::put('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'update'])->name('update');
-        Route::delete('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'destroy'])->name('destroy');
+        // View invoices
+        Route::get('/', [App\Http\Controllers\Tenant\InvoiceController::class, 'index'])
+            ->middleware('invoice.permissions:view')->name('index');
+
+        // Create invoices
+        Route::get('/create', [App\Http\Controllers\Tenant\InvoiceController::class, 'create'])
+            ->middleware('invoice.permissions:create')->name('create');
+        Route::post('/', [App\Http\Controllers\Tenant\InvoiceController::class, 'store'])
+            ->middleware('invoice.permissions:create')->name('store');
+
+        // View specific invoice
+        Route::get('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'show'])
+            ->middleware('invoice.permissions:view')->name('show');
+
+        // Edit invoices
+        Route::get('/{invoice}/edit', [App\Http\Controllers\Tenant\InvoiceController::class, 'edit'])
+            ->middleware('invoice.permissions:edit')->name('edit');
+        Route::put('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'update'])
+            ->middleware('invoice.permissions:edit')->name('update');
+
+        // Delete invoices
+        Route::delete('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'destroy'])
+            ->middleware('invoice.permissions:delete')->name('destroy');
 
         // Printing and PDF
-        Route::get('/{invoice}/print', [App\Http\Controllers\Tenant\InvoiceController::class, 'print'])->name('print');
-        Route::get('/{invoice}/print-thermal', [App\Http\Controllers\Tenant\InvoiceController::class, 'printThermal'])->name('print-thermal');
-        Route::get('/{invoice}/download-pdf', [App\Http\Controllers\Tenant\InvoiceController::class, 'downloadPdf'])->name('download-pdf');
+        Route::get('/{invoice}/print', [App\Http\Controllers\Tenant\InvoiceController::class, 'print'])
+            ->middleware('invoice.permissions:print')->name('print');
+        Route::get('/{invoice}/print-thermal', [App\Http\Controllers\Tenant\InvoiceController::class, 'printThermal'])
+            ->middleware('invoice.permissions:print')->name('print-thermal');
+        Route::get('/{invoice}/download-pdf', [App\Http\Controllers\Tenant\InvoiceController::class, 'downloadPdf'])
+            ->middleware('invoice.permissions:print')->name('download-pdf');
 
         // Communication
-        Route::post('/{invoice}/send-email', [App\Http\Controllers\Tenant\InvoiceController::class, 'sendEmail'])->name('send-email');
-        Route::post('/{invoice}/send-whatsapp', [App\Http\Controllers\Tenant\InvoiceController::class, 'sendWhatsApp'])->name('send-whatsapp');
+        Route::post('/{invoice}/send-email', [App\Http\Controllers\Tenant\InvoiceController::class, 'sendEmail'])
+            ->middleware('invoice.permissions:send')->name('send-email');
+        Route::post('/{invoice}/send-whatsapp', [App\Http\Controllers\Tenant\InvoiceController::class, 'sendWhatsApp'])
+            ->middleware('invoice.permissions:send')->name('send-whatsapp');
 
         // Payments
-        Route::post('/{invoice}/add-payment', [App\Http\Controllers\Tenant\InvoiceController::class, 'addPayment'])->name('add-payment');
+        Route::post('/{invoice}/add-payment', [App\Http\Controllers\Tenant\InvoiceController::class, 'addPayment'])
+            ->middleware('invoice.permissions:payment')->name('add-payment');
 
-        // AJAX helpers
-        Route::get('/customer/{customer}/debt', [App\Http\Controllers\Tenant\InvoiceController::class, 'getCustomerDebt'])->name('customer-debt');
-        Route::get('/warehouse/{warehouse}/product/{product}/stock', [App\Http\Controllers\Tenant\InvoiceController::class, 'getWarehouseStock'])->name('warehouse-stock');
+        // AJAX helpers (view permission required)
+        Route::get('/customer/{customer}/debt', [App\Http\Controllers\Tenant\InvoiceController::class, 'getCustomerDebt'])
+            ->middleware('invoice.permissions:view')->name('customer-debt');
+        Route::get('/warehouse/{warehouse}/product/{product}/stock', [App\Http\Controllers\Tenant\InvoiceController::class, 'getWarehouseStock'])
+            ->middleware('invoice.permissions:view')->name('warehouse-stock');
     });
 });
 

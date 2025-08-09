@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Http\Middleware\InvoicePermissions;
 
 class InvoiceController extends Controller
 {
@@ -144,8 +145,13 @@ class InvoiceController extends Controller
 
     public function show(Invoice $invoice)
     {
+        // Check if user can access this specific invoice
+        if (!InvoicePermissions::canAccessInvoice(Auth::user(), $invoice)) {
+            abort(403, 'ليس لديك صلاحية للوصول لهذه الفاتورة');
+        }
+
         $invoice->load(['customer', 'warehouse', 'salesRep', 'items.product', 'payments']);
-        
+
         return view('tenant.sales.invoices.show', compact('invoice'));
     }
 

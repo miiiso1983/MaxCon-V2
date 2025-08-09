@@ -32,6 +32,7 @@
         </div>
 
         <div style="display:flex; gap:12px; align-items:center;">
+            @hasInvoicePermission('create')
             <a href="{{ route('tenant.sales.invoices.create-professional') }}" class="btn-glass">
                 <i class="fas fa-plus-circle"></i>
                 <span>إنشاء فاتورة احترافية</span>
@@ -40,6 +41,12 @@
                 <i class="fas fa-plus"></i>
                 <span>الفاتورة العادية</span>
             </a>
+            @else
+            <div class="btn-glass" style="opacity: 0.5; cursor: not-allowed;">
+                <i class="fas fa-lock"></i>
+                <span>ليس لديك صلاحية إنشاء فواتير</span>
+            </div>
+            @endhasInvoicePermission
         </div>
     </div>
 </div>
@@ -189,6 +196,7 @@
                     <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
                         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                             <!-- عرض الفاتورة -->
+                            @canAccessInvoice($invoice)
                             <a href="{{ route('tenant.sales.invoices.show', $invoice) }}"
                                style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(66, 153, 225, 0.3); margin: 2px;"
                                title="عرض التفاصيل"
@@ -197,6 +205,7 @@
                                 <i class="fas fa-eye"></i>
                                 <span>عرض</span>
                             </a>
+                            @endcanAccessInvoice
 
                             <!-- عرض PDF -->
                             <a href="{{ route('tenant.sales.invoices.view-pdf', $invoice) }}"
