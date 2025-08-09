@@ -3725,6 +3725,11 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     }
 
     console.log('✅ Validation passed - proceeding with submission');
+    console.log('📤 Form will now be submitted to:', this.action);
+    console.log('📋 Form data summary:');
+    console.log('- Customer ID:', document.getElementById('customerSelect').value);
+    console.log('- Products count:', document.querySelectorAll('select[name*="[product_id]"]').length);
+    console.log('- Form method:', this.method);
 
     // Clear draft on successful submission
     clearDraft();
@@ -3747,17 +3752,7 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 });
 </script>
 
-<!-- jQuery from allowed CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"
-        integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<!-- Fallback jQuery from allowed CDN -->
-<script>
-    if (!window.jQuery) {
-        document.write('<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"><\/script>');
-    }
-</script>
+<!-- jQuery external loading removed to avoid CSP issues -->
 
 <!-- Additional fallback with inline jQuery if CDNs fail -->
 <script>
