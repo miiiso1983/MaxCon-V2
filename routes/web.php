@@ -3556,6 +3556,167 @@ Route::get('/invoices-safe', function () {
     }
 })->middleware(['auth'])->name('invoices.safe');
 
+// Emergency Debug - Very Simple
+Route::get('/emergency-debug', function () {
+    $debug = [];
+
+    try {
+        $debug['step1'] = 'Starting debug';
+
+        // Test basic PHP
+        $debug['php_version'] = PHP_VERSION;
+        $debug['step2'] = 'PHP OK';
+
+        // Test Laravel
+        $debug['laravel_version'] = app()->version();
+        $debug['step3'] = 'Laravel OK';
+
+        // Test Auth (simple)
+        $debug['auth_check'] = \Auth::check();
+        $debug['step4'] = 'Auth check OK';
+
+        if (\Auth::check()) {
+            $user = \Auth::user();
+            $debug['user_id'] = $user->id;
+            $debug['user_name'] = $user->name;
+            $debug['step5'] = 'User data OK';
+        }
+
+        // Test DB (very simple)
+        $debug['db_connection'] = 'testing...';
+        $count = \DB::table('users')->count();
+        $debug['users_count'] = $count;
+        $debug['step6'] = 'Database OK';
+
+        $debug['status'] = 'SUCCESS - All basic components working';
+
+    } catch (\Exception $e) {
+        $debug['ERROR'] = $e->getMessage();
+        $debug['ERROR_FILE'] = $e->getFile();
+        $debug['ERROR_LINE'] = $e->getLine();
+    }
+
+    return response()->json($debug, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+})->name('emergency.debug');
+
+// Simple Invoice List (No Auth, No Middleware)
+Route::get('/simple-invoices', function () {
+    try {
+        $invoices = \DB::table('invoices')->limit(10)->get();
+
+        $html = '<h1>قائمة الفواتير البسيطة</h1>';
+        $html .= '<p>عدد الفواتير: ' . count($invoices) . '</p>';
+        $html .= '<ul>';
+
+        foreach ($invoices as $invoice) {
+            $html .= '<li>فاتورة رقم: ' . $invoice->invoice_number . ' - المبلغ: ' . $invoice->total_amount . '</li>';
+        }
+
+        $html .= '</ul>';
+        $html .= '<p><a href="/emergency-debug">تشخيص النظام</a></p>';
+        $html .= '<p><a href="/tenant/sales/invoices">النظام الأصلي</a></p>';
+
+        return $html;
+
+    } catch (\Exception $e) {
+        return '<h1>خطأ في قاعدة البيانات</h1><p>' . $e->getMessage() . '</p>';
+    }
+})->name('simple.invoices');
+
+// Bypass All Middleware - Direct Invoice Access
+Route::get('/direct-invoices', function () {
+    try {
+        // Direct database access without any middleware
+        $invoices = \DB::table('invoices')
+            ->leftJoin('customers', 'invoices.customer_id', '=', 'customers.id')
+            ->select(
+                'invoices.id',
+                'invoices.invoice_number',
+                'invoices.total_amount',
+                'invoices.status',
+                'invoices.invoice_date',
+                'customers.name as customer_name'
+            )
+            ->orderBy('invoices.created_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        // Create simple HTML response
+        $html = '<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الفواتير - وصول مباشر</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; direction: rtl; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+        th { background-color: #f2f2f2; }
+        .btn { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🧾 نظام الفواتير - وصول مباشر</h1>
+    <p class="success">✅ تم تحميل البيانات بنجاح بدون middleware</p>
+
+    <div>
+        <a href="/emergency-debug" class="btn">تشخيص النظام</a>
+        <a href="/tenant/sales/invoices" class="btn">النظام الأصلي</a>
+        <a href="/invoices-safe" class="btn">الوصول الآمن</a>
+    </div>
+
+    <h2>📊 إحصائيات:</h2>
+    <p>عدد الفواتير: ' . count($invoices) . '</p>
+
+    <h2>📋 قائمة الفواتير:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>رقم الفاتورة</th>
+                <th>العميل</th>
+                <th>المبلغ</th>
+                <th>الحالة</th>
+                <th>التاريخ</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+        foreach ($invoices as $invoice) {
+            $html .= '<tr>
+                <td>' . ($invoice->invoice_number ?? 'غير محدد') . '</td>
+                <td>' . ($invoice->customer_name ?? 'غير محدد') . '</td>
+                <td>' . number_format($invoice->total_amount ?? 0, 2) . ' د.ع</td>
+                <td>' . ($invoice->status ?? 'غير محدد') . '</td>
+                <td>' . ($invoice->invoice_date ?? 'غير محدد') . '</td>
+            </tr>';
+        }
+
+        $html .= '</tbody>
+    </table>
+
+    <h2>🔧 روابط مفيدة:</h2>
+    <ul>
+        <li><a href="/emergency-debug">تشخيص شامل للنظام</a></li>
+        <li><a href="/check-user-status">فحص حالة المستخدم</a></li>
+        <li><a href="/system-diagnosis">تشخيص قاعدة البيانات</a></li>
+    </ul>
+</body>
+</html>';
+
+        return $html;
+
+    } catch (\Exception $e) {
+        return '<h1>خطأ في الوصول المباشر</h1>
+                <p><strong>الخطأ:</strong> ' . $e->getMessage() . '</p>
+                <p><strong>الملف:</strong> ' . $e->getFile() . '</p>
+                <p><strong>السطر:</strong> ' . $e->getLine() . '</p>
+                <p><a href="/emergency-debug">تشخيص النظام</a></p>';
+    }
+})->name('direct.invoices');
+
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {
     try {
