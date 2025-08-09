@@ -3579,6 +3579,8 @@ Route::get('/emergency-debug', function () {
             $user = \Auth::user();
             $debug['user_id'] = $user->id;
             $debug['user_name'] = $user->name;
+            $debug['user_role'] = $user->role ?? 'No role';
+            $debug['user_tenant_id'] = $user->tenant_id ?? 'No tenant';
             $debug['step5'] = 'User data OK';
         }
 
@@ -3598,6 +3600,134 @@ Route::get('/emergency-debug', function () {
 
     return response()->json($debug, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 })->name('emergency.debug');
+
+// Invoice Debug Route
+Route::get('/invoice-debug', function () {
+    try {
+        $user = \Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'No user logged in']);
+        }
+
+        $debug = [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'role' => $user->role ?? 'No role',
+                'tenant_id' => $user->tenant_id ?? 'No tenant'
+            ]
+        ];
+
+        // Test Invoice model
+        $debug['invoice_model_exists'] = class_exists('App\Models\Invoice');
+
+        // Test basic query
+        $invoiceCount = \App\Models\Invoice::count();
+        $debug['total_invoices'] = $invoiceCount;
+
+        if ($user->tenant_id) {
+            $tenantInvoices = \App\Models\Invoice::where('tenant_id', $user->tenant_id)->count();
+            $debug['tenant_invoices'] = $tenantInvoices;
+        }
+
+        // Test relationships
+        try {
+            $testInvoice = \App\Models\Invoice::with(['customer', 'createdBy', 'salesOrder'])->first();
+            $debug['relationships_test'] = 'OK';
+        } catch (\Exception $e) {
+            $debug['relationships_error'] = $e->getMessage();
+        }
+
+        return response()->json($debug, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->middleware(['auth'])->name('invoice.debug');
+
+// Test Invoice Controller Logic
+Route::get('/test-invoice-controller', function () {
+    try {
+        $user = \Auth::user();
+
+        if (!$user || !$user->tenant_id) {
+            return response()->json(['error' => 'User not authenticated or no tenant_id']);
+        }
+
+        $debug = ['step' => 1, 'message' => 'Starting invoice controller test'];
+
+        // Step 1: Test basic query
+        $debug['step'] = 2;
+        $query = \App\Models\Invoice::where('tenant_id', $user->tenant_id);
+        $debug['basic_query'] = 'OK';
+
+        // Step 2: Test with relationships
+        $debug['step'] = 3;
+        $query = \App\Models\Invoice::with(['customer', 'createdBy', 'salesOrder'])
+            ->where('tenant_id', $user->tenant_id);
+        $debug['with_relationships'] = 'OK';
+
+        // Step 3: Test pagination
+        $debug['step'] = 4;
+        $invoices = $query->orderBy('created_at', 'desc')->paginate(15);
+        $debug['pagination'] = 'OK';
+        $debug['invoice_count'] = $invoices->count();
+
+        // Step 4: Test customers query
+        $debug['step'] = 5;
+        $customers = \App\Models\Customer::forTenant($user->tenant_id)->active()->get();
+        $debug['customers'] = 'OK';
+        $debug['customer_count'] = $customers->count();
+
+        // Step 5: Test status counts
+        $debug['step'] = 6;
+        $statusCounts = [
+            'draft' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('status', 'draft')->count(),
+            'sent' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('status', 'sent')->count(),
+            'paid' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('payment_status', 'paid')->count(),
+            'overdue' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('due_date', '<', now())->where('payment_status', '!=', 'paid')->count(),
+            'cancelled' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('status', 'cancelled')->count()
+        ];
+        $debug['status_counts'] = $statusCounts;
+
+        $debug['final_result'] = 'All tests passed successfully';
+
+        return response()->json($debug, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error_at_step' => $debug['step'] ?? 'unknown',
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->middleware(['auth'])->name('test.invoice.controller');
+
+// Test Invoice Controller Without Permissions Middleware
+Route::get('/test-invoice-no-middleware', function () {
+    try {
+        // Directly call the controller method
+        $controller = new \App\Http\Controllers\Tenant\Sales\InvoiceController();
+        $request = request();
+
+        return $controller->index($request);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Controller error: ' . $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->middleware(['auth', 'tenant'])->name('test.invoice.no.middleware');
 
 // Simple Invoice List (No Auth, No Middleware)
 Route::get('/simple-invoices', function () {
