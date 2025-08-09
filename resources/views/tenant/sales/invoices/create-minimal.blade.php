@@ -4,6 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>إنشاء فاتورة - MaxCon</title>
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -142,6 +151,66 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        /* Select2 Custom Styling */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            height: 50px !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            padding: 8px 12px !important;
+            background: #f8fafc !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 32px !important;
+            color: #2d3748 !important;
+            font-size: 16px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 46px !important;
+            right: 8px !important;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+            background: white !important;
+        }
+
+        .select2-dropdown {
+            border: 2px solid #667eea !important;
+            border-radius: 10px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #667eea !important;
+        }
+
+        .table-select2 {
+            width: 100%;
+        }
+
+        .table-select2 .select2-container--default .select2-selection--single {
+            height: 40px !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            padding: 4px 8px !important;
+        }
+
+        .table-select2 .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px !important;
+            font-size: 14px !important;
+        }
+
+        .table-select2 .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px !important;
+        }
+
         .btn {
             padding: 15px 30px;
             border: none;
@@ -266,12 +335,18 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">العميل *</label>
-                        <select name="customer_id" required class="form-control">
+                        <select name="customer_id" required class="form-control customer-select" id="customerSelect">
                             <option value="">اختر العميل...</option>
-                            <option value="1">شركة الأدوية المتقدمة</option>
-                            <option value="2">صيدلية النور الطبية</option>
-                            <option value="3">مستشفى بغداد التخصصي</option>
-                            <option value="4">صيدلية الشفاء المركزية</option>
+                            @foreach($customers as $customer)
+                                <option value="{{ $customer->id }}"
+                                        data-balance="{{ $customer->current_balance ?? 0 }}"
+                                        data-credit="{{ $customer->credit_limit ?? 0 }}"
+                                        data-phone="{{ $customer->phone ?? '' }}">
+                                    {{ $customer->name }}
+                                    @if($customer->customer_code) - {{ $customer->customer_code }} @endif
+                                    @if($customer->phone) ({{ $customer->phone }}) @endif
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -305,7 +380,29 @@
                         <input type="text" name="notes" placeholder="ملاحظات إضافية..." class="form-control">
                     </div>
                 </div>
-            
+
+                <!-- Customer Info Display -->
+                <div id="customerInfo" style="display: none;" class="totals-section">
+                    <div class="section-title">
+                        👤 معلومات العميل المختار
+                    </div>
+
+                    <div class="total-row">
+                        <span>المديونية السابقة:</span>
+                        <span id="currentBalanceDisplay">0.00 د.ع</span>
+                    </div>
+
+                    <div class="total-row">
+                        <span>سقف المديونية:</span>
+                        <span id="creditLimitDisplay">0.00 د.ع</span>
+                    </div>
+
+                    <div class="total-row">
+                        <span>المديونية بعد هذه الفاتورة:</span>
+                        <span id="newBalanceDisplay">0.00 د.ع</span>
+                    </div>
+                </div>
+
                 <!-- Invoice Items -->
                 <div class="section-title">
                     📦 عناصر الفاتورة
@@ -314,24 +411,29 @@
                 <table class="invoice-table" id="itemsTable">
                     <thead>
                         <tr>
-                            <th style="width: 35%;">المنتج</th>
-                            <th style="width: 15%;">الكمية</th>
-                            <th style="width: 18%;">السعر (د.ع)</th>
-                            <th style="width: 15%;">الخصم (د.ع)</th>
-                            <th style="width: 17%;">المجموع (د.ع)</th>
+                            <th style="width: 30%;">المنتج</th>
+                            <th style="width: 12%;">الكمية</th>
+                            <th style="width: 15%;">السعر (د.ع)</th>
+                            <th style="width: 12%;">الخصم (د.ع)</th>
+                            <th style="width: 12%;">العينات المجانية</th>
+                            <th style="width: 15%;">المجموع (د.ع)</th>
                             <th style="width: 60px;">إجراء</th>
                         </tr>
                     </thead>
                     <tbody id="invoiceItems">
                         <tr>
                             <td>
-                                <select name="items[0][product_id]" required class="table-select" onchange="updateProductPrice(this, 0)">
+                                <select name="items[0][product_id]" required class="table-select product-select" onchange="updateProductPrice(this, 0)">
                                     <option value="">اختر المنتج...</option>
-                                    <option value="1" data-price="15.50">باراسيتامول 500 مجم</option>
-                                    <option value="2" data-price="25.00">أموكسيسيلين 250 مجم</option>
-                                    <option value="3" data-price="35.75">فيتامين د 1000 وحدة</option>
-                                    <option value="4" data-price="45.25">أوميجا 3 كبسولات</option>
-                                    <option value="5" data-price="12.00">أسبرين 100 مجم</option>
+                                    @foreach($products as $product)
+                                        <option value="{{ $product->id }}"
+                                                data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}"
+                                                data-stock="{{ $product->stock_quantity ?? 0 }}">
+                                            {{ $product->name }}
+                                            @if($product->product_code) - {{ $product->product_code }} @endif
+                                            (المخزون: {{ $product->stock_quantity ?? 0 }})
+                                        </option>
+                                    @endforeach
                                 </select>
                             </td>
                             <td>
@@ -342,6 +444,9 @@
                             </td>
                             <td>
                                 <input type="number" name="items[0][discount_amount]" value="0" step="0.01" class="table-input" onchange="calculateTotal(0)">
+                            </td>
+                            <td>
+                                <input type="number" name="items[0][free_samples]" value="0" min="0" class="table-input" placeholder="0">
                             </td>
                             <td>
                                 <input type="number" name="items[0][total_amount]" value="0" readonly class="table-input" style="background: #f8fafc; font-weight: 600;">
@@ -405,12 +510,98 @@
     <script>
         let itemIndex = 1;
 
+        // Initialize Select2 for all select elements
+        function initializeSelect2() {
+            // Customer select
+            $('.customer-select').select2({
+                placeholder: 'ابحث عن العميل...',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    }
+                }
+            });
+
+            // Product selects
+            $('.product-select').select2({
+                placeholder: 'ابحث عن المنتج...',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    }
+                }
+            });
+        }
+
+        // Update customer info when customer is selected
+        function updateCustomerInfo() {
+            const customerSelect = document.getElementById('customerSelect');
+            const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+
+            if (selectedOption.value) {
+                const currentBalance = parseFloat(selectedOption.getAttribute('data-balance')) || 0;
+                const creditLimit = parseFloat(selectedOption.getAttribute('data-credit')) || 0;
+
+                document.getElementById('currentBalanceDisplay').textContent = currentBalance.toFixed(2) + ' د.ع';
+                document.getElementById('creditLimitDisplay').textContent = creditLimit.toFixed(2) + ' د.ع';
+
+                document.getElementById('customerInfo').style.display = 'block';
+                updateNewBalance();
+            } else {
+                document.getElementById('customerInfo').style.display = 'none';
+            }
+        }
+
+        // Update new balance after invoice
+        function updateNewBalance() {
+            const customerSelect = document.getElementById('customerSelect');
+            const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+
+            if (selectedOption.value) {
+                const currentBalance = parseFloat(selectedOption.getAttribute('data-balance')) || 0;
+                const invoiceTotal = parseFloat(document.getElementById('totalAmount').value) || 0;
+                const newBalance = currentBalance + invoiceTotal;
+
+                document.getElementById('newBalanceDisplay').textContent = newBalance.toFixed(2) + ' د.ع';
+
+                // Check credit limit
+                const creditLimit = parseFloat(selectedOption.getAttribute('data-credit')) || 0;
+                const newBalanceElement = document.getElementById('newBalanceDisplay');
+
+                if (newBalance > creditLimit) {
+                    newBalanceElement.style.color = '#e53e3e';
+                    newBalanceElement.style.fontWeight = 'bold';
+                } else {
+                    newBalanceElement.style.color = '#38a169';
+                    newBalanceElement.style.fontWeight = 'normal';
+                }
+            }
+        }
+
         // Update product price when product is selected
         function updateProductPrice(select, index) {
             const selectedOption = select.options[select.selectedIndex];
             const price = selectedOption.getAttribute('data-price') || 0;
+            const stock = selectedOption.getAttribute('data-stock') || 0;
+
             const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
             priceInput.value = price;
+
+            // Show stock warning if low
+            if (stock < 10 && stock > 0) {
+                alert(`تحذير: المخزون المتبقي من هذا المنتج: ${stock} وحدة فقط`);
+            } else if (stock == 0) {
+                alert('تحذير: هذا المنتج غير متوفر في المخزون');
+            }
+
             calculateTotal(index);
         }
 
@@ -448,6 +639,9 @@
             document.getElementById('subtotalAmount').value = (subtotal + totalDiscount).toFixed(2);
             document.getElementById('discountAmount').value = totalDiscount.toFixed(2);
             document.getElementById('totalAmount').value = grandTotal.toFixed(2);
+
+            // Update customer new balance
+            updateNewBalance();
         }
 
         // Add new item row
@@ -455,15 +649,14 @@
             const tbody = document.getElementById('invoiceItems');
             const newRow = document.createElement('tr');
 
+            // Get product options from the first select
+            const firstProductSelect = document.querySelector('select[name*="[product_id]"]');
+            const productOptions = firstProductSelect.innerHTML;
+
             newRow.innerHTML = `
                 <td>
-                    <select name="items[${itemIndex}][product_id]" required class="table-select" onchange="updateProductPrice(this, ${itemIndex})">
-                        <option value="">اختر المنتج...</option>
-                        <option value="1" data-price="15.50">باراسيتامول 500 مجم</option>
-                        <option value="2" data-price="25.00">أموكسيسيلين 250 مجم</option>
-                        <option value="3" data-price="35.75">فيتامين د 1000 وحدة</option>
-                        <option value="4" data-price="45.25">أوميجا 3 كبسولات</option>
-                        <option value="5" data-price="12.00">أسبرين 100 مجم</option>
+                    <select name="items[${itemIndex}][product_id]" required class="table-select product-select" onchange="updateProductPrice(this, ${itemIndex})">
+                        ${productOptions}
                     </select>
                 </td>
                 <td>
@@ -476,6 +669,9 @@
                     <input type="number" name="items[${itemIndex}][discount_amount]" value="0" step="0.01" class="table-input" onchange="calculateTotal(${itemIndex})">
                 </td>
                 <td>
+                    <input type="number" name="items[${itemIndex}][free_samples]" value="0" min="0" class="table-input" placeholder="0">
+                </td>
+                <td>
                     <input type="number" name="items[${itemIndex}][total_amount]" value="0" readonly class="table-input" style="background: #f8fafc; font-weight: 600;">
                 </td>
                 <td>
@@ -486,6 +682,21 @@
             `;
 
             tbody.appendChild(newRow);
+
+            // Initialize Select2 for the new product select
+            $(newRow).find('.product-select').select2({
+                placeholder: 'ابحث عن المنتج...',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    }
+                }
+            });
+
             itemIndex++;
             updateRemoveButtons();
         }
@@ -530,6 +741,12 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2
+            initializeSelect2();
+
+            // Add customer change event
+            $('#customerSelect').on('change', updateCustomerInfo);
+
             updateRemoveButtons();
             updateGrandTotal();
         });
