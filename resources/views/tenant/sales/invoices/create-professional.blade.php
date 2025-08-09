@@ -1082,38 +1082,89 @@
         background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
     }
 
-    /* Force consistent styling for all product dropdowns */
-    select[name*="[product_id]"] {
+    /* UNIFIED STYLING FOR ALL PRODUCT DROPDOWNS */
+    select[name*="[product_id]"],
+    .enhanced-select,
+    select.form-control[data-custom-select] {
+        /* Base styling - identical for all */
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
         border: 2px solid #e2e8f0 !important;
         border-radius: 12px !important;
-        padding: 12px 16px !important;
+        padding: 12px 16px 12px 16px !important;
         font-size: 14px !important;
-        transition: all 0.3s ease !important;
+        font-weight: 500 !important;
+        line-height: 1.5 !important;
+        color: #1e293b !important;
+        width: 100% !important;
+        min-height: 48px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         appearance: none !important;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
-        background-position: right 12px center !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+
+        /* Custom dropdown arrow */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+        background-position: left 12px center !important;
         background-repeat: no-repeat !important;
-        background-size: 16px !important;
-        padding-right: 40px !important;
+        background-size: 16px 16px !important;
+        padding-left: 40px !important;
+
+        /* Shadow and effects */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
     }
 
-    select[name*="[product_id]"]:focus {
+    /* Focus state - identical for all */
+    select[name*="[product_id]"]:focus,
+    .enhanced-select:focus,
+    select.form-control[data-custom-select]:focus {
         outline: none !important;
         border-color: #667eea !important;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
         background: white !important;
+        transform: translateY(-1px) !important;
     }
 
-    select[name*="[product_id]"]:hover {
+    /* Hover state - identical for all */
+    select[name*="[product_id]"]:hover:not(:focus),
+    .enhanced-select:hover:not(:focus),
+    select.form-control[data-custom-select]:hover:not(:focus) {
         border-color: #c7d2fe !important;
         background: white !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Active/Selected state */
+    select[name*="[product_id]"]:active,
+    .enhanced-select:active,
+    select.form-control[data-custom-select]:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
     }
 
     /* Ensure all product dropdown containers have consistent styling */
     .enhanced-product-dropdown {
         position: relative !important;
         width: 100% !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* Product dropdown options styling */
+    select[name*="[product_id]"] option,
+    .enhanced-select option,
+    select.form-control[data-custom-select] option {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+        color: #1e293b !important;
+        background: white !important;
+    }
+
+    select[name*="[product_id]"] option:hover,
+    .enhanced-select option:hover,
+    select.form-control[data-custom-select] option:hover {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%) !important;
+        color: #1e40af !important;
     }
 
     /* Enhanced Product Dropdown Styles */
@@ -2880,83 +2931,115 @@ function removeItem(index) {
     }
 }
 
-// Apply enhanced styling to dropdown elements
+// Apply unified styling to dropdown elements
 function applyEnhancedStyling(index) {
     const dropdown = document.querySelector(`select[name="items[${index}][product_id]"]`);
     if (dropdown) {
-        applyEnhancedStylingToDropdown(dropdown, index);
+        applyUnifiedStylingToDropdown(dropdown, index);
     }
 }
 
-// Apply enhanced styling to all existing product dropdowns
+// Apply unified styling to all existing product dropdowns
 function applyEnhancedStylingToAll() {
-    const allDropdowns = document.querySelectorAll('select[name*="[product_id]"]');
-    allDropdowns.forEach((dropdown, index) => {
-        applyEnhancedStylingToDropdown(dropdown, index);
+    // Find all product dropdowns with different selectors
+    const selectors = [
+        'select[name*="[product_id]"]',
+        '.enhanced-select',
+        'select.form-control[data-custom-select]',
+        'select[data-placeholder]'
+    ];
+
+    let totalDropdowns = 0;
+
+    selectors.forEach(selector => {
+        const dropdowns = document.querySelectorAll(selector);
+        dropdowns.forEach((dropdown, index) => {
+            applyUnifiedStylingToDropdown(dropdown, totalDropdowns + index);
+            totalDropdowns++;
+        });
     });
-    console.log(`Enhanced styling applied to ${allDropdowns.length} product dropdowns`);
+
+    console.log(`Unified styling applied to ${totalDropdowns} product dropdowns`);
 }
 
-// Apply enhanced styling to a specific dropdown element
-function applyEnhancedStylingToDropdown(dropdown, index) {
+// Apply unified styling to a specific dropdown element
+function applyUnifiedStylingToDropdown(dropdown, index) {
     if (!dropdown) return;
 
-    // Add enhanced classes
-    dropdown.classList.add('enhanced-select');
+    // Add all necessary classes for consistency
+    dropdown.classList.add('enhanced-select', 'form-control');
+    dropdown.setAttribute('data-custom-select', 'true');
+    dropdown.setAttribute('data-placeholder', dropdown.getAttribute('data-placeholder') || 'اختر المنتج');
+    dropdown.setAttribute('data-searchable', 'true');
 
-    // Apply enhanced styling
-    dropdown.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
-    dropdown.style.border = '2px solid #e2e8f0';
-    dropdown.style.borderRadius = '12px';
-    dropdown.style.padding = '12px 16px';
-    dropdown.style.fontSize = '14px';
-    dropdown.style.transition = 'all 0.3s ease';
-    dropdown.style.appearance = 'none';
-    dropdown.style.backgroundImage = 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")';
-    dropdown.style.backgroundPosition = 'right 12px center';
-    dropdown.style.backgroundRepeat = 'no-repeat';
-    dropdown.style.backgroundSize = '16px';
-    dropdown.style.paddingRight = '40px';
+    // Apply unified styling (CSS will handle most of this, but ensure consistency)
+    dropdown.style.cssText = `
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 12px 16px 12px 40px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        line-height: 1.5 !important;
+        color: #1e293b !important;
+        width: 100% !important;
+        min-height: 48px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+        background-position: left 12px center !important;
+        background-repeat: no-repeat !important;
+        background-size: 16px 16px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    `;
 
     // Remove existing event listeners to avoid duplicates
-    dropdown.removeEventListener('focus', enhancedFocusHandler);
-    dropdown.removeEventListener('blur', enhancedBlurHandler);
-    dropdown.removeEventListener('mouseenter', enhancedMouseEnterHandler);
-    dropdown.removeEventListener('mouseleave', enhancedMouseLeaveHandler);
+    dropdown.removeEventListener('focus', unifiedFocusHandler);
+    dropdown.removeEventListener('blur', unifiedBlurHandler);
+    dropdown.removeEventListener('mouseenter', unifiedMouseEnterHandler);
+    dropdown.removeEventListener('mouseleave', unifiedMouseLeaveHandler);
 
-    // Add enhanced event listeners
-    dropdown.addEventListener('focus', enhancedFocusHandler);
-    dropdown.addEventListener('blur', enhancedBlurHandler);
-    dropdown.addEventListener('mouseenter', enhancedMouseEnterHandler);
-    dropdown.addEventListener('mouseleave', enhancedMouseLeaveHandler);
+    // Add unified event listeners
+    dropdown.addEventListener('focus', unifiedFocusHandler);
+    dropdown.addEventListener('blur', unifiedBlurHandler);
+    dropdown.addEventListener('mouseenter', unifiedMouseEnterHandler);
+    dropdown.addEventListener('mouseleave', unifiedMouseLeaveHandler);
 
-    console.log('Enhanced styling applied to dropdown for index:', index);
+    console.log('Unified styling applied to dropdown for index:', index);
 }
 
-// Enhanced event handlers
-function enhancedFocusHandler() {
-    this.style.borderColor = '#667eea';
-    this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-    this.style.background = 'white';
+// Unified event handlers for consistent behavior
+function unifiedFocusHandler() {
+    this.style.borderColor = '#667eea !important';
+    this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important';
+    this.style.background = 'white !important';
+    this.style.transform = 'translateY(-1px) !important';
 }
 
-function enhancedBlurHandler() {
-    this.style.borderColor = '#e2e8f0';
-    this.style.boxShadow = 'none';
-    this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+function unifiedBlurHandler() {
+    this.style.borderColor = '#e2e8f0 !important';
+    this.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important';
+    this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important';
+    this.style.transform = 'translateY(0) !important';
 }
 
-function enhancedMouseEnterHandler() {
+function unifiedMouseEnterHandler() {
     if (document.activeElement !== this) {
-        this.style.borderColor = '#c7d2fe';
-        this.style.background = 'white';
+        this.style.borderColor = '#c7d2fe !important';
+        this.style.background = 'white !important';
+        this.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important';
+        this.style.transform = 'translateY(-1px) !important';
     }
 }
 
-function enhancedMouseLeaveHandler() {
+function unifiedMouseLeaveHandler() {
     if (document.activeElement !== this) {
-        this.style.borderColor = '#e2e8f0';
-        this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+        this.style.borderColor = '#e2e8f0 !important';
+        this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important';
+        this.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important';
+        this.style.transform = 'translateY(0) !important';
     }
 }
 
@@ -3830,10 +3913,16 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeEnhancedDropdowns();
         initializeEnhancedInputs();
 
-        // Apply enhanced styling to all existing product dropdowns
-        applyEnhancedStylingToAll();
+        // Apply unified styling to all existing product dropdowns
+        setTimeout(() => {
+            applyEnhancedStylingToAll();
+            // Force re-apply after a short delay to ensure consistency
+            setTimeout(() => {
+                applyEnhancedStylingToAll();
+            }, 500);
+        }, 100);
 
-        console.log('Enhanced invoice features initialized successfully');
+        console.log('Enhanced invoice features with unified styling initialized successfully');
     } catch (error) {
         console.warn('Some enhanced features failed to initialize:', error);
     }
