@@ -3750,6 +3750,15 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     console.log('🚀 Allowing form to submit naturally...');
     console.log('🔍 Event listeners on form:', this.getEventListeners ? this.getEventListeners() : 'getEventListeners not available');
 
+    // Check CSRF token
+    const csrfToken = this.querySelector('input[name="_token"]');
+    console.log('🔐 CSRF token element:', csrfToken);
+    console.log('🔐 CSRF token value:', csrfToken ? csrfToken.value : 'NOT FOUND');
+
+    // Check form action and method
+    console.log('🎯 Form action attribute:', this.getAttribute('action'));
+    console.log('🎯 Form method attribute:', this.getAttribute('method'));
+
     // Force form submission if needed
     console.log('🔧 Attempting to force form submission...');
 
@@ -3762,11 +3771,19 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         // Try manual submission as last resort
         console.log('🔧 Attempting manual form submission...');
         try {
+            console.log('📤 Calling this.submit()...');
             this.submit();
-            console.log('✅ Manual submission triggered');
+            console.log('✅ Manual submission triggered - no errors thrown');
         } catch (error) {
             console.log('❌ Manual submission failed:', error);
         }
+
+        // Check if we're still on the same page after 1 more second
+        setTimeout(() => {
+            console.log('🕐 3 seconds total - Final check:');
+            console.log('📍 Final URL:', window.location.href);
+            console.log('🔄 Form submission definitely failed if you see this');
+        }, 1000);
     }, 2000);
 
     // Clear draft on successful submission
