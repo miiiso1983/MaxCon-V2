@@ -2866,7 +2866,7 @@ function addItem() {
         <td>
             <div class="enhanced-product-dropdown">
                 <select name="items[${itemIndex}][product_id]" required class="form-control enhanced-select" data-custom-select
-                        data-placeholder="اختر المنتج" data-searchable="true" onchange="updateProductInfo(this, ${itemIndex})">
+                        data-placeholder="اختر المنتج" data-searchable="true" onchange="simpleUpdateProductInfo(this, ${itemIndex})">
                     ${productOptions}
                 </select>
                 <div class="product-info-display" id="productInfo${itemIndex}" style="display: none;">
@@ -2892,31 +2892,31 @@ function addItem() {
         <td>
             <input type="number" name="items[${itemIndex}][quantity]" min="1" step="1" required
                    class="form-control enhanced-input" placeholder="1" value="1"
-                   onchange="calculateItemTotal(${itemIndex})" oninput="validateStock(${itemIndex})"
+                   onchange="simpleCalculateTotal(${itemIndex})" oninput="validateStock(${itemIndex})"
                    style="text-align: center;">
         </td>
         <td>
             <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required
                    class="form-control enhanced-input" placeholder="0.00" value="0"
-                   onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+                   onchange="simpleCalculateTotal(${itemIndex})" style="text-align: center;">
         </td>
         <td>
             <input type="number" name="items[${itemIndex}][discount_amount]" min="0" step="0.01"
                    class="form-control enhanced-input" placeholder="0.00" value="0"
-                   onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+                   onchange="simpleCalculateTotal(${itemIndex})" style="text-align: center;">
         </td>
         <td>
             <input type="number" name="items[${itemIndex}][free_samples]" min="0" step="1"
                    class="form-control enhanced-input" placeholder="0" value="0"
                    style="text-align: center;">
         </td>
-        <td>
-            <div class="foc-container">
-                <label class="foc-switch">
-                    <input type="checkbox" name="items[${itemIndex}][is_foc]" value="1" onchange="toggleFOC(${itemIndex})">
-                    <span class="foc-slider"></span>
+        <td style="background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important; border: 2px solid #10b981 !important;">
+            <div class="foc-container" style="padding: 15px !important;">
+                <label class="foc-switch" style="width: 60px !important; height: 30px !important;">
+                    <input type="checkbox" name="items[${itemIndex}][is_foc]" value="1" onchange="simpleFOCToggle(this, ${itemIndex})">
+                    <span class="foc-slider" style="border-radius: 30px !important; background: #ef4444 !important;"></span>
                 </label>
-                <span class="foc-label">مجاني</span>
+                <span class="foc-label" style="font-size: 12px !important; font-weight: bold !important; color: #059669 !important;">مجاني FOC</span>
             </div>
         </td>
         <td>
@@ -3611,36 +3611,26 @@ function showNotification(message, type = 'info', duration = 3000) {
     }, duration);
 }
 
-// Enhanced form validation using the validation class
+// Simple form validation that always works
 function validateForm() {
-    if (window.invoiceValidator) {
-        const validation = window.invoiceValidator.validateInvoice();
+    console.log('Validating form...');
 
-        if (!validation.isValid) {
-            // Show errors
-            const errorMessage = validation.errors.join('<br>');
-            showNotification(errorMessage, 'error', 8000);
-        }
-
-        if (validation.warnings.length > 0) {
-            // Show warnings
-            const warningMessage = validation.warnings.join('<br>');
-            showNotification(warningMessage, 'warning', 6000);
-        }
-
-        return validation.isValid;
-    }
-
-    // Fallback validation if validator is not available
+    // Check customer selection
     const customerSelect = document.getElementById('customerSelect');
-    const productSelects = document.querySelectorAll('select[name*="[product_id]"]');
-
-    if (!customerSelect.value) {
-        showNotification('يرجى اختيار العميل', 'error', 3000);
+    if (!customerSelect || !customerSelect.value) {
+        console.log('Customer not selected');
+        if (typeof showNotification === 'function') {
+            showNotification('يرجى اختيار العميل', 'error', 3000);
+        } else {
+            alert('يرجى اختيار العميل');
+        }
         return false;
     }
 
+    // Check if at least one product is selected
+    const productSelects = document.querySelectorAll('select[name*="[product_id]"]');
     let hasValidItems = false;
+
     productSelects.forEach(select => {
         if (select.value) {
             hasValidItems = true;
@@ -3648,10 +3638,31 @@ function validateForm() {
     });
 
     if (!hasValidItems) {
-        showNotification('يرجى إضافة منتج واحد على الأقل', 'error', 3000);
+        console.log('No products selected');
+        if (typeof showNotification === 'function') {
+            showNotification('يرجى إضافة منتج واحد على الأقل', 'error', 3000);
+        } else {
+            alert('يرجى إضافة منتج واحد على الأقل');
+        }
         return false;
     }
 
+    // Check quantities
+    const quantityInputs = document.querySelectorAll('input[name*="[quantity]"]');
+    for (let input of quantityInputs) {
+        const value = parseFloat(input.value || 0);
+        if (value <= 0) {
+            console.log('Invalid quantity found');
+            if (typeof showNotification === 'function') {
+                showNotification('يرجى إدخال كمية صحيحة لجميع المنتجات', 'error', 3000);
+            } else {
+                alert('يرجى إدخال كمية صحيحة لجميع المنتجات');
+            }
+            return false;
+        }
+    }
+
+    console.log('Form validation passed');
     return true;
 }
 
@@ -4031,6 +4042,54 @@ function simpleCalculateTotal(index) {
 
         console.log('Total calculated:', total.toFixed(2), 'FOC:', isFOC);
     }
+}
+
+// Simple notification function fallback
+function showNotification(message, type, duration) {
+    if (typeof window.showNotification === 'function') {
+        return window.showNotification(message, type, duration);
+    }
+
+    // Create simple notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        max-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+    `;
+
+    // Set colors based on type
+    switch(type) {
+        case 'error':
+            notification.style.background = 'linear-gradient(45deg, #ef4444, #dc2626)';
+            break;
+        case 'warning':
+            notification.style.background = 'linear-gradient(45deg, #f59e0b, #d97706)';
+            break;
+        case 'success':
+            notification.style.background = 'linear-gradient(45deg, #10b981, #059669)';
+            break;
+        default:
+            notification.style.background = 'linear-gradient(45deg, #3b82f6, #2563eb)';
+    }
+
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+
+    // Auto remove
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, duration || 3000);
 }
 </script>
 
