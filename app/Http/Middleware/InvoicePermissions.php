@@ -62,7 +62,7 @@ class InvoicePermissions
     /**
      * Check if user has specific invoice permission
      */
-    private function hasInvoicePermission($user, string $permission): bool
+    public function hasInvoicePermission($user, string $permission): bool
     {
         // Super admin has all permissions
         if ($user->role === 'super_admin') {

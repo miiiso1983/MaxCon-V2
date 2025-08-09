@@ -46,8 +46,6 @@ class Invoice extends Model
         'sales_representative',
         'warehouse_name',
         'whatsapp_history',
-        'paid_amount',
-        'remaining_amount',
         'currency',
         'exchange_rate',
         'billing_address',

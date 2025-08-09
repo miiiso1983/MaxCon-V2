@@ -2948,6 +2948,8 @@ Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
         // Create invoices
         Route::get('/create', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'create'])
             ->middleware('invoice.permissions:create')->name('create');
+        Route::get('/create-professional', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'create'])
+            ->middleware('invoice.permissions:create')->name('create-professional');
         Route::post('/', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'store'])
             ->middleware('invoice.permissions:create')->name('store');
 
