@@ -2864,40 +2864,38 @@ Route::get('/test-db-data', function() {
 // الرابط النهائي لإنشاء الفواتير مع البيانات الحقيقية
 Route::get('/invoice-create-real', function() {
     try {
-        // جلب العملاء باستخدام query مبسط
+        // جلب العملاء مع جميع الأعمدة المطلوبة
         $customers = \DB::table('customers')
-            ->select('id', 'name')
+            ->select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit')
             ->whereNotNull('name')
             ->where('name', '!=', '')
             ->orderBy('name')
             ->get();
 
-        // إضافة القيم الافتراضية للأعمدة المفقودة
+        // إضافة القيم الافتراضية للأعمدة المفقودة (بدون tenant_id)
         $customers = $customers->map(function($customer) {
             $customer->customer_code = $customer->customer_code ?? '';
             $customer->phone = $customer->phone ?? '';
             $customer->current_balance = $customer->current_balance ?? 0;
             $customer->credit_limit = $customer->credit_limit ?? 1000;
-            $customer->tenant_id = $customer->tenant_id ?? 1;
             return $customer;
         });
 
-        // جلب المنتجات باستخدام query مبسط
+        // جلب المنتجات مع جميع الأعمدة المطلوبة
         $products = \DB::table('products')
-            ->select('id', 'name')
+            ->select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity')
             ->whereNotNull('name')
             ->where('name', '!=', '')
             ->orderBy('name')
             ->limit(100)
             ->get();
 
-        // إضافة القيم الافتراضية للأعمدة المفقودة
+        // إضافة القيم الافتراضية للأعمدة المفقودة (بدون tenant_id)
         $products = $products->map(function($product) {
             $product->product_code = $product->product_code ?? '';
             $product->selling_price = $product->selling_price ?? $product->unit_price ?? 10;
             $product->unit_price = $product->unit_price ?? 10;
             $product->stock_quantity = $product->stock_quantity ?? 0;
-            $product->tenant_id = $product->tenant_id ?? 1;
             return $product;
         });
 

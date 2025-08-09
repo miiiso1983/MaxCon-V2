@@ -355,7 +355,6 @@
                                         {{ $customer->name }}
                                         @if($customer->customer_code) - {{ $customer->customer_code }} @endif
                                         @if($customer->phone) ({{ $customer->phone }}) @endif
-                                        @if($customer->tenant_id) [Tenant: {{ $customer->tenant_id }}] @endif
                                     </option>
                                 @endforeach
                             @else
@@ -447,7 +446,6 @@
                                                 {{ $product->name }}
                                                 @if($product->product_code) - {{ $product->product_code }} @endif
                                                 (المخزون: {{ $product->stock_quantity ?? 0 }})
-                                                @if($product->tenant_id) [Tenant: {{ $product->tenant_id }}] @endif
                                             </option>
                                         @endforeach
                                     @else
