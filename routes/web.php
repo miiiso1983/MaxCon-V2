@@ -1792,30 +1792,17 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
 
         // Simple Invoice Creation
         Route::get('invoices/create-simple', function() {
-            try {
-                // Return with test data to avoid database issues
-                $customers = collect([
-                    (object)['id' => 1, 'name' => 'عميل تجريبي 1', 'customer_code' => 'CUST001'],
-                    (object)['id' => 2, 'name' => 'عميل تجريبي 2', 'customer_code' => 'CUST002'],
-                    (object)['id' => 3, 'name' => 'شركة الأدوية المتقدمة', 'customer_code' => 'CUST003'],
-                ]);
+            $customers = collect([
+                (object)['id' => 1, 'name' => 'عميل تجريبي 1'],
+                (object)['id' => 2, 'name' => 'عميل تجريبي 2']
+            ]);
 
-                $products = collect([
-                    (object)['id' => 1, 'name' => 'باراسيتامول 500 مجم', 'product_code' => 'PARA500', 'selling_price' => 15.50],
-                    (object)['id' => 2, 'name' => 'أموكسيسيلين 250 مجم', 'product_code' => 'AMOX250', 'selling_price' => 25.00],
-                    (object)['id' => 3, 'name' => 'فيتامين د 1000 وحدة', 'product_code' => 'VITD1000', 'selling_price' => 35.75],
-                ]);
+            $products = collect([
+                (object)['id' => 1, 'name' => 'منتج تجريبي 1', 'selling_price' => 100],
+                (object)['id' => 2, 'name' => 'منتج تجريبي 2', 'selling_price' => 200]
+            ]);
 
-                return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
-            } catch (\Exception $e) {
-                \Log::error('Error in create-simple route: ' . $e->getMessage());
-
-                // Fallback with minimal data
-                return view('tenant.sales.invoices.create-simple', [
-                    'customers' => collect([(object)['id' => 1, 'name' => 'عميل افتراضي']]),
-                    'products' => collect([(object)['id' => 1, 'name' => 'منتج افتراضي', 'selling_price' => 10]])
-                ]);
-            }
+            return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
         })->name('invoices.create-simple');
 
         // Test route for debugging
@@ -1844,6 +1831,16 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
 
             return view('tenant.sales.invoices.create-working', compact('customers', 'products'));
         })->name('invoices.create-working');
+
+        // Debug route to test
+        Route::get('invoices/debug', function() {
+            return response()->json([
+                'status' => 'working',
+                'message' => 'Route is accessible',
+                'user' => Auth::check() ? Auth::user()->name : 'Not authenticated',
+                'timestamp' => now()
+            ]);
+        })->name('invoices.debug');
 
         // Simple Invoice Index (override the resource route)
         Route::get('invoices', function() {
