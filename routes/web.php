@@ -3167,12 +3167,12 @@ Route::get('/quick-admin-login', function () {
         $admin = \App\Models\User::where('email', 'admin@maxcon.app')->first();
 
         if (!$admin) {
-            // Create admin user using raw SQL to avoid model issues
+            // Create tenant admin user using raw SQL to avoid model issues
             \DB::table('users')->insert([
-                'name' => 'مدير النظام',
+                'name' => 'مدير المؤسسة',
                 'email' => 'admin@maxcon.app',
                 'password' => bcrypt('admin123'),
-                'role' => 'super_admin',
+                'role' => 'tenant_admin',
                 'tenant_id' => 4,
                 'email_verified_at' => now(),
                 'created_at' => now(),
@@ -3184,7 +3184,7 @@ Route::get('/quick-admin-login', function () {
         } else {
             // Update existing user using raw SQL
             \DB::table('users')->where('id', $admin->id)->update([
-                'role' => 'super_admin',
+                'role' => 'tenant_admin',
                 'tenant_id' => 4,
                 'updated_at' => now(),
             ]);
@@ -3223,7 +3223,7 @@ Route::get('/update-user-permissions', function () {
         }
 
         // Update user role and tenant
-        $user->role = 'super_admin';
+        $user->role = 'tenant_admin';
         $user->tenant_id = 4;
         $user->save();
 
@@ -3293,14 +3293,19 @@ Route::get('/permissions-help', function () {
         ] : null,
         'solutions' => [
             [
-                'title' => 'تسجيل دخول كمدير',
+                'title' => 'تسجيل دخول كمدير مؤسسة',
                 'url' => '/quick-admin-login',
-                'description' => 'إنشاء حساب مدير جديد وتسجيل الدخول'
+                'description' => 'إنشاء حساب مدير مؤسسة جديد وتسجيل الدخول'
             ],
             [
-                'title' => 'تحديث صلاحيات المستخدم الحالي',
+                'title' => 'ترقية إلى مدير مؤسسة',
+                'url' => '/make-tenant-admin',
+                'description' => 'ترقية المستخدم الحالي إلى مدير مؤسسة'
+            ],
+            [
+                'title' => 'تحديث صلاحيات عامة',
                 'url' => '/update-user-permissions',
-                'description' => 'ترقية المستخدم الحالي إلى مدير نظام'
+                'description' => 'تحديث صلاحيات المستخدم الحالي'
             ],
             [
                 'title' => 'عرض الفواتير بدون صلاحيات',
@@ -3404,6 +3409,49 @@ Route::get('/fix-users-table', function () {
         ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 })->name('fix.users.table');
+
+// Update Current User to Tenant Admin
+Route::get('/make-tenant-admin', function () {
+    try {
+        $user = \Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'error' => 'لا يوجد مستخدم مسجل دخول',
+                'login_url' => '/quick-admin-login'
+            ]);
+        }
+
+        // Update user to tenant admin using raw SQL
+        \DB::table('users')->where('id', $user->id)->update([
+            'role' => 'tenant_admin',
+            'tenant_id' => 4,
+            'updated_at' => now(),
+        ]);
+
+        // Refresh user data
+        $updatedUser = \App\Models\User::find($user->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث المستخدم إلى مدير مؤسسة بنجاح',
+            'user' => [
+                'name' => $updatedUser->name,
+                'email' => $updatedUser->email,
+                'role' => $updatedUser->role,
+                'tenant_id' => $updatedUser->tenant_id,
+            ],
+            'permissions' => \App\Http\Middleware\InvoicePermissions::getUserPermissions($updatedUser),
+            'redirect_url' => '/tenant/sales/invoices'
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في تحديث الصلاحيات'
+        ]);
+    }
+})->name('make.tenant.admin');
 
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {
