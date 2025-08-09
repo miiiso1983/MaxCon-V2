@@ -1795,107 +1795,33 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             try {
                 \Log::info('Starting invoice create-simple route');
 
-                // جلب جميع العملاء من قاعدة البيانات
-                $customers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit')
+                // جلب جميع العملاء من قاعدة البيانات (بدون تصفية tenant)
+                $customers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit', 'tenant_id')
+                    ->whereNotNull('name')
+                    ->where('name', '!=', '')
                     ->orderBy('name')
                     ->get();
 
-                \Log::info('Customers found: ' . $customers->count());
+                \Log::info('All customers found: ' . $customers->count());
 
-                // جلب جميع المنتجات من قاعدة البيانات
-                $products = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity')
+                // جلب جميع المنتجات من قاعدة البيانات (بدون تصفية tenant)
+                $products = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity', 'tenant_id')
+                    ->whereNotNull('name')
+                    ->where('name', '!=', '')
                     ->orderBy('name')
                     ->get();
 
-                \Log::info('Products found: ' . $products->count());
+                \Log::info('All products found: ' . $products->count());
 
-                // إذا لم توجد بيانات حقيقية، أضف بيانات تجريبية
+                // إذا لم توجد بيانات، استخدم مجموعة فارغة
                 if ($customers->count() == 0) {
-                    \Log::info('No customers found, adding sample data');
-
-                    // إنشاء عملاء تجريبيين
-                    $sampleCustomers = [
-                        [
-                            'name' => 'شركة الأدوية المتقدمة',
-                            'customer_code' => 'CUST001',
-                            'phone' => '07901234567',
-                            'current_balance' => 1500.00,
-                            'credit_limit' => 10000.00,
-                            'tenant_id' => 1
-                        ],
-                        [
-                            'name' => 'صيدلية النور الطبية',
-                            'customer_code' => 'CUST002',
-                            'phone' => '07801234567',
-                            'current_balance' => 750.50,
-                            'credit_limit' => 5000.00,
-                            'tenant_id' => 1
-                        ],
-                        [
-                            'name' => 'مستشفى بغداد التخصصي',
-                            'customer_code' => 'CUST003',
-                            'phone' => '07701234567',
-                            'current_balance' => 2250.75,
-                            'credit_limit' => 15000.00,
-                            'tenant_id' => 1
-                        ]
-                    ];
-
-                    foreach ($sampleCustomers as $customerData) {
-                        \App\Models\Customer::create($customerData);
-                    }
-
-                    // إعادة جلب العملاء بعد الإنشاء
-                    $customers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit')
-                        ->orderBy('name')
-                        ->get();
+                    \Log::warning('No customers found in database');
+                    $customers = collect();
                 }
 
                 if ($products->count() == 0) {
-                    \Log::info('No products found, adding sample data');
-
-                    // إنشاء منتجات تجريبية
-                    $sampleProducts = [
-                        [
-                            'name' => 'باراسيتامول 500 مجم',
-                            'product_code' => 'PARA500',
-                            'selling_price' => 15.50,
-                            'unit_price' => 12.00,
-                            'stock_quantity' => 100,
-                            'tenant_id' => 1,
-                            'category' => 'أدوية',
-                            'unit_of_measure' => 'قرص'
-                        ],
-                        [
-                            'name' => 'أموكسيسيلين 250 مجم',
-                            'product_code' => 'AMOX250',
-                            'selling_price' => 25.00,
-                            'unit_price' => 20.00,
-                            'stock_quantity' => 75,
-                            'tenant_id' => 1,
-                            'category' => 'مضادات حيوية',
-                            'unit_of_measure' => 'كبسولة'
-                        ],
-                        [
-                            'name' => 'فيتامين د 1000 وحدة',
-                            'product_code' => 'VITD1000',
-                            'selling_price' => 35.75,
-                            'unit_price' => 28.00,
-                            'stock_quantity' => 50,
-                            'tenant_id' => 1,
-                            'category' => 'فيتامينات',
-                            'unit_of_measure' => 'قرص'
-                        ]
-                    ];
-
-                    foreach ($sampleProducts as $productData) {
-                        \App\Models\Product::create($productData);
-                    }
-
-                    // إعادة جلب المنتجات بعد الإنشاء
-                    $products = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity')
-                        ->orderBy('name')
-                        ->get();
+                    \Log::warning('No products found in database');
+                    $products = collect();
                 }
 
                 \Log::info('Final counts - Customers: ' . $customers->count() . ', Products: ' . $products->count());
@@ -2618,21 +2544,27 @@ Route::get('/test-database-connection', function () {
         $customerCount = \App\Models\Customer::count();
         $productCount = \App\Models\Product::count();
 
-        $sampleCustomers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone')
-            ->limit(5)
+        // جلب جميع العملاء مع تفاصيل أكثر
+        $allCustomers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone', 'tenant_id', 'current_balance', 'credit_limit')
             ->get();
 
-        $sampleProducts = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price')
-            ->limit(5)
+        // جلب جميع المنتجات مع تفاصيل أكثر
+        $allProducts = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price', 'tenant_id', 'stock_quantity')
             ->get();
+
+        // تجميع البيانات حسب tenant_id
+        $customersByTenant = $allCustomers->groupBy('tenant_id');
+        $productsByTenant = $allProducts->groupBy('tenant_id');
 
         return response()->json([
             'status' => 'success',
             'database_connected' => true,
-            'customers_count' => $customerCount,
-            'products_count' => $productCount,
-            'sample_customers' => $sampleCustomers,
-            'sample_products' => $sampleProducts,
+            'total_customers' => $customerCount,
+            'total_products' => $productCount,
+            'customers_by_tenant' => $customersByTenant,
+            'products_by_tenant' => $productsByTenant,
+            'all_customers' => $allCustomers,
+            'all_products' => $allProducts,
             'timestamp' => now()
         ]);
 

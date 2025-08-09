@@ -323,6 +323,11 @@
             <p style="font-size: 14px; opacity: 0.9;">
                 📊 العملاء المتاحون: {{ count($customers) }} |
                 📦 المنتجات المتاحة: {{ count($products) }}
+                @if(count($customers) > 0)
+                    | 🔗 مربوط بقاعدة البيانات
+                @else
+                    | ⚠️ لا توجد بيانات في قاعدة البيانات
+                @endif
             </p>
         </div>
 
@@ -341,16 +346,21 @@
                         <label class="form-label">العميل *</label>
                         <select name="customer_id" required class="form-control customer-select" id="customerSelect">
                             <option value="">اختر العميل...</option>
-                            @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}"
-                                        data-balance="{{ $customer->current_balance ?? 0 }}"
-                                        data-credit="{{ $customer->credit_limit ?? 0 }}"
-                                        data-phone="{{ $customer->phone ?? '' }}">
-                                    {{ $customer->name }}
-                                    @if($customer->customer_code) - {{ $customer->customer_code }} @endif
-                                    @if($customer->phone) ({{ $customer->phone }}) @endif
-                                </option>
-                            @endforeach
+                            @if(count($customers) > 0)
+                                @foreach($customers as $customer)
+                                    <option value="{{ $customer->id }}"
+                                            data-balance="{{ $customer->current_balance ?? 0 }}"
+                                            data-credit="{{ $customer->credit_limit ?? 0 }}"
+                                            data-phone="{{ $customer->phone ?? '' }}">
+                                        {{ $customer->name }}
+                                        @if($customer->customer_code) - {{ $customer->customer_code }} @endif
+                                        @if($customer->phone) ({{ $customer->phone }}) @endif
+                                        @if($customer->tenant_id) [Tenant: {{ $customer->tenant_id }}] @endif
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="" disabled>لا توجد عملاء في قاعدة البيانات</option>
+                            @endif
                         </select>
                     </div>
 
@@ -429,15 +439,20 @@
                             <td>
                                 <select name="items[0][product_id]" required class="table-select product-select" onchange="updateProductPrice(this, 0)">
                                     <option value="">اختر المنتج...</option>
-                                    @foreach($products as $product)
-                                        <option value="{{ $product->id }}"
-                                                data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}"
-                                                data-stock="{{ $product->stock_quantity ?? 0 }}">
-                                            {{ $product->name }}
-                                            @if($product->product_code) - {{ $product->product_code }} @endif
-                                            (المخزون: {{ $product->stock_quantity ?? 0 }})
-                                        </option>
-                                    @endforeach
+                                    @if(count($products) > 0)
+                                        @foreach($products as $product)
+                                            <option value="{{ $product->id }}"
+                                                    data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}"
+                                                    data-stock="{{ $product->stock_quantity ?? 0 }}">
+                                                {{ $product->name }}
+                                                @if($product->product_code) - {{ $product->product_code }} @endif
+                                                (المخزون: {{ $product->stock_quantity ?? 0 }})
+                                                @if($product->tenant_id) [Tenant: {{ $product->tenant_id }}] @endif
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option value="" disabled>لا توجد منتجات في قاعدة البيانات</option>
+                                    @endif
                                 </select>
                             </td>
                             <td>
