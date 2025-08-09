@@ -6,9 +6,54 @@
 @push('head')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="{{ asset('css/professional-invoice.css') }}">
+<style>
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert {
+    animation: slideInDown 0.5s ease;
+}
+</style>
 @endpush
 
 @section('content')
+<!-- Success Message -->
+@if(session('success'))
+<div class="alert alert-success" style="margin: 20px 0; padding: 15px 20px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 12px; color: #155724; font-weight: 600; box-shadow: 0 4px 6px rgba(40, 167, 69, 0.1); animation: slideInDown 0.5s ease;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="fas fa-check-circle" style="color: #28a745; font-size: 20px;"></i>
+        <div>
+            <div style="font-size: 16px; margin-bottom: 4px;">{{ session('success') }}</div>
+            @if(session('invoice_id'))
+            <div style="font-size: 14px; opacity: 0.8;">
+                <a href="{{ route('tenant.sales.invoices.show', session('invoice_id')) }}"
+                   style="color: #155724; text-decoration: underline; font-weight: 600;">
+                    <i class="fas fa-eye"></i> عرض الفاتورة
+                </a>
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div class="alert alert-danger" style="margin: 20px 0; padding: 15px 20px; background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border: 2px solid #dc3545; border-radius: 12px; color: #721c24; font-weight: 600; box-shadow: 0 4px 6px rgba(220, 53, 69, 0.1); animation: slideInDown 0.5s ease;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="fas fa-exclamation-triangle" style="color: #dc3545; font-size: 20px;"></i>
+        <div style="font-size: 16px;">{{ session('error') }}</div>
+    </div>
+</div>
+@endif
+
 <!-- Page Header -->
 <div class="hero-gradient fade-in-down">
     <div class="hero-shape"></div>

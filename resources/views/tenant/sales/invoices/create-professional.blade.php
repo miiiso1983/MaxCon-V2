@@ -2065,13 +2065,7 @@
 </head>
 <body>
 
-<!-- IMMEDIATE VERIFICATION BANNER -->
-<div id="verificationBanner" style="position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: linear-gradient(45deg, #ff0000, #ff6b6b); color: white; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; box-shadow: 0 4px 20px rgba(255,0,0,0.5); border-bottom: 5px solid #ffffff;">
-    🔥 ENHANCED VERSION LOADED SUCCESSFULLY! 🔥
-    <br>
-    <span style="font-size: 16px;">Enhanced Product Dropdowns & Modern Design Active - Version 2024</span>
-    <button onclick="document.getElementById('verificationBanner').style.display='none'" style="position: absolute; top: 10px; right: 20px; background: white; color: red; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold;">✕ Close</button>
-</div>
+
 
 <!-- Navigation -->
 <nav class="top-nav">

@@ -335,10 +335,14 @@ class InvoiceController extends Controller
 
             DB::commit();
 
-            $message = $invoice->status === 'sent' ? 'تم إنشاء الفاتورة وإنهاؤها بنجاح' : 'تم حفظ الفاتورة كمسودة';
+            $message = $invoice->status === 'sent' ?
+                'تم إنشاء الفاتورة وإنهاؤها بنجاح! رقم الفاتورة: ' . $invoice->invoice_number :
+                'تم حفظ الفاتورة كمسودة بنجاح! رقم الفاتورة: ' . $invoice->invoice_number;
 
-            return redirect()->route('tenant.sales.invoices.show', $invoice)
-                ->with('success', $message);
+            // Redirect to invoices index instead of show for better UX
+            return redirect()->route('tenant.sales.invoices.index')
+                ->with('success', $message)
+                ->with('invoice_id', $invoice->id);
 
         } catch (\Exception $e) {
             DB::rollBack();
