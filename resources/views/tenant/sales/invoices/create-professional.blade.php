@@ -12,8 +12,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <!-- Font Awesome with fallback -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Fallback Font Awesome -->
+    <script>
+        if (!window.FontAwesome) {
+            document.write('<link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">');
+        }
+    </script>
 
     <!-- Custom Select Styles -->
     <link rel="stylesheet" href="{{ asset('css/custom-select.css') }}">
@@ -985,6 +994,100 @@
     .alert-btn:hover {
         background: rgba(255,255,255,1);
         transform: scale(1.1);
+    }
+
+    /* Fallback styles for enhanced features */
+    .enhanced-select {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .enhanced-select:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+
+    .foc-container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding: 8px !important;
+    }
+
+    .foc-switch {
+        position: relative !important;
+        display: inline-block !important;
+        width: 44px !important;
+        height: 24px !important;
+    }
+
+    .foc-switch input {
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    .foc-slider {
+        position: absolute !important;
+        cursor: pointer !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: #e2e8f0 !important;
+        transition: all 0.3s ease !important;
+        border-radius: 24px !important;
+        border: 2px solid #e2e8f0 !important;
+    }
+
+    .foc-slider:before {
+        position: absolute !important;
+        content: "" !important;
+        height: 16px !important;
+        width: 16px !important;
+        left: 2px !important;
+        bottom: 2px !important;
+        background: white !important;
+        transition: all 0.3s ease !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    input:checked + .foc-slider {
+        background: #10b981 !important;
+        border-color: #10b981 !important;
+    }
+
+    input:checked + .foc-slider:before {
+        transform: translateX(20px) !important;
+    }
+
+    .foc-label {
+        font-size: 10px !important;
+        color: #64748b !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    /* Enhanced input fallback */
+    .enhanced-input {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .enhanced-input:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
     }
 
     /* Enhanced Product Dropdown Styles */
@@ -3534,14 +3637,43 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 });
 </script>
 
-<!-- Bootstrap Modal (if not already included) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Custom Select JavaScript -->
-<script src="{{ asset('js/custom-select.js') }}"></script>
-<script src="{{ asset('js/universal-dropdowns.js') }}"></script>
-<script src="{{ asset('js/dropdown-initializer.js') }}"></script>
-<script src="{{ asset('js/invoice-validation.js') }}"></script>
-<script src="{{ asset('js/professional-invoice.js') }}"></script>
+<!-- jQuery with fallback -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"
+        integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- Fallback jQuery -->
+<script>
+    if (!window.jQuery) {
+        document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"><\/script>');
+    }
+</script>
+
+<!-- Bootstrap Modal -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"
+        integrity="sha512-igl8WEUuas9k5dtnhKqyyld6TzzRjvMqLC79jkgT3z02FvJyHAuUtyemm/P/jYSne1xwFI06ezQxEwweaiV7VA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- Custom Select JavaScript (with error handling) -->
+<script>
+    // Load custom scripts with error handling
+    function loadScript(src, callback) {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = callback || function() {};
+        script.onerror = function() {
+            console.warn('Failed to load script:', src);
+        };
+        document.head.appendChild(script);
+    }
+
+    // Load custom scripts
+    loadScript('{{ asset('js/custom-select.js') }}');
+    loadScript('{{ asset('js/universal-dropdowns.js') }}');
+    loadScript('{{ asset('js/dropdown-initializer.js') }}');
+    loadScript('{{ asset('js/invoice-validation.js') }}');
+    loadScript('{{ asset('js/professional-invoice.js') }}');
+</script>
 
 </body>
 </html>
