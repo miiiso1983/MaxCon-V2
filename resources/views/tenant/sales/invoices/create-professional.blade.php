@@ -3678,67 +3678,83 @@ function showNotification(message, type = 'info', duration = 3000) {
     }, duration);
 }
 
-// Simple form validation that always works
+// Simple notification function
+function showNotification(message, type = 'info', duration = 3000) {
+    console.log(`📢 Notification (${type}): ${message}`);
+    alert(message); // Simple fallback
+}
+
+// Simplified form validation for debugging
 function validateForm() {
-    console.log('Validating form...');
+    console.log('🔍 Starting form validation...');
 
     // Check customer selection
     const customerSelect = document.getElementById('customerSelect');
+    console.log('Customer select element:', customerSelect);
+    console.log('Customer value:', customerSelect ? customerSelect.value : 'Element not found');
+
     if (!customerSelect || !customerSelect.value) {
-        console.log('Customer not selected');
-        if (typeof showNotification === 'function') {
-            showNotification('يرجى اختيار العميل', 'error', 3000);
-        } else {
-            alert('يرجى اختيار العميل');
-        }
+        console.log('❌ Customer not selected');
+        alert('يرجى اختيار العميل');
         return false;
     }
 
     // Check if at least one product is selected
     const productSelects = document.querySelectorAll('select[name*="[product_id]"]');
-    let hasValidItems = false;
+    console.log('Product selects found:', productSelects.length);
 
-    productSelects.forEach(select => {
+    let hasValidItems = false;
+    productSelects.forEach((select, index) => {
+        console.log(`Product ${index + 1} value:`, select.value);
         if (select.value) {
             hasValidItems = true;
         }
     });
 
     if (!hasValidItems) {
-        console.log('No products selected');
-        if (typeof showNotification === 'function') {
-            showNotification('يرجى إضافة منتج واحد على الأقل', 'error', 3000);
-        } else {
-            alert('يرجى إضافة منتج واحد على الأقل');
-        }
+        console.log('❌ No products selected');
+        alert('يرجى إضافة منتج واحد على الأقل');
         return false;
     }
 
     // Check quantities
     const quantityInputs = document.querySelectorAll('input[name*="[quantity]"]');
-    for (let input of quantityInputs) {
+    console.log('Quantity inputs found:', quantityInputs.length);
+
+    for (let i = 0; i < quantityInputs.length; i++) {
+        const input = quantityInputs[i];
         const value = parseFloat(input.value || 0);
+        console.log(`Quantity ${i + 1}:`, value);
+
         if (value <= 0) {
-            console.log('Invalid quantity found');
-            if (typeof showNotification === 'function') {
-                showNotification('يرجى إدخال كمية صحيحة لجميع المنتجات', 'error', 3000);
-            } else {
-                alert('يرجى إدخال كمية صحيحة لجميع المنتجات');
-            }
+            console.log('❌ Invalid quantity found');
+            alert('يرجى إدخال كمية صحيحة لجميع المنتجات');
             return false;
         }
     }
 
-    console.log('Form validation passed');
+    console.log('✅ Form validation passed successfully!');
     return true;
 }
 
-// Form submission with enhanced validation
+// Form submission with enhanced validation and debugging
 document.getElementById('invoiceForm').addEventListener('submit', function(e) {
-    if (!validateForm()) {
+    console.log('🚀 Form submission event triggered!');
+    console.log('Form element:', this);
+    console.log('Form action:', this.action);
+    console.log('Form method:', this.method);
+
+    // Run validation with detailed logging
+    const isValid = validateForm();
+    console.log('Validation result:', isValid);
+
+    if (!isValid) {
+        console.log('❌ Validation failed - preventing form submission');
         e.preventDefault();
         return false;
     }
+
+    console.log('✅ Validation passed - proceeding with submission');
 
     // Clear draft on successful submission
     clearDraft();
