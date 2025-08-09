@@ -442,6 +442,550 @@
         color: #991b1b;
     }
 
+    /* Enhanced Financial Department Styles */
+    .financial-department-section {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .financial-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .financial-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    }
+
+    .financial-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .financial-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        transform: translate(30px, -30px);
+    }
+
+    .financial-icon-wrapper {
+        background: rgba(255,255,255,0.2);
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+    }
+
+    .financial-icon-wrapper i {
+        font-size: 20px;
+        color: white;
+    }
+
+    .financial-title-group {
+        flex: 1;
+    }
+
+    .financial-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+    }
+
+    .financial-subtitle {
+        font-size: 13px;
+        opacity: 0.9;
+        margin: 4px 0 0 0;
+        color: white;
+    }
+
+    .financial-status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,0.15);
+        padding: 8px 12px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    .status-dot.status-good { background: #10b981; }
+    .status-dot.status-warning { background: #f59e0b; }
+    .status-dot.status-danger { background: #ef4444; }
+
+    .status-text {
+        font-size: 12px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .financial-metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .metric-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 18px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s ease;
+    }
+
+    .metric-card:hover::before {
+        width: 8px;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .metric-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        font-size: 16px;
+    }
+
+    .metric-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .metric-label {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .metric-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .metric-progress {
+        margin-top: 8px;
+    }
+
+    .progress-bar {
+        background: #e2e8f0;
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 4px;
+    }
+
+    .progress-fill {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    .progress-text {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .metric-trend {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .trend-icon {
+        font-size: 12px;
+        color: #10b981;
+    }
+
+    .trend-text {
+        font-size: 11px;
+        color: #10b981;
+        font-weight: 500;
+    }
+
+    .metric-change {
+        margin-top: 4px;
+    }
+
+    .change-amount {
+        font-size: 12px;
+        color: #667eea;
+        font-weight: 600;
+        display: block;
+    }
+
+    .change-label {
+        font-size: 10px;
+        color: #64748b;
+    }
+
+    .metric-status {
+        margin-top: 6px;
+    }
+
+    .status-badge {
+        background: #dcfce7;
+        color: #166534;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-badge.status-available { background: #dcfce7; color: #166534; }
+    .status-badge.status-limited { background: #fef3c7; color: #92400e; }
+    .status-badge.status-exceeded { background: #fee2e2; color: #991b1b; }
+
+    .credit-risk-assessment {
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        padding: 15px 20px;
+        margin: 0 -1px -1px -1px;
+        border-radius: 0 0 19px 19px;
+    }
+
+    .risk-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 10px;
+    }
+
+    .risk-level {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .risk-indicator {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .risk-indicator.risk-low {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .risk-indicator.risk-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .risk-indicator.risk-high {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .risk-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .invoice-status-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 6px 12px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+
+    .badge-text {
+        font-size: 11px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .totals-breakdown {
+        padding: 20px;
+    }
+
+    .breakdown-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+    }
+
+    .breakdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .breakdown-item:hover {
+        background: #f8fafc;
+        margin: 0 -20px;
+        padding: 12px 20px;
+        border-radius: 10px;
+    }
+
+    .breakdown-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    .breakdown-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .breakdown-label {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .breakdown-value {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .breakdown-value.discount-value {
+        color: #dc2626;
+    }
+
+    .breakdown-value.samples-value {
+        color: #059669;
+    }
+
+    .breakdown-value.total-value {
+        color: #667eea;
+        font-size: 18px;
+    }
+
+    .breakdown-percentage {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 600;
+        background: #f1f5f9;
+        padding: 4px 8px;
+        border-radius: 12px;
+    }
+
+    .breakdown-unit {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .breakdown-currency {
+        font-size: 11px;
+        color: #667eea;
+        font-weight: 600;
+        background: #e0e7ff;
+        padding: 4px 8px;
+        border-radius: 12px;
+    }
+
+    .breakdown-separator {
+        height: 2px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 1px;
+        margin: 10px 0;
+    }
+
+    .total-item {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+        border: 1px solid #c7d2fe;
+        border-radius: 12px;
+        margin: 10px -20px 0 -20px;
+        padding: 15px 20px !important;
+    }
+
+    .payment-terms-preview {
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        padding: 15px 20px;
+        margin: 0 -1px -1px -1px;
+        border-radius: 0 0 19px 19px;
+    }
+
+    .terms-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 10px;
+    }
+
+    .terms-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .term-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .term-label {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .term-value {
+        font-size: 12px;
+        color: #1e293b;
+        font-weight: 600;
+    }
+
+    .financial-alerts-section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .financial-alert {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid;
+        transition: all 0.3s ease;
+    }
+
+    .financial-alert.alert-danger {
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        border-color: #f87171;
+        color: #dc2626;
+    }
+
+    .financial-alert.alert-info {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-color: #60a5fa;
+        color: #2563eb;
+    }
+
+    .financial-alert.alert-success {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border-color: #4ade80;
+        color: #16a34a;
+    }
+
+    .alert-icon {
+        background: rgba(255,255,255,0.8);
+        border-radius: 8px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .alert-content {
+        flex: 1;
+    }
+
+    .alert-title {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .alert-message {
+        font-size: 12px;
+        opacity: 0.9;
+    }
+
+    .alert-action {
+        display: flex;
+        align-items: center;
+    }
+
+    .alert-btn {
+        background: rgba(255,255,255,0.8);
+        border: none;
+        border-radius: 6px;
+        padding: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .alert-btn:hover {
+        background: rgba(255,255,255,1);
+        transform: scale(1.1);
+    }
+
     /* Action Buttons */
     .actions-section {
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -1362,54 +1906,220 @@
 
                 <!-- Sidebar Info -->
                 <div class="sidebar-info">
-                    <!-- Customer Info -->
-                    <div class="info-card" id="customerInfo" style="display: none;">
-                        <div class="info-title">
-                            <i class="fas fa-user"></i>
-                            معلومات العميل
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">سقف المديونية:</span>
-                            <span class="info-value" id="creditLimitDisplay">0.00 د.ع</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">المديونية السابقة:</span>
-                            <span class="info-value" id="previousBalanceDisplay">0.00 د.ع</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">المديونية بعد الفاتورة:</span>
-                            <span class="info-value" id="totalDebtDisplay">0.00 د.ع</span>
-                        </div>
-                    </div>
+                    <!-- Enhanced Financial Department Section -->
+                    <div class="financial-department-section">
+                        <!-- Customer Financial Profile -->
+                        <div class="financial-card customer-financial-card" id="customerInfo" style="display: none;">
+                            <div class="financial-header">
+                                <div class="financial-icon-wrapper">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div class="financial-title-group">
+                                    <h3 class="financial-title">الملف المالي للعميل</h3>
+                                    <p class="financial-subtitle">تحليل الوضع الائتماني والمديونية</p>
+                                </div>
+                                <div class="financial-status-indicator" id="creditStatusIndicator">
+                                    <span class="status-dot status-good"></span>
+                                    <span class="status-text">وضع جيد</span>
+                                </div>
+                            </div>
 
-                    <!-- Invoice Totals -->
-                    <div class="info-card">
-                        <div class="info-title">
-                            <i class="fas fa-calculator"></i>
-                            إجمالي الفاتورة
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">المجموع الفرعي:</span>
-                            <span class="info-value" id="subtotalDisplay">0.00 د.ع</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">إجمالي الخصومات:</span>
-                            <span class="info-value" id="discountDisplay">0.00 د.ع</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">العينات المجانية:</span>
-                            <span class="info-value" id="freeSamplesDisplay">0</span>
-                        </div>
-                        <div class="info-item" style="border-top: 2px solid #667eea; margin-top: 10px; padding-top: 10px; font-weight: 700; color: #1e293b;">
-                            <span class="info-label">الإجمالي النهائي:</span>
-                            <span class="info-value" id="totalDisplay">0.00 د.ع</span>
-                        </div>
-                    </div>
+                            <div class="financial-metrics-grid">
+                                <div class="metric-card credit-limit-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <span class="metric-label">سقف المديونية</span>
+                                        <span class="metric-value" id="creditLimitDisplay">0.00 د.ع</span>
+                                        <div class="metric-progress">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" id="creditProgressFill" style="width: 0%"></div>
+                                            </div>
+                                            <span class="progress-text" id="creditProgressText">0% مستخدم</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <!-- Credit Warning -->
-                    <div id="creditWarning" class="debt-warning" style="display: none;">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>تحذير: المديونية تتجاوز السقف المحدد</span>
+                                <div class="metric-card previous-debt-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-history"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <span class="metric-label">المديونية السابقة</span>
+                                        <span class="metric-value" id="previousBalanceDisplay">0.00 د.ع</span>
+                                        <div class="metric-trend" id="debtTrend">
+                                            <i class="fas fa-arrow-down trend-icon"></i>
+                                            <span class="trend-text">مستقر</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="metric-card total-debt-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <span class="metric-label">إجمالي المديونية</span>
+                                        <span class="metric-value" id="totalDebtDisplay">0.00 د.ع</span>
+                                        <div class="metric-change" id="debtChange">
+                                            <span class="change-amount">+0.00 د.ع</span>
+                                            <span class="change-label">من هذه الفاتورة</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="metric-card available-credit-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-coins"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <span class="metric-label">الائتمان المتاح</span>
+                                        <span class="metric-value" id="availableCreditDisplay">0.00 د.ع</span>
+                                        <div class="metric-status" id="creditAvailabilityStatus">
+                                            <span class="status-badge status-available">متاح</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credit Risk Assessment -->
+                            <div class="credit-risk-assessment" id="creditRiskAssessment">
+                                <div class="risk-header">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>تقييم المخاطر الائتمانية</span>
+                                </div>
+                                <div class="risk-level" id="riskLevel">
+                                    <div class="risk-indicator risk-low">
+                                        <span class="risk-dot"></span>
+                                        <span class="risk-text">مخاطر منخفضة</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Invoice Totals -->
+                        <div class="financial-card invoice-totals-card">
+                            <div class="financial-header">
+                                <div class="financial-icon-wrapper">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                                <div class="financial-title-group">
+                                    <h3 class="financial-title">إجمالي الفاتورة</h3>
+                                    <p class="financial-subtitle">تفاصيل المبالغ والحسابات</p>
+                                </div>
+                                <div class="invoice-status-badge">
+                                    <span class="badge-text">مسودة</span>
+                                </div>
+                            </div>
+
+                            <div class="totals-breakdown">
+                                <div class="breakdown-item subtotal-item">
+                                    <div class="breakdown-icon">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </div>
+                                    <div class="breakdown-content">
+                                        <span class="breakdown-label">المجموع الفرعي</span>
+                                        <span class="breakdown-value" id="subtotalDisplay">0.00 د.ع</span>
+                                    </div>
+                                    <div class="breakdown-percentage" id="subtotalPercentage">100%</div>
+                                </div>
+
+                                <div class="breakdown-item discount-item">
+                                    <div class="breakdown-icon">
+                                        <i class="fas fa-minus-circle"></i>
+                                    </div>
+                                    <div class="breakdown-content">
+                                        <span class="breakdown-label">إجمالي الخصومات</span>
+                                        <span class="breakdown-value discount-value" id="discountDisplay">0.00 د.ع</span>
+                                    </div>
+                                    <div class="breakdown-percentage" id="discountPercentage">0%</div>
+                                </div>
+
+                                <div class="breakdown-item samples-item">
+                                    <div class="breakdown-icon">
+                                        <i class="fas fa-gift"></i>
+                                    </div>
+                                    <div class="breakdown-content">
+                                        <span class="breakdown-label">العينات المجانية</span>
+                                        <span class="breakdown-value samples-value" id="freeSamplesDisplay">0</span>
+                                    </div>
+                                    <div class="breakdown-unit">وحدة</div>
+                                </div>
+
+                                <div class="breakdown-separator"></div>
+
+                                <div class="breakdown-item total-item">
+                                    <div class="breakdown-icon">
+                                        <i class="fas fa-equals"></i>
+                                    </div>
+                                    <div class="breakdown-content">
+                                        <span class="breakdown-label">الإجمالي النهائي</span>
+                                        <span class="breakdown-value total-value" id="totalDisplay">0.00 د.ع</span>
+                                    </div>
+                                    <div class="breakdown-currency">IQD</div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Terms Preview -->
+                            <div class="payment-terms-preview">
+                                <div class="terms-header">
+                                    <i class="fas fa-handshake"></i>
+                                    <span>شروط الدفع</span>
+                                </div>
+                                <div class="terms-content">
+                                    <div class="term-item">
+                                        <span class="term-label">طريقة الدفع:</span>
+                                        <span class="term-value">نقداً / آجل</span>
+                                    </div>
+                                    <div class="term-item">
+                                        <span class="term-label">تاريخ الاستحقاق:</span>
+                                        <span class="term-value" id="dueDatePreview">فوري</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Alerts & Warnings -->
+                        <div class="financial-alerts-section">
+                            <!-- Credit Warning -->
+                            <div id="creditWarning" class="financial-alert alert-danger" style="display: none;">
+                                <div class="alert-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="alert-content">
+                                    <div class="alert-title">تحذير ائتماني</div>
+                                    <div class="alert-message">المديونية تتجاوز السقف المحدد</div>
+                                </div>
+                                <div class="alert-action">
+                                    <button type="button" class="alert-btn" onclick="showCreditDetails()">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Discount Alert -->
+                            <div id="discountAlert" class="financial-alert alert-info" style="display: none;">
+                                <div class="alert-icon">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                                <div class="alert-content">
+                                    <div class="alert-title">خصم كبير</div>
+                                    <div class="alert-message">نسبة الخصم تتجاوز 15%</div>
+                                </div>
+                            </div>
+
+                            <!-- Success Alert -->
+                            <div id="financialSuccess" class="financial-alert alert-success" style="display: none;">
+                                <div class="alert-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="alert-content">
+                                    <div class="alert-title">وضع مالي ممتاز</div>
+                                    <div class="alert-message">جميع المؤشرات المالية في المعدل الطبيعي</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1586,43 +2296,83 @@ function updateFreeSamplesTotal() {
     document.getElementById('freeSamplesDisplay').textContent = totalFreeSamples;
 }
 
-// Calculate grand total
+// Enhanced grand total calculation with financial analysis
 function calculateGrandTotal() {
     let subtotal = 0;
     let totalDiscount = 0;
     let totalFreeSamples = 0;
-    
+
     // Sum all item totals
     document.querySelectorAll('input[name*="[total_amount]"]').forEach(input => {
         subtotal += parseFloat(input.value || 0);
     });
-    
+
     // Sum all discounts
     document.querySelectorAll('input[name*="[discount_amount]"]').forEach(input => {
         totalDiscount += parseFloat(input.value || 0);
     });
-    
+
     // Sum all free samples
     document.querySelectorAll('input[name*="[free_samples]"]').forEach(input => {
         totalFreeSamples += parseInt(input.value || 0);
     });
-    
+
     const total = subtotal;
-    
+
     // Update hidden fields
     document.getElementById('subtotalAmount').value = subtotal.toFixed(2);
     document.getElementById('discountAmount').value = totalDiscount.toFixed(2);
     document.getElementById('totalAmount').value = total.toFixed(2);
     document.getElementById('freeSamples').value = totalFreeSamples;
-    
-    // Update display
+
+    // Update basic displays
     document.getElementById('subtotalDisplay').textContent = subtotal.toFixed(2) + ' د.ع';
     document.getElementById('discountDisplay').textContent = totalDiscount.toFixed(2) + ' د.ع';
     document.getElementById('freeSamplesDisplay').textContent = totalFreeSamples;
     document.getElementById('totalDisplay').textContent = total.toFixed(2) + ' د.ع';
-    
+
+    // Update enhanced breakdown percentages
+    updateBreakdownPercentages(subtotal, totalDiscount, total);
+
     // Update debt calculation
     updateDebtCalculation(total);
+
+    // Update financial metrics if customer is selected
+    const customerSelect = document.getElementById('customerSelect');
+    if (customerSelect && customerSelect.value) {
+        const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+        const creditLimit = parseFloat(selectedOption.dataset.creditLimit || 0);
+        const previousBalance = parseFloat(selectedOption.dataset.previousBalance || 0);
+        updateFinancialMetrics(creditLimit, previousBalance);
+    }
+}
+
+// Update breakdown percentages and visual indicators
+function updateBreakdownPercentages(subtotal, totalDiscount, total) {
+    // Update subtotal percentage (always 100% as base)
+    const subtotalPercentage = document.getElementById('subtotalPercentage');
+    if (subtotalPercentage) {
+        subtotalPercentage.textContent = '100%';
+    }
+
+    // Update discount percentage
+    const discountPercentage = document.getElementById('discountPercentage');
+    if (discountPercentage && subtotal > 0) {
+        const discountPercent = (totalDiscount / subtotal) * 100;
+        discountPercentage.textContent = discountPercent.toFixed(1) + '%';
+
+        // Change color based on discount level
+        if (discountPercent > 15) {
+            discountPercentage.style.background = '#fee2e2';
+            discountPercentage.style.color = '#991b1b';
+        } else if (discountPercent > 10) {
+            discountPercentage.style.background = '#fef3c7';
+            discountPercentage.style.color = '#92400e';
+        } else {
+            discountPercentage.style.background = '#f1f5f9';
+            discountPercentage.style.color = '#64748b';
+        }
+    }
 }
 
 // Update debt calculation
@@ -1770,26 +2520,298 @@ function updateRemoveButtons() {
     });
 }
 
-// Update customer information when customer changes
+// Enhanced customer information update with financial analysis
 function updateCustomerInfo() {
     const customerSelect = document.getElementById('customerSelect');
     const selectedOption = customerSelect.options[customerSelect.selectedIndex];
-    
+
     if (selectedOption.value) {
         const creditLimit = parseFloat(selectedOption.dataset.creditLimit || 0);
         const previousBalance = parseFloat(selectedOption.dataset.previousBalance || 0);
-        
+
+        // Update hidden fields
         document.getElementById('creditLimit').value = creditLimit.toFixed(2);
         document.getElementById('previousBalance').value = previousBalance.toFixed(2);
-        
+
+        // Update basic displays
         document.getElementById('creditLimitDisplay').textContent = creditLimit.toFixed(2) + ' د.ع';
         document.getElementById('previousBalanceDisplay').textContent = previousBalance.toFixed(2) + ' د.ع';
-        
+
+        // Show customer info section
         document.getElementById('customerInfo').style.display = 'block';
-        
+
+        // Update enhanced financial metrics
+        updateFinancialMetrics(creditLimit, previousBalance);
+
+        // Recalculate totals
         calculateGrandTotal();
     } else {
         document.getElementById('customerInfo').style.display = 'none';
+        resetFinancialMetrics();
+    }
+}
+
+// Enhanced financial metrics calculation and display
+function updateFinancialMetrics(creditLimit, previousBalance) {
+    const currentTotal = parseFloat(document.getElementById('totalAmount').value || 0);
+    const totalDebt = previousBalance + currentTotal;
+    const availableCredit = Math.max(0, creditLimit - totalDebt);
+    const creditUsagePercentage = creditLimit > 0 ? (totalDebt / creditLimit) * 100 : 0;
+
+    // Update displays
+    document.getElementById('totalDebtDisplay').textContent = totalDebt.toFixed(2) + ' د.ع';
+    document.getElementById('availableCreditDisplay').textContent = availableCredit.toFixed(2) + ' د.ع';
+
+    // Update progress bar
+    const progressFill = document.getElementById('creditProgressFill');
+    const progressText = document.getElementById('creditProgressText');
+    if (progressFill && progressText) {
+        const safePercentage = Math.min(100, creditUsagePercentage);
+        progressFill.style.width = safePercentage + '%';
+        progressText.textContent = safePercentage.toFixed(1) + '% مستخدم';
+    }
+
+    // Update debt change indicator
+    const debtChange = document.getElementById('debtChange');
+    if (debtChange) {
+        const changeAmount = debtChange.querySelector('.change-amount');
+        if (changeAmount) {
+            changeAmount.textContent = '+' + currentTotal.toFixed(2) + ' د.ع';
+        }
+    }
+
+    // Update credit status indicator
+    updateCreditStatusIndicator(creditUsagePercentage, availableCredit);
+
+    // Update risk assessment
+    updateRiskAssessment(creditUsagePercentage, totalDebt, creditLimit);
+
+    // Update financial alerts
+    updateFinancialAlerts(creditUsagePercentage, availableCredit, currentTotal);
+}
+
+// Update credit status indicator
+function updateCreditStatusIndicator(usagePercentage, availableCredit) {
+    const indicator = document.getElementById('creditStatusIndicator');
+    const statusDot = indicator?.querySelector('.status-dot');
+    const statusText = indicator?.querySelector('.status-text');
+
+    if (statusDot && statusText) {
+        statusDot.className = 'status-dot';
+
+        if (usagePercentage <= 50) {
+            statusDot.classList.add('status-good');
+            statusText.textContent = 'وضع ممتاز';
+        } else if (usagePercentage <= 80) {
+            statusDot.classList.add('status-warning');
+            statusText.textContent = 'وضع جيد';
+        } else {
+            statusDot.classList.add('status-danger');
+            statusText.textContent = 'وضع حرج';
+        }
+    }
+
+    // Update availability status
+    const availabilityStatus = document.getElementById('creditAvailabilityStatus');
+    if (availabilityStatus) {
+        const badge = availabilityStatus.querySelector('.status-badge');
+        if (badge) {
+            badge.className = 'status-badge';
+
+            if (availableCredit > 1000) {
+                badge.classList.add('status-available');
+                badge.textContent = 'متاح';
+            } else if (availableCredit > 0) {
+                badge.classList.add('status-limited');
+                badge.textContent = 'محدود';
+            } else {
+                badge.classList.add('status-exceeded');
+                badge.textContent = 'متجاوز';
+            }
+        }
+    }
+}
+
+// Update risk assessment
+function updateRiskAssessment(usagePercentage, totalDebt, creditLimit) {
+    const riskLevel = document.getElementById('riskLevel');
+    if (riskLevel) {
+        const riskIndicator = riskLevel.querySelector('.risk-indicator');
+        if (riskIndicator) {
+            riskIndicator.className = 'risk-indicator';
+
+            if (usagePercentage <= 60) {
+                riskIndicator.classList.add('risk-low');
+                riskIndicator.querySelector('.risk-text').textContent = 'مخاطر منخفضة';
+            } else if (usagePercentage <= 85) {
+                riskIndicator.classList.add('risk-medium');
+                riskIndicator.querySelector('.risk-text').textContent = 'مخاطر متوسطة';
+            } else {
+                riskIndicator.classList.add('risk-high');
+                riskIndicator.querySelector('.risk-text').textContent = 'مخاطر عالية';
+            }
+        }
+    }
+}
+
+// Update financial alerts
+function updateFinancialAlerts(usagePercentage, availableCredit, currentTotal) {
+    const creditWarning = document.getElementById('creditWarning');
+    const discountAlert = document.getElementById('discountAlert');
+    const financialSuccess = document.getElementById('financialSuccess');
+
+    // Hide all alerts first
+    if (creditWarning) creditWarning.style.display = 'none';
+    if (discountAlert) discountAlert.style.display = 'none';
+    if (financialSuccess) financialSuccess.style.display = 'none';
+
+    // Show appropriate alerts
+    if (usagePercentage > 100) {
+        if (creditWarning) creditWarning.style.display = 'flex';
+    } else if (usagePercentage <= 50 && availableCredit > 1000) {
+        if (financialSuccess) financialSuccess.style.display = 'flex';
+    }
+
+    // Check for high discount
+    const discountAmount = parseFloat(document.getElementById('discountAmount').value || 0);
+    const subtotalAmount = parseFloat(document.getElementById('subtotalAmount').value || 0);
+    if (subtotalAmount > 0 && (discountAmount / subtotalAmount) > 0.15) {
+        if (discountAlert) discountAlert.style.display = 'flex';
+    }
+}
+
+// Reset financial metrics when no customer selected
+function resetFinancialMetrics() {
+    const elements = [
+        'creditLimitDisplay', 'previousBalanceDisplay', 'totalDebtDisplay',
+        'availableCreditDisplay', 'creditProgressFill', 'creditProgressText'
+    ];
+
+    elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id === 'creditProgressFill') {
+                element.style.width = '0%';
+            } else if (id === 'creditProgressText') {
+                element.textContent = '0% مستخدم';
+            } else {
+                element.textContent = '0.00 د.ع';
+            }
+        }
+    });
+
+    // Hide all alerts
+    ['creditWarning', 'discountAlert', 'financialSuccess'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.style.display = 'none';
+    });
+}
+
+// Show detailed credit information modal
+function showCreditDetails() {
+    const customerSelect = document.getElementById('customerSelect');
+    if (!customerSelect || !customerSelect.value) {
+        showNotification('يرجى اختيار عميل أولاً', 'warning');
+        return;
+    }
+
+    const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+    const creditLimit = parseFloat(selectedOption.dataset.creditLimit || 0);
+    const previousBalance = parseFloat(selectedOption.dataset.previousBalance || 0);
+    const currentTotal = parseFloat(document.getElementById('totalAmount').value || 0);
+    const totalDebt = previousBalance + currentTotal;
+    const availableCredit = Math.max(0, creditLimit - totalDebt);
+    const usagePercentage = creditLimit > 0 ? (totalDebt / creditLimit) * 100 : 0;
+
+    const modalContent = `
+        <div style="background: white; border-radius: 20px; padding: 30px; max-width: 500px; margin: 50px auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
+                    <h3 style="margin: 0; font-size: 20px;">تفاصيل الوضع الائتماني</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">${selectedOption.textContent}</p>
+                </div>
+            </div>
+
+            <div style="display: grid; gap: 15px;">
+                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border-left: 4px solid #667eea;">
+                    <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">سقف المديونية</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #1e293b;">${creditLimit.toFixed(2)} د.ع</div>
+                </div>
+
+                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                    <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">المديونية السابقة</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #1e293b;">${previousBalance.toFixed(2)} د.ع</div>
+                </div>
+
+                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border-left: 4px solid #10b981;">
+                    <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">قيمة الفاتورة الحالية</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #1e293b;">${currentTotal.toFixed(2)} د.ع</div>
+                </div>
+
+                <div style="background: ${usagePercentage > 100 ? '#fee2e2' : '#f0fdf4'}; padding: 15px; border-radius: 12px; border-left: 4px solid ${usagePercentage > 100 ? '#ef4444' : '#10b981'};">
+                    <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">إجمالي المديونية</div>
+                    <div style="font-size: 18px; font-weight: 700; color: ${usagePercentage > 100 ? '#dc2626' : '#1e293b'};">${totalDebt.toFixed(2)} د.ع</div>
+                </div>
+
+                <div style="background: #f8fafc; padding: 15px; border-radius: 12px;">
+                    <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">نسبة استخدام الائتمان</div>
+                    <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px;">
+                        <div style="background: linear-gradient(135deg, ${usagePercentage > 100 ? '#ef4444' : usagePercentage > 80 ? '#f59e0b' : '#10b981'} 0%, ${usagePercentage > 100 ? '#dc2626' : usagePercentage > 80 ? '#d97706' : '#059669'} 100%); height: 100%; width: ${Math.min(100, usagePercentage)}%; transition: width 0.5s ease;"></div>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 600; color: ${usagePercentage > 100 ? '#dc2626' : '#1e293b'};">${usagePercentage.toFixed(1)}%</div>
+                </div>
+
+                ${usagePercentage > 100 ? `
+                <div style="background: #fee2e2; border: 1px solid #f87171; padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="color: #dc2626; font-weight: 700; margin-bottom: 5px;">⚠️ تحذير</div>
+                    <div style="color: #dc2626; font-size: 14px;">المديونية تتجاوز السقف المحدد بمبلغ ${(totalDebt - creditLimit).toFixed(2)} د.ع</div>
+                </div>
+                ` : `
+                <div style="background: #f0fdf4; border: 1px solid #4ade80; padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="color: #16a34a; font-weight: 700; margin-bottom: 5px;">✅ الائتمان المتاح</div>
+                    <div style="color: #16a34a; font-size: 16px; font-weight: 600;">${availableCredit.toFixed(2)} د.ع</div>
+                </div>
+                `}
+            </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <button onclick="closeCreditDetailsModal()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'creditDetailsModal';
+    modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+    `;
+    modalOverlay.innerHTML = modalContent;
+
+    document.body.appendChild(modalOverlay);
+
+    // Close modal when clicking overlay
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeCreditDetailsModal();
+        }
+    });
+}
+
+// Close credit details modal
+function closeCreditDetailsModal() {
+    const modal = document.getElementById('creditDetailsModal');
+    if (modal) {
+        modal.remove();
     }
 }
 
