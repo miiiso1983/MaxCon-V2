@@ -2860,5 +2860,63 @@ Route::get('/test-db-data', function() {
     }
 })->name('test.db.data');
 
+// الرابط النهائي لإنشاء الفواتير مع البيانات الحقيقية
+Route::get('/invoice-create-real', function() {
+    try {
+        // جلب العملاء باستخدام DB query مباشرة
+        $customers = \DB::table('customers')
+            ->select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit', 'tenant_id')
+            ->whereNotNull('name')
+            ->where('name', '!=', '')
+            ->orderBy('name')
+            ->get();
+
+        // جلب المنتجات باستخدام DB query مباشرة
+        $products = \DB::table('products')
+            ->select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity', 'tenant_id')
+            ->whereNotNull('name')
+            ->where('name', '!=', '')
+            ->orderBy('name')
+            ->limit(100) // تحديد العدد لتجنب البطء
+            ->get();
+
+        // تحويل النتائج إلى مجموعات
+        $customers = collect($customers);
+        $products = collect($products);
+
+        return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+
+    } catch (\Exception $e) {
+        \Log::error('Error in invoice-create-real: ' . $e->getMessage());
+
+        // في حالة الخطأ، استخدم البيانات الثابتة
+        $customers = collect([
+            (object)[
+                'id' => 999,
+                'name' => 'خطأ في قاعدة البيانات - ' . $e->getMessage(),
+                'customer_code' => 'ERROR',
+                'phone' => '',
+                'current_balance' => 0,
+                'credit_limit' => 1000,
+                'tenant_id' => 1
+            ]
+        ]);
+
+        $products = collect([
+            (object)[
+                'id' => 999,
+                'name' => 'خطأ في قاعدة البيانات - ' . $e->getMessage(),
+                'product_code' => 'ERROR',
+                'selling_price' => 10,
+                'unit_price' => 8,
+                'stock_quantity' => 10,
+                'tenant_id' => 1
+            ]
+        ]);
+
+        return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+    }
+})->name('invoice.create.real');
+
 // Include customer routes
 require __DIR__.'/customer.php';
