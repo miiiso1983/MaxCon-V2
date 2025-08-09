@@ -1792,17 +1792,73 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
 
         // Simple Invoice Creation
         Route::get('invoices/create-simple', function() {
+            // Use the same data as the working test route
             $customers = collect([
-                (object)['id' => 1, 'name' => 'عميل تجريبي 1'],
-                (object)['id' => 2, 'name' => 'عميل تجريبي 2']
+                (object)[
+                    'id' => 1,
+                    'name' => 'شركة الأدوية المتقدمة',
+                    'customer_code' => 'CUST001',
+                    'phone' => '07901234567',
+                    'current_balance' => 1500.00,
+                    'credit_limit' => 10000.00
+                ],
+                (object)[
+                    'id' => 2,
+                    'name' => 'صيدلية النور الطبية',
+                    'customer_code' => 'CUST002',
+                    'phone' => '07801234567',
+                    'current_balance' => 750.50,
+                    'credit_limit' => 5000.00
+                ],
+                (object)[
+                    'id' => 3,
+                    'name' => 'مستشفى بغداد التخصصي',
+                    'customer_code' => 'CUST003',
+                    'phone' => '07701234567',
+                    'current_balance' => 2250.75,
+                    'credit_limit' => 15000.00
+                ]
             ]);
 
             $products = collect([
-                (object)['id' => 1, 'name' => 'منتج تجريبي 1', 'selling_price' => 100],
-                (object)['id' => 2, 'name' => 'منتج تجريبي 2', 'selling_price' => 200]
+                (object)[
+                    'id' => 1,
+                    'name' => 'باراسيتامول 500 مجم',
+                    'product_code' => 'PARA500',
+                    'selling_price' => 15.50,
+                    'stock_quantity' => 100
+                ],
+                (object)[
+                    'id' => 2,
+                    'name' => 'أموكسيسيلين 250 مجم',
+                    'product_code' => 'AMOX250',
+                    'selling_price' => 25.00,
+                    'stock_quantity' => 75
+                ],
+                (object)[
+                    'id' => 3,
+                    'name' => 'فيتامين د 1000 وحدة',
+                    'product_code' => 'VITD1000',
+                    'selling_price' => 35.75,
+                    'stock_quantity' => 50
+                ],
+                (object)[
+                    'id' => 4,
+                    'name' => 'أوميجا 3 كبسولات',
+                    'product_code' => 'OMEGA3',
+                    'selling_price' => 45.25,
+                    'stock_quantity' => 30
+                ],
+                (object)[
+                    'id' => 5,
+                    'name' => 'أسبرين 100 مجم',
+                    'product_code' => 'ASP100',
+                    'selling_price' => 12.00,
+                    'stock_quantity' => 200
+                ]
             ]);
 
-            return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+            return view('tenant.sales.invoices.create-minimal', compact('customers', 'products'));
         })->name('invoices.create-simple');
 
         // Test route for debugging
