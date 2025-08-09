@@ -151,13 +151,16 @@ class InvoiceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Debug: Log the request data
-        Log::info('Invoice store request received:', [
+        Log::info('🚀 Invoice store request received:', [
             'url' => $request->url(),
             'method' => $request->method(),
             'user_id' => auth()->id(),
             'tenant_id' => auth()->user()->tenant_id ?? null,
             'request_data' => $request->all()
         ]);
+
+        // Also log to error log for easier debugging
+        error_log('🚀 Invoice store called - User: ' . auth()->id() . ', Tenant: ' . (auth()->user()->tenant_id ?? 'null'));
 
         // Check if user is authenticated and has tenant_id
         if (!Auth::check()) {
@@ -338,6 +341,16 @@ class InvoiceController extends Controller
             $message = $invoice->status === 'sent' ?
                 'تم إنشاء الفاتورة وإنهاؤها بنجاح! رقم الفاتورة: ' . $invoice->invoice_number :
                 'تم حفظ الفاتورة كمسودة بنجاح! رقم الفاتورة: ' . $invoice->invoice_number;
+
+            Log::info('✅ Invoice created successfully:', [
+                'invoice_id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'status' => $invoice->status,
+                'customer_id' => $invoice->customer_id,
+                'total_amount' => $invoice->total_amount
+            ]);
+
+            error_log('✅ Invoice created successfully - ID: ' . $invoice->id . ', Number: ' . $invoice->invoice_number);
 
             // Redirect to invoices index instead of show for better UX
             return redirect()->route('tenant.sales.invoices.index')
