@@ -1842,6 +1842,21 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             ]);
         })->name('invoices.debug');
 
+        // Minimal Invoice Creation (for testing)
+        Route::get('invoices/create-minimal', function() {
+            $customers = collect([
+                (object)['id' => 1, 'name' => 'عميل تجريبي 1'],
+                (object)['id' => 2, 'name' => 'عميل تجريبي 2']
+            ]);
+
+            $products = collect([
+                (object)['id' => 1, 'name' => 'منتج تجريبي 1'],
+                (object)['id' => 2, 'name' => 'منتج تجريبي 2']
+            ]);
+
+            return view('tenant.sales.invoices.create-minimal', compact('customers', 'products'));
+        })->name('invoices.create-minimal');
+
         // Simple Invoice Index (override the resource route)
         Route::get('invoices', function() {
             $user = Auth::user();
