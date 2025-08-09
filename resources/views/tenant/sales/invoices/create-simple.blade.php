@@ -572,7 +572,7 @@
 <body>
     <div class="container">
         <!-- Back Link -->
-        <a href="{{ route('tenant.sales.invoices.index') }}" class="back-link">
+        <a href="{{ route('tenant.invoices.index') }}" class="back-link">
             <i class="fas fa-arrow-right"></i>
             العودة إلى قائمة الفواتير
         </a>
@@ -586,7 +586,7 @@
         <div class="grid-layout">
             <!-- Main Form -->
             <div class="form-container">
-                <form id="invoiceForm" method="POST" action="{{ route('tenant.sales.invoices.store') }}">
+                <form id="invoiceForm" method="POST" action="{{ route('tenant.invoices.store') }}">
                     @csrf
 
                     <!-- Customer Information -->
@@ -735,7 +735,7 @@
                             <i class="fas fa-check-circle"></i>
                             إنهاء وحفظ الفاتورة
                         </button>
-                        <a href="{{ route('tenant.sales.invoices.index') }}" class="btn btn-primary">
+                        <a href="{{ route('tenant.invoices.index') }}" class="btn btn-primary">
                             <i class="fas fa-arrow-right"></i>
                             العودة للفواتير
                         </a>
@@ -984,231 +984,3 @@
     </script>
 </body>
 </html>
-
-        <form id="invoiceForm" method="POST" action="{{ route('tenant.sales.invoices.store') }}">
-            @csrf
-
-            <div class="grid-layout">
-                <!-- Main Form -->
-                <div>
-                    <!-- Customer Information -->
-                    <div class="form-container">
-                        <div class="form-section">
-                            <div class="section-title">
-                                <i class="fas fa-user"></i>
-                                معلومات العميل
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label required">العميل</label>
-                                    <select name="customer_id" required class="form-control" id="customerSelect">
-                                        <option value="">اختر العميل</option>
-                                        @foreach($customers as $customer)
-                                            <option value="{{ $customer->id }}"
-                                                    data-credit-limit="{{ $customer->credit_limit ?? 0 }}"
-                                                    data-previous-balance="{{ $customer->current_balance ?? 0 }}"
-                                                    data-phone="{{ $customer->phone ?? '' }}">
-                                                {{ $customer->name }}
-                                                @if($customer->customer_code)
-                                                    ({{ $customer->customer_code }})
-                                                @endif
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('customer_id')
-                                        <div class="error-message">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">تاريخ الفاتورة</label>
-                                    <input type="date" name="invoice_date" class="form-control"
-                                           value="{{ old('invoice_date', date('Y-m-d')) }}" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">تاريخ الاستحقاق</label>
-                                    <input type="date" name="due_date" class="form-control"
-                                           value="{{ old('due_date', date('Y-m-d', strtotime('+30 days'))) }}">
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">المندوب</label>
-                                    <input type="text" name="sales_representative" class="form-control"
-                                           placeholder="اسم المندوب" value="{{ old('sales_representative') }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">نوع الفاتورة</label>
-                                    <select name="type" class="form-control">
-                                        <option value="sales">فاتورة مبيعات</option>
-                                        <option value="proforma">فاتورة أولية</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Invoice Items -->
-                    <div class="form-container">
-                        <div class="form-section">
-                            <div class="section-title">
-                                <i class="fas fa-list"></i>
-                                عناصر الفاتورة
-                            </div>
-
-                            <table class="items-table" id="itemsTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 35%;">المنتج</th>
-                                        <th style="width: 15%;">الكمية</th>
-                                        <th style="width: 15%;">السعر</th>
-                                        <th style="width: 15%;">الخصم</th>
-                                        <th style="width: 15%;">المجموع</th>
-                                        <th style="width: 5%;">حذف</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="invoiceItems">
-                                    <tr class="item-row">
-                                        <td>
-                                            <select name="items[0][product_id]" required class="form-control" onchange="updateProductInfo(this, 0)">
-                                                <option value="">اختر المنتج</option>
-                                                @foreach($products as $product)
-                                                    <option value="{{ $product->id }}"
-                                                            data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}">
-                                                        {{ $product->name }}
-                                                        @if($product->product_code)
-                                                            ({{ $product->product_code }})
-                                                        @endif
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="items[0][quantity]" min="1" step="1" required
-                                                   class="form-control" placeholder="1" value="1"
-                                                   onchange="calculateItemTotal(0)" style="text-align: center;">
-                                        </td>
-                                        <td>
-                                            <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
-                                                   class="form-control" placeholder="0.00" value="0"
-                                                   onchange="calculateItemTotal(0)" style="text-align: center;">
-                                        </td>
-                                        <td>
-                                            <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
-                                                   class="form-control" placeholder="0.00" value="0"
-                                                   onchange="calculateItemTotal(0)" style="text-align: center;">
-                                        </td>
-                                        <td>
-                                            <input type="number" name="items[0][total_amount]" readonly
-                                                   class="form-control" placeholder="0.00" value="0"
-                                                   style="background: #f7fafc; text-align: center;">
-                                        </td>
-                                        <td>
-                                            <button type="button" onclick="removeItem(0)" class="btn btn-remove" disabled>
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <button type="button" onclick="addItem()" class="btn btn-add">
-                                <i class="fas fa-plus"></i>
-                                إضافة منتج
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Additional Information -->
-                    <div class="form-container">
-                        <div class="form-section">
-                            <div class="section-title">
-                                <i class="fas fa-info-circle"></i>
-                                معلومات إضافية
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">ملاحظات</label>
-                                    <textarea name="notes" class="form-control" rows="3"
-                                              placeholder="ملاحظات إضافية...">{{ old('notes') }}</textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">شروط الدفع</label>
-                                    <textarea name="payment_terms" class="form-control" rows="3"
-                                              placeholder="شروط وأحكام الدفع...">{{ old('payment_terms', 'الدفع خلال 30 يوم من تاريخ الفاتورة') }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar -->
-                <div>
-                    <!-- Customer Info -->
-                    <div class="sidebar" id="customerInfo" style="display: none; margin-bottom: 20px;">
-                        <div class="sidebar-title">
-                            <i class="fas fa-user"></i>
-                            معلومات العميل
-                        </div>
-                        <div class="sidebar-item">
-                            <span class="sidebar-label">سقف المديونية:</span>
-                            <span class="sidebar-value" id="creditLimitDisplay">0.00 د.ع</span>
-                        </div>
-                        <div class="sidebar-item">
-                            <span class="sidebar-label">المديونية السابقة:</span>
-                            <span class="sidebar-value" id="previousBalanceDisplay">0.00 د.ع</span>
-                        </div>
-                    </div>
-
-                    <!-- Invoice Totals -->
-                    <div class="sidebar">
-                        <div class="sidebar-title">
-                            <i class="fas fa-calculator"></i>
-                            إجمالي الفاتورة
-                        </div>
-                        <div class="sidebar-item">
-                            <span class="sidebar-label">المجموع الفرعي:</span>
-                            <span class="sidebar-value" id="subtotalDisplay">0.00 د.ع</span>
-                        </div>
-                        <div class="sidebar-item">
-                            <span class="sidebar-label">إجمالي الخصومات:</span>
-                            <span class="sidebar-value" id="discountDisplay">0.00 د.ع</span>
-                        </div>
-                        <div class="sidebar-item" style="border-top: 2px solid #667eea; margin-top: 10px; padding-top: 10px; font-weight: 700;">
-                            <span class="sidebar-label">الإجمالي النهائي:</span>
-                            <span class="sidebar-value" id="totalDisplay">0.00 د.ع</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hidden Fields -->
-            <input type="hidden" name="subtotal_amount" id="subtotalAmount" value="0">
-            <input type="hidden" name="discount_amount" id="discountAmount" value="0">
-            <input type="hidden" name="total_amount" id="totalAmount" value="0">
-            <input type="hidden" name="previous_balance" id="previousBalance" value="0">
-            <input type="hidden" name="credit_limit" id="creditLimit" value="0">
-
-            <!-- Action Buttons -->
-            <div class="actions">
-                <button type="submit" name="action" value="draft" class="btn btn-secondary">
-                    <i class="fas fa-save"></i>
-                    حفظ كمسودة
-                </button>
-                <button type="submit" name="action" value="finalize" class="btn btn-success">
-                    <i class="fas fa-check-circle"></i>
-                    إنهاء وحفظ الفاتورة
-                </button>
-                <a href="{{ route('tenant.sales.invoices.index') }}" class="btn btn-primary">
-                    <i class="fas fa-arrow-right"></i>
-                    العودة للفواتير
-                </a>
-            </div>
-        </form>
-    </div>
