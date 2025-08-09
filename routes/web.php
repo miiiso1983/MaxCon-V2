@@ -2864,34 +2864,42 @@ Route::get('/test-db-data', function() {
 // الرابط النهائي لإنشاء الفواتير مع البيانات الحقيقية
 Route::get('/invoice-create-real', function() {
     try {
-        // جلب العملاء باستخدام DB query مباشرة مع معالجة الأعمدة المفقودة
+        // جلب العملاء باستخدام query مبسط
         $customers = \DB::table('customers')
-            ->select('id', 'name',
-                \DB::raw('COALESCE(customer_code, "") as customer_code'),
-                \DB::raw('COALESCE(phone, "") as phone'),
-                \DB::raw('COALESCE(current_balance, 0) as current_balance'),
-                \DB::raw('COALESCE(credit_limit, 0) as credit_limit'),
-                \DB::raw('COALESCE(tenant_id, 1) as tenant_id')
-            )
+            ->select('id', 'name')
             ->whereNotNull('name')
             ->where('name', '!=', '')
             ->orderBy('name')
             ->get();
 
-        // جلب المنتجات باستخدام DB query مباشرة مع معالجة الأعمدة المفقودة
+        // إضافة القيم الافتراضية للأعمدة المفقودة
+        $customers = $customers->map(function($customer) {
+            $customer->customer_code = $customer->customer_code ?? '';
+            $customer->phone = $customer->phone ?? '';
+            $customer->current_balance = $customer->current_balance ?? 0;
+            $customer->credit_limit = $customer->credit_limit ?? 1000;
+            $customer->tenant_id = $customer->tenant_id ?? 1;
+            return $customer;
+        });
+
+        // جلب المنتجات باستخدام query مبسط
         $products = \DB::table('products')
-            ->select('id', 'name',
-                \DB::raw('COALESCE(product_code, "") as product_code'),
-                \DB::raw('COALESCE(selling_price, unit_price, 0) as selling_price'),
-                \DB::raw('COALESCE(unit_price, 0) as unit_price'),
-                \DB::raw('COALESCE(stock_quantity, 0) as stock_quantity'),
-                \DB::raw('COALESCE(tenant_id, 1) as tenant_id')
-            )
+            ->select('id', 'name')
             ->whereNotNull('name')
             ->where('name', '!=', '')
             ->orderBy('name')
-            ->limit(100) // تحديد العدد لتجنب البطء
+            ->limit(100)
             ->get();
+
+        // إضافة القيم الافتراضية للأعمدة المفقودة
+        $products = $products->map(function($product) {
+            $product->product_code = $product->product_code ?? '';
+            $product->selling_price = $product->selling_price ?? $product->unit_price ?? 10;
+            $product->unit_price = $product->unit_price ?? 10;
+            $product->stock_quantity = $product->stock_quantity ?? 0;
+            $product->tenant_id = $product->tenant_id ?? 1;
+            return $product;
+        });
 
         // تحويل النتائج إلى مجموعات
         $customers = collect($customers);
