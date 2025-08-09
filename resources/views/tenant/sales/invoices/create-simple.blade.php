@@ -5,25 +5,205 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>إنشاء فاتورة جديدة - {{ config('app.name') }}</title>
-    
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+
+    <!-- Force refresh cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <style>
+        /* إعادة تعيين شاملة */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Cairo', sans-serif;
         }
-        
+
         body {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             color: #1a202c;
             line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* تحسينات خاصة للجدول */
+        .invoice-table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 25px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+
+        .invoice-table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            border: none;
+            position: relative;
+        }
+
+        .invoice-table thead th:first-child {
+            border-top-right-radius: 15px;
+        }
+
+        .invoice-table thead th:last-child {
+            border-top-left-radius: 15px;
+        }
+
+        .invoice-table tbody td {
+            padding: 15px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: center;
+            vertical-align: middle;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .invoice-table tbody tr:hover td {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        .invoice-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* تحسينات للحقول داخل الجدول */
+        .table-select {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234a5568' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: left 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px 12px;
+            transition: all 0.3s ease;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .table-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background-color: #f7fafc;
+        }
+
+        .table-input {
+            width: 100%;
+            padding: 12px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: white;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .table-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background-color: #f7fafc;
+        }
+
+        .table-input[readonly] {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            color: #4a5568;
+            font-weight: 700;
+            border-color: #cbd5e0;
+        }
+
+        .table-btn-remove {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(245, 101, 101, 0.3);
+        }
+
+        .table-btn-remove:hover:not(:disabled) {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+        }
+
+        .table-btn-remove:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* تحسينات للتصميم المتجاوب */
+        @media (max-width: 768px) {
+            .invoice-table-container {
+                margin: 15px 0;
+                border-radius: 10px;
+            }
+
+            .invoice-table thead th {
+                padding: 12px 6px;
+                font-size: 12px;
+            }
+
+            .invoice-table tbody td {
+                padding: 10px 4px;
+            }
+
+            .table-select {
+                padding: 8px 25px 8px 8px;
+                font-size: 12px;
+                background-size: 12px 8px;
+                background-position: left 6px center;
+            }
+
+            .table-input {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+
+            .table-btn-remove {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .invoice-table thead th:nth-child(4),
+            .invoice-table tbody td:nth-child(4) {
+                display: none; /* إخفاء عمود الخصم في الشاشات الصغيرة جداً */
+            }
         }
         
         .container {
@@ -467,23 +647,22 @@
                             عناصر الفاتورة
                         </div>
 
-                        <div style="overflow-x: auto; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <table class="items-table" id="itemsTable">
+                        <div class="invoice-table-container">
+                            <table class="invoice-table" id="itemsTable">
                                 <thead>
                                     <tr>
-                                        <th style="width: 40%; min-width: 200px;">المنتج</th>
-                                        <th style="width: 12%; min-width: 80px;">الكمية</th>
-                                        <th style="width: 16%; min-width: 100px;">السعر (د.ع)</th>
-                                        <th style="width: 16%; min-width: 100px;">الخصم (د.ع)</th>
-                                        <th style="width: 16%; min-width: 100px;">المجموع (د.ع)</th>
-                                        <th style="width: 60px; min-width: 60px;">إجراء</th>
+                                        <th style="width: 40%;">المنتج</th>
+                                        <th style="width: 12%;">الكمية</th>
+                                        <th style="width: 16%;">السعر (د.ع)</th>
+                                        <th style="width: 16%;">الخصم (د.ع)</th>
+                                        <th style="width: 16%;">المجموع (د.ع)</th>
+                                        <th style="width: 60px;">إجراء</th>
                                     </tr>
                                 </thead>
                                 <tbody id="invoiceItems">
                                     <tr class="item-row">
-                                        <td style="padding: 10px 8px;">
-                                            <select name="items[0][product_id]" required onchange="updateProductInfo(this, 0)"
-                                                    style="width: 100%; padding: 10px 35px 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e'); background-position: left 8px center; background-repeat: no-repeat; background-size: 16px 12px;">
+                                        <td>
+                                            <select name="items[0][product_id]" required onchange="updateProductInfo(this, 0)" class="table-select">
                                                 <option value="">اختر المنتج...</option>
                                                 @foreach($products as $product)
                                                     <option value="{{ $product->id }}"
@@ -494,28 +673,23 @@
                                                 @endforeach
                                             </select>
                                         </td>
-                                        <td style="padding: 10px 5px;">
+                                        <td>
                                             <input type="number" name="items[0][quantity]" min="1" step="1" required
-                                                   placeholder="1" value="1" onchange="calculateItemTotal(0)"
-                                                   style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                                                   placeholder="1" value="1" onchange="calculateItemTotal(0)" class="table-input">
                                         </td>
-                                        <td style="padding: 10px 5px;">
+                                        <td>
                                             <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
-                                                   placeholder="0.00" value="0" onchange="calculateItemTotal(0)"
-                                                   style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                                                   placeholder="0.00" value="0" onchange="calculateItemTotal(0)" class="table-input">
                                         </td>
-                                        <td style="padding: 10px 5px;">
+                                        <td>
                                             <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
-                                                   placeholder="0.00" value="0" onchange="calculateItemTotal(0)"
-                                                   style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                                                   placeholder="0.00" value="0" onchange="calculateItemTotal(0)" class="table-input">
                                         </td>
-                                        <td style="padding: 10px 5px;">
-                                            <input type="number" name="items[0][total_amount]" readonly placeholder="0.00" value="0"
-                                                   style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px; background: #f7fafc; color: #4a5568; font-weight: 600;">
+                                        <td>
+                                            <input type="number" name="items[0][total_amount]" readonly placeholder="0.00" value="0" class="table-input">
                                         </td>
-                                        <td style="padding: 10px 5px; text-align: center;">
-                                            <button type="button" onclick="removeItem(0)" disabled
-                                                    style="background: #f56565; color: white; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.3s ease;">
+                                        <td>
+                                            <button type="button" onclick="removeItem(0)" disabled class="table-btn-remove">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
@@ -685,34 +859,28 @@
             const productOptions = productSelect.innerHTML;
 
             newRow.innerHTML = `
-                <td style="padding: 10px 8px;">
-                    <select name="items[${itemIndex}][product_id]" required onchange="updateProductInfo(this, ${itemIndex})"
-                            style="width: 100%; padding: 10px 35px 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml,%3csvg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 20 20\\'%3e%3cpath stroke=\\'%236b7280\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1.5\\' d=\\'m6 8 4 4 4-4\\'/%3e%3c/svg%3e'); background-position: left 8px center; background-repeat: no-repeat; background-size: 16px 12px;">
+                <td>
+                    <select name="items[${itemIndex}][product_id]" required onchange="updateProductInfo(this, ${itemIndex})" class="table-select">
                         ${productOptions}
                     </select>
                 </td>
-                <td style="padding: 10px 5px;">
+                <td>
                     <input type="number" name="items[${itemIndex}][quantity]" min="1" step="1" required
-                           placeholder="1" value="1" onchange="calculateItemTotal(${itemIndex})"
-                           style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                           placeholder="1" value="1" onchange="calculateItemTotal(${itemIndex})" class="table-input">
                 </td>
-                <td style="padding: 10px 5px;">
+                <td>
                     <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required
-                           placeholder="0.00" value="0" onchange="calculateItemTotal(${itemIndex})"
-                           style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                           placeholder="0.00" value="0" onchange="calculateItemTotal(${itemIndex})" class="table-input">
                 </td>
-                <td style="padding: 10px 5px;">
+                <td>
                     <input type="number" name="items[${itemIndex}][discount_amount]" min="0" step="0.01"
-                           placeholder="0.00" value="0" onchange="calculateItemTotal(${itemIndex})"
-                           style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                           placeholder="0.00" value="0" onchange="calculateItemTotal(${itemIndex})" class="table-input">
                 </td>
-                <td style="padding: 10px 5px;">
-                    <input type="number" name="items[${itemIndex}][total_amount]" readonly placeholder="0.00" value="0"
-                           style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px; background: #f7fafc; color: #4a5568; font-weight: 600;">
+                <td>
+                    <input type="number" name="items[${itemIndex}][total_amount]" readonly placeholder="0.00" value="0" class="table-input">
                 </td>
-                <td style="padding: 10px 5px; text-align: center;">
-                    <button type="button" onclick="removeItem(${itemIndex})"
-                            style="background: #f56565; color: white; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.3s ease;">
+                <td>
+                    <button type="button" onclick="removeItem(${itemIndex})" class="table-btn-remove">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -736,16 +904,14 @@
         // Update remove buttons state
         function updateRemoveButtons() {
             const rows = document.querySelectorAll('#invoiceItems tr');
-            const removeButtons = document.querySelectorAll('button[onclick*="removeItem"]');
+            const removeButtons = document.querySelectorAll('.table-btn-remove');
 
             removeButtons.forEach((btn) => {
                 btn.disabled = rows.length <= 1;
                 if (rows.length <= 1) {
-                    btn.style.background = '#cbd5e0';
-                    btn.style.cursor = 'not-allowed';
+                    btn.classList.add('disabled');
                 } else {
-                    btn.style.background = '#f56565';
-                    btn.style.cursor = 'pointer';
+                    btn.classList.remove('disabled');
                 }
             });
         }
