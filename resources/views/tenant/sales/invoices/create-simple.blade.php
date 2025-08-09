@@ -129,23 +129,64 @@
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
+
         .items-table th {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 10px;
+            padding: 15px 8px;
             text-align: center;
             font-weight: 600;
+            font-size: 14px;
+            border: none;
         }
-        
+
         .items-table td {
-            padding: 12px 10px;
+            padding: 8px 5px;
             border-bottom: 1px solid #e2e8f0;
             text-align: center;
+            vertical-align: middle;
         }
-        
+
         .items-table tr:last-child td {
             border-bottom: none;
+        }
+
+        .items-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .items-table select,
+        .items-table input {
+            width: 100%;
+            padding: 8px 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .items-table select {
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: left 8px center;
+            background-repeat: no-repeat;
+            background-size: 16px 12px;
+            padding-left: 32px;
+        }
+
+        .items-table select:focus,
+        .items-table input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .items-table input[readonly] {
+            background: #f7fafc;
+            color: #4a5568;
+            font-weight: 600;
         }
         
         .btn {
@@ -193,16 +234,37 @@
         }
         
         .btn-add {
-            background: #48bb78;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             color: white;
             margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
         }
-        
+
+        .btn-add:hover {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+        }
+
         .btn-remove {
             background: #f56565;
             color: white;
-            padding: 6px 10px;
+            padding: 8px 10px;
             font-size: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-remove:hover:not(:disabled) {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+
+        .btn-remove:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
         }
         
         .actions {
@@ -263,18 +325,44 @@
             .grid-layout {
                 grid-template-columns: 1fr;
             }
-            
+
             .form-row {
                 grid-template-columns: 1fr;
             }
-            
+
             .actions {
                 flex-direction: column;
             }
-            
+
             .btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .items-table th,
+            .items-table td {
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+
+            .items-table select,
+            .items-table input {
+                padding: 6px 4px;
+                font-size: 12px;
+            }
+
+            .items-table select {
+                padding-left: 25px;
+                background-size: 12px 8px;
+                background-position: left 4px center;
+            }
+
+            .items-table th:first-child {
+                min-width: 150px;
+            }
+
+            .items-table th:not(:first-child):not(:last-child) {
+                min-width: 70px;
             }
         }
         
@@ -379,59 +467,62 @@
                             عناصر الفاتورة
                         </div>
 
-                        <table class="items-table" id="itemsTable">
-                            <thead>
-                                <tr>
-                                    <th style="width: 35%;">المنتج</th>
-                                    <th style="width: 15%;">الكمية</th>
-                                    <th style="width: 15%;">السعر</th>
-                                    <th style="width: 15%;">الخصم</th>
-                                    <th style="width: 15%;">المجموع</th>
-                                    <th style="width: 5%;">حذف</th>
-                                </tr>
-                            </thead>
-                            <tbody id="invoiceItems">
-                                <tr class="item-row">
-                                    <td>
-                                        <select name="items[0][product_id]" required class="form-control" onchange="updateProductInfo(this, 0)">
-                                            <option value="">اختر المنتج</option>
-                                            @foreach($products as $product)
-                                                <option value="{{ $product->id }}"
-                                                        data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}">
-                                                    {{ $product->name }}
-                                                    @if($product->product_code) ({{ $product->product_code }}) @endif
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][quantity]" min="1" step="1" required
-                                               class="form-control" placeholder="1" value="1"
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
-                                               class="form-control" placeholder="0.00" value="0"
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
-                                               class="form-control" placeholder="0.00" value="0"
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
-                                    </td>
-                                    <td>
-                                        <input type="number" name="items[0][total_amount]" readonly
-                                               class="form-control" placeholder="0.00" value="0"
-                                               style="background: #f7fafc; text-align: center;">
-                                    </td>
-                                    <td>
-                                        <button type="button" onclick="removeItem(0)" class="btn btn-remove" disabled>
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div style="overflow-x: auto; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <table class="items-table" id="itemsTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40%; min-width: 200px;">المنتج</th>
+                                        <th style="width: 12%; min-width: 80px;">الكمية</th>
+                                        <th style="width: 16%; min-width: 100px;">السعر (د.ع)</th>
+                                        <th style="width: 16%; min-width: 100px;">الخصم (د.ع)</th>
+                                        <th style="width: 16%; min-width: 100px;">المجموع (د.ع)</th>
+                                        <th style="width: 60px; min-width: 60px;">إجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceItems">
+                                    <tr class="item-row">
+                                        <td style="padding: 10px 8px;">
+                                            <select name="items[0][product_id]" required onchange="updateProductInfo(this, 0)"
+                                                    style="width: 100%; padding: 10px 35px 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e'); background-position: left 8px center; background-repeat: no-repeat; background-size: 16px 12px;">
+                                                <option value="">اختر المنتج...</option>
+                                                @foreach($products as $product)
+                                                    <option value="{{ $product->id }}"
+                                                            data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}">
+                                                        {{ $product->name }}
+                                                        @if($product->product_code) - {{ $product->product_code }} @endif
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td style="padding: 10px 5px;">
+                                            <input type="number" name="items[0][quantity]" min="1" step="1" required
+                                                   placeholder="1" value="1" onchange="calculateItemTotal(0)"
+                                                   style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                                        </td>
+                                        <td style="padding: 10px 5px;">
+                                            <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
+                                                   placeholder="0.00" value="0" onchange="calculateItemTotal(0)"
+                                                   style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                                        </td>
+                                        <td style="padding: 10px 5px;">
+                                            <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
+                                                   placeholder="0.00" value="0" onchange="calculateItemTotal(0)"
+                                                   style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
+                                        </td>
+                                        <td style="padding: 10px 5px;">
+                                            <input type="number" name="items[0][total_amount]" readonly placeholder="0.00" value="0"
+                                                   style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px; background: #f7fafc; color: #4a5568; font-weight: 600;">
+                                        </td>
+                                        <td style="padding: 10px 5px; text-align: center;">
+                                            <button type="button" onclick="removeItem(0)" disabled
+                                                    style="background: #f56565; color: white; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.3s ease;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <button type="button" onclick="addItem()" class="btn btn-add">
                             <i class="fas fa-plus"></i>
@@ -594,33 +685,34 @@
             const productOptions = productSelect.innerHTML;
 
             newRow.innerHTML = `
-                <td>
-                    <select name="items[${itemIndex}][product_id]" required class="form-control" onchange="updateProductInfo(this, ${itemIndex})">
+                <td style="padding: 10px 8px;">
+                    <select name="items[${itemIndex}][product_id]" required onchange="updateProductInfo(this, ${itemIndex})"
+                            style="width: 100%; padding: 10px 35px 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml,%3csvg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 20 20\\'%3e%3cpath stroke=\\'%236b7280\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1.5\\' d=\\'m6 8 4 4 4-4\\'/%3e%3c/svg%3e'); background-position: left 8px center; background-repeat: no-repeat; background-size: 16px 12px;">
                         ${productOptions}
                     </select>
                 </td>
-                <td>
+                <td style="padding: 10px 5px;">
                     <input type="number" name="items[${itemIndex}][quantity]" min="1" step="1" required
-                           class="form-control" placeholder="1" value="1"
-                           onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+                           placeholder="1" value="1" onchange="calculateItemTotal(${itemIndex})"
+                           style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
                 </td>
-                <td>
+                <td style="padding: 10px 5px;">
                     <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required
-                           class="form-control" placeholder="0.00" value="0"
-                           onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+                           placeholder="0.00" value="0" onchange="calculateItemTotal(${itemIndex})"
+                           style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
                 </td>
-                <td>
+                <td style="padding: 10px 5px;">
                     <input type="number" name="items[${itemIndex}][discount_amount]" min="0" step="0.01"
-                           class="form-control" placeholder="0.00" value="0"
-                           onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+                           placeholder="0.00" value="0" onchange="calculateItemTotal(${itemIndex})"
+                           style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px;">
                 </td>
-                <td>
-                    <input type="number" name="items[${itemIndex}][total_amount]" readonly
-                           class="form-control" placeholder="0.00" value="0"
-                           style="background: #f7fafc; text-align: center;">
+                <td style="padding: 10px 5px;">
+                    <input type="number" name="items[${itemIndex}][total_amount]" readonly placeholder="0.00" value="0"
+                           style="width: 100%; padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 14px; background: #f7fafc; color: #4a5568; font-weight: 600;">
                 </td>
-                <td>
-                    <button type="button" onclick="removeItem(${itemIndex})" class="btn btn-remove">
+                <td style="padding: 10px 5px; text-align: center;">
+                    <button type="button" onclick="removeItem(${itemIndex})"
+                            style="background: #f56565; color: white; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.3s ease;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -644,10 +736,17 @@
         // Update remove buttons state
         function updateRemoveButtons() {
             const rows = document.querySelectorAll('#invoiceItems tr');
-            const removeButtons = document.querySelectorAll('.btn-remove');
+            const removeButtons = document.querySelectorAll('button[onclick*="removeItem"]');
 
-            removeButtons.forEach((btn, index) => {
+            removeButtons.forEach((btn) => {
                 btn.disabled = rows.length <= 1;
+                if (rows.length <= 1) {
+                    btn.style.background = '#cbd5e0';
+                    btn.style.cursor = 'not-allowed';
+                } else {
+                    btn.style.background = '#f56565';
+                    btn.style.cursor = 'pointer';
+                }
             });
         }
 
