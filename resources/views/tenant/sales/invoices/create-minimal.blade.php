@@ -5,130 +5,534 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>إنشاء فاتورة - MaxCon</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f5f5f5;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        select, input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .btn {
-            background: #007bff;
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .btn:hover {
-            background: #0056b3;
-        }
-        .success {
-            background: #28a745;
-        }
-        .success:hover {
-            background: #1e7e34;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
+            padding: 30px;
             text-align: center;
         }
-        th {
-            background: #f8f9fa;
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-content {
+            padding: 40px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin: 25px 0;
+        }
+
+        .invoice-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .invoice-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .invoice-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .table-input, .table-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .table-input:focus, .table-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            margin: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            margin: 20px 0;
+        }
+
+        .btn-remove {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .totals-section {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 16px;
+        }
+
+        .total-row.final {
+            border-top: 2px solid #667eea;
+            margin-top: 15px;
+            padding-top: 15px;
+            font-weight: 700;
+            font-size: 20px;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .form-content {
+                padding: 20px;
+            }
+
+            .invoice-table th,
+            .invoice-table td {
+                padding: 10px 8px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>إنشاء فاتورة جديدة</h1>
-        
-        <form method="POST" action="/tenant/sales/invoices">
-            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧾 إنشاء فاتورة جديدة</h1>
+            <p>نظام MaxCon للإدارة الصيدلانية المتقدم</p>
+        </div>
 
-            <div class="form-group">
-                <label>العميل:</label>
-                <select name="customer_id" required>
-                    <option value="">اختر العميل</option>
-                    <option value="1">عميل تجريبي 1</option>
-                    <option value="2">عميل تجريبي 2</option>
-                </select>
-            </div>
+        <!-- Form Content -->
+        <div class="form-content">
+            <form method="POST" action="/tenant/sales/invoices" id="invoiceForm">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
-            <div class="form-group">
-                <label>تاريخ الفاتورة:</label>
-                <input type="date" name="invoice_date" value="2025-08-09" required>
-            </div>
+                <!-- Customer Information -->
+                <div class="section-title">
+                    👤 معلومات العميل
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">العميل *</label>
+                        <select name="customer_id" required class="form-control">
+                            <option value="">اختر العميل...</option>
+                            <option value="1">شركة الأدوية المتقدمة</option>
+                            <option value="2">صيدلية النور الطبية</option>
+                            <option value="3">مستشفى بغداد التخصصي</option>
+                            <option value="4">صيدلية الشفاء المركزية</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">تاريخ الفاتورة *</label>
+                        <input type="date" name="invoice_date" value="2025-08-09" required class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">تاريخ الاستحقاق</label>
+                        <input type="date" name="due_date" value="2025-09-08" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">المندوب</label>
+                        <input type="text" name="sales_representative" placeholder="اسم المندوب..." class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">نوع الفاتورة</label>
+                        <select name="type" class="form-control">
+                            <option value="sales">فاتورة مبيعات</option>
+                            <option value="proforma">فاتورة أولية</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">ملاحظات</label>
+                        <input type="text" name="notes" placeholder="ملاحظات إضافية..." class="form-control">
+                    </div>
+                </div>
             
-            <h3>عناصر الفاتورة</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>المنتج</th>
-                        <th>الكمية</th>
-                        <th>السعر</th>
-                        <th>المجموع</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <select name="items[0][product_id]" required>
-                                <option value="">اختر المنتج</option>
-                                <option value="1">منتج تجريبي 1</option>
-                                <option value="2">منتج تجريبي 2</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="number" name="items[0][quantity]" value="1" min="1" required>
-                        </td>
-                        <td>
-                            <input type="number" name="items[0][unit_price]" value="0" step="0.01" required>
-                        </td>
-                        <td>
-                            <input type="number" name="items[0][total_amount]" value="0" readonly>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <input type="hidden" name="subtotal_amount" value="0">
-            <input type="hidden" name="total_amount" value="0">
-            
-            <div style="text-align: center; margin-top: 20px;">
-                <button type="submit" name="action" value="finalize" class="btn success">
-                    حفظ الفاتورة
+                <!-- Invoice Items -->
+                <div class="section-title">
+                    📦 عناصر الفاتورة
+                </div>
+
+                <table class="invoice-table" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">المنتج</th>
+                            <th style="width: 15%;">الكمية</th>
+                            <th style="width: 18%;">السعر (د.ع)</th>
+                            <th style="width: 15%;">الخصم (د.ع)</th>
+                            <th style="width: 17%;">المجموع (د.ع)</th>
+                            <th style="width: 60px;">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceItems">
+                        <tr>
+                            <td>
+                                <select name="items[0][product_id]" required class="table-select" onchange="updateProductPrice(this, 0)">
+                                    <option value="">اختر المنتج...</option>
+                                    <option value="1" data-price="15.50">باراسيتامول 500 مجم</option>
+                                    <option value="2" data-price="25.00">أموكسيسيلين 250 مجم</option>
+                                    <option value="3" data-price="35.75">فيتامين د 1000 وحدة</option>
+                                    <option value="4" data-price="45.25">أوميجا 3 كبسولات</option>
+                                    <option value="5" data-price="12.00">أسبرين 100 مجم</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" name="items[0][quantity]" value="1" min="1" required class="table-input" onchange="calculateTotal(0)">
+                            </td>
+                            <td>
+                                <input type="number" name="items[0][unit_price]" value="0" step="0.01" required class="table-input" onchange="calculateTotal(0)">
+                            </td>
+                            <td>
+                                <input type="number" name="items[0][discount_amount]" value="0" step="0.01" class="table-input" onchange="calculateTotal(0)">
+                            </td>
+                            <td>
+                                <input type="number" name="items[0][total_amount]" value="0" readonly class="table-input" style="background: #f8fafc; font-weight: 600;">
+                            </td>
+                            <td>
+                                <button type="button" onclick="removeItem(0)" class="btn-remove" disabled>
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="button" onclick="addItem()" class="btn btn-add">
+                    ➕ إضافة منتج جديد
                 </button>
-                <a href="/tenant/sales/invoices" class="btn">العودة</a>
-            </div>
-        </form>
+            
+                <!-- Totals Section -->
+                <div class="totals-section">
+                    <div class="section-title">
+                        🧮 ملخص الفاتورة
+                    </div>
+
+                    <div class="total-row">
+                        <span>المجموع الفرعي:</span>
+                        <span id="subtotalDisplay">0.00 د.ع</span>
+                    </div>
+
+                    <div class="total-row">
+                        <span>إجمالي الخصومات:</span>
+                        <span id="discountDisplay">0.00 د.ع</span>
+                    </div>
+
+                    <div class="total-row final">
+                        <span>الإجمالي النهائي:</span>
+                        <span id="totalDisplay">0.00 د.ع</span>
+                    </div>
+                </div>
+
+                <!-- Hidden Fields -->
+                <input type="hidden" name="subtotal_amount" id="subtotalAmount" value="0">
+                <input type="hidden" name="discount_amount" id="discountAmount" value="0">
+                <input type="hidden" name="total_amount" id="totalAmount" value="0">
+
+                <!-- Action Buttons -->
+                <div class="actions">
+                    <button type="submit" name="action" value="draft" class="btn btn-primary">
+                        💾 حفظ كمسودة
+                    </button>
+                    <button type="submit" name="action" value="finalize" class="btn btn-success">
+                        ✅ إنهاء وحفظ الفاتورة
+                    </button>
+                    <a href="/tenant/sales/invoices" class="btn btn-primary">
+                        ↩️ العودة للفواتير
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <script>
+        let itemIndex = 1;
+
+        // Update product price when product is selected
+        function updateProductPrice(select, index) {
+            const selectedOption = select.options[select.selectedIndex];
+            const price = selectedOption.getAttribute('data-price') || 0;
+            const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+            priceInput.value = price;
+            calculateTotal(index);
+        }
+
+        // Calculate total for a specific item
+        function calculateTotal(index) {
+            const quantity = parseFloat(document.querySelector(`input[name="items[${index}][quantity]"]`).value) || 0;
+            const unitPrice = parseFloat(document.querySelector(`input[name="items[${index}][unit_price]"]`).value) || 0;
+            const discount = parseFloat(document.querySelector(`input[name="items[${index}][discount_amount]"]`).value) || 0;
+
+            const total = (quantity * unitPrice) - discount;
+            document.querySelector(`input[name="items[${index}][total_amount]"]`).value = total.toFixed(2);
+
+            updateGrandTotal();
+        }
+
+        // Update grand total
+        function updateGrandTotal() {
+            let subtotal = 0;
+            let totalDiscount = 0;
+
+            document.querySelectorAll('input[name*="[total_amount]"]').forEach(input => {
+                subtotal += parseFloat(input.value) || 0;
+            });
+
+            document.querySelectorAll('input[name*="[discount_amount]"]').forEach(input => {
+                totalDiscount += parseFloat(input.value) || 0;
+            });
+
+            const grandTotal = subtotal;
+
+            document.getElementById('subtotalDisplay').textContent = (subtotal + totalDiscount).toFixed(2) + ' د.ع';
+            document.getElementById('discountDisplay').textContent = totalDiscount.toFixed(2) + ' د.ع';
+            document.getElementById('totalDisplay').textContent = grandTotal.toFixed(2) + ' د.ع';
+
+            document.getElementById('subtotalAmount').value = (subtotal + totalDiscount).toFixed(2);
+            document.getElementById('discountAmount').value = totalDiscount.toFixed(2);
+            document.getElementById('totalAmount').value = grandTotal.toFixed(2);
+        }
+
+        // Add new item row
+        function addItem() {
+            const tbody = document.getElementById('invoiceItems');
+            const newRow = document.createElement('tr');
+
+            newRow.innerHTML = `
+                <td>
+                    <select name="items[${itemIndex}][product_id]" required class="table-select" onchange="updateProductPrice(this, ${itemIndex})">
+                        <option value="">اختر المنتج...</option>
+                        <option value="1" data-price="15.50">باراسيتامول 500 مجم</option>
+                        <option value="2" data-price="25.00">أموكسيسيلين 250 مجم</option>
+                        <option value="3" data-price="35.75">فيتامين د 1000 وحدة</option>
+                        <option value="4" data-price="45.25">أوميجا 3 كبسولات</option>
+                        <option value="5" data-price="12.00">أسبرين 100 مجم</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="items[${itemIndex}][quantity]" value="1" min="1" required class="table-input" onchange="calculateTotal(${itemIndex})">
+                </td>
+                <td>
+                    <input type="number" name="items[${itemIndex}][unit_price]" value="0" step="0.01" required class="table-input" onchange="calculateTotal(${itemIndex})">
+                </td>
+                <td>
+                    <input type="number" name="items[${itemIndex}][discount_amount]" value="0" step="0.01" class="table-input" onchange="calculateTotal(${itemIndex})">
+                </td>
+                <td>
+                    <input type="number" name="items[${itemIndex}][total_amount]" value="0" readonly class="table-input" style="background: #f8fafc; font-weight: 600;">
+                </td>
+                <td>
+                    <button type="button" onclick="removeItem(${itemIndex})" class="btn-remove">
+                        🗑️
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(newRow);
+            itemIndex++;
+            updateRemoveButtons();
+        }
+
+        // Remove item row
+        function removeItem(index) {
+            const row = document.querySelector(`tr:has(select[name="items[${index}][product_id]"])`);
+            if (row) {
+                row.remove();
+                updateGrandTotal();
+                updateRemoveButtons();
+            }
+        }
+
+        // Update remove buttons state
+        function updateRemoveButtons() {
+            const rows = document.querySelectorAll('#invoiceItems tr');
+            const removeButtons = document.querySelectorAll('.btn-remove');
+
+            removeButtons.forEach(btn => {
+                btn.disabled = rows.length <= 1;
+                btn.style.opacity = rows.length <= 1 ? '0.5' : '1';
+            });
+        }
+
+        // Form validation
+        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+            const rows = document.querySelectorAll('#invoiceItems tr');
+            if (rows.length === 0) {
+                e.preventDefault();
+                alert('يرجى إضافة منتج واحد على الأقل');
+                return false;
+            }
+
+            const total = parseFloat(document.getElementById('totalAmount').value);
+            if (total <= 0) {
+                e.preventDefault();
+                alert('يرجى التأكد من صحة المبالغ المدخلة');
+                return false;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateRemoveButtons();
+            updateGrandTotal();
+        });
+    </script>
 </body>
 </html>
