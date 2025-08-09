@@ -1795,28 +1795,43 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             try {
                 $user = Auth::user();
                 if (!$user || !$user->tenant_id) {
-                    abort(403, 'غير مصرح لك بالوصول');
+                    return response('غير مصرح لك بالوصول', 403);
                 }
 
+                // Get customers with basic query
                 $customers = \App\Models\Customer::where('tenant_id', $user->tenant_id)
-                    ->where('is_active', true)
                     ->orderBy('name')
                     ->get();
 
+                // Get products with basic query
                 $products = \App\Models\Product::where('tenant_id', $user->tenant_id)
-                    ->where('status', 'active')
                     ->orderBy('name')
                     ->get();
 
                 return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
             } catch (\Exception $e) {
                 \Log::error('Error in create-simple route: ' . $e->getMessage());
+                \Log::error('Stack trace: ' . $e->getTraceAsString());
+
+                // Return with empty collections to avoid errors
                 return view('tenant.sales.invoices.create-simple', [
                     'customers' => collect(),
                     'products' => collect()
                 ]);
             }
         })->name('invoices.create-simple');
+
+        // Test route for debugging
+        Route::get('invoices/test-simple', function() {
+            return view('tenant.sales.invoices.create-simple', [
+                'customers' => collect([
+                    (object)['id' => 1, 'name' => 'عميل تجريبي', 'customer_code' => 'TEST001']
+                ]),
+                'products' => collect([
+                    (object)['id' => 1, 'name' => 'منتج تجريبي', 'product_code' => 'PROD001', 'selling_price' => 100]
+                ])
+            ]);
+        })->name('invoices.test-simple');
 
         // Simple Invoice Index (override the resource route)
         Route::get('invoices', function() {
