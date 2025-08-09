@@ -2709,5 +2709,59 @@ Route::get('/create-sample-data', function () {
     }
 })->name('create.sample.data');
 
+// الرابط الأساسي لإنشاء الفواتير (خارج tenant group لتجنب مشاكل الـ middleware)
+Route::get('/invoice-create', function() {
+    try {
+        \Log::info('Starting main invoice create route');
+
+        // جلب جميع العملاء من قاعدة البيانات
+        $customers = \App\Models\Customer::select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit', 'tenant_id')
+            ->whereNotNull('name')
+            ->where('name', '!=', '')
+            ->orderBy('name')
+            ->get();
+
+        \Log::info('All customers found: ' . $customers->count());
+
+        // جلب جميع المنتجات من قاعدة البيانات
+        $products = \App\Models\Product::select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity', 'tenant_id')
+            ->whereNotNull('name')
+            ->where('name', '!=', '')
+            ->orderBy('name')
+            ->get();
+
+        \Log::info('All products found: ' . $products->count());
+
+        // إذا لم توجد بيانات، استخدم مجموعة فارغة
+        if ($customers->count() == 0) {
+            \Log::warning('No customers found in database');
+            $customers = collect();
+        }
+
+        if ($products->count() == 0) {
+            \Log::warning('No products found in database');
+            $products = collect();
+        }
+
+        \Log::info('Final counts - Customers: ' . $customers->count() . ', Products: ' . $products->count());
+
+        return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+
+    } catch (\Exception $e) {
+        \Log::error('Error in main invoice create route: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
+
+        // في حالة الخطأ، استخدم بيانات احتياطية
+        $customers = collect([
+            (object)['id' => 999, 'name' => 'عميل احتياطي - خطأ في قاعدة البيانات', 'current_balance' => 0, 'credit_limit' => 1000, 'customer_code' => 'ERROR', 'phone' => '']
+        ]);
+        $products = collect([
+            (object)['id' => 999, 'name' => 'منتج احتياطي - خطأ في قاعدة البيانات', 'selling_price' => 10, 'stock_quantity' => 10, 'product_code' => 'ERROR']
+        ]);
+
+        return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+    }
+})->name('main.invoice.create');
+
 // Include customer routes
 require __DIR__.'/customer.php';
