@@ -3644,45 +3644,15 @@ function clearDraft() {
     localStorage.removeItem('invoice_draft');
 }
 
-// Show notification
-function showNotification(message, type = 'info', duration = 3000) {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        color: white;
-        padding: 15px 20px;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        z-index: 10000;
-        font-weight: 600;
-        transform: translateX(100%);
-        transition: all 0.3s ease;
-    `;
-    notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle"></i> ${message}`;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-
-    setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, duration);
-}
-
-// Simple notification function
+// Simple notification function - no recursion
 function showNotification(message, type = 'info', duration = 3000) {
     console.log(`📢 Notification (${type}): ${message}`);
-    alert(message); // Simple fallback
+
+    // Simple alert for now to avoid recursion issues
+    alert(message);
 }
+
+// Simple notification function (removed duplicate)
 
 // Simplified form validation for debugging
 function validateForm() {
@@ -3835,10 +3805,7 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     }
 </script>
 
-<!-- Bootstrap Modal -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"
-        integrity="sha512-igl8WEUuas9k5dtnhKqyyld6TzzRjvMqLC79jkgT3z02FvJyHAuUtyemm/P/jYSne1xwFI06ezQxEwweaiV7VA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Bootstrap disabled to avoid CSP issues -->
 
 <!-- Custom Select JavaScript (with error handling) -->
 <script>
@@ -3853,12 +3820,8 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         document.head.appendChild(script);
     }
 
-    // Load custom scripts with fallback
-    loadScript('{{ asset('js/custom-select.js') }}');
-    loadScript('{{ asset('js/universal-dropdowns.js') }}');
-    loadScript('{{ asset('js/dropdown-initializer.js') }}');
-    loadScript('{{ asset('js/invoice-validation.js') }}');
-    loadScript('{{ asset('js/professional-invoice.js') }}');
+    // Scripts loading disabled to avoid CSP issues
+    console.log('Scripts loading disabled for debugging');
 </script>
 
 <!-- Block problematic external scripts and initialize enhanced features -->
@@ -4126,53 +4089,7 @@ function simpleCalculateTotal(index) {
     }
 }
 
-// Simple notification function fallback
-function showNotification(message, type, duration) {
-    if (typeof window.showNotification === 'function') {
-        return window.showNotification(message, type, duration);
-    }
-
-    // Create simple notification
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 10000;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-weight: bold;
-        max-width: 300px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        transition: all 0.3s ease;
-    `;
-
-    // Set colors based on type
-    switch(type) {
-        case 'error':
-            notification.style.background = 'linear-gradient(45deg, #ef4444, #dc2626)';
-            break;
-        case 'warning':
-            notification.style.background = 'linear-gradient(45deg, #f59e0b, #d97706)';
-            break;
-        case 'success':
-            notification.style.background = 'linear-gradient(45deg, #10b981, #059669)';
-            break;
-        default:
-            notification.style.background = 'linear-gradient(45deg, #3b82f6, #2563eb)';
-    }
-
-    notification.innerHTML = message;
-    document.body.appendChild(notification);
-
-    // Auto remove
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-        }
-    }, duration || 3000);
-}
+// Notification function removed (duplicate)
 </script>
 
 </body>
