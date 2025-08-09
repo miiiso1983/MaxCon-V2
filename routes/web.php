@@ -3151,27 +3151,46 @@ Route::get('/system-diagnosis', function () {
 // Quick Admin Login for Testing (REMOVE IN PRODUCTION)
 Route::get('/quick-admin-login', function () {
     try {
+        // Check if role column exists first
+        $hasRoleColumn = \Schema::hasColumn('users', 'role');
+
+        if (!$hasRoleColumn) {
+            return response()->json([
+                'error' => 'عمود role غير موجود في جدول users',
+                'message' => 'يجب إصلاح الجدول أولاً',
+                'fix_url' => '/fix-users-table',
+                'instruction' => 'زيارة الرابط أعلاه لإصلاح الجدول ثم العودة هنا'
+            ]);
+        }
+
         // Find or create admin user
         $admin = \App\Models\User::where('email', 'admin@maxcon.app')->first();
 
         if (!$admin) {
-            // Create admin user
-            $admin = new \App\Models\User();
-            $admin->name = 'مدير النظام';
-            $admin->email = 'admin@maxcon.app';
-            $admin->password = bcrypt('admin123');
-            $admin->role = 'super_admin';
-            $admin->tenant_id = 4; // Use existing tenant
-            $admin->email_verified_at = now();
-            $admin->save();
+            // Create admin user using raw SQL to avoid model issues
+            \DB::table('users')->insert([
+                'name' => 'مدير النظام',
+                'email' => 'admin@maxcon.app',
+                'password' => bcrypt('admin123'),
+                'role' => 'super_admin',
+                'tenant_id' => 4,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
+            $admin = \App\Models\User::where('email', 'admin@maxcon.app')->first();
             $message = 'تم إنشاء حساب مدير جديد وتسجيل الدخول بنجاح';
         } else {
-            // Update existing user
-            $admin->role = 'super_admin';
-            $admin->tenant_id = 4;
-            $admin->save();
+            // Update existing user using raw SQL
+            \DB::table('users')->where('id', $admin->id)->update([
+                'role' => 'super_admin',
+                'tenant_id' => 4,
+                'updated_at' => now(),
+            ]);
 
+            // Refresh the model
+            $admin = \App\Models\User::find($admin->id);
             $message = 'تم تحديث الحساب الموجود وتسجيل الدخول بنجاح';
         }
 
@@ -3185,7 +3204,8 @@ Route::get('/quick-admin-login', function () {
             'error' => $e->getMessage(),
             'message' => 'خطأ في تسجيل الدخول',
             'file' => $e->getFile(),
-            'line' => $e->getLine()
+            'line' => $e->getLine(),
+            'suggestion' => 'جرب زيارة /fix-users-table أولاً'
         ]);
     }
 })->name('quick.admin.login');
@@ -3297,6 +3317,93 @@ Route::get('/permissions-help', function () {
 
     return response()->json($helpData, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 })->name('permissions.help');
+
+// Check User Status
+Route::get('/check-user-status', function () {
+    $user = \Auth::user();
+
+    if (!$user) {
+        return response()->json([
+            'logged_in' => false,
+            'message' => 'لا يوجد مستخدم مسجل دخول',
+            'actions' => [
+                'login_as_admin' => '/quick-admin-login',
+                'help' => '/permissions-help'
+            ]
+        ]);
+    }
+
+    // Check user permissions
+    $permissions = \App\Http\Middleware\InvoicePermissions::getUserPermissions($user);
+
+    return response()->json([
+        'logged_in' => true,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role ?? 'غير محدد',
+            'tenant_id' => $user->tenant_id ?? 'غير محدد',
+        ],
+        'permissions' => $permissions,
+        'can_access_invoices' => $permissions['view'] ?? false,
+        'actions' => [
+            'invoices' => '/tenant/sales/invoices',
+            'invoices_no_permissions' => '/invoices-test-no-permissions',
+            'update_permissions' => '/update-user-permissions'
+        ]
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+})->name('check.user.status');
+
+// Fix Users Table - Add Role Column (EMERGENCY FIX)
+Route::get('/fix-users-table', function () {
+    try {
+        // Check if role column exists
+        $hasRoleColumn = \Schema::hasColumn('users', 'role');
+
+        if (!$hasRoleColumn) {
+            // Add role column using raw SQL
+            \DB::statement("ALTER TABLE users ADD COLUMN role ENUM('super_admin', 'tenant_admin', 'sales_manager', 'sales_rep', 'accountant', 'warehouse_manager', 'user') DEFAULT 'user' AFTER email_verified_at");
+
+            $message = 'تم إضافة عمود role بنجاح';
+        } else {
+            $message = 'عمود role موجود بالفعل';
+        }
+
+        // Test creating a user
+        $testUser = \App\Models\User::where('email', 'test@maxcon.app')->first();
+        if (!$testUser) {
+            $testUser = new \App\Models\User();
+            $testUser->name = 'مستخدم تجريبي';
+            $testUser->email = 'test@maxcon.app';
+            $testUser->password = bcrypt('test123');
+            $testUser->role = 'super_admin';
+            $testUser->tenant_id = 4;
+            $testUser->email_verified_at = now();
+            $testUser->save();
+
+            $userMessage = 'تم إنشاء مستخدم تجريبي بنجاح';
+        } else {
+            $userMessage = 'المستخدم التجريبي موجود بالفعل';
+        }
+
+        return response()->json([
+            'success' => true,
+            'column_message' => $message,
+            'user_message' => $userMessage,
+            'table_structure' => \DB::select('DESCRIBE users'),
+            'next_step' => 'زيارة /quick-admin-login'
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في إصلاح الجدول',
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->name('fix.users.table');
 
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {
