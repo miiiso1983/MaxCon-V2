@@ -2093,9 +2093,17 @@
                         <div class="title-icon">
                             <i class="fas fa-file-invoice"></i>
                         </div>
-                        <h1>إنشاء فاتورة احترافية</h1>
+                        <h1>إنشاء فاتورة احترافية - مع عمود FOC المحسن</h1>
                     </div>
-                    <p class="header-subtitle">نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي</p>
+                    <p class="header-subtitle">نظام إدارة الفواتير المتطور مع QR Code والبحث الذكي (تحديث 2024)</p>
+
+                    <!-- VERIFICATION BANNER -->
+                    <div style="background: linear-gradient(45deg, #10b981, #059669); color: white; padding: 20px; border-radius: 15px; margin: 20px 0; text-align: center; font-weight: bold; font-size: 18px; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); border: 3px solid #ffffff;">
+                        <i class="fas fa-check-circle" style="margin-left: 10px; font-size: 24px;"></i>
+                        ✅ النسخة المحسنة مع عمود FOC وتصميم المنتجات المطور
+                        <br>
+                        <span style="font-size: 14px; opacity: 0.9;">إذا كنت ترى هذه الرسالة فالتحديث يعمل بنجاح!</span>
+                    </div>
                 </div>
                 <div class="header-actions">
                     <a href="{{ route('tenant.sales.invoices.index') }}" class="btn-back">
@@ -2204,7 +2212,7 @@
                                     <th style="width: 12%;">السعر</th>
                                     <th style="width: 10%;">الخصم</th>
                                     <th style="width: 8%;">العينات</th>
-                                    <th style="width: 8%;">FOC</th>
+                                    <th style="width: 8%; background: linear-gradient(45deg, #10b981, #059669) !important; color: white !important; font-weight: bold !important; text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;">FOC مجاني</th>
                                     <th style="width: 18%;">المجموع</th>
                                     <th style="width: 6%;">حذف</th>
                                 </tr>
@@ -2274,13 +2282,13 @@
                                                class="form-control enhanced-input" placeholder="0" value="0"
                                                style="text-align: center;">
                                     </td>
-                                    <td>
-                                        <div class="foc-container">
-                                            <label class="foc-switch">
+                                    <td style="background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important; border: 2px solid #10b981 !important;">
+                                        <div class="foc-container" style="padding: 15px !important;">
+                                            <label class="foc-switch" style="width: 60px !important; height: 30px !important;">
                                                 <input type="checkbox" name="items[0][is_foc]" value="1" onchange="toggleFOC(0)">
-                                                <span class="foc-slider"></span>
+                                                <span class="foc-slider" style="border-radius: 30px !important; background: #ef4444 !important;"></span>
                                             </label>
-                                            <span class="foc-label">مجاني</span>
+                                            <span class="foc-label" style="font-size: 12px !important; font-weight: bold !important; color: #059669 !important;">مجاني FOC</span>
                                         </div>
                                     </td>
                                     <td>
