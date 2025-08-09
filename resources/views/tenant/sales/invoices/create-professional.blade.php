@@ -2260,7 +2260,7 @@
                                     <td>
                                         <div class="enhanced-product-dropdown">
                                             <select name="items[0][product_id]" required class="form-control enhanced-select" data-custom-select
-                                                    data-placeholder="اختر المنتج" data-searchable="true" onchange="updateProductInfo(this, 0)">
+                                                    data-placeholder="اختر المنتج" data-searchable="true" onchange="simpleUpdateProductInfo(this, 0)">
                                                 <option value="">اختر المنتج</option>
                                                 @foreach($products as $product)
                                                     <option value="{{ $product->id }}"
@@ -2303,17 +2303,17 @@
                                     <td>
                                         <input type="number" name="items[0][quantity]" min="1" step="1" required
                                                class="form-control enhanced-input" placeholder="1" value="1"
-                                               onchange="calculateItemTotal(0)" oninput="validateStock(0)" style="text-align: center;">
+                                               onchange="simpleCalculateTotal(0)" oninput="validateStock(0)" style="text-align: center;">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
                                                class="form-control enhanced-input" placeholder="0.00" value="0"
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
+                                               onchange="simpleCalculateTotal(0)" style="text-align: center;">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
                                                class="form-control enhanced-input" placeholder="0.00" value="0"
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
+                                               onchange="simpleCalculateTotal(0)" style="text-align: center;">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][free_samples]" min="0" step="1"
@@ -2867,6 +2867,7 @@ function addItem() {
             <div class="enhanced-product-dropdown">
                 <select name="items[${itemIndex}][product_id]" required class="form-control enhanced-select" data-custom-select
                         data-placeholder="اختر المنتج" data-searchable="true" onchange="simpleUpdateProductInfo(this, ${itemIndex})">
+                    <option value="">اختر المنتج</option>
                     ${productOptions}
                 </select>
                 <div class="product-info-display" id="productInfo${itemIndex}" style="display: none;">
@@ -4000,25 +4001,91 @@ function simpleFOCToggle(checkbox, index) {
     }
 }
 
-// Simple product info update function
+// Enhanced product info update function
 function simpleUpdateProductInfo(selectElement, index) {
     console.log('Product changed for index:', index);
 
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+    const productInfoDisplay = document.getElementById(`productInfo${index}`);
+    const stockWarning = document.getElementById(`stockWarning${index}`);
 
-    if (selectedOption.value && priceInput) {
+    if (selectedOption.value) {
         const price = parseFloat(selectedOption.dataset.price || 0);
-        priceInput.value = price.toFixed(2);
+        const stock = parseInt(selectedOption.dataset.stock || 0);
+        const unit = selectedOption.dataset.unit || 'قطعة';
+        const code = selectedOption.dataset.code || '-';
+        const company = selectedOption.dataset.company || '-';
 
-        // Add visual feedback
-        priceInput.style.background = '#e6fffa';
-        setTimeout(() => {
-            priceInput.style.background = '';
-        }, 1000);
+        // Update price input
+        if (priceInput) {
+            priceInput.value = price.toFixed(2);
 
-        console.log('Price updated to:', price.toFixed(2));
+            // Add visual feedback
+            priceInput.style.background = '#e6fffa';
+            priceInput.style.transition = 'background 0.3s ease';
+            setTimeout(() => {
+                priceInput.style.background = '';
+            }, 1000);
+        }
+
+        // Update product info display
+        if (productInfoDisplay) {
+            const productCodeElement = document.getElementById(`productCode${index}`);
+            const productStockElement = document.getElementById(`productStock${index}`);
+            const productUnitElement = document.getElementById(`productUnit${index}`);
+
+            if (productCodeElement) productCodeElement.textContent = code;
+            if (productStockElement) productStockElement.textContent = stock + ' ' + unit;
+            if (productUnitElement) productUnitElement.textContent = unit;
+
+            // Show product info with animation
+            productInfoDisplay.style.display = 'block';
+            productInfoDisplay.style.opacity = '0';
+            productInfoDisplay.style.transform = 'translateY(-10px)';
+            productInfoDisplay.style.transition = 'all 0.3s ease';
+
+            setTimeout(() => {
+                productInfoDisplay.style.opacity = '1';
+                productInfoDisplay.style.transform = 'translateY(0)';
+            }, 50);
+        }
+
+        // Show/hide stock warning
+        if (stockWarning) {
+            if (stock <= 10 && stock > 0) {
+                stockWarning.style.display = 'flex';
+                stockWarning.style.animation = 'pulse 2s infinite';
+            } else {
+                stockWarning.style.display = 'none';
+            }
+        }
+
+        console.log('Product info updated:', {
+            price: price.toFixed(2),
+            stock: stock,
+            unit: unit,
+            code: code,
+            company: company
+        });
+
+    } else {
+        // Hide info displays when no product selected
+        if (productInfoDisplay) {
+            productInfoDisplay.style.display = 'none';
+        }
+        if (stockWarning) {
+            stockWarning.style.display = 'none';
+        }
+        if (priceInput) {
+            priceInput.value = '0';
+        }
+
+        console.log('Product cleared for index:', index);
     }
+
+    // Recalculate total
+    simpleCalculateTotal(index);
 }
 
 // Simple calculation function
