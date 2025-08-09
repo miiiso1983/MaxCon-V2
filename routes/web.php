@@ -3164,17 +3164,28 @@ Route::get('/quick-admin-login', function () {
             $admin->tenant_id = 4; // Use existing tenant
             $admin->email_verified_at = now();
             $admin->save();
+
+            $message = 'تم إنشاء حساب مدير جديد وتسجيل الدخول بنجاح';
+        } else {
+            // Update existing user
+            $admin->role = 'super_admin';
+            $admin->tenant_id = 4;
+            $admin->save();
+
+            $message = 'تم تحديث الحساب الموجود وتسجيل الدخول بنجاح';
         }
 
         // Login as admin
         \Auth::login($admin);
 
-        return redirect('/tenant/sales/invoices')->with('success', 'تم تسجيل الدخول كمدير النظام');
+        return redirect('/tenant/sales/invoices')->with('success', $message);
 
     } catch (\Exception $e) {
         return response()->json([
             'error' => $e->getMessage(),
-            'message' => 'خطأ في تسجيل الدخول'
+            'message' => 'خطأ في تسجيل الدخول',
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
         ]);
     }
 })->name('quick.admin.login');
@@ -3248,6 +3259,44 @@ Route::get('/invoices-test-no-permissions', function () {
         ]);
     }
 })->name('invoices.test.no.permissions');
+
+// Permissions Help Page
+Route::get('/permissions-help', function () {
+    $user = \Auth::user();
+
+    $helpData = [
+        'current_user' => $user ? [
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role ?? 'غير محدد',
+            'tenant_id' => $user->tenant_id ?? 'غير محدد',
+        ] : null,
+        'solutions' => [
+            [
+                'title' => 'تسجيل دخول كمدير',
+                'url' => '/quick-admin-login',
+                'description' => 'إنشاء حساب مدير جديد وتسجيل الدخول'
+            ],
+            [
+                'title' => 'تحديث صلاحيات المستخدم الحالي',
+                'url' => '/update-user-permissions',
+                'description' => 'ترقية المستخدم الحالي إلى مدير نظام'
+            ],
+            [
+                'title' => 'عرض الفواتير بدون صلاحيات',
+                'url' => '/invoices-test-no-permissions',
+                'description' => 'عرض مباشر للفواتير للاختبار'
+            ],
+            [
+                'title' => 'النظام الأصلي',
+                'url' => '/tenant/sales/invoices',
+                'description' => 'النظام الأصلي مع فحص الصلاحيات'
+            ]
+        ]
+    ];
+
+    return response()->json($helpData, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+})->name('permissions.help');
 
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {
