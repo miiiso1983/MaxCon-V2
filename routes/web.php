@@ -2881,20 +2881,20 @@ Route::get('/invoice-create-real', function() {
             return $customer;
         });
 
-        // جلب المنتجات مع جميع الأعمدة المطلوبة
+        // جلب المنتجات مع الأعمدة الصحيحة من قاعدة البيانات
         $products = \DB::table('products')
-            ->select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity')
+            ->select('id', 'name', 'code as product_code', 'unit_price', 'selling_price', 'current_stock as stock_quantity')
             ->whereNotNull('name')
             ->where('name', '!=', '')
             ->orderBy('name')
             ->limit(100)
             ->get();
 
-        // إضافة القيم الافتراضية للأعمدة المفقودة (بدون tenant_id)
+        // إضافة القيم الافتراضية للأعمدة المفقودة
         $products = $products->map(function($product) {
             $product->product_code = $product->product_code ?? '';
-            $product->selling_price = $product->selling_price ?? $product->unit_price ?? 10;
             $product->unit_price = $product->unit_price ?? 10;
+            $product->selling_price = $product->selling_price ?? $product->unit_price ?? 10;
             $product->stock_quantity = $product->stock_quantity ?? 0;
             return $product;
         });
