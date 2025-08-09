@@ -70,22 +70,21 @@
     <div class="container">
         <h1>إنشاء فاتورة جديدة</h1>
         
-        <form method="POST" action="{{ route('tenant.invoices.store') }}">
-            @csrf
-            
+        <form method="POST" action="/tenant/sales/invoices">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
             <div class="form-group">
                 <label>العميل:</label>
                 <select name="customer_id" required>
                     <option value="">اختر العميل</option>
-                    @foreach($customers as $customer)
-                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                    @endforeach
+                    <option value="1">عميل تجريبي 1</option>
+                    <option value="2">عميل تجريبي 2</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label>تاريخ الفاتورة:</label>
-                <input type="date" name="invoice_date" value="{{ date('Y-m-d') }}" required>
+                <input type="date" name="invoice_date" value="2025-08-09" required>
             </div>
             
             <h3>عناصر الفاتورة</h3>
@@ -103,9 +102,8 @@
                         <td>
                             <select name="items[0][product_id]" required>
                                 <option value="">اختر المنتج</option>
-                                @foreach($products as $product)
-                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
-                                @endforeach
+                                <option value="1">منتج تجريبي 1</option>
+                                <option value="2">منتج تجريبي 2</option>
                             </select>
                         </td>
                         <td>
@@ -128,7 +126,7 @@
                 <button type="submit" name="action" value="finalize" class="btn success">
                     حفظ الفاتورة
                 </button>
-                <a href="{{ route('tenant.invoices.index') }}" class="btn">العودة</a>
+                <a href="/tenant/sales/invoices" class="btn">العودة</a>
             </div>
         </form>
     </div>
