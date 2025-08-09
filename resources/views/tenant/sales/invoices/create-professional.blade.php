@@ -3716,6 +3716,19 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     console.log('Event object:', e);
     console.log('Event defaultPrevented:', e.defaultPrevented);
 
+    // Check for any form validation errors
+    const formValidity = this.checkValidity();
+    console.log('🔍 Form validity:', formValidity);
+
+    if (!formValidity) {
+        console.log('❌ Form has validation errors - browser will prevent submission');
+        const invalidElements = this.querySelectorAll(':invalid');
+        console.log('Invalid elements:', invalidElements);
+        invalidElements.forEach((el, index) => {
+            console.log(`Invalid element ${index + 1}:`, el, 'Validation message:', el.validationMessage);
+        });
+    }
+
     // Run validation with detailed logging
     const isValid = validateForm();
     console.log('Validation result:', isValid);
@@ -3735,12 +3748,25 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 
     // Let the form submit normally - don't prevent it
     console.log('🚀 Allowing form to submit naturally...');
+    console.log('🔍 Event listeners on form:', this.getEventListeners ? this.getEventListeners() : 'getEventListeners not available');
+
+    // Force form submission if needed
+    console.log('🔧 Attempting to force form submission...');
 
     // Add a small delay to see if form actually submits
     setTimeout(() => {
         console.log('⏰ 2 seconds after form submission attempt...');
         console.log('📍 Current URL:', window.location.href);
         console.log('🔄 If you still see this message, the form did not submit');
+
+        // Try manual submission as last resort
+        console.log('🔧 Attempting manual form submission...');
+        try {
+            this.submit();
+            console.log('✅ Manual submission triggered');
+        } catch (error) {
+            console.log('❌ Manual submission failed:', error);
+        }
     }, 2000);
 
     // Clear draft on successful submission
