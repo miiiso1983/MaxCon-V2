@@ -986,6 +986,294 @@
         transform: scale(1.1);
     }
 
+    /* Enhanced Product Dropdown Styles */
+    .enhanced-product-dropdown {
+        position: relative;
+    }
+
+    .enhanced-select {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-right: 40px;
+    }
+
+    .enhanced-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: white;
+    }
+
+    .enhanced-select:hover {
+        border-color: #c7d2fe;
+        background: white;
+    }
+
+    .product-info-display {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-top: 8px;
+        font-size: 11px;
+        animation: slideDown 0.3s ease;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-weight: 600;
+    }
+
+    .stock-warning {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 1px solid #f59e0b;
+        border-radius: 6px;
+        padding: 6px 10px;
+        margin-top: 6px;
+        font-size: 11px;
+        color: #92400e;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        animation: pulse 2s infinite;
+    }
+
+    .stock-warning i {
+        color: #f59e0b;
+    }
+
+    /* Enhanced Input Styles */
+    .enhanced-input {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .enhanced-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: white;
+    }
+
+    .enhanced-input:hover {
+        border-color: #c7d2fe;
+        background: white;
+    }
+
+    /* FOC (Free of Charge) Column Styles */
+    .foc-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 8px;
+    }
+
+    .foc-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+    }
+
+    .foc-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .foc-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        transition: all 0.3s ease;
+        border-radius: 24px;
+        border: 2px solid #e2e8f0;
+    }
+
+    .foc-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background: white;
+        transition: all 0.3s ease;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    input:checked + .foc-slider {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-color: #10b981;
+    }
+
+    input:checked + .foc-slider:before {
+        transform: translateX(20px);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .foc-slider:hover {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .foc-label {
+        font-size: 10px;
+        color: #64748b;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    input:checked ~ .foc-label {
+        color: #10b981;
+    }
+
+    /* Enhanced Total Display */
+    .total-display {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .total-input {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%) !important;
+        border: 2px solid #c7d2fe !important;
+        border-radius: 10px;
+        padding: 10px 35px 10px 12px !important;
+        font-size: 14px;
+        font-weight: 700;
+        color: #667eea !important;
+    }
+
+    .total-currency {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        color: #667eea;
+        font-weight: 600;
+        pointer-events: none;
+    }
+
+    /* Enhanced Remove Button */
+    .enhanced-remove-btn {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        border: 2px solid #f87171;
+        border-radius: 10px;
+        padding: 8px;
+        color: #dc2626;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+    }
+
+    .enhanced-remove-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #fecaca 0%, #f87171 100%);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+    }
+
+    .enhanced-remove-btn:disabled {
+        background: #f1f5f9;
+        border-color: #e2e8f0;
+        color: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Animation for new rows */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .item-row {
+        animation: fadeInUp 0.3s ease;
+    }
+
+    /* FOC Row Styling */
+    .item-row.foc-row {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border-left: 4px solid #10b981;
+    }
+
+    .item-row.foc-row .total-input {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+        border-color: #10b981 !important;
+        color: #059669 !important;
+    }
+
+    .item-row.foc-row .total-currency {
+        color: #059669;
+    }
+
+    .item-row.foc-row .enhanced-input {
+        border-color: #a7f3d0;
+    }
+
+    .item-row.foc-row .enhanced-input:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
     /* Action Buttons */
     .actions-section {
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -1807,65 +2095,100 @@
                         <table class="items-table" id="itemsTable">
                             <thead>
                                 <tr>
-                                    <th style="width: 30%;">المنتج</th>
-                                    <th style="width: 12%;">الكمية</th>
-                                    <th style="width: 15%;">السعر</th>
-                                    <th style="width: 12%;">الخصم</th>
-                                    <th style="width: 10%;">العينات</th>
-                                    <th style="width: 15%;">المجموع</th>
+                                    <th style="width: 28%;">المنتج</th>
+                                    <th style="width: 10%;">الكمية</th>
+                                    <th style="width: 12%;">السعر</th>
+                                    <th style="width: 10%;">الخصم</th>
+                                    <th style="width: 8%;">العينات</th>
+                                    <th style="width: 8%;">FOC</th>
+                                    <th style="width: 18%;">المجموع</th>
                                     <th style="width: 6%;">حذف</th>
                                 </tr>
                             </thead>
                             <tbody id="invoiceItems">
                                 <tr class="item-row">
                                     <td>
-                                        <select name="items[0][product_id]" required class="form-control" data-custom-select
-                                                data-placeholder="اختر المنتج" data-searchable="true" onchange="updateProductInfo(this, 0)">
-                                            <option value="">اختر المنتج</option>
-                                            @foreach($products as $product)
-                                                <option value="{{ $product->id }}" 
-                                                        data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}"
-                                                        data-stock="{{ $product->current_stock ?? 0 }}"
-                                                        data-unit="{{ $product->unit ?? 'قطعة' }}"
-                                                        data-code="{{ $product->product_code ?? '' }}">
-                                                    {{ $product->name }}
-                                                    @if($product->product_code)
-                                                        ({{ $product->product_code }})
-                                                    @endif
-                                                    @if($product->company)
-                                                        - {{ $product->company }}
-                                                    @endif
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <div class="enhanced-product-dropdown">
+                                            <select name="items[0][product_id]" required class="form-control enhanced-select" data-custom-select
+                                                    data-placeholder="اختر المنتج" data-searchable="true" onchange="updateProductInfo(this, 0)">
+                                                <option value="">اختر المنتج</option>
+                                                @foreach($products as $product)
+                                                    <option value="{{ $product->id }}"
+                                                            data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}"
+                                                            data-stock="{{ $product->current_stock ?? 0 }}"
+                                                            data-unit="{{ $product->unit ?? 'قطعة' }}"
+                                                            data-code="{{ $product->product_code ?? '' }}"
+                                                            data-company="{{ $product->company ?? '' }}"
+                                                            data-category="{{ $product->category ?? '' }}">
+                                                        <span class="product-name">{{ $product->name }}</span>
+                                                        @if($product->product_code)
+                                                            <span class="product-code">({{ $product->product_code }})</span>
+                                                        @endif
+                                                        @if($product->company)
+                                                            <span class="product-company">- {{ $product->company }}</span>
+                                                        @endif
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <div class="product-info-display" id="productInfo0" style="display: none;">
+                                                <div class="info-row">
+                                                    <span class="info-label">الكود:</span>
+                                                    <span class="info-value" id="productCode0">-</span>
+                                                </div>
+                                                <div class="info-row">
+                                                    <span class="info-label">المخزون:</span>
+                                                    <span class="info-value" id="productStock0">-</span>
+                                                </div>
+                                                <div class="info-row">
+                                                    <span class="info-label">الوحدة:</span>
+                                                    <span class="info-value" id="productUnit0">-</span>
+                                                </div>
+                                            </div>
+                                            <div class="stock-warning" id="stockWarning0" style="display: none;">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                <span>مخزون منخفض</span>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][quantity]" min="1" step="1" required
-                                               class="form-control" placeholder="1" value="1" 
-                                               onchange="calculateItemTotal(0)" style="text-align: center;">
+                                               class="form-control enhanced-input" placeholder="1" value="1"
+                                               onchange="calculateItemTotal(0)" oninput="validateStock(0)" style="text-align: center;">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][unit_price]" min="0" step="0.01" required
-                                               class="form-control" placeholder="0.00" value="0" 
+                                               class="form-control enhanced-input" placeholder="0.00" value="0"
                                                onchange="calculateItemTotal(0)" style="text-align: center;">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][discount_amount]" min="0" step="0.01"
-                                               class="form-control" placeholder="0.00" value="0" 
+                                               class="form-control enhanced-input" placeholder="0.00" value="0"
                                                onchange="calculateItemTotal(0)" style="text-align: center;">
                                     </td>
                                     <td>
                                         <input type="number" name="items[0][free_samples]" min="0" step="1"
-                                               class="form-control" placeholder="0" value="0" 
+                                               class="form-control enhanced-input" placeholder="0" value="0"
                                                style="text-align: center;">
                                     </td>
                                     <td>
-                                        <input type="number" name="items[0][total_amount]" readonly
-                                               class="form-control" placeholder="0.00" value="0" 
-                                               style="background: #f9fafb; text-align: center;">
+                                        <div class="foc-container">
+                                            <label class="foc-switch">
+                                                <input type="checkbox" name="items[0][is_foc]" value="1" onchange="toggleFOC(0)">
+                                                <span class="foc-slider"></span>
+                                            </label>
+                                            <span class="foc-label">مجاني</span>
+                                        </div>
                                     </td>
                                     <td>
-                                        <button type="button" onclick="removeItem(0)" class="remove-item-btn" disabled>
+                                        <div class="total-display">
+                                            <input type="number" name="items[0][total_amount]" readonly
+                                                   class="form-control total-input" placeholder="0.00" value="0"
+                                                   style="background: #f9fafb; text-align: center;">
+                                            <div class="total-currency">د.ع</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button type="button" onclick="removeItem(0)" class="remove-item-btn enhanced-remove-btn" disabled>
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
@@ -2173,92 +2496,56 @@ function initializeCustomSelects() {
     }
 }
 
-// Update product information when product is selected
-function updateProductInfo(selectElement, index) {
-    const selectedOption = selectElement.options[selectElement.selectedIndex];
-    const price = parseFloat(selectedOption.dataset.price || 0);
-    const stock = parseInt(selectedOption.dataset.stock || 0);
-    const unit = selectedOption.dataset.unit || 'قطعة';
-    const code = selectedOption.dataset.code || '';
-    const company = selectedOption.dataset.company || '';
+// Note: Enhanced updateProductInfo function is defined later in the file with visual display support
 
-    // Update price field with animation
-    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
-    if (priceInput) {
-        priceInput.style.transition = 'all 0.3s ease';
-        priceInput.style.background = '#e6fffa';
-        priceInput.value = price.toFixed(2);
-        setTimeout(() => {
-            priceInput.style.background = '#ffffff';
-        }, 1000);
-    }
-
-    // Show stock information
-    const stockInfoElement = document.getElementById(`stockInfo${index}`);
-    if (stockInfoElement && selectedOption.value) {
-        let stockClass = 'stock-high';
-        let stockIcon = 'fas fa-check-circle';
-
-        if (stock <= 0) {
-            stockClass = 'stock-low';
-            stockIcon = 'fas fa-exclamation-triangle';
-        } else if (stock <= 10) {
-            stockClass = 'stock-medium';
-            stockIcon = 'fas fa-exclamation-circle';
-        }
-
-        stockInfoElement.innerHTML = `
-            <i class="${stockIcon}"></i>
-            المخزون المتاح: <span class="${stockClass}">${stock} ${unit}</span>
-            ${code ? `| الكود: ${code}` : ''}
-            ${company ? `| الشركة: ${company}` : ''}
-        `;
-        stockInfoElement.style.display = 'block';
-        stockInfoElement.className = `stock-info ${stockClass}`;
-    } else if (stockInfoElement) {
-        stockInfoElement.style.display = 'none';
-    }
-
-    // Validate stock immediately
-    validateStock(index);
-
-    // Recalculate totals
-    calculateItemTotal(index);
-
-    // Auto-save draft
-    autoSaveDraft();
-}
-
-// Calculate item total with enhanced discount handling
+// Enhanced item total calculation with FOC support and discount handling
 function calculateItemTotal(index) {
-    const quantity = parseFloat(document.querySelector(`input[name="items[${index}][quantity]"]`).value || 0);
-    const unitPrice = parseFloat(document.querySelector(`input[name="items[${index}][unit_price]"]`).value || 0);
-    const discountAmount = parseFloat(document.querySelector(`input[name="items[${index}][discount_amount]"]`).value || 0);
+    const quantityInput = document.querySelector(`input[name="items[${index}][quantity]"]`);
+    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+    const discountInput = document.querySelector(`input[name="items[${index}][discount_amount]"]`);
+    const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
+    const focCheckbox = document.querySelector(`input[name="items[${index}][is_foc]"]`);
     const discountType = document.querySelector(`select[name="items[${index}][discount_type]"]`)?.value || 'amount';
 
-    let lineTotal = quantity * unitPrice;
-    let actualDiscount = 0;
+    if (!quantityInput || !priceInput || !totalInput) return;
 
-    if (discountType === 'percentage') {
-        actualDiscount = (lineTotal * discountAmount) / 100;
+    const quantity = parseFloat(quantityInput.value || 0);
+    const price = parseFloat(priceInput.value || 0);
+    const discountAmount = parseFloat(discountInput?.value || 0);
+    const isFOC = focCheckbox?.checked || false;
+
+    let total = 0;
+
+    if (isFOC) {
+        // FOC items have 0 total
+        total = 0;
     } else {
-        actualDiscount = discountAmount;
+        // Calculate normal total with discount support
+        let lineTotal = quantity * price;
+        let actualDiscount = 0;
+
+        if (discountType === 'percentage') {
+            actualDiscount = (lineTotal * discountAmount) / 100;
+        } else {
+            actualDiscount = discountAmount;
+        }
+
+        total = Math.max(0, lineTotal - actualDiscount);
     }
 
-    lineTotal = Math.max(0, lineTotal - actualDiscount);
+    // Add visual feedback for calculation
+    totalInput.style.transition = 'all 0.3s ease';
+    totalInput.style.background = isFOC ? '#f0fdf4' : '#f0f9ff';
+    totalInput.value = total.toFixed(2);
+    setTimeout(() => {
+        totalInput.style.background = isFOC ? '#dcfce7' : '#f9fafb';
+    }, 500);
 
-    const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
-    if (totalInput) {
-        // Add visual feedback for calculation
-        totalInput.style.transition = 'all 0.3s ease';
-        totalInput.style.background = '#f0f9ff';
-        totalInput.value = lineTotal.toFixed(2);
-        setTimeout(() => {
-            totalInput.style.background = '#f9fafb';
-        }, 500);
-    }
-
+    // Update grand total
     calculateGrandTotal();
+
+    // Validate stock
+    validateStock(index);
 }
 
 // Validate stock availability
@@ -2427,48 +2714,71 @@ function addItem() {
 
     newRow.innerHTML = `
         <td>
-            <select name="items[${itemIndex}][product_id]" required class="form-control" data-custom-select
-                    data-placeholder="اختر المنتج" data-searchable="true" onchange="updateProductInfo(this, ${itemIndex})">
-                ${productOptions}
-            </select>
-            <div class="stock-info" id="stockInfo${itemIndex}" style="display: none; margin-top: 5px; font-size: 11px;"></div>
-        </td>
-        <td>
-            <input type="number" name="items[${itemIndex}][quantity]" min="1" step="1" required
-                   class="form-control" placeholder="1" value="1"
-                   onchange="calculateItemTotal(${itemIndex})" oninput="validateStock(${itemIndex})"
-                   style="text-align: center;">
-            <div class="error-message" id="stockError${itemIndex}" style="display: none;"></div>
-        </td>
-        <td>
-            <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required
-                   class="form-control" placeholder="0.00" value="0"
-                   onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
-        </td>
-        <td>
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <input type="number" name="items[${itemIndex}][discount_amount]" min="0" step="0.01"
-                       class="form-control" placeholder="0.00" value="0"
-                       onchange="calculateItemTotal(${itemIndex})" style="text-align: center; flex: 1;">
-                <select name="items[${itemIndex}][discount_type]" class="form-control" style="width: 60px; font-size: 12px;"
-                        onchange="calculateItemTotal(${itemIndex})">
-                    <option value="amount">د.ع</option>
-                    <option value="percentage">%</option>
+            <div class="enhanced-product-dropdown">
+                <select name="items[${itemIndex}][product_id]" required class="form-control enhanced-select" data-custom-select
+                        data-placeholder="اختر المنتج" data-searchable="true" onchange="updateProductInfo(this, ${itemIndex})">
+                    ${productOptions}
                 </select>
+                <div class="product-info-display" id="productInfo${itemIndex}" style="display: none;">
+                    <div class="info-row">
+                        <span class="info-label">الكود:</span>
+                        <span class="info-value" id="productCode${itemIndex}">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">المخزون:</span>
+                        <span class="info-value" id="productStock${itemIndex}">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">الوحدة:</span>
+                        <span class="info-value" id="productUnit${itemIndex}">-</span>
+                    </div>
+                </div>
+                <div class="stock-warning" id="stockWarning${itemIndex}" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>مخزون منخفض</span>
+                </div>
             </div>
         </td>
         <td>
+            <input type="number" name="items[${itemIndex}][quantity]" min="1" step="1" required
+                   class="form-control enhanced-input" placeholder="1" value="1"
+                   onchange="calculateItemTotal(${itemIndex})" oninput="validateStock(${itemIndex})"
+                   style="text-align: center;">
+        </td>
+        <td>
+            <input type="number" name="items[${itemIndex}][unit_price]" min="0" step="0.01" required
+                   class="form-control enhanced-input" placeholder="0.00" value="0"
+                   onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+        </td>
+        <td>
+            <input type="number" name="items[${itemIndex}][discount_amount]" min="0" step="0.01"
+                   class="form-control enhanced-input" placeholder="0.00" value="0"
+                   onchange="calculateItemTotal(${itemIndex})" style="text-align: center;">
+        </td>
+        <td>
             <input type="number" name="items[${itemIndex}][free_samples]" min="0" step="1"
-                   class="form-control" placeholder="0" value="0"
-                   onchange="updateFreeSamplesTotal()" style="text-align: center;">
+                   class="form-control enhanced-input" placeholder="0" value="0"
+                   style="text-align: center;">
         </td>
         <td>
-            <input type="number" name="items[${itemIndex}][total_amount]" readonly
-                   class="form-control" placeholder="0.00" value="0"
-                   style="background: #f9fafb; text-align: center; font-weight: 600;">
+            <div class="foc-container">
+                <label class="foc-switch">
+                    <input type="checkbox" name="items[${itemIndex}][is_foc]" value="1" onchange="toggleFOC(${itemIndex})">
+                    <span class="foc-slider"></span>
+                </label>
+                <span class="foc-label">مجاني</span>
+            </div>
         </td>
         <td>
-            <button type="button" onclick="removeItem(${itemIndex})" class="remove-item-btn"
+            <div class="total-display">
+                <input type="number" name="items[${itemIndex}][total_amount]" readonly
+                       class="form-control total-input" placeholder="0.00" value="0"
+                       style="background: #f9fafb; text-align: center;">
+                <div class="total-currency">د.ع</div>
+            </div>
+        </td>
+        <td>
+            <button type="button" onclick="removeItem(${itemIndex})" class="remove-item-btn enhanced-remove-btn"
                     title="حذف هذا المنتج">
                 <i class="fas fa-trash"></i>
             </button>
@@ -2814,6 +3124,110 @@ function closeCreditDetailsModal() {
         modal.remove();
     }
 }
+
+// Enhanced product info update with visual display
+function updateProductInfo(selectElement, index) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const productInfoDisplay = document.getElementById(`productInfo${index}`);
+    const stockWarning = document.getElementById(`stockWarning${index}`);
+    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+
+    if (selectedOption.value) {
+        const price = parseFloat(selectedOption.dataset.price || 0);
+        const stock = parseInt(selectedOption.dataset.stock || 0);
+        const unit = selectedOption.dataset.unit || 'قطعة';
+        const code = selectedOption.dataset.code || '-';
+        const company = selectedOption.dataset.company || '-';
+
+        // Update price input
+        if (priceInput) {
+            priceInput.value = price.toFixed(2);
+        }
+
+        // Update product info display
+        if (productInfoDisplay) {
+            document.getElementById(`productCode${index}`).textContent = code;
+            document.getElementById(`productStock${index}`).textContent = stock + ' ' + unit;
+            document.getElementById(`productUnit${index}`).textContent = unit;
+            productInfoDisplay.style.display = 'block';
+        }
+
+        // Show stock warning if low
+        if (stockWarning) {
+            if (stock <= 10 && stock > 0) {
+                stockWarning.style.display = 'flex';
+            } else {
+                stockWarning.style.display = 'none';
+            }
+        }
+
+        // Calculate item total
+        calculateItemTotal(index);
+    } else {
+        // Hide info displays when no product selected
+        if (productInfoDisplay) {
+            productInfoDisplay.style.display = 'none';
+        }
+        if (stockWarning) {
+            stockWarning.style.display = 'none';
+        }
+        if (priceInput) {
+            priceInput.value = '0';
+        }
+    }
+}
+
+// Toggle FOC (Free of Charge) functionality
+function toggleFOC(index) {
+    const checkbox = document.querySelector(`input[name="items[${index}][is_foc]"]`);
+    const row = checkbox.closest('tr');
+    const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
+    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+    const discountInput = document.querySelector(`input[name="items[${index}][discount_amount]"]`);
+
+    if (checkbox.checked) {
+        // Mark as FOC
+        row.classList.add('foc-row');
+
+        // Set total to 0 for FOC items
+        if (totalInput) {
+            totalInput.value = '0.00';
+        }
+
+        // Disable price and discount inputs for FOC items
+        if (priceInput) {
+            priceInput.disabled = true;
+            priceInput.style.opacity = '0.5';
+        }
+        if (discountInput) {
+            discountInput.disabled = true;
+            discountInput.style.opacity = '0.5';
+        }
+
+        showNotification('تم تحديد المنتج كعينة مجانية (FOC)', 'success', 2000);
+    } else {
+        // Remove FOC
+        row.classList.remove('foc-row');
+
+        // Re-enable inputs
+        if (priceInput) {
+            priceInput.disabled = false;
+            priceInput.style.opacity = '1';
+        }
+        if (discountInput) {
+            discountInput.disabled = false;
+            discountInput.style.opacity = '1';
+        }
+
+        // Recalculate total
+        calculateItemTotal(index);
+    }
+
+    // Update grand total
+    calculateGrandTotal();
+}
+
+
 
 // Enhanced search functionality for dropdowns
 function enhanceDropdownSearch() {
