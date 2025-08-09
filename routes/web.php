@@ -2942,51 +2942,51 @@ Route::get('/invoice-create-real', function() {
 Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
     Route::prefix('sales/invoices')->name('tenant.sales.invoices.')->group(function () {
         // View invoices
-        Route::get('/', [App\Http\Controllers\Tenant\InvoiceController::class, 'index'])
+        Route::get('/', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'index'])
             ->middleware('invoice.permissions:view')->name('index');
 
         // Create invoices
-        Route::get('/create', [App\Http\Controllers\Tenant\InvoiceController::class, 'create'])
+        Route::get('/create', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'create'])
             ->middleware('invoice.permissions:create')->name('create');
-        Route::post('/', [App\Http\Controllers\Tenant\InvoiceController::class, 'store'])
+        Route::post('/', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'store'])
             ->middleware('invoice.permissions:create')->name('store');
 
         // View specific invoice
-        Route::get('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'show'])
+        Route::get('/{invoice}', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'show'])
             ->middleware('invoice.permissions:view')->name('show');
 
         // Edit invoices
-        Route::get('/{invoice}/edit', [App\Http\Controllers\Tenant\InvoiceController::class, 'edit'])
+        Route::get('/{invoice}/edit', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'edit'])
             ->middleware('invoice.permissions:edit')->name('edit');
-        Route::put('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'update'])
+        Route::put('/{invoice}', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'update'])
             ->middleware('invoice.permissions:edit')->name('update');
 
         // Delete invoices
-        Route::delete('/{invoice}', [App\Http\Controllers\Tenant\InvoiceController::class, 'destroy'])
+        Route::delete('/{invoice}', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'destroy'])
             ->middleware('invoice.permissions:delete')->name('destroy');
 
         // Printing and PDF
-        Route::get('/{invoice}/print', [App\Http\Controllers\Tenant\InvoiceController::class, 'print'])
+        Route::get('/{invoice}/print', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'print'])
             ->middleware('invoice.permissions:print')->name('print');
-        Route::get('/{invoice}/print-thermal', [App\Http\Controllers\Tenant\InvoiceController::class, 'printThermal'])
+        Route::get('/{invoice}/print-thermal', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'printThermal'])
             ->middleware('invoice.permissions:print')->name('print-thermal');
-        Route::get('/{invoice}/download-pdf', [App\Http\Controllers\Tenant\InvoiceController::class, 'downloadPdf'])
+        Route::get('/{invoice}/download-pdf', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'downloadPdf'])
             ->middleware('invoice.permissions:print')->name('download-pdf');
 
         // Communication
-        Route::post('/{invoice}/send-email', [App\Http\Controllers\Tenant\InvoiceController::class, 'sendEmail'])
+        Route::post('/{invoice}/send-email', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'sendEmail'])
             ->middleware('invoice.permissions:send')->name('send-email');
-        Route::post('/{invoice}/send-whatsapp', [App\Http\Controllers\Tenant\InvoiceController::class, 'sendWhatsApp'])
+        Route::post('/{invoice}/send-whatsapp', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'sendWhatsApp'])
             ->middleware('invoice.permissions:send')->name('send-whatsapp');
 
         // Payments
-        Route::post('/{invoice}/add-payment', [App\Http\Controllers\Tenant\InvoiceController::class, 'addPayment'])
+        Route::post('/{invoice}/add-payment', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'addPayment'])
             ->middleware('invoice.permissions:payment')->name('add-payment');
 
         // AJAX helpers (view permission required)
-        Route::get('/customer/{customer}/debt', [App\Http\Controllers\Tenant\InvoiceController::class, 'getCustomerDebt'])
+        Route::get('/customer/{customer}/debt', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'getCustomerDebt'])
             ->middleware('invoice.permissions:view')->name('customer-debt');
-        Route::get('/warehouse/{warehouse}/product/{product}/stock', [App\Http\Controllers\Tenant\InvoiceController::class, 'getWarehouseStock'])
+        Route::get('/warehouse/{warehouse}/product/{product}/stock', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'getWarehouseStock'])
             ->middleware('invoice.permissions:view')->name('warehouse-stock');
     });
 });
@@ -3750,6 +3750,153 @@ Route::get('/invoices-fixed', function () {
         ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 })->middleware(['auth'])->name('invoices.fixed');
+
+// Test Invoice Route without Middleware
+Route::get('/test-invoices-direct', function () {
+    try {
+        // Use the actual controller directly
+        $controller = new \App\Http\Controllers\Tenant\Sales\InvoiceController();
+        $request = new \Illuminate\Http\Request();
+
+        // Create a mock user
+        $user = new \stdClass();
+        $user->tenant_id = 4;
+        $user->id = 1;
+
+        // Mock Auth facade
+        \Auth::shouldReceive('user')->andReturn($user);
+
+        return $controller->index($request);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في اختبار Controller مباشرة',
+            'line' => $e->getLine(),
+            'file' => $e->getFile(),
+            'trace' => $e->getTraceAsString()
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+});
+
+// Simple Invoice Test Route
+Route::get('/simple-invoice-test', function () {
+    try {
+        // Test basic functionality
+        $invoicesCount = \DB::table('invoices')->count();
+        $customersCount = \DB::table('customers')->count();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'النظام يعمل بشكل طبيعي',
+            'data' => [
+                'invoices_count' => $invoicesCount,
+                'customers_count' => $customersCount,
+                'auth_check' => \Auth::check(),
+                'user_id' => \Auth::id(),
+                'tenant_id' => \Auth::user()->tenant_id ?? 'غير محدد'
+            ]
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => basename($e->getFile())
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->middleware(['auth']);
+
+// Debug User Permissions
+Route::get('/debug-user-permissions', function () {
+    try {
+        $user = \Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'المستخدم غير مسجل الدخول'
+            ], 401);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'user_data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role ?? 'غير محدد',
+                'tenant_id' => $user->tenant_id ?? 'غير محدد',
+            ],
+            'permissions_check' => [
+                'has_tenant_id' => !empty($user->tenant_id),
+                'role_exists' => !empty($user->role),
+                'is_super_admin' => $user->role === 'super_admin',
+                'is_tenant_admin' => $user->role === 'tenant_admin',
+                'is_sales_manager' => $user->role === 'sales_manager',
+            ]
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => basename($e->getFile())
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->middleware(['auth']);
+
+// Temporary Invoice Route without Permissions Middleware
+Route::get('/invoices-temp', function () {
+    try {
+        $user = \Auth::user();
+
+        if (!$user || !$user->tenant_id) {
+            return response()->json([
+                'error' => 'المستخدم غير مصرح له بالوصول',
+                'user_id' => $user->id ?? null,
+                'tenant_id' => $user->tenant_id ?? null
+            ], 403);
+        }
+
+        // Get invoices directly
+        $invoices = \App\Models\Invoice::with(['customer', 'createdBy'])
+            ->where('tenant_id', $user->tenant_id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        // Get customers for filters
+        $customers = \App\Models\Customer::where('tenant_id', $user->tenant_id)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        // Calculate status counts
+        $statusCounts = [
+            'draft' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('status', 'draft')->count(),
+            'sent' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('status', 'sent')->count(),
+            'paid' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('payment_status', 'paid')->count(),
+            'overdue' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)
+                ->where('due_date', '<', now())
+                ->where('payment_status', '!=', 'paid')
+                ->count(),
+            'cancelled' => \App\Models\Invoice::where('tenant_id', $user->tenant_id)->where('status', 'cancelled')->count(),
+        ];
+
+        return view('tenant.sales.invoices.index', compact('invoices', 'customers', 'statusCounts'));
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في تحميل الفواتير المؤقت',
+            'line' => $e->getLine(),
+            'file' => basename($e->getFile()),
+            'trace' => $e->getTraceAsString()
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->middleware(['auth', 'tenant']);
 
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {

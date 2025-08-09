@@ -148,16 +148,27 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Remove added columns from invoices table
+        // Remove only the columns that were added by this migration
         if (Schema::hasTable('invoices')) {
             Schema::table('invoices', function (Blueprint $table) {
-                $table->dropColumn([
-                    'warehouse_id', 'sales_rep_id', 'due_date', 'payment_status',
-                    'subtotal', 'discount_amount', 'discount_percentage', 'tax_amount', 'tax_percentage',
-                    'paid_amount', 'remaining_amount', 'previous_debt', 'current_debt', 'credit_limit',
-                    'terms_conditions', 'currency', 'qr_code_data', 'pdf_path',
+                // Only drop columns that were actually added by this migration
+                $columnsToCheck = [
+                    'payment_status', 'subtotal', 'discount_percentage', 'tax_percentage',
+                    'paid_amount', 'remaining_amount', 'previous_debt', 'current_debt',
+                    'terms_conditions', 'qr_code_data', 'pdf_path',
                     'email_sent_at', 'whatsapp_sent_at', 'printed_at'
-                ]);
+                ];
+
+                $columnsToDrop = [];
+                foreach ($columnsToCheck as $column) {
+                    if (Schema::hasColumn('invoices', $column)) {
+                        $columnsToDrop[] = $column;
+                    }
+                }
+
+                if (!empty($columnsToDrop)) {
+                    $table->dropColumn($columnsToDrop);
+                }
             });
         }
 
