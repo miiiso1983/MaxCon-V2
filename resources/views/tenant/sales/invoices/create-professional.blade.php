@@ -3637,15 +3637,61 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 });
 </script>
 
-<!-- jQuery with fallback -->
+<!-- jQuery from allowed CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"
         integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<!-- Fallback jQuery -->
+<!-- Fallback jQuery from allowed CDN -->
 <script>
     if (!window.jQuery) {
-        document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"><\/script>');
+        document.write('<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"><\/script>');
+    }
+</script>
+
+<!-- Additional fallback with inline jQuery if CDNs fail -->
+<script>
+    if (!window.jQuery) {
+        console.warn('jQuery failed to load from CDNs, using minimal fallback');
+        window.$ = window.jQuery = function(selector) {
+            if (typeof selector === 'function') {
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', selector);
+                } else {
+                    selector();
+                }
+                return;
+            }
+            return {
+                ready: function(fn) {
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', fn);
+                    } else {
+                        fn();
+                    }
+                },
+                on: function(event, handler) {
+                    if (this.length) {
+                        for (let i = 0; i < this.length; i++) {
+                            this[i].addEventListener(event, handler);
+                        }
+                    }
+                    return this;
+                },
+                val: function(value) {
+                    if (arguments.length === 0) {
+                        return this[0] ? this[0].value : '';
+                    }
+                    if (this.length) {
+                        for (let i = 0; i < this.length; i++) {
+                            this[i].value = value;
+                        }
+                    }
+                    return this;
+                },
+                length: selector ? document.querySelectorAll(selector).length : 0
+            };
+        };
     }
 </script>
 
@@ -3667,12 +3713,138 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         document.head.appendChild(script);
     }
 
-    // Load custom scripts
+    // Load custom scripts with fallback
     loadScript('{{ asset('js/custom-select.js') }}');
     loadScript('{{ asset('js/universal-dropdowns.js') }}');
     loadScript('{{ asset('js/dropdown-initializer.js') }}');
     loadScript('{{ asset('js/invoice-validation.js') }}');
     loadScript('{{ asset('js/professional-invoice.js') }}');
+</script>
+
+<!-- Initialize enhanced features without external dependencies -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Enhanced invoice features initializing...');
+
+    // Initialize FOC toggles
+    function initializeFOCToggles() {
+        const focCheckboxes = document.querySelectorAll('input[name*="[is_foc]"]');
+        focCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const index = this.name.match(/\[(\d+)\]/)[1];
+                toggleFOC(index);
+            });
+        });
+    }
+
+    // Initialize enhanced dropdowns
+    function initializeEnhancedDropdowns() {
+        const productSelects = document.querySelectorAll('select[name*="[product_id]"]');
+        productSelects.forEach(function(select) {
+            select.addEventListener('change', function() {
+                const index = this.name.match(/\[(\d+)\]/)[1];
+                updateProductInfo(this, index);
+            });
+        });
+    }
+
+    // Initialize enhanced inputs
+    function initializeEnhancedInputs() {
+        const inputs = document.querySelectorAll('.enhanced-input');
+        inputs.forEach(function(input) {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#667eea';
+                this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+            });
+
+            input.addEventListener('blur', function() {
+                this.style.borderColor = '#e2e8f0';
+                this.style.boxShadow = 'none';
+            });
+        });
+    }
+
+    // Initialize all enhanced features
+    try {
+        initializeFOCToggles();
+        initializeEnhancedDropdowns();
+        initializeEnhancedInputs();
+        console.log('Enhanced invoice features initialized successfully');
+    } catch (error) {
+        console.warn('Some enhanced features failed to initialize:', error);
+    }
+
+    // Ensure functions exist even if external scripts fail
+    if (typeof toggleFOC === 'undefined') {
+        window.toggleFOC = function(index) {
+            console.log('FOC toggle for index:', index);
+            const checkbox = document.querySelector(`input[name="items[${index}][is_foc]"]`);
+            const row = checkbox ? checkbox.closest('tr') : null;
+            const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
+
+            if (checkbox && row && totalInput) {
+                if (checkbox.checked) {
+                    row.classList.add('foc-row');
+                    totalInput.value = '0.00';
+                } else {
+                    row.classList.remove('foc-row');
+                    // Recalculate total
+                    const quantity = parseFloat(document.querySelector(`input[name="items[${index}][quantity]"]`).value || 0);
+                    const price = parseFloat(document.querySelector(`input[name="items[${index}][unit_price]"]`).value || 0);
+                    const discount = parseFloat(document.querySelector(`input[name="items[${index}][discount_amount]"]`).value || 0);
+                    totalInput.value = Math.max(0, (quantity * price) - discount).toFixed(2);
+                }
+            }
+        };
+    }
+
+    if (typeof updateProductInfo === 'undefined') {
+        window.updateProductInfo = function(selectElement, index) {
+            console.log('Product info update for index:', index);
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+
+            if (selectedOption.value && priceInput) {
+                const price = parseFloat(selectedOption.dataset.price || 0);
+                priceInput.value = price.toFixed(2);
+
+                // Show product info if elements exist
+                const productInfo = document.getElementById(`productInfo${index}`);
+                if (productInfo) {
+                    const code = selectedOption.dataset.code || '-';
+                    const stock = selectedOption.dataset.stock || '0';
+                    const unit = selectedOption.dataset.unit || 'قطعة';
+
+                    document.getElementById(`productCode${index}`).textContent = code;
+                    document.getElementById(`productStock${index}`).textContent = stock + ' ' + unit;
+                    document.getElementById(`productUnit${index}`).textContent = unit;
+                    productInfo.style.display = 'block';
+                }
+            }
+        };
+    }
+
+    if (typeof calculateItemTotal === 'undefined') {
+        window.calculateItemTotal = function(index) {
+            console.log('Calculate total for index:', index);
+            const quantityInput = document.querySelector(`input[name="items[${index}][quantity]"]`);
+            const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+            const discountInput = document.querySelector(`input[name="items[${index}][discount_amount]"]`);
+            const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
+            const focCheckbox = document.querySelector(`input[name="items[${index}][is_foc]"]`);
+
+            if (quantityInput && priceInput && totalInput) {
+                const quantity = parseFloat(quantityInput.value || 0);
+                const price = parseFloat(priceInput.value || 0);
+                const discount = parseFloat(discountInput ? discountInput.value || 0 : 0);
+                const isFOC = focCheckbox ? focCheckbox.checked : false;
+
+                const total = isFOC ? 0 : Math.max(0, (quantity * price) - discount);
+                totalInput.value = total.toFixed(2);
+            }
+        };
+    }
+});
 </script>
 
 </body>
