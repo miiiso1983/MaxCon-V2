@@ -1833,6 +1833,21 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             ]);
         })->name('invoices.test-simple');
 
+        // Working Invoice Creation
+        Route::get('invoices/create-working', function() {
+            $customers = collect([
+                (object)['id' => 1, 'name' => 'عميل تجريبي 1'],
+                (object)['id' => 2, 'name' => 'عميل تجريبي 2'],
+            ]);
+
+            $products = collect([
+                (object)['id' => 1, 'name' => 'منتج تجريبي 1', 'selling_price' => 100],
+                (object)['id' => 2, 'name' => 'منتج تجريبي 2', 'selling_price' => 200],
+            ]);
+
+            return view('tenant.sales.invoices.create-working', compact('customers', 'products'));
+        })->name('invoices.create-working');
+
         // Simple Invoice Index (override the resource route)
         Route::get('invoices', function() {
             $user = Auth::user();
