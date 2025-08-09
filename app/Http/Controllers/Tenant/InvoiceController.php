@@ -23,8 +23,8 @@ class InvoiceController extends Controller
         try {
             $tenantId = Auth::user()->tenant_id;
 
-            // Get invoices with relationships
-            $invoices = Invoice::with(['customer', 'warehouse', 'salesRep'])
+            // Get invoices with relationships (handle missing relationships gracefully)
+            $invoices = Invoice::with(['customer', 'createdBy'])
                 ->where('tenant_id', $tenantId)
                 ->orderBy('created_at', 'desc')
                 ->paginate(20);

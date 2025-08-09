@@ -19,18 +19,28 @@ class Invoice extends Model
         'invoice_number',
         'sales_order_id',
         'customer_id',
+        'warehouse_id',
+        'sales_rep_id',
         'created_by',
         'invoice_date',
         'due_date',
         'status',
+        'payment_status',
         'type',
+        'subtotal',
         'subtotal_amount',
         'discount_amount',
+        'discount_percentage',
         'discount_type',
         'tax_amount',
+        'tax_percentage',
         'shipping_cost',
         'additional_charges',
         'total_amount',
+        'paid_amount',
+        'remaining_amount',
+        'previous_debt',
+        'current_debt',
         'previous_balance',
         'credit_limit',
         'sales_representative',
@@ -96,6 +106,16 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class, 'warehouse_id');
+    }
+
+    public function salesRep(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sales_rep_id');
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(InvoiceItem::class);
@@ -103,7 +123,7 @@ class Invoice extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(InvoicePayment::class);
     }
 
     public function salesReturns(): HasMany

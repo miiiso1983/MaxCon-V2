@@ -3717,6 +3717,40 @@ Route::get('/direct-invoices', function () {
     }
 })->name('direct.invoices');
 
+// Safe Invoice Route with Fixed Relationships
+Route::get('/invoices-fixed', function () {
+    try {
+        $tenantId = \Auth::user()->tenant_id ?? 4;
+
+        // Get invoices with only existing relationships
+        $invoices = \App\Models\Invoice::with(['customer', 'createdBy'])
+            ->where('tenant_id', $tenantId)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        // Calculate status counts
+        $statusCounts = [
+            'draft' => \App\Models\Invoice::where('tenant_id', $tenantId)->where('status', 'draft')->count(),
+            'sent' => \App\Models\Invoice::where('tenant_id', $tenantId)->where('status', 'sent')->count(),
+            'paid' => \App\Models\Invoice::where('tenant_id', $tenantId)->where('payment_status', 'paid')->count(),
+            'overdue' => \App\Models\Invoice::where('tenant_id', $tenantId)
+                ->where('due_date', '<', now())
+                ->where('payment_status', '!=', 'paid')
+                ->count(),
+        ];
+
+        return view('tenant.sales.invoices.index', compact('invoices', 'statusCounts'));
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'message' => 'خطأ في تحميل الفواتير المُصلحة',
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+})->middleware(['auth'])->name('invoices.fixed');
+
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {
     try {
