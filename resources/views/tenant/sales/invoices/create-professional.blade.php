@@ -1082,6 +1082,40 @@
         background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
     }
 
+    /* Force consistent styling for all product dropdowns */
+    select[name*="[product_id]"] {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+        appearance: none !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+        background-position: right 12px center !important;
+        background-repeat: no-repeat !important;
+        background-size: 16px !important;
+        padding-right: 40px !important;
+    }
+
+    select[name*="[product_id]"]:focus {
+        outline: none !important;
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        background: white !important;
+    }
+
+    select[name*="[product_id]"]:hover {
+        border-color: #c7d2fe !important;
+        background: white !important;
+    }
+
+    /* Ensure all product dropdown containers have consistent styling */
+    .enhanced-product-dropdown {
+        position: relative !important;
+        width: 100% !important;
+    }
+
     /* Enhanced Product Dropdown Styles */
     .enhanced-product-dropdown {
         position: relative;
@@ -2826,7 +2860,11 @@ function addItem() {
     updateRemoveButtons();
 
     // Apply enhanced styling to the new dropdown
-    applyEnhancedStyling(itemIndex - 1);
+    setTimeout(() => {
+        applyEnhancedStyling(itemIndex - 1);
+        // Ensure all dropdowns have consistent styling
+        applyEnhancedStylingToAll();
+    }, 100);
 
     // Auto-save draft
     autoSaveDraft();
@@ -2846,47 +2884,79 @@ function removeItem(index) {
 function applyEnhancedStyling(index) {
     const dropdown = document.querySelector(`select[name="items[${index}][product_id]"]`);
     if (dropdown) {
-        // Add enhanced classes
-        dropdown.classList.add('enhanced-select');
+        applyEnhancedStylingToDropdown(dropdown, index);
+    }
+}
 
-        // Apply enhanced styling
-        dropdown.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
-        dropdown.style.border = '2px solid #e2e8f0';
-        dropdown.style.borderRadius = '12px';
-        dropdown.style.padding = '12px 16px';
-        dropdown.style.fontSize = '14px';
-        dropdown.style.transition = 'all 0.3s ease';
+// Apply enhanced styling to all existing product dropdowns
+function applyEnhancedStylingToAll() {
+    const allDropdowns = document.querySelectorAll('select[name*="[product_id]"]');
+    allDropdowns.forEach((dropdown, index) => {
+        applyEnhancedStylingToDropdown(dropdown, index);
+    });
+    console.log(`Enhanced styling applied to ${allDropdowns.length} product dropdowns`);
+}
 
-        // Add focus event listener
-        dropdown.addEventListener('focus', function() {
-            this.style.borderColor = '#667eea';
-            this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-            this.style.background = 'white';
-        });
+// Apply enhanced styling to a specific dropdown element
+function applyEnhancedStylingToDropdown(dropdown, index) {
+    if (!dropdown) return;
 
-        // Add blur event listener
-        dropdown.addEventListener('blur', function() {
-            this.style.borderColor = '#e2e8f0';
-            this.style.boxShadow = 'none';
-            this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
-        });
+    // Add enhanced classes
+    dropdown.classList.add('enhanced-select');
 
-        // Add hover event listener
-        dropdown.addEventListener('mouseenter', function() {
-            if (document.activeElement !== this) {
-                this.style.borderColor = '#c7d2fe';
-                this.style.background = 'white';
-            }
-        });
+    // Apply enhanced styling
+    dropdown.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+    dropdown.style.border = '2px solid #e2e8f0';
+    dropdown.style.borderRadius = '12px';
+    dropdown.style.padding = '12px 16px';
+    dropdown.style.fontSize = '14px';
+    dropdown.style.transition = 'all 0.3s ease';
+    dropdown.style.appearance = 'none';
+    dropdown.style.backgroundImage = 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")';
+    dropdown.style.backgroundPosition = 'right 12px center';
+    dropdown.style.backgroundRepeat = 'no-repeat';
+    dropdown.style.backgroundSize = '16px';
+    dropdown.style.paddingRight = '40px';
 
-        dropdown.addEventListener('mouseleave', function() {
-            if (document.activeElement !== this) {
-                this.style.borderColor = '#e2e8f0';
-                this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
-            }
-        });
+    // Remove existing event listeners to avoid duplicates
+    dropdown.removeEventListener('focus', enhancedFocusHandler);
+    dropdown.removeEventListener('blur', enhancedBlurHandler);
+    dropdown.removeEventListener('mouseenter', enhancedMouseEnterHandler);
+    dropdown.removeEventListener('mouseleave', enhancedMouseLeaveHandler);
 
-        console.log('Enhanced styling applied to dropdown for index:', index);
+    // Add enhanced event listeners
+    dropdown.addEventListener('focus', enhancedFocusHandler);
+    dropdown.addEventListener('blur', enhancedBlurHandler);
+    dropdown.addEventListener('mouseenter', enhancedMouseEnterHandler);
+    dropdown.addEventListener('mouseleave', enhancedMouseLeaveHandler);
+
+    console.log('Enhanced styling applied to dropdown for index:', index);
+}
+
+// Enhanced event handlers
+function enhancedFocusHandler() {
+    this.style.borderColor = '#667eea';
+    this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+    this.style.background = 'white';
+}
+
+function enhancedBlurHandler() {
+    this.style.borderColor = '#e2e8f0';
+    this.style.boxShadow = 'none';
+    this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+}
+
+function enhancedMouseEnterHandler() {
+    if (document.activeElement !== this) {
+        this.style.borderColor = '#c7d2fe';
+        this.style.background = 'white';
+    }
+}
+
+function enhancedMouseLeaveHandler() {
+    if (document.activeElement !== this) {
+        this.style.borderColor = '#e2e8f0';
+        this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
     }
 }
 
@@ -3760,8 +3830,8 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeEnhancedDropdowns();
         initializeEnhancedInputs();
 
-        // Apply enhanced styling to the first product dropdown
-        applyEnhancedStyling(0);
+        // Apply enhanced styling to all existing product dropdowns
+        applyEnhancedStylingToAll();
 
         console.log('Enhanced invoice features initialized successfully');
     } catch (error) {
