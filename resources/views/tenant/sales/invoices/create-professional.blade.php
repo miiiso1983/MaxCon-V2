@@ -3725,11 +3725,14 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     }
 
     console.log('✅ Validation passed - proceeding with submission');
-    console.log('📤 Form will now be submitted to:', this.action);
+    console.log('📤 Form will now be submitted to:', this.getAttribute('action'));
     console.log('📋 Form data summary:');
     console.log('- Customer ID:', document.getElementById('customerSelect').value);
     console.log('- Products count:', document.querySelectorAll('select[name*="[product_id]"]').length);
-    console.log('- Form method:', this.method);
+    console.log('- Form method:', this.getAttribute('method'));
+
+    // Let the form submit normally - don't prevent it
+    console.log('🚀 Allowing form to submit naturally...');
 
     // Clear draft on successful submission
     clearDraft();
