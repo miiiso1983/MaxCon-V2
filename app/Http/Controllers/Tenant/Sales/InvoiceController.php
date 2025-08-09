@@ -137,6 +137,11 @@ class InvoiceController extends Controller
                 ->find($request->sales_order_id);
         }
 
+        // Check if this is the professional route
+        if ($request->route()->getName() === 'tenant.sales.invoices.create-professional') {
+            return view('tenant.sales.invoices.create-professional', compact('customers', 'products', 'salesOrders', 'selectedOrder'));
+        }
+
         return view('tenant.sales.invoices.create', compact('customers', 'products', 'salesOrders', 'selectedOrder'));
     }
 
