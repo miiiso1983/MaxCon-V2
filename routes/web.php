@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\TenantController;
@@ -2863,17 +2864,29 @@ Route::get('/test-db-data', function() {
 // الرابط النهائي لإنشاء الفواتير مع البيانات الحقيقية
 Route::get('/invoice-create-real', function() {
     try {
-        // جلب العملاء باستخدام DB query مباشرة
+        // جلب العملاء باستخدام DB query مباشرة مع معالجة الأعمدة المفقودة
         $customers = \DB::table('customers')
-            ->select('id', 'name', 'customer_code', 'phone', 'current_balance', 'credit_limit', 'tenant_id')
+            ->select('id', 'name',
+                \DB::raw('COALESCE(customer_code, "") as customer_code'),
+                \DB::raw('COALESCE(phone, "") as phone'),
+                \DB::raw('COALESCE(current_balance, 0) as current_balance'),
+                \DB::raw('COALESCE(credit_limit, 0) as credit_limit'),
+                \DB::raw('COALESCE(tenant_id, 1) as tenant_id')
+            )
             ->whereNotNull('name')
             ->where('name', '!=', '')
             ->orderBy('name')
             ->get();
 
-        // جلب المنتجات باستخدام DB query مباشرة
+        // جلب المنتجات باستخدام DB query مباشرة مع معالجة الأعمدة المفقودة
         $products = \DB::table('products')
-            ->select('id', 'name', 'product_code', 'selling_price', 'unit_price', 'stock_quantity', 'tenant_id')
+            ->select('id', 'name',
+                \DB::raw('COALESCE(product_code, "") as product_code'),
+                \DB::raw('COALESCE(selling_price, unit_price, 0) as selling_price'),
+                \DB::raw('COALESCE(unit_price, 0) as unit_price'),
+                \DB::raw('COALESCE(stock_quantity, 0) as stock_quantity'),
+                \DB::raw('COALESCE(tenant_id, 1) as tenant_id')
+            )
             ->whereNotNull('name')
             ->where('name', '!=', '')
             ->orderBy('name')
