@@ -2285,7 +2285,7 @@
                                     <td style="background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important; border: 2px solid #10b981 !important;">
                                         <div class="foc-container" style="padding: 15px !important;">
                                             <label class="foc-switch" style="width: 60px !important; height: 30px !important;">
-                                                <input type="checkbox" name="items[0][is_foc]" value="1" onchange="toggleFOC(0)">
+                                                <input type="checkbox" name="items[0][is_foc]" value="1" onchange="simpleFOCToggle(this, 0)">
                                                 <span class="foc-slider" style="border-radius: 30px !important; background: #ef4444 !important;"></span>
                                             </label>
                                             <span class="foc-label" style="font-size: 12px !important; font-weight: bold !important; color: #059669 !important;">مجاني FOC</span>
@@ -3729,10 +3729,33 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     loadScript('{{ asset('js/professional-invoice.js') }}');
 </script>
 
-<!-- Initialize enhanced features without external dependencies -->
+<!-- Block problematic external scripts and initialize enhanced features -->
 <script>
+// Block problematic external script loading
+(function() {
+    const originalCreateElement = document.createElement;
+    document.createElement = function(tagName) {
+        const element = originalCreateElement.call(this, tagName);
+        if (tagName.toLowerCase() === 'script') {
+            const originalSetAttribute = element.setAttribute;
+            element.setAttribute = function(name, value) {
+                if (name === 'src' && (
+                    value.includes('code.jquery.com') ||
+                    value.includes('select2') ||
+                    value.includes('jquery') && !value.includes('cdnjs.cloudflare.com') && !value.includes('cdn.jsdelivr.net')
+                )) {
+                    console.warn('Blocked problematic script:', value);
+                    return;
+                }
+                return originalSetAttribute.call(this, name, value);
+            };
+        }
+        return element;
+    };
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Enhanced invoice features initializing...');
+    console.log('Enhanced invoice features initializing (standalone mode)...');
 
     // Initialize FOC toggles
     function initializeFOCToggles() {
@@ -3853,6 +3876,124 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 });
+
+// Simple FOC toggle function that works without external dependencies
+function simpleFOCToggle(checkbox, index) {
+    console.log('FOC toggle clicked for index:', index, 'checked:', checkbox.checked);
+
+    const row = checkbox.closest('tr');
+    const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
+    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+    const discountInput = document.querySelector(`input[name="items[${index}][discount_amount]"]`);
+    const quantityInput = document.querySelector(`input[name="items[${index}][quantity]"]`);
+
+    if (checkbox.checked) {
+        // FOC mode - set total to 0
+        if (totalInput) {
+            totalInput.value = '0.00';
+            totalInput.style.background = '#dcfce7';
+            totalInput.style.color = '#059669';
+            totalInput.style.fontWeight = 'bold';
+        }
+
+        // Add visual feedback to row
+        if (row) {
+            row.style.background = 'linear-gradient(135deg, #f0fdf4, #dcfce7)';
+            row.style.border = '2px solid #10b981';
+        }
+
+        // Disable price and discount inputs
+        if (priceInput) {
+            priceInput.disabled = true;
+            priceInput.style.opacity = '0.5';
+        }
+        if (discountInput) {
+            discountInput.disabled = true;
+            discountInput.style.opacity = '0.5';
+        }
+
+        console.log('Item set to FOC - total set to 0.00');
+
+    } else {
+        // Normal mode - recalculate total
+        if (row) {
+            row.style.background = '';
+            row.style.border = '';
+        }
+
+        if (totalInput) {
+            totalInput.style.background = '';
+            totalInput.style.color = '';
+            totalInput.style.fontWeight = '';
+        }
+
+        // Re-enable inputs
+        if (priceInput) {
+            priceInput.disabled = false;
+            priceInput.style.opacity = '1';
+        }
+        if (discountInput) {
+            discountInput.disabled = false;
+            discountInput.style.opacity = '1';
+        }
+
+        // Recalculate total
+        const quantity = parseFloat(quantityInput ? quantityInput.value || 0 : 0);
+        const price = parseFloat(priceInput ? priceInput.value || 0 : 0);
+        const discount = parseFloat(discountInput ? discountInput.value || 0 : 0);
+        const total = Math.max(0, (quantity * price) - discount);
+
+        if (totalInput) {
+            totalInput.value = total.toFixed(2);
+        }
+
+        console.log('Item removed from FOC - total recalculated to:', total.toFixed(2));
+    }
+}
+
+// Simple product info update function
+function simpleUpdateProductInfo(selectElement, index) {
+    console.log('Product changed for index:', index);
+
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+
+    if (selectedOption.value && priceInput) {
+        const price = parseFloat(selectedOption.dataset.price || 0);
+        priceInput.value = price.toFixed(2);
+
+        // Add visual feedback
+        priceInput.style.background = '#e6fffa';
+        setTimeout(() => {
+            priceInput.style.background = '';
+        }, 1000);
+
+        console.log('Price updated to:', price.toFixed(2));
+    }
+}
+
+// Simple calculation function
+function simpleCalculateTotal(index) {
+    console.log('Calculating total for index:', index);
+
+    const quantityInput = document.querySelector(`input[name="items[${index}][quantity]"]`);
+    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+    const discountInput = document.querySelector(`input[name="items[${index}][discount_amount]"]`);
+    const totalInput = document.querySelector(`input[name="items[${index}][total_amount]"]`);
+    const focCheckbox = document.querySelector(`input[name="items[${index}][is_foc]"]`);
+
+    if (quantityInput && priceInput && totalInput) {
+        const quantity = parseFloat(quantityInput.value || 0);
+        const price = parseFloat(priceInput.value || 0);
+        const discount = parseFloat(discountInput ? discountInput.value || 0 : 0);
+        const isFOC = focCheckbox ? focCheckbox.checked : false;
+
+        const total = isFOC ? 0 : Math.max(0, (quantity * price) - discount);
+        totalInput.value = total.toFixed(2);
+
+        console.log('Total calculated:', total.toFixed(2), 'FOC:', isFOC);
+    }
+}
 </script>
 
 </body>
