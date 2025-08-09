@@ -1059,6 +1059,29 @@
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
     }
 
+    /* Enhanced Product Option Styling */
+    .product-name {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .product-code {
+        color: #64748b;
+        font-size: 0.9em;
+        margin-left: 5px;
+    }
+
+    .product-company {
+        color: #059669;
+        font-size: 0.9em;
+        font-style: italic;
+    }
+
+    /* Enhanced Select Option Hover */
+    .enhanced-select option:hover {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+    }
+
     /* Enhanced Product Dropdown Styles */
     .enhanced-product-dropdown {
         position: relative;
@@ -2695,9 +2718,8 @@ function addItem() {
     const newRow = document.createElement('tr');
     newRow.className = 'item-row';
 
-    // Create product options with enhanced search data
+    // Create product options with enhanced design matching first row
     const productOptions = `
-        <option value="">اختر المنتج</option>
         @foreach($products as $product)
             <option value="{{ $product->id }}"
                     data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}"
@@ -2706,16 +2728,13 @@ function addItem() {
                     data-code="{{ $product->product_code ?? '' }}"
                     data-company="{{ $product->company ?? '' }}"
                     data-category="{{ $product->category ?? '' }}">
-                {{ $product->name }}
+                <span class="product-name">{{ $product->name }}</span>
                 @if($product->product_code)
-                    ({{ $product->product_code }})
+                    <span class="product-code">({{ $product->product_code }})</span>
                 @endif
                 @if($product->company)
-                    - {{ $product->company }}
+                    <span class="product-company">- {{ $product->company }}</span>
                 @endif
-                <span class="stock-info" style="color: #6b7280; font-size: 11px;">
-                    (المخزون: {{ $product->current_stock ?? 0 }} {{ $product->unit ?? 'قطعة' }})
-                </span>
             </option>
         @endforeach
     `;
@@ -2806,6 +2825,9 @@ function addItem() {
     itemIndex++;
     updateRemoveButtons();
 
+    // Apply enhanced styling to the new dropdown
+    applyEnhancedStyling(itemIndex - 1);
+
     // Auto-save draft
     autoSaveDraft();
 }
@@ -2817,6 +2839,54 @@ function removeItem(index) {
         row.remove();
         calculateGrandTotal();
         updateRemoveButtons();
+    }
+}
+
+// Apply enhanced styling to dropdown elements
+function applyEnhancedStyling(index) {
+    const dropdown = document.querySelector(`select[name="items[${index}][product_id]"]`);
+    if (dropdown) {
+        // Add enhanced classes
+        dropdown.classList.add('enhanced-select');
+
+        // Apply enhanced styling
+        dropdown.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+        dropdown.style.border = '2px solid #e2e8f0';
+        dropdown.style.borderRadius = '12px';
+        dropdown.style.padding = '12px 16px';
+        dropdown.style.fontSize = '14px';
+        dropdown.style.transition = 'all 0.3s ease';
+
+        // Add focus event listener
+        dropdown.addEventListener('focus', function() {
+            this.style.borderColor = '#667eea';
+            this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+            this.style.background = 'white';
+        });
+
+        // Add blur event listener
+        dropdown.addEventListener('blur', function() {
+            this.style.borderColor = '#e2e8f0';
+            this.style.boxShadow = 'none';
+            this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+        });
+
+        // Add hover event listener
+        dropdown.addEventListener('mouseenter', function() {
+            if (document.activeElement !== this) {
+                this.style.borderColor = '#c7d2fe';
+                this.style.background = 'white';
+            }
+        });
+
+        dropdown.addEventListener('mouseleave', function() {
+            if (document.activeElement !== this) {
+                this.style.borderColor = '#e2e8f0';
+                this.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+            }
+        });
+
+        console.log('Enhanced styling applied to dropdown for index:', index);
     }
 }
 
@@ -3656,16 +3726,7 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Enhanced invoice features initializing (standalone mode)...');
 
-    // Initialize FOC toggles
-    function initializeFOCToggles() {
-        const focCheckboxes = document.querySelectorAll('input[name*="[is_foc]"]');
-        focCheckboxes.forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                const index = this.name.match(/\[(\d+)\]/)[1];
-                toggleFOC(index);
-            });
-        });
-    }
+
 
     // Initialize enhanced dropdowns
     function initializeEnhancedDropdowns() {
@@ -3696,9 +3757,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize all enhanced features
     try {
-        initializeFOCToggles();
         initializeEnhancedDropdowns();
         initializeEnhancedInputs();
+
+        // Apply enhanced styling to the first product dropdown
+        applyEnhancedStyling(0);
+
         console.log('Enhanced invoice features initialized successfully');
     } catch (error) {
         console.warn('Some enhanced features failed to initialize:', error);
