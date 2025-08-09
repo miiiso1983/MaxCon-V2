@@ -20,25 +20,68 @@ class InvoiceController extends Controller
 {
     public function index()
     {
-        $tenantId = Auth::user()->tenant_id;
-        
-        $invoices = Invoice::with(['customer', 'warehouse', 'salesRep'])
-            ->forTenant($tenantId)
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        try {
+            $tenantId = Auth::user()->tenant_id;
 
-        return view('tenant.sales.invoices.index', compact('invoices'));
+            // Get invoices with relationships
+            $invoices = Invoice::with(['customer', 'warehouse', 'salesRep'])
+                ->where('tenant_id', $tenantId)
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+
+            // Calculate status counts for the view
+            $statusCounts = [
+                'draft' => Invoice::where('tenant_id', $tenantId)->where('status', 'draft')->count(),
+                'sent' => Invoice::where('tenant_id', $tenantId)->where('status', 'sent')->count(),
+                'paid' => Invoice::where('tenant_id', $tenantId)->where('payment_status', 'paid')->count(),
+                'overdue' => Invoice::where('tenant_id', $tenantId)
+                    ->where('due_date', '<', now())
+                    ->where('payment_status', '!=', 'paid')
+                    ->count(),
+            ];
+
+            return view('tenant.sales.invoices.index', compact('invoices', 'statusCounts'));
+
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Invoice index error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'user_id' => Auth::id(),
+                'tenant_id' => Auth::user()->tenant_id ?? null,
+            ]);
+
+            // Return error view or redirect
+            return response()->view('errors.500', [
+                'message' => 'خطأ في تحميل الفواتير: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function create()
     {
-        $tenantId = Auth::user()->tenant_id;
-        
-        $customers = Customer::forTenant($tenantId)->active()->get();
-        $warehouses = Warehouse::forTenant($tenantId)->active()->get();
-        $products = Product::forTenant($tenantId)->active()->get();
+        try {
+            $tenantId = Auth::user()->tenant_id;
 
-        return view('tenant.sales.invoices.create', compact('customers', 'warehouses', 'products'));
+            $customers = Customer::where('tenant_id', $tenantId)
+                ->where('is_active', 1)
+                ->get();
+            $warehouses = Warehouse::where('tenant_id', $tenantId)
+                ->where('is_active', 1)
+                ->get();
+            $products = Product::where('tenant_id', $tenantId)
+                ->where('is_active', 1)
+                ->get();
+
+            return view('tenant.sales.invoices.create', compact('customers', 'warehouses', 'products'));
+
+        } catch (\Exception $e) {
+            \Log::error('Invoice create error: ' . $e->getMessage());
+
+            return response()->view('errors.500', [
+                'message' => 'خطأ في تحميل صفحة إنشاء الفاتورة: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)
