@@ -2496,5 +2496,10 @@ Route::get('/test-new-tenant-guide-direct', function () {
     ]);
 })->name('test.new-tenant-guide');
 
+// Test invoice creation (outside tenant group)
+Route::get('/test-invoice-create', function () {
+    return view('tenant.sales.invoices.create-minimal');
+})->name('test.invoice.create');
+
 // Include customer routes
 require __DIR__.'/customer.php';
