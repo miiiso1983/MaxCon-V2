@@ -3031,6 +3031,38 @@ Route::get('/invoice-test-direct', function () {
     }
 })->name('invoice.test.direct');
 
+// Test Invoice Routes Without Middleware
+Route::get('/invoices-no-auth', function () {
+    try {
+        // Test basic invoice functionality without authentication
+        $invoices = \DB::table('invoices')->count();
+        $customers = \DB::table('customers')->limit(5)->get();
+        $products = \DB::table('products')->limit(5)->get();
+        $warehouses = \App\Models\Warehouse::limit(5)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice system accessible',
+            'data' => [
+                'invoices_count' => $invoices,
+                'customers_count' => $customers->count(),
+                'products_count' => $products->count(),
+                'warehouses_count' => $warehouses->count(),
+                'sample_customer' => $customers->first(),
+                'sample_product' => $products->first(),
+                'sample_warehouse' => $warehouses->first(),
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+})->name('invoices.no.auth');
+
 // Test Enhanced Invoice System
 Route::get('/test-enhanced-invoices', function () {
     try {
