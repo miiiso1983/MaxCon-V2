@@ -1792,22 +1792,30 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
 
         // Simple Invoice Creation
         Route::get('invoices/create-simple', function() {
-            $user = Auth::user();
-            if (!$user || !$user->tenant_id) {
-                abort(403, 'غير مصرح لك بالوصول');
+            try {
+                $user = Auth::user();
+                if (!$user || !$user->tenant_id) {
+                    abort(403, 'غير مصرح لك بالوصول');
+                }
+
+                $customers = \App\Models\Customer::where('tenant_id', $user->tenant_id)
+                    ->where('is_active', true)
+                    ->orderBy('name')
+                    ->get();
+
+                $products = \App\Models\Product::where('tenant_id', $user->tenant_id)
+                    ->where('status', 'active')
+                    ->orderBy('name')
+                    ->get();
+
+                return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
+            } catch (\Exception $e) {
+                \Log::error('Error in create-simple route: ' . $e->getMessage());
+                return view('tenant.sales.invoices.create-simple', [
+                    'customers' => collect(),
+                    'products' => collect()
+                ]);
             }
-
-            $customers = \App\Models\Customer::forTenant($user->tenant_id)
-                ->active()
-                ->orderBy('name')
-                ->get();
-
-            $products = \App\Models\Product::forTenant($user->tenant_id)
-                ->active()
-                ->orderBy('name')
-                ->get();
-
-            return view('tenant.sales.invoices.create-simple', compact('customers', 'products'));
         })->name('invoices.create-simple');
 
         // Simple Invoice Index (override the resource route)
