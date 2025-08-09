@@ -320,6 +320,10 @@
         <div class="header">
             <h1>🧾 إنشاء فاتورة جديدة</h1>
             <p>نظام MaxCon للإدارة الصيدلانية المتقدم</p>
+            <p style="font-size: 14px; opacity: 0.9;">
+                📊 العملاء المتاحون: {{ count($customers) }} |
+                📦 المنتجات المتاحة: {{ count($products) }}
+            </p>
         </div>
 
         <!-- Form Content -->
@@ -337,9 +341,16 @@
                         <label class="form-label">العميل *</label>
                         <select name="customer_id" required class="form-control customer-select" id="customerSelect">
                             <option value="">اختر العميل...</option>
-                            <option value="1" data-balance="1500.00" data-credit="10000.00" data-phone="07901234567">شركة الأدوية المتقدمة - CUST001 (07901234567)</option>
-                            <option value="2" data-balance="750.50" data-credit="5000.00" data-phone="07801234567">صيدلية النور الطبية - CUST002 (07801234567)</option>
-                            <option value="3" data-balance="2250.75" data-credit="15000.00" data-phone="07701234567">مستشفى بغداد التخصصي - CUST003 (07701234567)</option>
+                            @foreach($customers as $customer)
+                                <option value="{{ $customer->id }}"
+                                        data-balance="{{ $customer->current_balance ?? 0 }}"
+                                        data-credit="{{ $customer->credit_limit ?? 0 }}"
+                                        data-phone="{{ $customer->phone ?? '' }}">
+                                    {{ $customer->name }}
+                                    @if($customer->customer_code) - {{ $customer->customer_code }} @endif
+                                    @if($customer->phone) ({{ $customer->phone }}) @endif
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -418,11 +429,15 @@
                             <td>
                                 <select name="items[0][product_id]" required class="table-select product-select" onchange="updateProductPrice(this, 0)">
                                     <option value="">اختر المنتج...</option>
-                                    <option value="1" data-price="15.50" data-stock="100">باراسيتامول 500 مجم - PARA500 (المخزون: 100)</option>
-                                    <option value="2" data-price="25.00" data-stock="75">أموكسيسيلين 250 مجم - AMOX250 (المخزون: 75)</option>
-                                    <option value="3" data-price="35.75" data-stock="50">فيتامين د 1000 وحدة - VITD1000 (المخزون: 50)</option>
-                                    <option value="4" data-price="45.25" data-stock="30">أوميجا 3 كبسولات - OMEGA3 (المخزون: 30)</option>
-                                    <option value="5" data-price="12.00" data-stock="200">أسبرين 100 مجم - ASP100 (المخزون: 200)</option>
+                                    @foreach($products as $product)
+                                        <option value="{{ $product->id }}"
+                                                data-price="{{ $product->selling_price ?? $product->unit_price ?? 0 }}"
+                                                data-stock="{{ $product->stock_quantity ?? 0 }}">
+                                            {{ $product->name }}
+                                            @if($product->product_code) - {{ $product->product_code }} @endif
+                                            (المخزون: {{ $product->stock_quantity ?? 0 }})
+                                        </option>
+                                    @endforeach
                                 </select>
                             </td>
                             <td>
