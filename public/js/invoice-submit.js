@@ -50,10 +50,10 @@ function submitInvoice() {
         console.log(`  ${key}: ${value}`);
     }
     
-    const actionUrl = form.getAttribute('action');
+    const actionUrl = '/tenant/sales/invoices/simple-test';
     console.log('📤 Submitting to:', actionUrl);
     console.log('🔍 Full URL will be:', window.location.origin + actionUrl);
-    console.log('🔧 Using original route (middleware removed)');
+    console.log('🔧 Using simple test route');
     
     // Show loading
     const button = event.target;
