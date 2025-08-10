@@ -192,20 +192,20 @@
         max-width: 95%;
         margin: 10px;
     }
-    
+
     .invoice-info-grid {
         grid-template-columns: 1fr !important;
         gap: 20px !important;
     }
-    
+
     .invoice-totals-preview > div {
         grid-template-columns: 1fr !important;
     }
-    
+
     .preview-table {
         font-size: 12px;
     }
-    
+
     .preview-table th,
     .preview-table td {
         padding: 8px 4px !important;
@@ -217,12 +217,12 @@
     .modal-footer {
         display: none !important;
     }
-    
+
     .modal-content {
         box-shadow: none !important;
         border: none !important;
     }
-    
+
     .modal-body {
         padding: 0 !important;
     }
@@ -233,19 +233,35 @@
 // Preview Modal Functions
 function showInvoicePreview() {
     updatePreviewContent();
-    $('#invoicePreviewModal').modal('show');
+    const modal = document.getElementById('invoicePreviewModal');
+    // Ensure CSS class exists when not using Bootstrap modal
+    if (!document.getElementById('invoicePreviewModalStyle')) {
+        const style = document.createElement('style');
+        style.id = 'invoicePreviewModalStyle';
+        style.textContent = `.modal.show{display:flex!important;align-items:center;justify-content:center}`;
+        document.head.appendChild(style);
+    }
+
+    if (!modal) return;
+    if (window.jQuery && typeof window.jQuery.fn.modal === 'function') {
+        window.jQuery('#invoicePreviewModal').modal('show');
+    } else {
+        modal.style.display = 'flex';
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function updatePreviewContent() {
     // Get form data
     const form = document.getElementById('invoiceForm');
     const formData = new FormData(form);
-    
+
     // Update basic info
     document.getElementById('previewInvoiceDate').textContent = formData.get('invoice_date') || '-';
     document.getElementById('previewDueDate').textContent = formData.get('due_date') || '-';
     document.getElementById('previewSalesRep').textContent = formData.get('sales_representative') || '-';
-    
+
     // Update customer info
     const customerSelect = document.getElementById('customerSelect');
     const selectedCustomer = customerSelect.options[customerSelect.selectedIndex];
@@ -255,13 +271,13 @@ function updatePreviewContent() {
         document.getElementById('previewPreviousBalance').textContent = (parseFloat(selectedCustomer.dataset.previousBalance || 0)).toFixed(2) + ' د.ع';
         document.getElementById('previewCreditLimit').textContent = (parseFloat(selectedCustomer.dataset.creditLimit || 0)).toFixed(2) + ' د.ع';
     }
-    
+
     // Update items
     updatePreviewItems();
-    
+
     // Update totals
     updatePreviewTotals();
-    
+
     // Update notes
     const notes = formData.get('notes');
     if (notes && notes.trim()) {
@@ -275,9 +291,9 @@ function updatePreviewContent() {
 function updatePreviewItems() {
     const tbody = document.getElementById('previewItemsBody');
     tbody.innerHTML = '';
-    
+
     const productSelects = document.querySelectorAll('select[name*="[product_id]"]');
-    
+
     productSelects.forEach((select, index) => {
         if (select.value) {
             const selectedOption = select.options[select.selectedIndex];
@@ -286,7 +302,7 @@ function updatePreviewItems() {
             const discount = document.querySelector(`input[name="items[${index}][discount_amount]"]`).value || 0;
             const freeSamples = document.querySelector(`input[name="items[${index}][free_samples]"]`).value || 0;
             const total = document.querySelector(`input[name="items[${index}][total_amount]"]`).value || 0;
-            
+
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;">${selectedOption.textContent}</td>
@@ -309,7 +325,7 @@ function updatePreviewTotals() {
     const previousBalance = parseFloat(document.getElementById('previousBalance').value || 0);
     const creditLimit = parseFloat(document.getElementById('creditLimit').value || 0);
     const totalDebt = previousBalance + total;
-    
+
     document.getElementById('previewSubtotal').textContent = subtotal.toFixed(2) + ' د.ع';
     document.getElementById('previewTotalDiscount').textContent = discount.toFixed(2) + ' د.ع';
     document.getElementById('previewFreeSamples').textContent = freeSamples;
@@ -317,7 +333,7 @@ function updatePreviewTotals() {
     document.getElementById('previewPrevBalance').textContent = previousBalance.toFixed(2) + ' د.ع';
     document.getElementById('previewInvoiceAmount').textContent = total.toFixed(2) + ' د.ع';
     document.getElementById('previewTotalDebt').textContent = totalDebt.toFixed(2) + ' د.ع';
-    
+
     // Show credit warning if needed
     const warningElement = document.getElementById('previewCreditWarning');
     if (creditLimit > 0 && totalDebt > creditLimit) {
@@ -334,13 +350,27 @@ function printPreview() {
 }
 
 function confirmAndSave() {
-    $('#invoicePreviewModal').modal('hide');
-    
+    const modal = document.getElementById('invoicePreviewModal');
+    if (window.jQuery && typeof window.jQuery.fn.modal === 'function') {
+        window.jQuery('#invoicePreviewModal').modal('hide');
+    } else if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
     // Submit the form with finalize action
     const form = document.getElementById('invoiceForm');
     const finalizeButton = document.querySelector('button[value="finalize"]');
     if (finalizeButton) {
         finalizeButton.click();
+    } else if (form) {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'action';
+        hidden.value = 'finalize';
+        form.appendChild(hidden);
+        form.submit();
     }
 }
 </script>
