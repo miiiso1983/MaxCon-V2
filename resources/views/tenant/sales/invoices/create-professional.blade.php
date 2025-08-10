@@ -3761,7 +3761,7 @@ console.log('Form submission event listener disabled - using onclick submitInvoi
 </script>
 
 <!-- Simple invoice submission script -->
-<script src="{{ asset('js/invoice-submit.js') }}"></script>
+<script src="{{ asset('js/invoice-submit.js') }}?v={{ time() }}"></script>
 
 <!-- jQuery external loading removed to avoid CSP issues -->
     console.log('Form action:', this.getAttribute('action'));
