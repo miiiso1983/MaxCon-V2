@@ -437,8 +437,10 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 5px; justify-content: center;">
-                                        <a href="{{ route('tenant.sales.invoices.show', $invoice) }}"
-                                           class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">
+                                        <a href="{{ route('tenant.sales.invoices.show', ['invoice' => $invoice->id]) }}"
+                                           class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;"
+                                           target="_blank" rel="noopener"
+                                           onclick="event.stopPropagation();">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <a href="{{ route('tenant.sales.invoices.edit', $invoice) }}"

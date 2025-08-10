@@ -242,7 +242,8 @@
                         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                             <!-- عرض الفاتورة -->
                             @canAccessInvoice($invoice)
-                            <a href="{{ route('tenant.sales.invoices.show', $invoice) }}"
+                            <a href="{{ route('tenant.sales.invoices.show', ['invoice' => $invoice->id]) }}"
+                               data-action="view-invoice"
                                style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(66, 153, 225, 0.3); margin: 2px;"
                                title="عرض التفاصيل"
                                onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(66, 153, 225, 0.4)';"
