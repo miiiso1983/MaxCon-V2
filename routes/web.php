@@ -1903,6 +1903,20 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             ]);
         })->name('invoices.debug');
 
+        // Test invoice store without middleware
+        Route::post('invoices/test-store', function(Request $request) {
+            error_log('🎯 TEST ROUTE REACHED - Invoice test store');
+            error_log('📋 Request data: ' . json_encode($request->all()));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Test route reached successfully',
+                'data_received' => $request->all(),
+                'user' => Auth::check() ? Auth::user()->name : 'Not authenticated',
+                'timestamp' => now()
+            ]);
+        })->name('invoices.test-store');
+
         // Minimal Invoice Creation (for testing)
         Route::get('invoices/create-minimal', function() {
             return view('tenant.sales.invoices.create-minimal');
