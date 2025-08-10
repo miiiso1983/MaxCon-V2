@@ -2576,7 +2576,7 @@
                         <i class="fas fa-save"></i>
                         حفظ كمسودة
                     </button>
-                    <button type="submit" name="action" value="finalize" class="btn btn-success">
+                    <button type="button" onclick="submitInvoice()" class="btn btn-success">
                         <i class="fas fa-check-circle"></i>
                         إنهاء وحفظ الفاتورة
                     </button>
@@ -3652,6 +3652,53 @@ function showNotification(message, type = 'info', duration = 3000) {
     alert(message);
 }
 
+// Simple submit function
+function submitInvoice() {
+    console.log('🚀 Submit invoice button clicked!');
+
+    // Validate form
+    if (!validateForm()) {
+        console.log('❌ Form validation failed');
+        return;
+    }
+
+    console.log('✅ Form validation passed - submitting...');
+
+    const form = document.getElementById('invoiceForm');
+    const formData = new FormData(form);
+
+    // Add finalize action
+    formData.append('action', 'finalize');
+
+    console.log('📤 Submitting to:', form.getAttribute('action'));
+
+    fetch(form.getAttribute('action'), {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': formData.get('_token')
+        }
+    })
+    .then(response => {
+        console.log('🎯 Response:', response.status, response.statusText);
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            return response.text();
+        }
+    })
+    .then(data => {
+        if (data) {
+            console.log('📄 Response data:', data);
+        }
+    })
+    .catch(error => {
+        console.log('❌ Error:', error);
+        alert('حدث خطأ أثناء حفظ الفاتورة');
+    });
+}
+
 // Simple notification function (removed duplicate)
 
 // Simplified form validation for debugging
@@ -3707,18 +3754,13 @@ function validateForm() {
     return true;
 }
 
-// Form submission with enhanced validation and debugging
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('invoiceForm');
-    if (!form) {
-        console.log('❌ Form not found!');
-        return;
-    }
+// Form submission disabled - using onclick instead
+console.log('Form submission event listener disabled - using onclick submitInvoice() instead');
 
-    console.log('✅ Form found, adding event listener...');
-    form.addEventListener('submit', function(e) {
-    console.log('🚀 Form submission event triggered!');
-    console.log('Form element:', this);
+// End of script
+</script>
+
+<!-- jQuery external loading removed to avoid CSP issues -->
     console.log('Form action:', this.getAttribute('action'));
     console.log('Form method:', this.getAttribute('method'));
     console.log('Event object:', e);
