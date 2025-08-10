@@ -2576,7 +2576,7 @@
                         <i class="fas fa-save"></i>
                         حفظ كمسودة
                     </button>
-                    <button type="button" onclick="submitInvoice()" class="btn btn-success">
+                    <button type="button" onclick="console.log('Button clicked!'); submitInvoice();" class="btn btn-success">
                         <i class="fas fa-check-circle"></i>
                         إنهاء وحفظ الفاتورة
                     </button>
@@ -3762,6 +3762,31 @@ console.log('Form submission event listener disabled - using onclick submitInvoi
 
 <!-- Simple invoice submission script -->
 <script src="{{ asset('js/invoice-submit.js') }}?v={{ time() }}"></script>
+
+<script>
+console.log('🔧 Inline script loaded - checking if submitInvoice exists');
+setTimeout(() => {
+    if (typeof submitInvoice === 'function') {
+        console.log('✅ submitInvoice function is available');
+    } else {
+        console.log('❌ submitInvoice function NOT available');
+        console.log('🔧 Creating fallback submitInvoice function');
+
+        window.submitInvoice = function() {
+            console.log('🚀 Fallback submitInvoice called!');
+
+            const form = document.getElementById('invoiceForm');
+            if (!form) {
+                alert('خطأ: لم يتم العثور على النموذج');
+                return;
+            }
+
+            console.log('📤 Submitting form directly...');
+            form.submit();
+        };
+    }
+}, 1000);
+</script>
 
 <!-- jQuery external loading removed to avoid CSP issues -->
 
