@@ -4,6 +4,7 @@ console.log('Invoice submit script loaded');
 // Simple submit function
 function submitInvoice(btn) {
     console.log('🚀 Submit invoice button clicked!');
+    try { new Intl.Collator('ar-IQ'); } catch (e) { /* no-op */ }
     
     // Get form
     const form = document.getElementById('invoiceForm');

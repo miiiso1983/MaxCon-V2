@@ -3761,7 +3761,7 @@ console.log('Form submission event listener disabled - using onclick submitInvoi
 </script>
 
 <!-- Simple invoice submission script -->
-<script src="{{ asset('js/invoice-submit.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/invoice-submit.js') }}?v={{ time() }}" charset="utf-8"></script>
 
 <script>
 console.log('🔧 Inline script loaded - checking if submitInvoice exists');
