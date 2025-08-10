@@ -284,10 +284,10 @@
     <!-- Invoice Header -->
     <div class="invoice-header">
         <div class="company-logo">
-            {{ substr($invoice->tenant->name ?? 'ماكس', 0, 2) }}
+            {{ substr($invoice->tenant?->name ?? 'ماكس', 0, 2) }}
         </div>
         <h1 style="font-size: 42px; font-weight: 700; margin: 0; position: relative; z-index: 2;">
-            {{ $invoice->tenant->name ?? 'شركة ماكس كون' }}
+            {{ $invoice->tenant?->name ?? 'شركة ماكس كون' }}
         </h1>
         <p style="font-size: 20px; margin: 15px 0 0 0; opacity: 0.9; position: relative; z-index: 2;">
             فاتورة رقم {{ $invoice->invoice_number }}
@@ -339,11 +339,11 @@
                 <h4><i class="fas fa-file-invoice" style="color: #667eea;"></i> تفاصيل الفاتورة</h4>
                 <div class="detail-item">
                     <span class="detail-label">تاريخ الفاتورة:</span>
-                    <span class="detail-value">{{ $invoice->invoice_date->format('Y/m/d') }}</span>
+                    <span class="detail-value">{{ optional($invoice->invoice_date)->format('Y/m/d') ?? '-' }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">تاريخ الاستحقاق:</span>
-                    <span class="detail-value">{{ $invoice->due_date->format('Y/m/d') }}</span>
+                    <span class="detail-value">{{ optional($invoice->due_date)->format('Y/m/d') ?? '-' }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">العملة:</span>
@@ -566,7 +566,7 @@
             <i class="fas fa-download" style="margin-left: 8px;"></i>
             تحميل PDF
         </a>
-        @if($invoice->customer->phone)
+        @if(optional($invoice->customer)->phone)
         <button onclick="sendWhatsAppFromShow({{ $invoice->id }}, '{{ $invoice->customer->phone }}', '{{ addslashes($invoice->invoice_number) }}')"
                 class="action-btn"
                 style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color: white;">
@@ -574,7 +574,7 @@
             إرسال واتساب
         </button>
         @endif
-        @if($invoice->customer->email)
+        @if(optional($invoice->customer)->email)
         <button onclick="showEmailModalFromShow({{ $invoice->id }}, '{{ $invoice->customer->email }}')"
                 class="action-btn"
                 style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;">
