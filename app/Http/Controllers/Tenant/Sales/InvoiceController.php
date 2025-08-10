@@ -357,19 +357,36 @@ class InvoiceController extends Controller
             $invoice->generateQrCode();
             Log::info('QR Code generated', ['qr_code_length' => strlen($invoice->qr_code ?? '')]);
 
-            // Create invoice items
+            // Create invoice items (fill only existing DB columns to avoid SQL unknown column errors)
+            $itemColumns = Schema::getColumnListing('invoice_items');
             foreach ($validated['items'] as $itemData) {
                 $product = Product::find($itemData['product_id']);
 
+                $computedTotal = $itemData['total_amount'] ?? ($itemData['quantity'] * $itemData['unit_price']);
+
+                $baseItem = [
+                    'invoice_id' => $invoice->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->name ?? null,
+                    'product_code' => $product->product_code ?? null,
+                    'quantity' => $itemData['quantity'],
+                    'unit_price' => $itemData['unit_price'],
+                    'discount_amount' => $itemData['discount_amount'] ?? 0,
+                    'discount_type' => $itemData['discount_type'] ?? 'fixed',
+                    'line_total' => $computedTotal, // fallback if column exists
+                    'total_amount' => $computedTotal,
+                    'notes' => $itemData['notes'] ?? null,
+                ];
+
+                $filteredItem = [];
+                foreach ($baseItem as $key => $value) {
+                    if (in_array($key, $itemColumns, true)) {
+                        $filteredItem[$key] = $value;
+                    }
+                }
+
                 $invoiceItem = new InvoiceItem();
-                $invoiceItem->invoice_id = $invoice->id;
-                $invoiceItem->product_id = $product->id;
-                $invoiceItem->quantity = $itemData['quantity'];
-                $invoiceItem->unit_price = $itemData['unit_price'];
-                $invoiceItem->discount_amount = $itemData['discount_amount'] ?? 0;
-                $invoiceItem->discount_type = $itemData['discount_type'] ?? 'fixed';
-                $invoiceItem->total_amount = $itemData['total_amount'] ?? ($itemData['quantity'] * $itemData['unit_price']);
-                $invoiceItem->notes = $itemData['notes'] ?? null;
+                $invoiceItem->fill($filteredItem);
                 $invoiceItem->save();
 
                 // Update product stock if invoice is finalized (sent)
