@@ -454,7 +454,8 @@ class InvoiceController extends Controller
             abort(403);
         }
 
-        $invoice->load(['customer', 'items.product', 'createdBy', 'salesOrder', 'payments']);
+        // Eager load tenant as the view references $invoice->tenant
+        $invoice->load(['customer', 'items.product', 'createdBy', 'salesOrder', 'payments', 'tenant']);
 
         // Generate products QR code for this invoice
         $productsQRData = $this->generateProductsQRCode($user->tenant_id);
