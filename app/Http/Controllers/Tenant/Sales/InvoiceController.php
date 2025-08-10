@@ -387,7 +387,8 @@ class InvoiceController extends Controller
                 }
 
                 $invoiceItem = new InvoiceItem();
-                $invoiceItem->fill($filteredItem);
+                // Use forceFill to allow setting columns not in model $fillable (e.g., total_price in some schemas)
+                $invoiceItem->forceFill($filteredItem);
                 $invoiceItem->save();
 
                 // Update product stock if invoice is finalized (sent)
