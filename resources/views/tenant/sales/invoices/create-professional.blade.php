@@ -2122,7 +2122,7 @@
             </div>
         </div>
 
-        <form id="invoiceForm" method="POST" action="{{ route('tenant.sales.invoices.store') }}" onsubmit="console.log('🔥 FORM ONSUBMIT TRIGGERED - Action:', this.getAttribute('action'));">
+        <form id="invoiceForm" method="POST" action="{{ route('tenant.sales.invoices.store') }}">
             @csrf
             
             <div class="invoice-grid">
@@ -3774,16 +3774,46 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         console.log('🎯 Form method before manual submit:', this.getAttribute('method'));
 
         try {
-            console.log('📤 Calling this.submit()...');
+            console.log('📤 Creating new form data and submitting...');
 
-            // Force the form to submit to the correct URL
-            this.setAttribute('action', '{{ route("tenant.sales.invoices.store") }}');
-            this.setAttribute('method', 'POST');
+            // Create FormData from the form
+            const formData = new FormData(this);
+            console.log('📋 Form data created:', formData);
 
-            console.log('🔧 Forced action to:', this.getAttribute('action'));
-            console.log('🔧 Forced method to:', this.getAttribute('method'));
+            // Log form data contents
+            for (let [key, value] of formData.entries()) {
+                console.log(`📝 ${key}: ${value}`);
+            }
 
-            this.submit();
+            // Use fetch to submit the form
+            fetch(this.getAttribute('action'), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                console.log('🎯 Response received:', response.status, response.statusText);
+                if (response.redirected) {
+                    console.log('🔄 Redirecting to:', response.url);
+                    window.location.href = response.url;
+                } else {
+                    return response.text();
+                }
+            })
+            .then(data => {
+                if (data) {
+                    console.log('📄 Response data:', data);
+                }
+            })
+            .catch(error => {
+                console.log('❌ Fetch failed:', error);
+                // Fallback to normal form submission
+                console.log('🔄 Falling back to normal form submission...');
+                this.submit();
+            });
+
             console.log('✅ Manual submission triggered - no errors thrown');
         } catch (error) {
             console.log('❌ Manual submission failed:', error);
