@@ -3772,13 +3772,15 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         console.log('🔧 Attempting manual form submission...');
         console.log('🎯 Form action before manual submit:', this.getAttribute('action'));
         console.log('🎯 Form method before manual submit:', this.getAttribute('method'));
+        console.log('🚀 Starting fetch process...');
 
         try {
             console.log('📤 Creating new form data and submitting...');
 
             // Create FormData from the form
+            console.log('🔄 Creating FormData...');
             const formData = new FormData(this);
-            console.log('📋 Form data created:', formData);
+            console.log('📋 Form data created successfully:', formData);
 
             // Log form data contents
             for (let [key, value] of formData.entries()) {
@@ -3786,6 +3788,7 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
             }
 
             // Use fetch to submit the form
+            console.log('🌐 Starting fetch request to:', this.getAttribute('action'));
             fetch(this.getAttribute('action'), {
                 method: 'POST',
                 body: formData,
