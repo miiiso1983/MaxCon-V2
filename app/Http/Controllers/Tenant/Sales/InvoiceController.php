@@ -214,6 +214,12 @@ class InvoiceController extends Controller
             'items.*.notes' => 'nullable|string',
         ]);
 
+        // Load customer from DB to enforce credit policies correctly
+        $customer = Customer::find($validated['customer_id']);
+        if (!$customer || $customer->tenant_id !== $user->tenant_id) {
+            return back()->withInput()->with('error', 'العميل غير صالح لهذا المستأجر');
+        }
+
         // Check stock availability for each item
         foreach ($validated['items'] as $index => $itemData) {
             $product = Product::find($itemData['product_id']);
@@ -295,14 +301,16 @@ class InvoiceController extends Controller
             $invoice->subtotal_amount = $subtotal;
             $invoice->tax_amount = $taxAmount;
             $invoice->total_amount = $totalAmount;
-            $invoice->previous_balance = $validated['previous_balance'] ?? 0;
-            $invoice->credit_limit = $validated['credit_limit'] ?? 0;
+            // Snapshot of customer's balances at time of invoice
+            $invoice->previous_balance = $validated['previous_balance'] ?? (($customer->previous_debt ?? 0) + ($customer->current_balance ?? 0));
+            $invoice->credit_limit = $customer->credit_limit ?? 0;
             $invoice->warehouse_name = $validated['warehouse_name'] ?? null;
 
-            // Enforce credit limit if finalizing
-            if (($request->input('action') === 'finalize') && ($invoice->credit_limit > 0)) {
-                $totalDebt = ($invoice->previous_balance ?? 0) + $totalAmount;
-                if ($totalDebt > $invoice->credit_limit) {
+            // Enforce credit limit if finalizing (use customer's real balances)
+            if ($request->input('action') === 'finalize') {
+                $projectedDebt = ($customer->previous_debt ?? 0) + ($customer->current_balance ?? 0) + $totalAmount;
+                $creditLimit = $customer->credit_limit ?? 0;
+                if ($creditLimit > 0 && $projectedDebt > $creditLimit) {
                     return back()->withInput()->withErrors([
                         'credit_limit' => 'لا يمكن إنهاء الفاتورة: إجمالي المديونية يتجاوز سقف المديونية المحدد للعميل.'
                     ]);
@@ -337,9 +345,14 @@ class InvoiceController extends Controller
 
                 // Update product stock if invoice is finalized (sent)
                 if ($invoice->status === 'sent') {
-                    $product->current_stock -= $itemData['quantity'];
-                    $product->save();
+                    // Product model maps current_stock accessor to stock_quantity; use method to ensure correct column
+                    $product->updateStock($itemData['quantity'], 'subtract');
                 }
+            }
+
+            // Update customer balance if finalized (sent)
+            if ($invoice->status === 'sent') {
+                $customer->updateBalance($totalAmount, 'add');
             }
 
             // Generate QR Code if finalized (sent)
