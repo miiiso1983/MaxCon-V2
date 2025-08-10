@@ -150,6 +150,9 @@ class InvoiceController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // FIRST: Log that we reached the controller
+        error_log('🎯 CONTROLLER REACHED - Invoice store method called');
+
         // Debug: Log the request data
         Log::info('🚀 Invoice store request received:', [
             'url' => $request->url(),
