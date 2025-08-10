@@ -48,11 +48,7 @@
           crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- Fallback Font Awesome -->
-    <script>
-        if (!window.FontAwesome) {
-            document.write('<link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">');
-        }
-    </script>
+    {{-- Removed line-awesome fallback to satisfy CSP --}}
 
     <!-- Custom Select Styles -->
     <link rel="stylesheet" href="{{ asset('css/custom-select.css') }}">
@@ -2123,8 +2119,29 @@
         </div>
 
         <form id="invoiceForm" method="POST" action="{{ route('tenant.sales.invoices.store') }}">
+            @if(session('success'))
+                <div class="alert alert-success" role="alert" style="margin:10px 0">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger" role="alert" style="margin:10px 0">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if($errors->any())
+                <div class="alert alert-danger" role="alert" style="margin:10px 0">
+                    <div style="font-weight:bold; margin-bottom:6px">حدثت أخطاء أثناء الحفظ:</div>
+                    <ul style="margin:0; padding-inline-start:18px">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             @csrf
-            
+
             <div class="invoice-grid">
                 <!-- Main Form -->
                 <div class="main-form">
@@ -2136,11 +2153,11 @@
                             </div>
                             معلومات العميل
                         </div>
-                        
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label required">العميل</label>
-                                <select name="customer_id" required class="form-control" data-custom-select 
+                                <select name="customer_id" required class="form-control" data-custom-select
                                         data-placeholder="اختر العميل" data-searchable="true" id="customerSelect">
                                     <option value="">اختر العميل</option>
                                     @foreach($customers as $customer)
@@ -2149,7 +2166,7 @@
                                                 data-previous-balance="{{ $customer->current_balance ?? ($customer->previous_balance ?? 0) }}"
                                                 data-phone="{{ $customer->phone ?? '' }}"
                                                 {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
-                                            {{ $customer->name }} 
+                                            {{ $customer->name }}
                                             @if($customer->customer_code)
                                                 ({{ $customer->customer_code }})
                                             @endif
@@ -2166,33 +2183,33 @@
                                     </div>
                                 @enderror
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="form-label">تاريخ الفاتورة</label>
-                                <input type="date" name="invoice_date" class="form-control" 
+                                <input type="date" name="invoice_date" class="form-control"
                                        value="{{ old('invoice_date', date('Y-m-d')) }}" required>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="form-label">تاريخ الاستحقاق</label>
-                                <input type="date" name="due_date" class="form-control" 
+                                <input type="date" name="due_date" class="form-control"
                                        value="{{ old('due_date', date('Y-m-d', strtotime('+30 days'))) }}">
                             </div>
                         </div>
-                        
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">المندوب</label>
-                                <input type="text" name="sales_representative" class="form-control" 
+                                <input type="text" name="sales_representative" class="form-control"
                                        placeholder="اسم المندوب" value="{{ old('sales_representative') }}">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="form-label">المستودع</label>
-                                <input type="text" name="warehouse_name" class="form-control" 
+                                <input type="text" name="warehouse_name" class="form-control"
                                        placeholder="اسم المستودع" value="{{ old('warehouse_name', 'المستودع الرئيسي') }}">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="form-label">نوع الفاتورة</label>
                                 <select name="type" class="form-control" data-custom-select>
@@ -2211,7 +2228,7 @@
                             </div>
                             عناصر الفاتورة
                         </div>
-                        
+
                         <table class="items-table" id="itemsTable">
                             <thead>
                                 <tr>
@@ -2305,7 +2322,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        
+
                         <button type="button" onclick="addItem()" class="add-item-btn">
                             <i class="fas fa-plus"></i>
                             إضافة منتج
@@ -2320,17 +2337,17 @@
                             </div>
                             معلومات إضافية
                         </div>
-                        
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">ملاحظات</label>
-                                <textarea name="notes" class="form-control" rows="3" 
+                                <textarea name="notes" class="form-control" rows="3"
                                           placeholder="ملاحظات إضافية...">{{ old('notes') }}</textarea>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="form-label">شروط الدفع</label>
-                                <textarea name="payment_terms" class="form-control" rows="3" 
+                                <textarea name="payment_terms" class="form-control" rows="3"
                                           placeholder="شروط وأحكام الدفع...">{{ old('payment_terms', 'الدفع خلال 30 يوم من تاريخ الفاتورة') }}</textarea>
                             </div>
                         </div>
@@ -2777,9 +2794,9 @@ function updateDebtCalculation(invoiceTotal) {
     const previousBalance = parseFloat(document.getElementById('previousBalance').value || 0);
     const creditLimit = parseFloat(document.getElementById('creditLimit').value || 0);
     const totalDebt = previousBalance + invoiceTotal;
-    
+
     document.getElementById('totalDebtDisplay').textContent = totalDebt.toFixed(2) + ' د.ع';
-    
+
     // Show/hide credit warning
     const warningElement = document.getElementById('creditWarning');
     if (creditLimit > 0 && totalDebt > creditLimit) {
@@ -3041,7 +3058,7 @@ function unifiedMouseLeaveHandler() {
 function updateRemoveButtons() {
     const rows = document.querySelectorAll('#invoiceItems tr');
     const removeButtons = document.querySelectorAll('.remove-item-btn');
-    
+
     removeButtons.forEach((btn, index) => {
         btn.disabled = rows.length <= 1;
     });
@@ -3767,7 +3784,7 @@ function validateForm() {
 {{-- Removed custom JS submit to rely on normal form POST --}}
 
 <script>
-console.log('🔧 Inline script loaded - checking if submitInvoice exists');
+/* inline check disabled */
 setTimeout(() => {
     if (typeof submitInvoice === 'function') {
         console.log('✅ submitInvoice function is available');
@@ -3796,7 +3813,7 @@ setTimeout(() => {
 <!-- Additional fallback with inline jQuery if CDNs fail -->
 <script>
     if (!window.jQuery) {
-        console.warn('jQuery failed to load from CDNs, using minimal fallback');
+        /* jQuery fallback disabled */
         window.$ = window.jQuery = function(selector) {
             if (typeof selector === 'function') {
                 if (document.readyState === 'loading') {

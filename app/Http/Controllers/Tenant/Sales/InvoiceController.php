@@ -194,7 +194,7 @@ class InvoiceController extends Controller
             'shipping_cost' => 'nullable|numeric|min:0',
             'additional_charges' => 'nullable|numeric|min:0',
             'discount_amount' => 'nullable|numeric|min:0',
-            'discount_type' => 'nullable|in:fixed,percentage',
+            'discount_type' => 'nullable|in:fixed,percentage,amount',
             'warehouse_name' => 'nullable|string|max:255',
             'subtotal_amount' => 'nullable|numeric|min:0',
             'tax_amount' => 'nullable|numeric|min:0',
