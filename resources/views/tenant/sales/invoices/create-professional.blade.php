@@ -3652,8 +3652,11 @@ function showNotification(message, type = 'info', duration = 3000) {
     alert(message);
 }
 
-// Simple submit function
+// Simple submit function (disabled in favor of standard form submission)
 function submitInvoice() {
+    // NO-OP: standard form submit is used now
+    return true;
+
     console.log('🚀 Submit invoice button clicked!');
 
     // Validate form
@@ -3754,8 +3757,8 @@ function validateForm() {
     return true;
 }
 
-// Form submission disabled - using onclick instead
-console.log('Form submission event listener disabled - using onclick submitInvoice() instead');
+// Enable normal form submission
+// (Removed custom JS handler)
 
 // End of script
 </script>
@@ -3851,8 +3854,7 @@ setTimeout(() => {
         document.head.appendChild(script);
     }
 
-    // Scripts loading disabled to avoid CSP issues
-    console.log('Scripts loading disabled for debugging');
+    // Scripts loading enabled
 </script>
 
 <!-- Block problematic external scripts and initialize enhanced features -->
