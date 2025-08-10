@@ -2576,7 +2576,7 @@
                         <i class="fas fa-save"></i>
                         حفظ كمسودة
                     </button>
-                    <button type="button" onclick="console.log('Button clicked!'); submitInvoice();" class="btn btn-success">
+                    <button type="button" onclick="console.log('Button clicked!'); submitInvoice(this);" class="btn btn-success">
                         <i class="fas fa-check-circle"></i>
                         إنهاء وحفظ الفاتورة
                     </button>

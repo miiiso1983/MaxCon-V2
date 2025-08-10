@@ -2,7 +2,7 @@
 console.log('Invoice submit script loaded');
 
 // Simple submit function
-function submitInvoice() {
+function submitInvoice(btn) {
     console.log('🚀 Submit invoice button clicked!');
     
     // Get form
@@ -56,7 +56,7 @@ function submitInvoice() {
     console.log('🔧 Using production route');
     
     // Show loading
-    const button = event.target;
+    const button = btn || event?.target || document.querySelector('button[onclick*="submitInvoice"]');
     const originalText = button.innerHTML;
     button.disabled = true;
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
