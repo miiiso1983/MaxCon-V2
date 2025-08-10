@@ -3793,16 +3793,32 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || formData.get('_token')
                 }
             })
             .then(response => {
                 console.log('🎯 Response received:', response.status, response.statusText);
+                console.log('🔍 Response details:', {
+                    ok: response.ok,
+                    redirected: response.redirected,
+                    url: response.url,
+                    type: response.type,
+                    headers: Object.fromEntries(response.headers.entries())
+                });
+
                 if (response.redirected) {
                     console.log('🔄 Redirecting to:', response.url);
                     window.location.href = response.url;
-                } else {
+                } else if (response.ok) {
+                    console.log('✅ Response OK - processing...');
                     return response.text();
+                } else {
+                    console.log('❌ Response not OK - status:', response.status);
+                    return response.text().then(text => {
+                        console.log('❌ Error response body:', text);
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    });
                 }
             })
             .then(data => {
