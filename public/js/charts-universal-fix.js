@@ -8,16 +8,26 @@
 
     // Wait for DOM and Chart.js to be ready
     function initCharts() {
-        console.log('Starting chart initialization...');
+        // Detect if any known chart canvases exist on this page
+        const knownIds = ['revenueChart','categoryChart','customerSegmentsChart','marketShareChart','performanceChart','goalsChart','riskMatrixChart','revenueProfitChart','marginTrendsChart'];
+        const hasAnyCanvas = knownIds.some(id => document.getElementById(id));
+        if (!hasAnyCanvas && !window.__FORCE_CHARTS__) {
+            // No charts on this page -> skip loading and logs to reduce console noise
+            return;
+        }
+
+        if (window.__DEBUG_CHARTS__) {
+            console.log('Starting chart initialization...');
+        }
 
         // Check if Chart.js is loaded
         if (typeof Chart === 'undefined') {
-            console.log('Chart.js not loaded, loading from CDN...');
+            if (window.__DEBUG_CHARTS__) console.log('Chart.js not loaded, loading from CDN...');
             loadChartJS();
             return;
         }
 
-        console.log('Chart.js is available, initializing charts...');
+        if (window.__DEBUG_CHARTS__) console.log('Chart.js is available, initializing charts...');
 
         // Set Chart.js defaults
         try {
@@ -44,11 +54,11 @@
         }
         window.chartJSLoading = true;
 
-        console.log('Loading Chart.js from CDN...');
+        if (window.__DEBUG_CHARTS__) console.log('Loading Chart.js from CDN...');
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
         script.onload = function() {
-            console.log('Chart.js loaded successfully from CDN');
+            if (window.__DEBUG_CHARTS__) console.log('Chart.js loaded successfully from CDN');
             window.chartJSLoading = false;
             setTimeout(initCharts, 200);
         };
@@ -63,7 +73,7 @@
 
     // Alternative CDN for Chart.js
     function loadChartJSAlternative() {
-        console.log('Trying alternative CDN for Chart.js...');
+        if (window.__DEBUG_CHARTS__) console.log('Trying alternative CDN for Chart.js...');
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js';
         script.onload = function() {
@@ -81,7 +91,7 @@
 
     // Destroy all existing charts
     function destroyAllCharts() {
-        console.log('Destroying all existing charts...');
+        if (window.__DEBUG_CHARTS__) console.log('Destroying all existing charts...');
         if (window.chartInstances) {
             Object.keys(window.chartInstances).forEach(chartId => {
                 try {
@@ -97,7 +107,7 @@
 
     // Initialize all analytics charts
     function initAnalyticsCharts() {
-        console.log('Initializing analytics charts...');
+        if (window.__DEBUG_CHARTS__) console.log('Initializing analytics charts...');
 
         // First destroy any existing charts
         destroyAllCharts();
@@ -119,27 +129,27 @@
         charts.forEach(chart => {
             const canvas = document.getElementById(chart.id);
             if (canvas) {
-                console.log(`Found canvas for ${chart.id}, initializing...`);
+                if (window.__DEBUG_CHARTS__) console.log(`Found canvas for ${chart.id}, initializing...`);
                 try {
                     // Clear any existing error messages
                     const container = canvas.parentElement;
                     if (container && container.innerHTML.includes('خطأ في تحميل الرسم البياني')) {
-                        container.innerHTML = `<canvas id="${chart.id}"></canvas>`;
+                        container.innerHTML = `<canvas id="${chart.id}"></canvas>`; // reset container if it had error placeholder
                     }
 
                     chart.init();
                     chartsInitialized++;
-                    console.log(`✅ ${chart.id} initialized successfully`);
+                    if (window.__DEBUG_CHARTS__) console.log(`✅ ${chart.id} initialized successfully`);
                 } catch (error) {
                     console.error(`❌ Error initializing ${chart.id}:`, error);
                     showChartError(chart.id, error.message);
                 }
             } else {
-                console.log(`Canvas ${chart.id} not found on this page`);
+                if (window.__DEBUG_CHARTS__) console.log(`Canvas ${chart.id} not found on this page`);
             }
         });
 
-        console.log(`Initialized ${chartsInitialized} charts successfully`);
+        if (window.__DEBUG_CHARTS__) console.log(`Initialized ${chartsInitialized} charts successfully`);
     }
 
     // Chart initialization functions
