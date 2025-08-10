@@ -2122,7 +2122,7 @@
             </div>
         </div>
 
-        <form id="invoiceForm" method="POST" action="{{ route('tenant.sales.invoices.store') }}" onsubmit="console.log('🔥 FORM ONSUBMIT TRIGGERED - Action:', this.action);">
+        <form id="invoiceForm" method="POST" action="{{ route('tenant.sales.invoices.store') }}" onsubmit="console.log('🔥 FORM ONSUBMIT TRIGGERED - Action:', this.getAttribute('action'));">
             @csrf
             
             <div class="invoice-grid">
@@ -3711,8 +3711,8 @@ function validateForm() {
 document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     console.log('🚀 Form submission event triggered!');
     console.log('Form element:', this);
-    console.log('Form action:', this.action);
-    console.log('Form method:', this.method);
+    console.log('Form action:', this.getAttribute('action'));
+    console.log('Form method:', this.getAttribute('method'));
     console.log('Event object:', e);
     console.log('Event defaultPrevented:', e.defaultPrevented);
 
@@ -3770,18 +3770,18 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 
         // Try manual submission as last resort
         console.log('🔧 Attempting manual form submission...');
-        console.log('🎯 Form action before manual submit:', this.action);
-        console.log('🎯 Form method before manual submit:', this.method);
+        console.log('🎯 Form action before manual submit:', this.getAttribute('action'));
+        console.log('🎯 Form method before manual submit:', this.getAttribute('method'));
 
         try {
             console.log('📤 Calling this.submit()...');
 
             // Force the form to submit to the correct URL
-            this.action = '{{ route("tenant.sales.invoices.store") }}';
-            this.method = 'POST';
+            this.setAttribute('action', '{{ route("tenant.sales.invoices.store") }}');
+            this.setAttribute('method', 'POST');
 
-            console.log('🔧 Forced action to:', this.action);
-            console.log('🔧 Forced method to:', this.method);
+            console.log('🔧 Forced action to:', this.getAttribute('action'));
+            console.log('🔧 Forced method to:', this.getAttribute('method'));
 
             this.submit();
             console.log('✅ Manual submission triggered - no errors thrown');
