@@ -63,14 +63,21 @@ function submitInvoice() {
     })
     .then(response => {
         console.log('🎯 Response:', response.status, response.statusText);
-        
-        if (response.ok) {
-            console.log('✅ Success! Redirecting...');
-            // Redirect to invoices list
-            window.location.href = '/tenant/sales/invoices';
-        } else {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+        console.log('🔍 Response URL:', response.url);
+        console.log('🔍 Response redirected:', response.redirected);
+
+        // Get response text to see what we actually received
+        return response.text().then(text => {
+            console.log('📄 Response content (first 500 chars):', text.substring(0, 500));
+
+            if (response.ok) {
+                console.log('✅ Success! Redirecting...');
+                // Redirect to invoices list
+                window.location.href = '/tenant/sales/invoices';
+            } else {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}\nContent: ${text.substring(0, 200)}`);
+            }
+        });
     })
     .catch(error => {
         console.log('❌ Error:', error);
