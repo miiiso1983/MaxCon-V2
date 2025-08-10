@@ -2576,7 +2576,7 @@
                         <i class="fas fa-save"></i>
                         حفظ كمسودة
                     </button>
-                    <button type="button" onclick="console.log('Button clicked!'); submitInvoice(this);" class="btn btn-success">
+                    <button type="submit" name="action" value="finalize" class="btn btn-success">
                         <i class="fas fa-check-circle"></i>
                         إنهاء وحفظ الفاتورة
                     </button>
@@ -3761,7 +3761,7 @@ console.log('Form submission event listener disabled - using onclick submitInvoi
 </script>
 
 <!-- Simple invoice submission script -->
-<script src="{{ asset('js/invoice-submit.js') }}?v={{ time() }}" charset="utf-8"></script>
+{{-- Removed custom JS submit to rely on normal form POST --}}
 
 <script>
 console.log('🔧 Inline script loaded - checking if submitInvoice exists');
