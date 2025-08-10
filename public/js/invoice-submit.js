@@ -43,8 +43,16 @@ function submitInvoice() {
     // Create form data
     const formData = new FormData(form);
     formData.append('action', 'finalize');
+
+    // Log form data for debugging
+    console.log('📋 Form data contents:');
+    for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}: ${value}`);
+    }
     
-    console.log('📤 Submitting to:', form.getAttribute('action'));
+    const actionUrl = form.getAttribute('action');
+    console.log('📤 Submitting to:', actionUrl);
+    console.log('🔍 Full URL will be:', window.location.origin + actionUrl);
     
     // Show loading
     const button = event.target;
