@@ -13,11 +13,17 @@ class InvoicePermissions
      */
     public function handle(Request $request, Closure $next, string $permission = null)
     {
+        // Debug: Log middleware access
+        error_log('🔒 InvoicePermissions middleware called - Permission: ' . ($permission ?? 'none'));
+
         $user = Auth::user();
-        
+
         if (!$user) {
+            error_log('❌ No user authenticated - redirecting to login');
             return redirect()->route('login')->with('error', 'يجب تسجيل الدخول أولاً');
         }
+
+        error_log('✅ User authenticated - ID: ' . $user->id . ', Role: ' . ($user->role ?? 'null'));
 
         // Check if user has tenant access
         if (!$user->tenant_id) {
@@ -42,9 +48,15 @@ class InvoicePermissions
         }
 
         // Check user role and permissions
-        if ($this->hasInvoicePermission($user, $permission)) {
+        $hasPermission = $this->hasInvoicePermission($user, $permission);
+        error_log('🔍 Permission check - User role: ' . ($user->role ?? 'null') . ', Permission: ' . $permission . ', Has permission: ' . ($hasPermission ? 'YES' : 'NO'));
+
+        if ($hasPermission) {
+            error_log('✅ Permission granted - proceeding to controller');
             return $next($request);
         }
+
+        error_log('❌ Permission denied - blocking access');
 
         // Log unauthorized access attempt
         \Log::warning('Unauthorized invoice access attempt', [
