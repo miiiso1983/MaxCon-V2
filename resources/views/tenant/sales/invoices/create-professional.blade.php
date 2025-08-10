@@ -3746,8 +3746,9 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     console.log('- Products count:', document.querySelectorAll('select[name*="[product_id]"]').length);
     console.log('- Form method:', this.getAttribute('method'));
 
-    // Let the form submit normally - don't prevent it
-    console.log('🚀 Allowing form to submit naturally...');
+    // PREVENT default form submission and use fetch instead
+    console.log('🛑 Preventing default form submission - using fetch instead');
+    e.preventDefault();
     console.log('🔍 Event listeners on form:', this.getEventListeners ? this.getEventListeners() : 'getEventListeners not available');
 
     // Check CSRF token
@@ -3762,17 +3763,11 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     // Force form submission if needed
     console.log('🔧 Attempting to force form submission...');
 
-    // Add a small delay to see if form actually submits
-    setTimeout(() => {
-        console.log('⏰ 2 seconds after form submission attempt...');
-        console.log('📍 Current URL:', window.location.href);
-        console.log('🔄 If you still see this message, the form did not submit');
-
-        // Try manual submission as last resort
-        console.log('🔧 Attempting manual form submission...');
-        console.log('🎯 Form action before manual submit:', this.getAttribute('action'));
-        console.log('🎯 Form method before manual submit:', this.getAttribute('method'));
-        console.log('🚀 Starting fetch process...');
+    // Use fetch immediately instead of timeout
+    console.log('🔧 Starting fetch submission immediately...');
+    console.log('🎯 Form action:', this.getAttribute('action'));
+    console.log('🎯 Form method:', this.getAttribute('method'));
+    console.log('🚀 Starting fetch process...');
 
         try {
             console.log('📤 Creating new form data and submitting...');
@@ -3877,7 +3872,6 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 
     // Show progress notification
     showNotification('جاري حفظ الفاتورة...', 'info', 10000);
-});
 </script>
 
 <!-- jQuery external loading removed to avoid CSP issues -->
