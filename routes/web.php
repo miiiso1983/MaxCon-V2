@@ -118,6 +118,8 @@ Route::get('/test-system-guide-direct', function () {
         ],
         'accounting' => [
             'name' => 'النظام المحاسبي',
+
+
             'icon' => 'fas fa-calculator',
             'description' => 'إدارة الحسابات، القيود، والتقارير المالية',
             'color' => '#ef4444',
@@ -4102,3 +4104,13 @@ Route::get('/test-enhanced-invoices', function () {
 
 // Include customer routes
 require __DIR__.'/customer.php';
+
+
+// Public signed invoice verification route (no auth)
+Route::get('/invoice/{invoice}/verify', function (Illuminate\Http\Request $request, \App\Models\Invoice $invoice) {
+    if (!$request->hasValidSignature()) {
+        abort(403, 'Invalid or expired link');
+    }
+    $invoice->load(['tenant','customer','items.product']);
+    return view('tenant.sales.invoices.public-show', compact('invoice'));
+})->name('public.invoice.verify');

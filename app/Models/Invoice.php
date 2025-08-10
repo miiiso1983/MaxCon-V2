@@ -189,8 +189,8 @@ class Invoice extends Model
 
     public function generateQrCode()
     {
-        // Create URL-based QR code (most reliable)
-        $qrUrl = url("/tenant/sales/invoices/{$this->id}");
+        // Create signed public URL for verification (secure)
+        $qrUrl = \URL::signedRoute('public.invoice.verify', ['invoice' => $this->id]);
 
         try {
             // Method 1: Use external QR code service (most reliable)
