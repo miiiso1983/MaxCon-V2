@@ -11,6 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guard: avoid complex ALTER TABLE logic on SQLite (can cause duplicate columns during table rebuild)
+        $driver = Schema::getConnection()->getDriverName();
+        if ($driver === 'sqlite') {
+            // SQLite alter-table is limited; skip this safe-updater on SQLite
+            // The invoices table already contains core columns like due_date in seed/base migrations
+            return;
+        }
+
         // Add missing columns to existing invoices table
         if (Schema::hasTable('invoices')) {
             Schema::table('invoices', function (Blueprint $table) {

@@ -2985,33 +2985,10 @@ Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
             ->middleware('invoice.permissions:create')->name('create');
         Route::get('/create-professional', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'create'])
             ->middleware('invoice.permissions:create')->name('create-professional');
-        // Simple test route
-        Route::post('/simple-test', function(Request $request) {
-            error_log('🎯 SIMPLE TEST ROUTE REACHED!');
-            error_log('📋 Data: ' . json_encode($request->all()));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Simple test route works!',
-                'data' => $request->all()
-            ]);
-        })->name('simple-test');
-
-        // Test route with same URL as store
-        Route::post('/', function(Request $request) {
-            error_log('🎯 ROOT POST ROUTE REACHED!');
-            error_log('📋 Data: ' . json_encode($request->all()));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Root POST route works!',
-                'data' => $request->all()
-            ]);
-        })->name('store-test');
-
-        // Original store route (commented out for testing)
-        // Route::post('/', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'store'])
-        //     ->name('store'); // Temporarily removed middleware for testing
+        // Store invoice (restored for production)
+        Route::post('/', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'store'])
+            ->middleware('invoice.permissions:create')
+            ->name('store');
 
         // View specific invoice
         Route::get('/{invoice}', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'show'])
