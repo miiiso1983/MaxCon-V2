@@ -183,7 +183,8 @@ class InvoiceController extends Controller
             return redirect()->route('tenant.dashboard')->with('error', 'لا يمكن تحديد المؤسسة');
         }
 
-        $validated = $request->validate([
+        // Validate with manual validator so we can log errors clearly
+        $validator = \Validator::make($request->all(), [
             'customer_id' => 'required|exists:customers,id',
             'sales_order_id' => 'nullable|exists:sales_orders,id',
             'invoice_date' => 'required|date',
@@ -209,10 +210,19 @@ class InvoiceController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.discount_amount' => 'nullable|numeric|min:0',
-            'items.*.discount_type' => 'nullable|in:fixed,percentage',
+            'items.*.discount_type' => 'nullable|in:fixed,percentage,amount',
             'items.*.total_amount' => 'nullable|numeric|min:0',
             'items.*.notes' => 'nullable|string',
         ]);
+
+        if ($validator->fails()) {
+            \Log::warning('Invoice validation failed', [
+                'errors' => $validator->errors()->toArray(),
+            ]);
+            return back()->withErrors($validator)->withInput()->with('error', 'فشل التحقق من البيانات. يرجى مراجعة الحقول المطلوبة.');
+        }
+
+        $validated = $validator->validated();
 
         // Load customer from DB to enforce credit policies correctly
         $customer = Customer::find($validated['customer_id']);
