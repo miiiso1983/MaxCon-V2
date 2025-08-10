@@ -12,53 +12,53 @@
             direction: rtl;
             text-align: right;
         }
-        
+
         .header {
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 3px solid #ed8936;
             padding-bottom: 20px;
         }
-        
+
         .company-name {
             font-size: 28px;
             font-weight: 700;
             color: #ed8936;
             margin-bottom: 10px;
         }
-        
+
         .invoice-title {
             font-size: 24px;
             font-weight: 600;
             color: #2d3748;
             margin-bottom: 5px;
         }
-        
+
         .invoice-number {
             font-size: 18px;
             color: #718096;
         }
-        
+
         .invoice-info {
             display: table;
             width: 100%;
             margin-bottom: 30px;
         }
-        
+
         .invoice-info-left,
         .invoice-info-right {
             display: table-cell;
             width: 50%;
             vertical-align: top;
         }
-        
+
         .info-section {
             background: #f7fafc;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
         }
-        
+
         .info-title {
             font-size: 16px;
             font-weight: 600;
@@ -67,24 +67,24 @@
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 5px;
         }
-        
+
         .info-item {
             margin-bottom: 8px;
             font-size: 14px;
         }
-        
+
         .info-label {
             font-weight: 600;
             color: #4a5568;
         }
-        
+
         .items-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 30px;
             border: 1px solid #e2e8f0;
         }
-        
+
         .items-table th {
             background: #ed8936;
             color: white;
@@ -93,55 +93,55 @@
             border: 1px solid #dd6b20;
             text-align: center;
         }
-        
+
         .items-table td {
             padding: 10px 8px;
             border: 1px solid #e2e8f0;
             text-align: center;
         }
-        
+
         .items-table tr:nth-child(even) {
             background: #f7fafc;
         }
-        
+
         .product-name {
             text-align: right;
             font-weight: 600;
         }
-        
+
         .totals-section {
             float: left;
             width: 300px;
             margin-top: 20px;
         }
-        
+
         .totals-table {
             width: 100%;
             border-collapse: collapse;
         }
-        
+
         .totals-table td {
             padding: 8px 12px;
             border-bottom: 1px solid #e2e8f0;
         }
-        
+
         .totals-label {
             font-weight: 600;
             color: #4a5568;
         }
-        
+
         .totals-amount {
             text-align: left;
             font-weight: 600;
         }
-        
+
         .total-final {
             background: #ed8936;
             color: white;
             font-weight: 700;
             font-size: 16px;
         }
-        
+
         .status-badge {
             display: inline-block;
             padding: 6px 12px;
@@ -150,22 +150,22 @@
             font-weight: 600;
             text-align: center;
         }
-        
+
         .status-draft {
             background: #fed7d7;
             color: #c53030;
         }
-        
+
         .status-pending {
             background: #fef5e7;
             color: #d69e2e;
         }
-        
+
         .status-paid {
             background: #c6f6d5;
             color: #38a169;
         }
-        
+
         .footer {
             margin-top: 50px;
             text-align: center;
@@ -174,12 +174,12 @@
             border-top: 1px solid #e2e8f0;
             padding-top: 20px;
         }
-        
+
         .qr-code {
             text-align: center;
             margin: 20px 0;
         }
-        
+
         .notes {
             background: #f7fafc;
             padding: 15px;
@@ -187,13 +187,21 @@
             margin-top: 20px;
             border-right: 4px solid #6366f1;
         }
-        
+
         .notes-title {
             font-weight: 600;
             color: #2d3748;
             margin-bottom: 10px;
         }
     </style>
+        .free-samples {
+            background: #f0fff4;
+            padding: 15px;
+            border-radius: 8px;
+            border-right: 4px solid #10b981;
+            margin-top: 16px;
+        }
+
 </head>
 <body>
     <!-- Header -->
@@ -227,7 +235,7 @@
                 @endif
             </div>
         </div>
-        
+
         <div class="invoice-info-left">
             <!-- Invoice Details -->
             <div class="info-section">
@@ -384,6 +392,16 @@
             </div>
         </div>
     </div>
+
+    {{-- Free Samples --}}
+    @if($invoice->free_samples)
+    <div class="free-samples">
+        <div class="notes-title">العينات المجانية:</div>
+        <div>{{ $invoice->free_samples }}</div>
+        <div style="margin-top:6px;color:#059669;font-size:12px;">هذه العينات مجانية ولا تحتسب ضمن قيمة الفاتورة</div>
+    </div>
+    @endif
+
 
     <!-- Notes -->
     @if($invoice->notes)

@@ -312,6 +312,16 @@
             margin-bottom: 8px;
         }
 
+
+        .free-samples-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0fff4;
+            border: 1px solid #bbf7d0;
+            border-right: 4px solid #10b981;
+        }
+        .free-samples-title { font-weight: bold; color: #0ea5e9; margin-bottom: 8px; }
+
         .footer {
             margin-top: 30px;
             text-align: center;
@@ -352,14 +362,14 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="header-center">
                 <div class="invoice-title">
                     <h1>فاتورة مبيعات</h1>
                     <div class="invoice-number">رقم: {{ $invoice->invoice_number }}</div>
                 </div>
             </div>
-            
+
             <div class="header-left">
                 <div class="qr-section">
                     <div class="qr-code">
@@ -401,7 +411,7 @@
                     <span class="info-value">{{ $invoice->customer->address ?? 'غير محدد' }}</span>
                 </div>
             </div>
-            
+
             <div class="invoice-info">
                 <div class="info-title">تفاصيل الفاتورة</div>
                 <div class="info-row">
@@ -526,6 +536,16 @@
                     <div class="total-label">المبلغ المتبقي:</div>
                     <div class="total-value">{{ number_format($invoice->remaining_amount, 2) }} د.ع</div>
                 </div>
+
+        <!-- Free Samples -->
+        @if($invoice->free_samples)
+        <div class="free-samples-section">
+            <div class="free-samples-title">العينات المجانية:</div>
+            <div>{{ $invoice->free_samples }}</div>
+            <div style="margin-top:6px;color:#059669;font-size:12px;">هذه العينات مجانية ولا تحتسب ضمن قيمة الفاتورة</div>
+        </div>
+        @endif
+
             </div>
         </div>
 

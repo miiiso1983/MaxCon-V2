@@ -1,4 +1,6 @@
 @extends('layouts.modern')
+@php use Illuminate\Support\Str; @endphp
+
 
 @section('page-title', 'فاتورة رقم ' . $invoice->invoice_number)
 @section('page-description', 'تفاصيل الفاتورة')
@@ -10,7 +12,7 @@
         font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
         background: #f8fafc;
     }
-    
+
     .invoice-container {
         max-width: 900px;
         margin: 20px auto;
@@ -19,7 +21,7 @@
         border-radius: 20px;
         overflow: hidden;
     }
-    
+
     .invoice-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -27,7 +29,7 @@
         text-align: center;
         position: relative;
     }
-    
+
     .invoice-header::before {
         content: '';
         position: absolute;
@@ -37,7 +39,7 @@
         bottom: 0;
         background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="60" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
     }
-    
+
     .company-logo {
         width: 100px;
         height: 100px;
@@ -52,18 +54,18 @@
         position: relative;
         z-index: 2;
     }
-    
+
     .invoice-content {
         padding: 40px;
     }
-    
+
     .invoice-details-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 30px;
         margin-bottom: 40px;
     }
-    
+
     .detail-card {
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         border-radius: 15px;
@@ -71,7 +73,7 @@
         border-left: 5px solid #ed8936;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
-    
+
     .detail-card h4 {
         color: #2d3748;
         font-size: 18px;
@@ -81,28 +83,28 @@
         align-items: center;
         gap: 10px;
     }
-    
+
     .detail-item {
         margin-bottom: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    
+
     .detail-label {
         font-weight: 600;
         color: #4a5568;
     }
-    
+
     .detail-value {
         color: #2d3748;
         font-weight: 500;
     }
-    
+
     .items-section {
         margin-bottom: 40px;
     }
-    
+
     .section-title {
         font-size: 24px;
         font-weight: 700;
@@ -112,7 +114,7 @@
         align-items: center;
         gap: 15px;
     }
-    
+
     .items-table {
         background: white;
         border-radius: 15px;
@@ -120,11 +122,11 @@
         box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         border: 1px solid #e2e8f0;
     }
-    
+
     .items-table thead {
         background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
     }
-    
+
     .items-table th {
         padding: 20px 15px;
         color: white;
@@ -134,29 +136,29 @@
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-    
+
     .items-table td {
         padding: 20px 15px;
         border-bottom: 1px solid #e2e8f0;
         text-align: center;
     }
-    
+
     .items-table tbody tr:hover {
         background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
         transition: all 0.3s ease;
     }
-    
+
     .product-info {
         text-align: right;
     }
-    
+
     .product-name {
         font-weight: 700;
         color: #2d3748;
         font-size: 16px;
         margin-bottom: 5px;
     }
-    
+
     .product-code {
         font-size: 12px;
         color: #718096;
@@ -165,7 +167,7 @@
         border-radius: 12px;
         display: inline-block;
     }
-    
+
     .totals-section {
         background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
         border-radius: 15px;
@@ -173,7 +175,7 @@
         margin-bottom: 30px;
         border: 2px solid #e2e8f0;
     }
-    
+
     .total-row {
         display: flex;
         justify-content: space-between;
@@ -182,12 +184,12 @@
         padding-bottom: 10px;
         border-bottom: 1px solid #e2e8f0;
     }
-    
+
     .total-row:last-child {
         border-bottom: none;
         margin-bottom: 0;
     }
-    
+
     .total-final {
         background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
         color: white;
@@ -199,7 +201,7 @@
         margin-top: 20px;
         box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3);
     }
-    
+
     .qr-section {
         background: linear-gradient(135deg, #e6fffa 0%, #f0fff4 100%);
         border-radius: 15px;
@@ -208,7 +210,7 @@
         border: 3px solid #38b2ac;
         margin-bottom: 30px;
     }
-    
+
     .qr-code-container {
         display: inline-block;
         padding: 20px;
@@ -217,7 +219,7 @@
         box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         margin: 20px 0;
     }
-    
+
     .status-badge {
         position: absolute;
         top: 20px;
@@ -228,29 +230,29 @@
         font-size: 14px;
         z-index: 3;
     }
-    
+
     .status-draft {
         background: rgba(255,193,7,0.9);
         color: white;
     }
-    
+
     .status-pending {
         background: rgba(23,162,184,0.9);
         color: white;
     }
-    
+
     .status-paid {
         background: rgba(40,167,69,0.9);
         color: white;
     }
-    
+
     .actions-section {
         padding: 30px;
         background: #f8fafc;
         text-align: center;
         border-top: 1px solid #e2e8f0;
     }
-    
+
     .action-btn {
         display: inline-block;
         padding: 15px 30px;
@@ -261,17 +263,17 @@
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    
+
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
     }
-    
+
     .btn-secondary {
         background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
         color: white;
     }
-    
+
     .action-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(0,0,0,0.2);
@@ -292,10 +294,10 @@
         <p style="font-size: 20px; margin: 15px 0 0 0; opacity: 0.9; position: relative; z-index: 2;">
             فاتورة رقم {{ $invoice->invoice_number }}
         </p>
-        
-        <div class="status-badge 
+
+        <div class="status-badge
             @if($invoice->status === 'draft') status-draft
-            @elseif($invoice->status === 'pending') status-pending  
+            @elseif($invoice->status === 'pending') status-pending
             @elseif($invoice->status === 'paid') status-paid
             @endif">
             @if($invoice->status === 'draft') مسودة
@@ -348,6 +350,10 @@
                 <div class="detail-item">
                     <span class="detail-label">العملة:</span>
                     <span class="detail-value">دينار عراقي</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">العينات المجانية:</span>
+                    <span class="detail-value">{{ $invoice->free_samples ? Str::limit($invoice->free_samples, 40) : '-' }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">النوع:</span>
