@@ -375,6 +375,7 @@ class InvoiceController extends Controller
                     'discount_type' => $itemData['discount_type'] ?? 'fixed',
                     'line_total' => $computedTotal, // fallback if column exists
                     'total_amount' => $computedTotal,
+                    'total_price' => $computedTotal, // some schemas use total_price
                     'notes' => $itemData['notes'] ?? null,
                 ];
 
