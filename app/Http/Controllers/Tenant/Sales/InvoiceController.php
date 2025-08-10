@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use TCPDF;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Mpdf\Mpdf;
@@ -264,24 +265,39 @@ class InvoiceController extends Controller
 
             Log::info('Starting invoice creation', ['user_id' => $user->id, 'tenant_id' => $user->tenant_id]);
 
-            // Create invoice
+            // Create invoice - fill only existing DB columns to avoid SQL unknown column errors
             $invoice = new Invoice();
-            $invoice->tenant_id = $user->tenant_id;
-            $invoice->invoice_number = $invoice->generateInvoiceNumber();
-            $invoice->customer_id = $validated['customer_id'];
-            $invoice->sales_order_id = $validated['sales_order_id'] ?? null;
-            $invoice->created_by = $user->id;
-            $invoice->invoice_date = $validated['invoice_date'];
-            $invoice->due_date = $validated['due_date'];
-            $invoice->type = $validated['type'] ?? 'sales';
-            $invoice->notes = $validated['notes'] ?? null;
-            $invoice->free_samples = $validated['free_samples'] ?? null;
-            $invoice->currency = $validated['currency'] ?? 'IQD';
-            $invoice->sales_representative = $validated['sales_representative'] ?? $user->name;
-            $invoice->exchange_rate = 1.0;
-            $invoice->shipping_cost = $validated['shipping_cost'] ?? 0;
-            $invoice->additional_charges = $validated['additional_charges'] ?? 0;
-            $invoice->discount_type = $validated['discount_type'] ?? 'fixed';
+            // Generate an invoice number early
+            $tmpForNumber = new Invoice();
+            $tmpForNumber->tenant_id = $user->tenant_id;
+            $invoiceNumber = $tmpForNumber->generateInvoiceNumber();
+
+            $invoiceColumns = Schema::getColumnListing('invoices');
+            $baseData = [
+                'tenant_id' => $user->tenant_id,
+                'invoice_number' => $invoiceNumber,
+                'customer_id' => $validated['customer_id'],
+                'sales_order_id' => $validated['sales_order_id'] ?? null,
+                'created_by' => $user->id,
+                'invoice_date' => $validated['invoice_date'],
+                'due_date' => $validated['due_date'],
+                'type' => $validated['type'] ?? 'sales',
+                'notes' => $validated['notes'] ?? null,
+                'free_samples' => $validated['free_samples'] ?? null,
+                'currency' => $validated['currency'] ?? 'IQD',
+                'sales_representative' => $validated['sales_representative'] ?? $user->name,
+                'exchange_rate' => 1.0,
+                'shipping_cost' => $validated['shipping_cost'] ?? 0,
+                'additional_charges' => $validated['additional_charges'] ?? 0,
+                'discount_type' => $validated['discount_type'] ?? 'fixed',
+            ];
+            // Filter by existing columns
+            $invoiceData = [];
+            foreach ($baseData as $key => $value) {
+                if (in_array($key, $invoiceColumns, true)) {
+                    $invoiceData[$key] = $value;
+                }
+            }
 
             // Calculate totals from items
             $subtotal = 0;
@@ -308,13 +324,14 @@ class InvoiceController extends Controller
             $taxAmount = $taxableBase * 0.1; // 10% tax
             $totalAmount = $taxableBase + $taxAmount;
 
-            $invoice->subtotal_amount = $subtotal;
-            $invoice->tax_amount = $taxAmount;
-            $invoice->total_amount = $totalAmount;
-            // Snapshot of customer's balances at time of invoice
-            $invoice->previous_balance = $validated['previous_balance'] ?? (($customer->previous_debt ?? 0) + ($customer->current_balance ?? 0));
-            $invoice->credit_limit = $customer->credit_limit ?? 0;
-            $invoice->warehouse_name = $validated['warehouse_name'] ?? null;
+            // Assign calculated fields safely (only if columns exist)
+            $invoice->invoice_number = $invoiceNumber;
+            if (in_array('subtotal_amount', $invoiceColumns, true)) $invoice->subtotal_amount = $subtotal;
+            if (in_array('tax_amount', $invoiceColumns, true)) $invoice->tax_amount = $taxAmount;
+            if (in_array('total_amount', $invoiceColumns, true)) $invoice->total_amount = $totalAmount;
+            if (in_array('previous_balance', $invoiceColumns, true)) $invoice->previous_balance = $validated['previous_balance'] ?? (($customer->previous_debt ?? 0) + ($customer->current_balance ?? 0));
+            if (in_array('credit_limit', $invoiceColumns, true)) $invoice->credit_limit = $customer->credit_limit ?? 0;
+            if (in_array('warehouse_name', $invoiceColumns, true)) $invoice->warehouse_name = $validated['warehouse_name'] ?? null;
 
             // Enforce credit limit if finalizing (use customer's real balances)
             if ($request->input('action') === 'finalize') {
@@ -330,7 +347,9 @@ class InvoiceController extends Controller
             // Set status based on action (use 'sent' for finalized to appear in index filters)
             $invoice->status = $request->input('action') === 'finalize' ? 'sent' : 'draft';
 
-            Log::info('About to save invoice', ['invoice_data' => $invoice->toArray()]);
+            // Fill filtered base data
+            $invoice->fill($invoiceData);
+            Log::info('About to save invoice', ['invoice_data' => $invoiceData]);
             $invoice->save();
             Log::info('Invoice saved successfully', ['invoice_id' => $invoice->id]);
 
