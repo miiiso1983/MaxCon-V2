@@ -50,10 +50,10 @@ function submitInvoice() {
         console.log(`  ${key}: ${value}`);
     }
     
-    const actionUrl = '/tenant/sales/invoices/simple-test';
+    const actionUrl = form.getAttribute('action');
     console.log('📤 Submitting to:', actionUrl);
     console.log('🔍 Full URL will be:', window.location.origin + actionUrl);
-    console.log('🔧 Using simple test route');
+    console.log('🔧 Using original Controller (with debugging)');
     
     // Show loading
     const button = event.target;

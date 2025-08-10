@@ -152,6 +152,14 @@ class InvoiceController extends Controller
     {
         // FIRST: Log that we reached the controller
         error_log('🎯 CONTROLLER REACHED - Invoice store method called');
+        error_log('🔍 Request method: ' . $request->method());
+        error_log('🔍 Request URL: ' . $request->url());
+        error_log('🔍 User authenticated: ' . (Auth::check() ? 'YES' : 'NO'));
+        if (Auth::check()) {
+            error_log('🔍 User ID: ' . Auth::id());
+            error_log('🔍 User role: ' . Auth::user()->role);
+            error_log('🔍 Tenant ID: ' . Auth::user()->tenant_id);
+        }
 
         // Debug: Log the request data
         Log::info('🚀 Invoice store request received:', [
