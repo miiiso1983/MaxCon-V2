@@ -2997,8 +2997,21 @@ Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
             ]);
         })->name('simple-test');
 
-        Route::post('/', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'store'])
-            ->name('store'); // Temporarily removed middleware for testing
+        // Test route with same URL as store
+        Route::post('/', function(Request $request) {
+            error_log('🎯 ROOT POST ROUTE REACHED!');
+            error_log('📋 Data: ' . json_encode($request->all()));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Root POST route works!',
+                'data' => $request->all()
+            ]);
+        })->name('store-test');
+
+        // Original store route (commented out for testing)
+        // Route::post('/', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'store'])
+        //     ->name('store'); // Temporarily removed middleware for testing
 
         // View specific invoice
         Route::get('/{invoice}', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'show'])
