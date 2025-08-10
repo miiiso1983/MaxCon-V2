@@ -3708,7 +3708,15 @@ function validateForm() {
 }
 
 // Form submission with enhanced validation and debugging
-document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('invoiceForm');
+    if (!form) {
+        console.log('❌ Form not found!');
+        return;
+    }
+
+    console.log('✅ Form found, adding event listener...');
+    form.addEventListener('submit', function(e) {
     console.log('🚀 Form submission event triggered!');
     console.log('Form element:', this);
     console.log('Form action:', this.getAttribute('action'));
@@ -3870,8 +3878,11 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         }
     });
 
-    // Show progress notification
-    showNotification('جاري حفظ الفاتورة...', 'info', 10000);
+        // Show progress notification
+        showNotification('جاري حفظ الفاتورة...', 'info', 10000);
+
+    }); // End of form event listener
+}); // End of DOMContentLoaded
 </script>
 
 <!-- jQuery external loading removed to avoid CSP issues -->
