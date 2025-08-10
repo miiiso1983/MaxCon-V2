@@ -3789,6 +3789,14 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
 
             // Use fetch to submit the form
             console.log('🌐 Starting fetch request to:', this.getAttribute('action'));
+            console.log('🔧 Fetch options:', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || formData.get('_token')
+                }
+            });
+
             fetch(this.getAttribute('action'), {
                 method: 'POST',
                 body: formData,
@@ -3828,6 +3836,11 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
             })
             .catch(error => {
                 console.log('❌ Fetch failed:', error);
+                console.log('❌ Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
                 // Fallback to normal form submission
                 console.log('🔄 Falling back to normal form submission...');
                 this.submit();
