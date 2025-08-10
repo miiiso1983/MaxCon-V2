@@ -12,7 +12,11 @@
 
 html {
     font-size: 16px;
+    /* Standard property */
+    text-size-adjust: 100%;
+    /* Vendor prefixes for better compatibility */
     -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
 }
 
