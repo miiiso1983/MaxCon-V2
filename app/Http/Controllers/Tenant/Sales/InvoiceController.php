@@ -376,6 +376,7 @@ class InvoiceController extends Controller
                     'line_total' => $computedTotal, // fallback if column exists
                     'total_amount' => $computedTotal,
                     'total_price' => $computedTotal, // some schemas use total_price
+                    'final_price' => $computedTotal, // some schemas use final_price (NOT NULL)
                     'notes' => $itemData['notes'] ?? null,
                 ];
 
