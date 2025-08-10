@@ -3604,7 +3604,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show welcome message
     setTimeout(() => {
-        showNotification('مرحباً بك في نظام إنشاء الفواتير الاحترافي', 'success', 3000);
+        /* مرحباً بك - تم إلغاء الرسالة بناء على الطلب */
     }, 500);
 });
 
@@ -3624,7 +3624,7 @@ function autoSaveDraft() {
         localStorage.setItem('invoice_draft', JSON.stringify(draftData));
 
         // Show auto-save indicator
-        showNotification('تم حفظ المسودة تلقائياً', 'success', 2000);
+        /* تم إلغاء رسالة حفظ المسودة تلقائياً بناء على الطلب */
     }, 3000); // Auto-save after 3 seconds of inactivity
 }
 
@@ -3761,6 +3761,7 @@ function validateForm() {
     for (let i = 0; i < quantityInputs.length; i++) {
         const input = quantityInputs[i];
         const value = parseFloat(input.value || 0);
+
         console.log(`Quantity ${i + 1}:`, value);
 
         if (value <= 0) {
@@ -4142,5 +4143,6 @@ function simpleCalculateTotal(index) {
 // Notification function removed (duplicate)
 </script>
 
+<script src="{{ asset('js/invoice-preview.js') }}?v={{ time() }}" charset="utf-8"></script>
 </body>
 </html>
