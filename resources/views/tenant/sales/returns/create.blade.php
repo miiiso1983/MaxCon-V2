@@ -3,6 +3,12 @@
 @section('page-title', 'إنشاء طلب إرجاع جديد')
 @section('page-description', 'إنشاء طلب إرجاع أو استبدال للمنتجات')
 
+@push('styles')
+<style>
+    .add-item-section { text-align: center; padding: 1.5rem; background: #f8fafc; border-top: 2px solid #e5e7eb; }
+</style>
+@endpush
+
 @section('content')
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
@@ -144,71 +150,43 @@
         </div>
     </div>
 
-    <!-- Invoice Items -->
-    @if($invoice)
+    <!-- Return Items (invoice-like, multi-row) -->
     <div class="content-card" style="margin-bottom: 25px;">
         <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
             <i class="fas fa-list" style="color: #f093fb; margin-left: 10px;"></i>
-            أصناف الفاتورة المراد إرجاعها
+            الأصناف المرتجعة
         </h3>
+
+        @if(!$invoice)
+            <div style="background:#fff7ed; border:1px solid #fed7aa; color:#92400e; padding:12px; border-radius:8px; margin-bottom:10px;">
+                يرجى اختيار الفاتورة أولاً لعرض أصنافها وإضافتها كمرتجع.
+            </div>
+        @endif
 
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="background: #f8fafc;">
-                        <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748;">اختيار</th>
-                        <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748;">المنتج</th>
-                        <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748;">الكمية الأصلية</th>
+                        <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748;">المنتج (من الفاتورة)</th>
                         <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748;">الكمية المرتجعة</th>
                         <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748;">حالة المنتج</th>
                         <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748;">سبب الإرجاع</th>
-                        <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748;" id="exchange_header" style="display: none;">منتج الاستبدال</th>
+                        <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748; display:none;" id="exchange_header">منتج الاستبدال</th>
+                        <th style="padding: 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: #2d3748; width: 90px;">الإجراءات</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach($invoice->items as $index => $item)
-                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                                <input type="checkbox" name="items[{{ $index }}][selected]" value="1" class="item-checkbox" style="width: 18px; height: 18px;">
-                                <input type="hidden" name="items[{{ $index }}][invoice_item_id]" value="{{ $item->id }}">
-                            </td>
-                            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                                <div style="font-weight: 600; color: #2d3748;">{{ $item->product_name }}</div>
-                                <div style="font-size: 12px; color: #6b7280;">{{ $item->product_code }}</div>
-                                <div style="font-size: 12px; color: #6b7280;">سعر الوحدة: {{ number_format($item->unit_price, 0) }} د.ع</div>
-                            </td>
-                            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                                <span style="font-weight: 600; color: #059669;">{{ $item->quantity }}</span>
-                            </td>
-                            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                                <input type="number" name="items[{{ $index }}][quantity_returned]" min="1" max="{{ $item->quantity }}" style="width: 80px; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px;" disabled>
-                            </td>
-                            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                                <select name="items[{{ $index }}][condition]" style="width: 120px; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px;" disabled>
-                                    <option value="good">جيد</option>
-                                    <option value="damaged">تالف</option>
-                                    <option value="expired">منتهي الصلاحية</option>
-                                </select>
-                            </td>
-                            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                                <input type="text" name="items[{{ $index }}][reason]" placeholder="سبب إرجاع هذا الصنف..." style="width: 150px; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px;" disabled>
-                            </td>
-                            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; display: none;" class="exchange-column">
-                                <select name="items[{{ $index }}][exchange_product_id]" style="width: 150px; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px;" disabled>
-                                    <option value="">اختر منتج الاستبدال</option>
-                                    @foreach($products as $product)
-                                        <option value="{{ $product->id }}" data-price="{{ $product->selling_price }}">{{ $product->name }}</option>
-                                    @endforeach
-                                </select>
-                                <input type="number" name="items[{{ $index }}][exchange_quantity]" min="1" placeholder="الكمية" style="width: 80px; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; margin-top: 5px;" disabled>
-                            </td>
-                        </tr>
-                    @endforeach
+                <tbody id="returnItems">
+                    <!-- Rows added dynamically -->
                 </tbody>
             </table>
+            <div class="add-item-section" style="text-align:center; padding: 1rem; background:#f8fafc; border-top:2px solid #e5e7eb;">
+                <button type="button" id="btnAddRow" class="btn" style="background: #4f46e5; color:white; border-radius:8px; padding:10px 16px; font-weight:600;" {{ $invoice ? '' : 'disabled' }}>
+                    <i class="fas fa-plus"></i>
+                    إضافة صف مرتجع
+                </button>
+            </div>
         </div>
-    </div>
-    @endif
+    </div
 
     <!-- Form Actions -->
     <div style="display: flex; gap: 15px; justify-content: flex-end;">
@@ -248,85 +226,193 @@ document.getElementById('return_type').addEventListener('change', function() {
     if (scopeSelect) {
         scopeSelect.addEventListener('change', function() {
             const isFull = this.value === 'full';
-            const itemRows = document.querySelectorAll('tbody tr');
-            const checkboxes = document.querySelectorAll('.item-checkbox');
-
             if (isFull) {
-                checkboxes.forEach((cb) => { cb.checked = true; });
-                itemRows.forEach((row) => {
-                    const inputs = row.querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]), select');
-                    inputs.forEach((input) => { input.disabled = false; });
-                    const qtyOriginal = parseInt(row.querySelector('td:nth-child(3) span')?.textContent || '0', 10);
-                    const qtyInput = row.querySelector('input[name*="[quantity_returned]"]');
-                    if (qtyInput) { qtyInput.value = qtyOriginal; }
-                });
+                const tbody = document.getElementById('returnItems');
+                const runtimeItems = (window.__invoiceItemsForReturn || []).map(it => ({ id: it.id, qty: parseInt(it.quantity || 0, 10) }));
+                @if($invoice)
+                    const serverItems = [
+                        @foreach($invoice->items as $it)
+                            { id: {{ $it->id }}, qty: {{ (int)$it->quantity }} },
+                        @endforeach
+                    ];
+                @else
+                    const serverItems = [];
+                @endif
+                const items = runtimeItems.length ? runtimeItems : serverItems;
+                if (items.length && tbody) {
+                    tbody.innerHTML = '';
+                    items.forEach(it => addReturnRow({ invoice_item_id: it.id, quantity_returned: it.qty }));
+                } else {
+                    alert('يرجى اختيار الفاتورة أولاً');
+                    this.value = 'partial';
+                }
             } else {
-                checkboxes.forEach((cb) => { cb.checked = false; });
-                itemRows.forEach((row) => {
-                    const inputs = row.querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]), select');
-                    inputs.forEach((input) => { input.disabled = true; input.value = ''; });
-                });
+                // Partial: لا إجراء تلقائي
             }
         });
     }
-
-
-// Handle item selection
-document.querySelectorAll('.item-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        const row = this.closest('tr');
-        const inputs = row.querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]), select');
-
-        inputs.forEach(input => {
-            input.disabled = !this.checked;
-            if (!this.checked) {
-                input.value = '';
-            }
-        });
-    });
-});
 
 // Invoice search functionality
 let searchTimeout;
 document.getElementById('invoice_search').addEventListener('input', function() {
     clearTimeout(searchTimeout);
     const query = this.value.trim();
-
     if (query.length < 2) {
         document.getElementById('invoice_results').innerHTML = '';
         return;
     }
-
     searchTimeout = setTimeout(() => {
-        // Here you would implement AJAX search for invoices
-        // For now, we'll just show a placeholder
-        console.log('Searching for invoice:', query);
+        fetch(`{{ route('tenant.sales.returns.find-invoice') }}?invoice_number=${encodeURIComponent(query)}`)
+            .then(r => r.json())
+            .then(data => {
+                const res = document.getElementById('invoice_results');
+                if (!data.found) {
+                    res.innerHTML = '<div style="margin-top:8px; color:#6b7280;">لا توجد فاتورة بهذا الرقم</div>';
+                    document.getElementById('invoice_id').value = '';
+                    document.getElementById('customer_id').value = '';
+                    document.getElementById('customer_name').value = '';
+                    document.getElementById('btnAddRow')?.setAttribute('disabled', 'disabled');
+                    document.getElementById('returnItems').innerHTML = '';
+                    return;
+                }
+
+                // Fill invoice and customer
+                res.innerHTML = `<div style="margin-top:8px; background:#ecfeff; border:1px solid #67e8f9; padding:8px; border-radius:6px;">رقم الفاتورة: <b>${data.invoice.invoice_number}</b> | العميل: <b>${data.invoice.customer.name ?? ''}</b></div>`;
+                document.getElementById('invoice_id').value = data.invoice.id;
+                document.getElementById('customer_id').value = data.invoice.customer.id;
+                document.getElementById('customer_name').value = data.invoice.customer.name ?? '';
+                document.getElementById('btnAddRow')?.removeAttribute('disabled');
+
+                // Rebuild product options for addReturnRow with this invoice's items
+                window.__invoiceItemsForReturn = data.invoice.items;
+                // Clear previous rows when selecting a new invoice
+                document.getElementById('returnItems').innerHTML = '';
+            })
+            .catch(() => {
+                document.getElementById('invoice_results').innerHTML = '<div style="margin-top:8px; color:#ef4444;">تعذر البحث الآن</div>';
+            });
     }, 300);
 });
 
+// Dynamic return rows behavior
+let returnRowIndex = 0;
+const returnItemsTbody = document.getElementById('returnItems');
+const addRowBtn = document.getElementById('btnAddRow');
+function esc(t){return (t||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#039;');}
+
+function addReturnRow(prefill = {}) {
+    if (!returnItemsTbody) return;
+    const idx = returnRowIndex++;
+
+    // Build product selector from invoice items
+    let productOptions = '<option value="">اختر الصنف من الفاتورة</option>';
+    @if($invoice)
+        @foreach($invoice->items as $it)
+            productOptions += `<option value="{{ $it->id }}" data-max="{{ (int)$it->quantity }}" data-name="{{ addslashes($it->product_name) }}" data-code="{{ addslashes($it->product_code) }}" data-price="{{ (float)$it->unit_price }}">{{ addslashes($it->product_name) }} ({{ addslashes($it->product_code) }})</option>`;
+        @endforeach
+    @endif
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td style="padding:12px; border-bottom:1px solid #e2e8f0;">
+            <select name="items[${idx}][invoice_item_id]" class="form-control" required onchange="onReturnItemChange(this)">${productOptions}</select>
+            <div style="font-size:12px; color:#6b7280; margin-top:4px;" class="mini-info"></div>
+        </td>
+        <td style="padding:12px; border-bottom:1px solid #e2e8f0;">
+            <input type="number" name="items[${idx}][quantity_returned]" min="1" step="1" class="form-control" placeholder="1" required>
+        </td>
+        <td style="padding:12px; border-bottom:1px solid #e2e8f0;">
+            <select name="items[${idx}][condition]" class="form-control" required>
+                <option value="good">جيد</option>
+                <option value="damaged">تالف</option>
+                <option value="expired">منتهي الصلاحية</option>
+            </select>
+        </td>
+        <td style="padding:12px; border-bottom:1px solid #e2e8f0;">
+            <input type="text" name="items[${idx}][reason]" class="form-control" placeholder="سبب الإرجاع لهذا الصنف..">
+        </td>
+        <td style="padding:12px; border-bottom:1px solid #e2e8f0; display:none;" class="exchange-column">
+            <select name="items[${idx}][exchange_product_id]" class="form-control">
+                <option value="">اختر منتج الاستبدال</option>
+                @foreach($products as $product)
+                    <option value="{{ $product->id }}" data-price="{{ $product->selling_price ?? 0 }}">{{ $product->name }}</option>
+                @endforeach
+            </select>
+            <input type="number" name="items[${idx}][exchange_quantity]" min="1" class="form-control" placeholder="الكمية" style="margin-top:6px;">
+        </td>
+        <td style="padding:12px; border-bottom:1px solid #e2e8f0; text-align:center;">
+            <button type="button" class="btn" style="background:#ef4444; color:white; border-radius:8px;" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button>
+        </td>
+    `;
+
+    returnItemsTbody.appendChild(row);
+
+    // Prefill if provided
+    if (prefill.invoice_item_id) {
+        const sel = row.querySelector('select[name*="[invoice_item_id]"]');
+        sel.value = prefill.invoice_item_id;
+        onReturnItemChange(sel);
+    }
+    if (prefill.quantity_returned) {
+        row.querySelector('input[name*="[quantity_returned]"]').value = prefill.quantity_returned;
+    }
+}
+
+function onReturnItemChange(selectEl) {
+    const option = selectEl.options[selectEl.selectedIndex];
+    const max = parseInt(option.getAttribute('data-max') || '0', 10);
+    const price = parseFloat(option.getAttribute('data-price') || '0');
+    const info = selectEl.closest('td').querySelector('.mini-info');
+    const qtyInput = selectEl.closest('tr').querySelector('input[name*="[quantity_returned]"]');
+    if (qtyInput) {
+        qtyInput.max = max > 0 ? max : '';
+        qtyInput.value = max > 0 ? Math.min(parseInt(qtyInput.value || '1', 10), max) : (qtyInput.value || '1');
+    }
+    if (info) {
+        info.textContent = max ? `حد أقصى للإرجاع: ${max} | سعر الوحدة: ${price.toLocaleString()} د.ع` : '';
+    }
+}
+
+if (addRowBtn) {
+    addRowBtn.addEventListener('click', function() { addReturnRow(); });
+}
+
+// Toggle exchange columns with type
+(function() {
+    const typeSel = document.getElementById('return_type');
+    const exchangeHeader = document.getElementById('exchange_header');
+    function updateExchangeCols() {
+        const isExchange = typeSel && typeSel.value === 'exchange';
+        if (exchangeHeader) exchangeHeader.style.display = isExchange ? 'table-cell' : 'none';
+        document.querySelectorAll('.exchange-column').forEach(col => col.style.display = isExchange ? 'table-cell' : 'none');
+    }
+    if (typeSel) {
+        typeSel.addEventListener('change', updateExchangeCols);
+        updateExchangeCols();
+    }
+})();
+
 // Form validation
 document.getElementById('returnForm').addEventListener('submit', function(e) {
-    const selectedItems = document.querySelectorAll('.item-checkbox:checked');
-
-    if (selectedItems.length === 0) {
+    const rows = document.querySelectorAll('#returnItems tr');
+    if (!rows.length) {
         e.preventDefault();
-        alert('يرجى اختيار صنف واحد على الأقل للإرجاع');
+        alert('يرجى إضافة صنف واحد على الأقل للإرجاع');
         return false;
     }
 
-    // Validate quantities
-    let hasValidQuantity = false;
-    selectedItems.forEach(checkbox => {
-        const row = checkbox.closest('tr');
-        const quantityInput = row.querySelector('input[name*="[quantity_returned]"]');
-        if (quantityInput && quantityInput.value > 0) {
-            hasValidQuantity = true;
+    let valid = true;
+    rows.forEach(row => {
+        const itemSel = row.querySelector('select[name*="[invoice_item_id]"]');
+        const qty = row.querySelector('input[name*="[quantity_returned]"]');
+        if (!itemSel || !itemSel.value || !qty || !(parseInt(qty.value, 10) > 0)) {
+            valid = false;
         }
     });
 
-    if (!hasValidQuantity) {
+    if (!valid) {
         e.preventDefault();
-        alert('يرجى إدخال كمية صحيحة للأصناف المحددة');
+        alert('يرجى اختيار الصنف وإدخال كمية صحيحة لكل صف');
         return false;
     }
 });

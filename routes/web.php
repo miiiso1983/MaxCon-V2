@@ -2009,6 +2009,8 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
 
         // Returns
         Route::resource('returns', ReturnController::class);
+        // AJAX: find invoice by number for returns create form
+        Route::get('returns/find-invoice', [ReturnController::class, 'findInvoice'])->name('returns.find-invoice');
         Route::post('returns/{return}/approve', [ReturnController::class, 'approve'])->name('returns.approve');
         Route::post('returns/{return}/complete', [ReturnController::class, 'complete'])->name('returns.complete');
         Route::post('returns/{return}/reject', [ReturnController::class, 'reject'])->name('returns.reject');
