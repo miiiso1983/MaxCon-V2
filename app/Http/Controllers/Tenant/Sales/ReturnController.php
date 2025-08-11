@@ -255,8 +255,10 @@ class ReturnController extends Controller
                     $returnItem->original_quantity = $invoiceItem->quantity;
                 }
                 $returnItem->unit_price = $invoiceItem->unit_price;
-                $returnItem->condition = $itemData['condition'];
-                if (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'condition_status')) {
+                // Map condition into whichever column exists in DB
+                if (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'condition')) {
+                    $returnItem->condition = $itemData['condition'];
+                } elseif (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'condition_status')) {
                     $returnItem->condition_status = $itemData['condition'];
                 }
                 $returnItem->reason = $itemData['reason'] ?? null;
