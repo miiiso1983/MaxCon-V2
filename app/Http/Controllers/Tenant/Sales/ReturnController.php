@@ -126,6 +126,7 @@ class ReturnController extends Controller
             'reason' => 'required|string',
             'notes' => 'nullable|string',
             'refund_method' => 'nullable|string|in:cash,credit,bank_transfer',
+            'return_scope' => 'nullable|in:full,partial',
             'items' => 'required|array|min:1',
             'items.*.invoice_item_id' => 'required|exists:invoice_items,id',
             'items.*.quantity_returned' => 'required|integer|min:1',
@@ -151,6 +152,20 @@ class ReturnController extends Controller
             $returnOrder->notes = $validated['notes'] ?? null;
             $returnOrder->refund_method = $validated['refund_method'] ?? null;
             $returnOrder->save();
+
+            // If full return: prefill items by all invoice items when not explicitly posted
+            if (($request->input('return_scope') === 'full') && empty($validated['items'])) {
+                $allInvoiceItems = InvoiceItem::where('invoice_id', $validated['invoice_id'])->get();
+                $validated['items'] = [];
+                foreach ($allInvoiceItems as $idx => $invItem) {
+                    $validated['items'][] = [
+                        'invoice_item_id' => $invItem->id,
+                        'quantity_returned' => (int) $invItem->quantity,
+                        'condition' => 'good',
+                        'reason' => $validated['reason'] ?? null,
+                    ];
+                }
+            }
 
             // Create return items
             foreach ($validated['items'] as $itemData) {

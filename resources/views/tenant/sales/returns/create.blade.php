@@ -8,7 +8,7 @@
 <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
     <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-    
+
     <div style="position: relative; z-index: 2;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
@@ -26,7 +26,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div style="display: flex; gap: 15px;">
                 <a href="{{ route('tenant.sales.returns.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-arrow-right"></i>
@@ -39,14 +39,14 @@
 
 <form method="POST" action="{{ route('tenant.sales.returns.store') }}" id="returnForm">
     @csrf
-    
+
     <!-- Invoice Selection -->
     <div class="content-card" style="margin-bottom: 25px;">
         <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
             <i class="fas fa-file-invoice" style="color: #f093fb; margin-left: 10px;"></i>
             اختيار الفاتورة
         </h3>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">رقم الفاتورة *</label>
@@ -57,14 +57,14 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">العميل</label>
                 <input type="text" id="customer_name" readonly style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" value="{{ $invoice ? $invoice->customer->name : '' }}">
                 <input type="hidden" name="customer_id" id="customer_id" value="{{ $invoice ? $invoice->customer_id : '' }}">
             </div>
         </div>
-        
+
         @if($invoice)
             <div style="margin-top: 20px; padding: 15px; background: #f0fff4; border: 1px solid #c6f6d5; border-radius: 8px;">
                 <h4 style="margin: 0 0 10px 0; color: #065f46;">تفاصيل الفاتورة المحددة:</h4>
@@ -84,7 +84,7 @@
             <i class="fas fa-info-circle" style="color: #f093fb; margin-left: 10px;"></i>
             تفاصيل الإرجاع
         </h3>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">تاريخ الإرجاع *</label>
@@ -93,7 +93,7 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع العملية *</label>
                 <select name="type" id="return_type" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" required>
@@ -104,7 +104,15 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نطاق المرتجع *</label>
+                <select name="return_scope" id="return_scope" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                    <option value="partial" selected>مرتجع جزئي (حدد الأصناف والكميات)</option>
+                    <option value="full">مرتجع كلي (إرجاع كامل الفاتورة)</option>
+                </select>
+            </div>
+
             <div id="refund_method_div">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">طريقة الاسترداد</label>
                 <select name="refund_method" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
@@ -118,7 +126,7 @@
                 @enderror
             </div>
         </div>
-        
+
         <div style="margin-top: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">سبب الإرجاع *</label>
             <textarea name="reason" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; height: 80px;" placeholder="اذكر سبب الإرجاع بالتفصيل..." required>{{ old('reason') }}</textarea>
@@ -126,7 +134,7 @@
                 <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
             @enderror
         </div>
-        
+
         <div style="margin-top: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">ملاحظات إضافية</label>
             <textarea name="notes" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; height: 60px;" placeholder="أي ملاحظات إضافية...">{{ old('notes') }}</textarea>
@@ -143,7 +151,7 @@
             <i class="fas fa-list" style="color: #f093fb; margin-left: 10px;"></i>
             أصناف الفاتورة المراد إرجاعها
         </h3>
-        
+
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
@@ -223,7 +231,7 @@ document.getElementById('return_type').addEventListener('change', function() {
     const refundMethodDiv = document.getElementById('refund_method_div');
     const exchangeHeader = document.getElementById('exchange_header');
     const exchangeColumns = document.querySelectorAll('.exchange-column');
-    
+
     if (isExchange) {
         refundMethodDiv.style.display = 'none';
         exchangeHeader.style.display = 'table-cell';
@@ -235,12 +243,40 @@ document.getElementById('return_type').addEventListener('change', function() {
     }
 });
 
+    // Handle return scope change (partial vs full)
+    const scopeSelect = document.getElementById('return_scope');
+    if (scopeSelect) {
+        scopeSelect.addEventListener('change', function() {
+            const isFull = this.value === 'full';
+            const itemRows = document.querySelectorAll('tbody tr');
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+
+            if (isFull) {
+                checkboxes.forEach((cb) => { cb.checked = true; });
+                itemRows.forEach((row) => {
+                    const inputs = row.querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]), select');
+                    inputs.forEach((input) => { input.disabled = false; });
+                    const qtyOriginal = parseInt(row.querySelector('td:nth-child(3) span')?.textContent || '0', 10);
+                    const qtyInput = row.querySelector('input[name*="[quantity_returned]"]');
+                    if (qtyInput) { qtyInput.value = qtyOriginal; }
+                });
+            } else {
+                checkboxes.forEach((cb) => { cb.checked = false; });
+                itemRows.forEach((row) => {
+                    const inputs = row.querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]), select');
+                    inputs.forEach((input) => { input.disabled = true; input.value = ''; });
+                });
+            }
+        });
+    }
+
+
 // Handle item selection
 document.querySelectorAll('.item-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
         const row = this.closest('tr');
         const inputs = row.querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]), select');
-        
+
         inputs.forEach(input => {
             input.disabled = !this.checked;
             if (!this.checked) {
@@ -255,12 +291,12 @@ let searchTimeout;
 document.getElementById('invoice_search').addEventListener('input', function() {
     clearTimeout(searchTimeout);
     const query = this.value.trim();
-    
+
     if (query.length < 2) {
         document.getElementById('invoice_results').innerHTML = '';
         return;
     }
-    
+
     searchTimeout = setTimeout(() => {
         // Here you would implement AJAX search for invoices
         // For now, we'll just show a placeholder
@@ -271,13 +307,13 @@ document.getElementById('invoice_search').addEventListener('input', function() {
 // Form validation
 document.getElementById('returnForm').addEventListener('submit', function(e) {
     const selectedItems = document.querySelectorAll('.item-checkbox:checked');
-    
+
     if (selectedItems.length === 0) {
         e.preventDefault();
         alert('يرجى اختيار صنف واحد على الأقل للإرجاع');
         return false;
     }
-    
+
     // Validate quantities
     let hasValidQuantity = false;
     selectedItems.forEach(checkbox => {
@@ -287,7 +323,7 @@ document.getElementById('returnForm').addEventListener('submit', function(e) {
             hasValidQuantity = true;
         }
     });
-    
+
     if (!hasValidQuantity) {
         e.preventDefault();
         alert('يرجى إدخال كمية صحيحة للأصناف المحددة');
@@ -297,9 +333,11 @@ document.getElementById('returnForm').addEventListener('submit', function(e) {
 
 // Initialize form state
 document.addEventListener('DOMContentLoaded', function() {
-    // Trigger return type change to set initial state
     document.getElementById('return_type').dispatchEvent(new Event('change'));
+    const scope = document.getElementById('return_scope');
+    if (scope) scope.dispatchEvent(new Event('change'));
 });
 </script>
 @endpush
+
 @endsection
