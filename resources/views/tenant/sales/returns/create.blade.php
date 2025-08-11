@@ -262,7 +262,7 @@ document.getElementById('invoice_search').addEventListener('input', function() {
         return;
     }
     searchTimeout = setTimeout(() => {
-        fetch(`{{ route('tenant.sales.returns.find-invoice') }}?invoice_number=${encodeURIComponent(query)}`)
+        fetch(`/tenant/sales/returns/find-invoice?invoice_number=${encodeURIComponent(query)}`, { credentials: 'same-origin' })
             .then(r => r.json())
             .then(data => {
                 const res = document.getElementById('invoice_results');
