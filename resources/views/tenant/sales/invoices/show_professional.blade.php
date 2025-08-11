@@ -356,11 +356,11 @@
                     <h4><i class="fas fa-balance-scale" style="color: #0ea5e9;"></i> حالة المديونية</h4>
                     <div class="detail-item">
                         <span class="detail-label">المديونية السابقة:</span>
-                        <span class="detail-value">{{ number_format((float)($invoice->previous_debt ?? 0), 2) }} د.ع</span>
+                        <span class="detail-value">{{ number_format((float)($invoice->previous_balance ?? $invoice->previous_debt ?? $invoice->customer->previous_debt ?? 0), 2) }} د.ع</span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">المديونية الحالية:</span>
-                        <span class="detail-value">{{ number_format((float)($invoice->current_debt ?? 0), 2) }} د.ع</span>
+                        <span class="detail-value">{{ number_format((float)($invoice->current_debt ?? $invoice->customer->total_debt ?? ($invoice->total_amount + ($invoice->previous_balance ?? 0))), 2) }} د.ع</span>
                     </div>
                 </div>
 
@@ -417,13 +417,24 @@
                             <td style="font-weight: 600;">{{ $item->quantity }}</td>
                             <td style="font-weight: 600;">{{ number_format($item->unit_price, 2) }} دينار عراقي</td>
                             <td style="color: #e53e3e; font-weight: 600;">
-                                @if($item->discount_amount > 0)
+                                @if(($item->discount_percentage ?? 0) > 0)
+                                    {{ rtrim(rtrim(number_format($item->discount_percentage, 2), '0'), '.') }}%
+                                @elseif(($item->discount_amount ?? 0) > 0)
                                     {{ number_format($item->discount_amount, 2) }} دينار عراقي
                                 @else
                                     -
                                 @endif
                             </td>
-                            <td style="font-weight: 700; color: #2d3748; font-size: 16px;">{{ number_format($item->total_amount, 2) }} دينار عراقي</td>
+                            <td style="font-weight: 700; color: #2d3748; font-size: 16px;">
+                                @php
+                                    $__line = (float)($item->quantity ?? 0) * (float)($item->unit_price ?? 0);
+                                    $__disc = (($item->discount_percentage ?? 0) > 0) ? ($__line * (float)$item->discount_percentage / 100) : (float)($item->discount_amount ?? 0);
+                                    $__after = $__line - $__disc;
+                                    $__tax = (($item->tax_rate ?? 0) > 0) ? ($__after * (float)$item->tax_rate / 100) : 0;
+                                    $__lineTotal = $item->total_amount ?? $item->line_total ?? ($__after + $__tax);
+                                @endphp
+                                {{ number_format($__lineTotal, 2) }} دينار عراقي
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -440,7 +451,7 @@
 
             <div class="total-row">
                 <span class="detail-label">المجموع الفرعي:</span>
-                <span class="detail-value" style="font-weight: 700;">{{ number_format($invoice->subtotal_amount, 2) }} دينار عراقي</span>
+                <span class="detail-value" style="font-weight: 700;">{{ number_format($invoice->subtotal_amount ?? $invoice->subtotal ?? $invoice->items->sum(fn($it) => ($it->quantity ?? 0) * ($it->unit_price ?? 0)), 2) }} دينار عراقي</span>
             </div>
 
             @if($invoice->discount_amount > 0)
