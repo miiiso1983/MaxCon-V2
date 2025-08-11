@@ -1762,6 +1762,11 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
         Route::resource('orders', SalesOrderController::class);
         Route::patch('orders/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('orders.update-status');
 
+        // Alias: AJAX find invoice for returns under /tenant/sales/returns/find-invoice
+        // This ensures compatibility with front-end calls expecting /tenant/sales/returns/*
+        Route::get('returns/find-invoice', [ReturnController::class, 'findInvoice'])->name('tenant.sales.returns.find-invoice');
+
+
 
 
         // Customers
