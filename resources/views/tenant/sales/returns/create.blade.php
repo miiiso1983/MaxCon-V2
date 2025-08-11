@@ -138,8 +138,9 @@
                 <select name="refund_method" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر طريقة الاسترداد</option>
                     <option value="cash" {{ old('refund_method') === 'cash' ? 'selected' : '' }}>نقداً</option>
-                    <option value="credit" {{ old('refund_method') === 'credit' ? 'selected' : '' }}>رصيد للعميل</option>
                     <option value="bank_transfer" {{ old('refund_method') === 'bank_transfer' ? 'selected' : '' }}>تحويل بنكي</option>
+                    <option value="credit_note" {{ old('refund_method') === 'credit_note' ? 'selected' : '' }}>رصيد إشعار دائن</option>
+                    <option value="exchange" {{ old('refund_method') === 'exchange' ? 'selected' : '' }}>استبدال</option>
                 </select>
                 @error('refund_method')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
