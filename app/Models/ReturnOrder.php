@@ -11,7 +11,7 @@ class ReturnOrder extends Model
 {
     use HasFactory;
 
-    protected $table = 'returns';
+    protected $table = 'returns'; // some deployments may have legacy columns; model adapts in controller
 
     protected $fillable = [
         'tenant_id',

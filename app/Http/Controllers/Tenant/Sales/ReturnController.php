@@ -197,8 +197,22 @@ class ReturnController extends Controller
             $returnOrder->customer_id = $validated['customer_id'];
             $returnOrder->return_date = $validated['return_date'];
             $returnOrder->type = $validated['type'];
-            $returnOrder->reason = $validated['reason'];
-            $returnOrder->notes = $validated['notes'] ?? null;
+            // Some DBs use enum 'reason' with limited values; map free text to reason_description when needed
+            $providedReason = $validated['reason'] ?? null;
+            $allowedReasons = ['defective','wrong_item','customer_request','expired','damaged','other'];
+            if ($providedReason && in_array($providedReason, $allowedReasons, true)) {
+                $returnOrder->reason = $providedReason;
+            } else {
+                // Fall back to 'other' and keep full text in reason_description if column exists
+                $returnOrder->reason = 'other';
+                if (\Illuminate\Support\Facades\Schema::hasColumn('returns', 'reason_description')) {
+                    $returnOrder->reason_description = $providedReason;
+                } else {
+                    // or append to notes
+                    $returnOrder->notes = trim(($validated['notes'] ?? '') . "\nسبب الإرجاع: " . ($providedReason ?? ''));
+                }
+            }
+            $returnOrder->notes = $returnOrder->notes ?? ($validated['notes'] ?? null);
             $returnOrder->refund_method = $validated['refund_method'] ?? null;
             // Default status when created
             $returnOrder->status = 'pending';
@@ -230,10 +244,20 @@ class ReturnController extends Controller
                 $returnItem->product_code = $invoiceItem->product_code;
                 $returnItem->batch_number = $invoiceItem->batch_number;
                 $returnItem->expiry_date = $invoiceItem->expiry_date;
+                // Map fields to your DB schema (returned_quantity, original_quantity, total_price, condition_status)
                 $returnItem->quantity_returned = $itemData['quantity_returned'];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'returned_quantity')) {
+                    $returnItem->returned_quantity = $itemData['quantity_returned'];
+                }
                 $returnItem->quantity_original = $invoiceItem->quantity;
+                if (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'original_quantity')) {
+                    $returnItem->original_quantity = $invoiceItem->quantity;
+                }
                 $returnItem->unit_price = $invoiceItem->unit_price;
                 $returnItem->condition = $itemData['condition'];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'condition_status')) {
+                    $returnItem->condition_status = $itemData['condition'];
+                }
                 $returnItem->reason = $itemData['reason'] ?? null;
                 $returnItem->notes = $itemData['notes'] ?? null;
 
