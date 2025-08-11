@@ -174,7 +174,8 @@ class ReturnController extends Controller
             'type' => 'required|in:return,exchange',
             'reason' => 'required|string',
             'notes' => 'nullable|string',
-            'refund_method' => 'nullable|string|in:cash,credit,bank_transfer',
+            // Match DB enum in this environment: cash, bank_transfer, credit_note, exchange
+            'refund_method' => 'nullable|string|in:cash,bank_transfer,credit_note,exchange',
             'return_scope' => 'nullable|in:full,partial',
             'items' => 'required|array|min:1',
             'items.*.invoice_item_id' => 'required|exists:invoice_items,id',
