@@ -449,49 +449,64 @@
                 إجماليات الفاتورة
             </h3>
 
+            @php
+                $__subtotalComputed = 0;
+                foreach ($invoice->items as $__it) {
+                    $__subtotalComputed += (float)($__it->quantity ?? 0) * (float)($__it->unit_price ?? 0);
+                }
+                $__subtotalDisplay = (float)($invoice->subtotal_amount ?? $invoice->subtotal ?? 0);
+                if ($__subtotalDisplay <= 0 && $__subtotalComputed > 0) {
+                    $__subtotalDisplay = $__subtotalComputed;
+                }
+                $__discountInvoice = (float)($invoice->discount_amount ?? 0);
+                $__shipping = (float)($invoice->shipping_cost ?? 0);
+                $__additional = (float)($invoice->additional_charges ?? 0);
+                $__taxInvoice = (float)($invoice->tax_amount ?? 0);
+                $__totalDisplay = (float)($invoice->total_amount ?? 0);
+                if ($__totalDisplay <= 0) {
+                    $__totalDisplay = max(0, $__subtotalDisplay - $__discountInvoice) + $__taxInvoice + $__shipping + $__additional;
+                }
+                $__prevDebt = (float)($invoice->previous_balance ?? $invoice->previous_debt ?? ($invoice->customer->previous_debt ?? 0));
+                $__currentDebt = (float)($invoice->current_debt ?? ($invoice->customer->total_debt ?? ($__totalDisplay + $__prevDebt)));
+            @endphp
+
             <div class="total-row">
                 <span class="detail-label">المجموع الفرعي:</span>
-                <span class="detail-value" style="font-weight: 700;">{{ number_format($invoice->subtotal_amount ?? $invoice->subtotal ?? $invoice->items->sum(fn($it) => ($it->quantity ?? 0) * ($it->unit_price ?? 0)), 2) }} دينار عراقي</span>
+                <span class="detail-value" style="font-weight: 700;">{{ number_format($__subtotalDisplay, 2) }} دينار عراقي</span>
             </div>
 
-            @if($invoice->discount_amount > 0)
+            @if($__discountInvoice > 0)
             <div class="total-row">
                 <span class="detail-label">الخصم:</span>
-                <span class="detail-value" style="color: #e53e3e; font-weight: 700;">{{ number_format($invoice->discount_amount, 2) }} دينار عراقي</span>
+                <span class="detail-value" style="color: #e53e3e; font-weight: 700;">{{ number_format($__discountInvoice, 2) }} دينار عراقي</span>
             </div>
             @endif
 
-            @if($invoice->shipping_cost > 0 || $invoice->additional_charges > 0)
+            @if(($__shipping + $__additional) > 0)
             <div class="total-row">
                 <span class="detail-label">الشحن والرسوم الإضافية:</span>
-                <span class="detail-value" style="font-weight: 700;">{{ number_format($invoice->shipping_cost + $invoice->additional_charges, 2) }} دينار عراقي</span>
+                <span class="detail-value" style="font-weight: 700;">{{ number_format($__shipping + $__additional, 2) }} دينار عراقي</span>
             </div>
             @endif
 
             <div class="total-row">
-                <span class="detail-label">ضريبة القيمة المضافة (15%):</span>
-                <span class="detail-value" style="font-weight: 700;">{{ number_format($invoice->tax_amount, 2) }} دينار عراقي</span>
+                <span class="detail-label">ضريبة القيمة المضافة:</span>
+                <span class="detail-value" style="font-weight: 700;">{{ number_format($__taxInvoice, 2) }} دينار عراقي</span>
             </div>
 
-            @if($invoice->previous_balance > 0)
             <div class="total-row">
                 <span class="detail-label">المديونية السابقة:</span>
-                <span class="detail-value" style="color: #dc2626; font-weight: 700;">{{ number_format($invoice->previous_balance, 2) }} دينار عراقي</span>
+                <span class="detail-value" style="color: #dc2626; font-weight: 700;">{{ number_format($__prevDebt, 2) }} دينار عراقي</span>
             </div>
 
             <div class="total-row">
                 <span class="detail-label">إجمالي الفاتورة:</span>
-                <span class="detail-value" style="font-weight: 700;">{{ number_format($invoice->total_amount, 2) }} دينار عراقي</span>
+                <span class="detail-value" style="font-weight: 700;">{{ number_format($__totalDisplay, 2) }} دينار عراقي</span>
             </div>
 
             <div class="total-final">
-                إجمالي المديونية: {{ number_format($invoice->total_amount + $invoice->previous_balance, 2) }} دينار عراقي
+                إجمالي المديونية: {{ number_format($__totalDisplay + $__prevDebt, 2) }} دينار عراقي
             </div>
-            @else
-            <div class="total-final">
-                الإجمالي النهائي: {{ number_format($invoice->total_amount, 2) }} دينار عراقي
-            </div>
-            @endif
         </div>
 
         <!-- QR Code Section -->
