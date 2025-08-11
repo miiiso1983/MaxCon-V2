@@ -296,17 +296,18 @@
                         <div style="font-size: 11px; color: #a0aec0; margin-top: 3px;">{{ $item->notes }}</div>
                     @endif
                 </td>
-                <td>{{ $item->quantity }}</td>
+                <td>{{ number_format($item->quantity, 2) }}</td>
                 <td>{{ number_format($item->unit_price, 2) }}</td>
                 <td>
-                    @if($item->discount_amount > 0)
+                    @if(($item->discount_type ?? '') === 'percentage' && ($item->discount_percentage ?? 0) > 0)
+                        {{ rtrim(rtrim(number_format($item->discount_percentage, 2), '0'), '.') }}%
+                    @elseif(($item->discount_amount ?? 0) > 0)
                         {{ number_format($item->discount_amount, 2) }}
-                        @if($item->discount_type === 'percentage') % @endif
                     @else
                         -
                     @endif
                 </td>
-                <td style="font-weight: 600;">{{ number_format($item->total_amount, 2) }}</td>
+                <td style="font-weight: 600;">{{ number_format($item->total_amount ?? ($item->quantity * $item->unit_price - ($item->discount_amount ?? 0) + ($item->tax_amount ?? 0)), 2) }}</td>
             </tr>
             @endforeach
         </tbody>

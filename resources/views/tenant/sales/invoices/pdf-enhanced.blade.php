@@ -476,17 +476,19 @@
                         @endif
                     </td>
                     <td>{{ number_format($item->quantity, 2) }}</td>
-                    <td>{{ $item->unit }}</td>
-                    <td>{{ number_format($item->selling_price, 2) }}</td>
+                    <td>{{ $item->unit ?? '-' }}</td>
+                    <td>{{ number_format($item->unit_price ?? $item->selling_price, 2) }}</td>
                     <td>
-                        @if($item->discount_percentage > 0)
-                            {{ $item->discount_percentage }}%
-                        @else
+                        @if(($item->discount_percentage ?? 0) > 0)
+                            {{ rtrim(rtrim(number_format($item->discount_percentage, 2), '0'), '.') }}%
+                        @elseif(($item->discount_amount ?? 0) > 0)
                             {{ number_format($item->discount_amount, 2) }}
+                        @else
+                            -
                         @endif
                     </td>
-                    <td>{{ $item->tax_percentage }}%</td>
-                    <td class="highlight">{{ number_format($item->line_total, 2) }}</td>
+                    <td>{{ rtrim(rtrim(number_format($item->tax_rate ?? ($item->tax_percentage ?? 0), 2), '0'), '.') }}%</td>
+                    <td class="highlight">{{ number_format($item->line_total ?? ($item->quantity * ($item->unit_price ?? $item->selling_price) - ($item->discount_amount ?? 0) + ($item->tax_amount ?? 0)), 2) }}</td>
                 </tr>
                 @endforeach
             </tbody>
