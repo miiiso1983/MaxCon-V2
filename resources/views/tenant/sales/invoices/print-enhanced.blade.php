@@ -300,13 +300,13 @@
                 margin: 0;
                 padding: 0;
             }
-            
+
             .invoice-container {
                 max-width: none;
                 margin: 0;
                 padding: 15px;
             }
-            
+
             .no-print {
                 display: none !important;
             }
@@ -337,12 +337,12 @@
                     الموقع: www.company.com
                 </div>
             </div>
-            
+
             <div class="invoice-title">
                 <h1>فاتورة مبيعات</h1>
                 <div class="invoice-number">رقم: {{ $invoice->invoice_number }}</div>
             </div>
-            
+
             <div class="qr-section">
                 <div class="qr-code">
                     {!! $qrCode !!}
@@ -382,7 +382,7 @@
                     <span class="info-value">{{ $invoice->customer->address ?? 'غير محدد' }}</span>
                 </div>
             </div>
-            
+
             <div class="invoice-info">
                 <div class="info-title">تفاصيل الفاتورة</div>
                 <div class="info-row">
@@ -393,6 +393,16 @@
                 <div class="info-row">
                     <span class="info-label">تاريخ الاستحقاق:</span>
                     <span class="info-value">{{ $invoice->due_date->format('Y-m-d') }}</span>
+
+                <div class="info-row">
+                    <span class="info-label">المديونية السابقة:</span>
+                    <span class="info-value">{{ number_format((float)($invoice->previous_debt ?? 0), 2) }} د.ع</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">المديونية الحالية:</span>
+                    <span class="info-value">{{ number_format((float)($invoice->current_debt ?? 0), 2) }} د.ع</span>
+                </div>
+
                 </div>
                 @endif
                 <div class="info-row">

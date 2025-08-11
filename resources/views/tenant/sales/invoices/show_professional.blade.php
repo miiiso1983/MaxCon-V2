@@ -350,6 +350,20 @@
                 <div class="detail-item">
                     <span class="detail-label">العملة:</span>
                     <span class="detail-value">دينار عراقي</span>
+
+                <!-- Customer Debt Status -->
+                <div class="detail-card">
+                    <h4><i class="fas fa-balance-scale" style="color: #0ea5e9;"></i> حالة المديونية</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">المديونية السابقة:</span>
+                        <span class="detail-value">{{ number_format((float)($invoice->previous_debt ?? 0), 2) }} د.ع</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">المديونية الحالية:</span>
+                        <span class="detail-value">{{ number_format((float)($invoice->current_debt ?? 0), 2) }} د.ع</span>
+                    </div>
+                </div>
+
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">العينات المجانية:</span>

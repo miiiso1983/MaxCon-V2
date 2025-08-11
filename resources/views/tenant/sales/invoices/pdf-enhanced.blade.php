@@ -412,6 +412,16 @@
                 </div>
             </div>
 
+
+                <div class="info-row">
+                    <span class="info-label">المديونية السابقة:</span>
+                    <span class="info-value">{{ number_format((float)($invoice->previous_debt ?? 0), 2) }} د.ع</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">المديونية الحالية:</span>
+                    <span class="info-value">{{ number_format((float)($invoice->current_debt ?? 0), 2) }} د.ع</span>
+                </div>
+
             <div class="invoice-info">
                 <div class="info-title">تفاصيل الفاتورة</div>
                 <div class="info-row">

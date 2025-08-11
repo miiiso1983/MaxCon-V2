@@ -282,6 +282,13 @@
         <tbody>
             @foreach($invoice->items as $item)
             <tr>
+                    @if($invoice->previous_debt || $invoice->current_debt)
+                    <div style="font-size: 11px; color: #4b5563; margin-top: 6px;">
+                        <span>المديونية السابقة: {{ number_format((float)($invoice->previous_debt ?? 0), 2) }} د.ع</span>
+                        <span style="margin-right: 12px;">المديونية الحالية: {{ number_format((float)($invoice->current_debt ?? 0), 2) }} د.ع</span>
+                    </div>
+                    @endif
+
                 <td class="product-name">
                     <div style="font-weight: 600;">{{ $item->product_name }}</div>
                     <div style="font-size: 12px; color: #718096;">{{ $item->product_code }}</div>
