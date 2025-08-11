@@ -97,7 +97,7 @@ class ReturnController extends Controller
         $invoice = null;
         if ($request->filled('invoice_id')) {
             $invoice = Invoice::forTenant($tenantId)
-                ->with(['customer', 'items.product'])
+                ->with(['customer', 'items'])
                 ->findOrFail($request->invoice_id);
         }
 
