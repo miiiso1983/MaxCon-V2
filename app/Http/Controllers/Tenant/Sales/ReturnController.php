@@ -200,6 +200,8 @@ class ReturnController extends Controller
             $returnOrder->reason = $validated['reason'];
             $returnOrder->notes = $validated['notes'] ?? null;
             $returnOrder->refund_method = $validated['refund_method'] ?? null;
+            // Default status when created
+            $returnOrder->status = 'pending';
             $returnOrder->save();
 
             // If full return: prefill items by all invoice items when not explicitly posted
