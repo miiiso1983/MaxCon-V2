@@ -522,7 +522,7 @@
                 <div class="section-title">إجماليات الفاتورة</div>
                 <div class="total-row">
                     <div class="total-label">المجموع الفرعي:</div>
-                    <div class="total-value">{{ number_format($invoice->subtotal, 2) }} د.ع</div>
+                    <div class="total-value">{{ number_format($invoice->subtotal_amount ?? $invoice->subtotal ?? 0, 2) }} د.ع</div>
                 </div>
                 @if($invoice->discount_amount > 0)
                 <div class="total-row">

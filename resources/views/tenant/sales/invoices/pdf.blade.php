@@ -318,7 +318,7 @@
         <table class="totals-table">
             <tr>
                 <td class="totals-label">المجموع الفرعي:</td>
-                <td class="totals-amount">{{ number_format($invoice->subtotal_amount, 2) }} {{ $invoice->currency }}</td>
+                <td class="totals-amount">{{ number_format($invoice->subtotal_amount ?? $invoice->subtotal ?? 0, 2) }} {{ $invoice->currency }}</td>
             </tr>
             @if($invoice->discount_amount > 0)
             <tr>
