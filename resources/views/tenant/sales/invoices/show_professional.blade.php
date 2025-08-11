@@ -316,22 +316,22 @@
                 <h4><i class="fas fa-user-tie" style="color: #ed8936;"></i> معلومات العميل</h4>
                 <div class="detail-item">
                     <span class="detail-label">اسم العميل:</span>
-                    <span class="detail-value">{{ $invoice->customer->name }}</span>
+                    <span class="detail-value">{{ optional($invoice->customer)->name ?? '—' }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">رقم العميل:</span>
-                    <span class="detail-value">{{ $invoice->customer->customer_code }}</span>
+                    <span class="detail-value">{{ optional($invoice->customer)->customer_code ?? '—' }}</span>
                 </div>
-                @if($invoice->customer->phone)
+                @if(optional($invoice->customer)->phone)
                 <div class="detail-item">
                     <span class="detail-label">الهاتف:</span>
-                    <span class="detail-value">{{ $invoice->customer->phone }}</span>
+                    <span class="detail-value">{{ optional($invoice->customer)->phone }}</span>
                 </div>
                 @endif
-                @if($invoice->customer->email)
+                @if(optional($invoice->customer)->email)
                 <div class="detail-item">
                     <span class="detail-label">البريد الإلكتروني:</span>
-                    <span class="detail-value">{{ $invoice->customer->email }}</span>
+                    <span class="detail-value">{{ optional($invoice->customer)->email }}</span>
                 </div>
                 @endif
             </div>
@@ -525,14 +525,28 @@
                 رمز QR للتحقق من الفاتورة
             </h3>
             <div class="qr-code-container">
-                @if(str_contains(base64_decode($qrCode), '<svg'))
+                @php
+                    $decodedQr = is_string($qrCode) ? base64_decode($qrCode, true) : false;
+                    $isSvg = false;
+                    $svgContent = null;
+                    if ($decodedQr !== false && Str::contains($decodedQr, '<svg')) {
+                        $isSvg = true; $svgContent = $decodedQr;
+                    } elseif (is_string($qrCode) && Str::contains($qrCode, '<svg')) {
+                        // Handle legacy raw-SVG stored without base64
+                        $isSvg = true; $svgContent = $qrCode;
+                    }
+                @endphp
+
+                @if($isSvg && $svgContent)
                     <!-- SVG QR Code -->
                     <div style="width: 200px; height: 200px; border: 2px solid #38b2ac; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                        {!! base64_decode($qrCode) !!}
+                        {!! $svgContent !!}
                     </div>
-                @else
-                    <!-- PNG QR Code -->
+                @elseif(!empty($qrCode))
+                    <!-- PNG/Base64 QR Code -->
                     <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" style="width: 200px; height: 200px; border: 2px solid #38b2ac; border-radius: 10px;">
+                @else
+                    <div style="color:#e53e3e; font-weight:600;">تعذر تحميل رمز QR</div>
                 @endif
             </div>
             <p style="margin: 15px 0 0 0; color: #4a5568; font-size: 16px; font-weight: 500;">
@@ -656,7 +670,7 @@ function sendWhatsAppFromShow(invoiceId, phone, invoiceNumber) {
     }
 
     // إنشاء رسالة الواتساب
-    const companyName = '{{ auth()->user()->tenant->name ?? "شركة ماكس كون" }}';
+    const companyName = '{{ $invoice->tenant?->name ?? (auth()->user()?->tenant?->name ?? "شركة ماكس كون") }}';
     const invoiceUrl = window.location.href;
 
     const message = `مرحباً،

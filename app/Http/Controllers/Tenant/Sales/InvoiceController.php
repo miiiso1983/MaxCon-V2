@@ -450,18 +450,31 @@ class InvoiceController extends Controller
         $user = Auth::user();
 
         // Check if invoice belongs to current tenant
-        if ($invoice->tenant_id !== $user->tenant_id) {
+        if ($invoice->tenant_id !== ($user->tenant_id ?? null)) {
             abort(403);
         }
 
-        // Eager load tenant as the view references $invoice->tenant
-        $invoice->load(['customer', 'items.product', 'createdBy', 'salesOrder', 'payments', 'tenant']);
+        try {
+            // Eager load tenant as the view references $invoice->tenant
+            $invoice->load(['customer', 'items.product', 'createdBy', 'salesOrder', 'payments', 'tenant']);
 
-        // Generate products QR code for this invoice
-        $productsQRData = $this->generateProductsQRCode($user->tenant_id);
+            // Generate products QR code for this invoice
+            $productsQRData = $this->generateProductsQRCode($user->tenant_id);
 
-        return view('tenant.sales.invoices.show_professional', compact('invoice'))
-            ->with('productsQRData', $productsQRData);
+            return view('tenant.sales.invoices.show_professional', compact('invoice'))
+                ->with('productsQRData', $productsQRData);
+        } catch (\Throwable $e) {
+            Log::error('Invoice show failed', [
+                'invoice_id' => $invoice->id ?? null,
+                'tenant_id' => $invoice->tenant_id ?? null,
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => basename($e->getFile()),
+            ]);
+
+            // Fallback minimal view (simple PDF-style page) to avoid 500s
+            return view('tenant.sales.invoices.pdf_simple', compact('invoice'));
+        }
     }
 
     /**
