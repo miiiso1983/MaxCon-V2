@@ -183,9 +183,19 @@
                 <button type="button" id="btnAddRow" class="btn" style="background: #4f46e5; color:white; border-radius:8px; padding:10px 16px; font-weight:600;" {{ $invoice ? '' : 'disabled' }}>
                     <i class="fas fa-plus"></i>
                     إضافة صف مرتجع
+            @if($invoice)
+                <template id="server_invoice_item_options">
+                    @foreach($invoice->items as $it)
+                        <option value="{{ $it->id }}" data-max="{{ (int)$it->quantity }}" data-name="{{ addslashes($it->product_name) }}" data-code="{{ addslashes($it->product_code) }}" data-price="{{ (float)$it->unit_price }}">{{ addslashes($it->product_name) }} ({{ addslashes($it->product_code) }})</option>
+                    @endforeach
+                </template>
+            @endif
                 </button>
             </div>
         </div>
+            @if($invoice)
+                <script type="application/json" id="server_invoice_items">{!! json_encode($invoice->items->map(fn($it) => ['id' => $it->id, 'qty' => (int)$it->quantity])->values(), JSON_UNESCAPED_UNICODE) !!}</script>
+            @endif
     </div>
 
     <!-- Form Actions -->
@@ -229,15 +239,11 @@ document.getElementById('return_type').addEventListener('change', function() {
             if (isFull) {
                 const tbody = document.getElementById('returnItems');
                 const runtimeItems = (window.__invoiceItemsForReturn || []).map(it => ({ id: it.id, qty: parseInt(it.quantity || 0, 10) }));
-                @if($invoice)
-                    const serverItems = [
-                        @foreach($invoice->items as $it)
-                            { id: {{ $it->id }}, qty: {{ (int)$it->quantity }} },
-                        @endforeach
-                    ];
-                @else
-                    const serverItems = [];
-                @endif
+                const serverItems = (() => {
+                    const el = document.getElementById('server_invoice_items');
+                    if (!el) return [];
+                    try { return JSON.parse(el.textContent || '[]'); } catch (_) { return []; }
+                })();
                 const items = runtimeItems.length ? runtimeItems : serverItems;
                 if (items.length && tbody) {
                     tbody.innerHTML = '';
@@ -315,7 +321,10 @@ function addReturnRow(prefill = {}) {
             productOptions += `<option value="${it.id}" data-max="${qty}" data-name="${name}" data-code="${code}" data-price="${price}">${name} (${code})</option>`;
         });
     } else {
-        productOptions += `@if($invoice)@foreach($invoice->items as $it)<option value="{{ $it->id }}" data-max="{{ (int)$it->quantity }}" data-name="{{ addslashes($it->product_name) }}" data-code="{{ addslashes($it->product_code) }}" data-price="{{ (float)$it->unit_price }}">{{ addslashes($it->product_name) }} ({{ addslashes($it->product_code) }})</option>@endforeach@endif`;
+        const tpl = document.getElementById('server_invoice_item_options');
+        if (tpl) {
+            productOptions += tpl.innerHTML.trim();
+        }
     }
 
     const row = document.createElement('tr');
