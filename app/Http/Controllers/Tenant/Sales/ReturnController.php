@@ -102,7 +102,8 @@ class ReturnController extends Controller
         }
 
         $customers = Customer::forTenant($tenantId)->orderBy('name')->get();
-        $products = Product::forTenant($tenantId)->active()->orderBy('name')->get();
+        // Do not use ->active() to avoid dependency on a 'status' column that may not exist on all deployments
+        $products = Product::forTenant($tenantId)->orderBy('name')->get();
 
         return view('tenant.sales.returns.create', compact('invoice', 'customers', 'products'));
     }
