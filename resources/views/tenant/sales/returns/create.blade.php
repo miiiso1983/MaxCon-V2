@@ -186,7 +186,7 @@
                 </button>
             </div>
         </div>
-    </div
+    </div>
 
     <!-- Form Actions -->
     <div style="display: flex; gap: 15px; justify-content: flex-end;">
