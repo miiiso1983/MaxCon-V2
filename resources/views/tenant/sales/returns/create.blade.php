@@ -45,6 +45,20 @@
 
 <form method="POST" action="{{ route('tenant.sales.returns.store') }}" id="returnForm">
     @csrf
+    @if ($errors->any())
+        <div style="margin-bottom: 20px; padding: 12px; background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 8px;">
+            <div style="font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                يوجد أخطاء في النموذج، يرجى المراجعة:
+            </div>
+            <ul style="list-style: inside; margin: 0; padding: 0;">
+                @foreach ($errors->all() as $error)
+                    <li style="margin: 4px 0;">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
 
     <!-- Invoice Selection -->
     <div class="content-card" style="margin-bottom: 25px;">
