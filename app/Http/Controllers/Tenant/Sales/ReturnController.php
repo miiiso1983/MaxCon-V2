@@ -14,6 +14,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class ReturnController extends Controller
 {
@@ -104,6 +105,53 @@ class ReturnController extends Controller
         $products = Product::forTenant($tenantId)->active()->orderBy('name')->get();
 
         return view('tenant.sales.returns.create', compact('invoice', 'customers', 'products'));
+    }
+
+    /**
+     * Lightweight AJAX invoice lookup: returns invoice header + items for selection
+     */
+    public function findInvoice(Request $request): JsonResponse
+    {
+        $request->validate([
+            'invoice_number' => 'required|string|min:1',
+        ]);
+
+        $user = auth()->user();
+        $tenantId = $user ? $user->tenant_id : null;
+        if (!$tenantId) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $invoice = Invoice::forTenant($tenantId)
+            ->with(['customer', 'items'])
+            ->where('invoice_number', $request->invoice_number)
+            ->first();
+
+        if (!$invoice) {
+            return response()->json(['found' => false], 200);
+        }
+
+        return response()->json([
+            'found' => true,
+            'invoice' => [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'invoice_date' => optional($invoice->invoice_date)->format('Y-m-d'),
+                'customer' => [
+                    'id' => $invoice->customer_id,
+                    'name' => optional($invoice->customer)->name,
+                ],
+                'items' => $invoice->items->map(function ($it) {
+                    return [
+                        'id' => $it->id,
+                        'product_name' => $it->product_name,
+                        'product_code' => $it->product_code,
+                        'unit_price' => (float) $it->unit_price,
+                        'quantity' => (int) $it->quantity,
+                    ];
+                })->values(),
+            ],
+        ]);
     }
 
     /**
