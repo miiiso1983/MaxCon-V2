@@ -304,13 +304,19 @@ function addReturnRow(prefill = {}) {
     if (!returnItemsTbody) return;
     const idx = returnRowIndex++;
 
-    // Build product selector from invoice items
+    // Build product selector from invoice items (prefer runtime items from AJAX)
     let productOptions = '<option value="">اختر الصنف من الفاتورة</option>';
-    @if($invoice)
-        @foreach($invoice->items as $it)
-            productOptions += `<option value="{{ $it->id }}" data-max="{{ (int)$it->quantity }}" data-name="{{ addslashes($it->product_name) }}" data-code="{{ addslashes($it->product_code) }}" data-price="{{ (float)$it->unit_price }}">{{ addslashes($it->product_name) }} ({{ addslashes($it->product_code) }})</option>`;
-        @endforeach
-    @endif
+    if (Array.isArray(window.__invoiceItemsForReturn) && window.__invoiceItemsForReturn.length) {
+        window.__invoiceItemsForReturn.forEach(it => {
+            const name = esc(it.product_name || '');
+            const code = esc(it.product_code || '');
+            const price = parseFloat(it.unit_price || 0);
+            const qty = parseInt(it.quantity || 0, 10);
+            productOptions += `<option value="${it.id}" data-max="${qty}" data-name="${name}" data-code="${code}" data-price="${price}">${name} (${code})</option>`;
+        });
+    } else {
+        productOptions += `@if($invoice)@foreach($invoice->items as $it)<option value="{{ $it->id }}" data-max="{{ (int)$it->quantity }}" data-name="{{ addslashes($it->product_name) }}" data-code="{{ addslashes($it->product_code) }}" data-price="{{ (float)$it->unit_price }}">{{ addslashes($it->product_name) }} ({{ addslashes($it->product_code) }})</option>@endforeach@endif`;
+    }
 
     const row = document.createElement('tr');
     row.innerHTML = `
