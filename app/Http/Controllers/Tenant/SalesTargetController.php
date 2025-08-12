@@ -8,7 +8,6 @@ use App\Models\SalesTargetProgress;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class SalesTargetController extends Controller
@@ -250,8 +249,16 @@ class SalesTargetController extends Controller
 
         $onTrackCount = 0;
         foreach ($activeTargets as $target) {
-            $totalDays = $target->start_date->diffInDays($target->end_date) + 1;
-            $daysPassed = $target->start_date->diffInDays(Carbon::today()) + 1;
+            // Convert to Carbon instances explicitly
+            /** @var Carbon $startDate */
+            $startDate = Carbon::parse($target->start_date);
+            /** @var Carbon $endDate */
+            $endDate = Carbon::parse($target->end_date);
+            /** @var Carbon $today */
+            $today = Carbon::today();
+
+            $totalDays = $startDate->diffInDays($endDate) + 1;
+            $daysPassed = $startDate->diffInDays($today) + 1;
             $expectedProgress = ($daysPassed / $totalDays) * 100;
 
             if ($target->progress_percentage >= $expectedProgress) {
