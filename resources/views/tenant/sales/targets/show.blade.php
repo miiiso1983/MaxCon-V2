@@ -1,6 +1,62 @@
-@extends('layouts.tenant')
+@extends('layouts.modern')
 
 @section('title', 'تفاصيل الهدف - ' . $target->title)
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/sales-targets.css') }}">
+@endpush
+
+
+
+@push('styles')
+<style>
+/* Responsive two-column layout for show page */
+.targets-two-col {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+@media (max-width: 1200px) {
+    .targets-two-col {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+/* Ensure cards expand nicely on small screens */
+.targets-two-col > div {
+    min-width: 0;
+}
+
+/* Status badge styles */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-badge.success {
+    background: #dcfce7;
+    color: #166534;
+}
+.status-badge.danger {
+    background: #fef2f2;
+    color: #dc2626;
+}
+.status-badge.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+.status-badge.default {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* Make any wide tables scroll horizontally on small screens */
+.responsive-table-wrapper {
+    overflow-x: auto;
+}
+</style>
+@endpush
 
 @section('content')
 <div class="container-fluid">
@@ -13,7 +69,7 @@
                     {{ $target->title }}
                 </h1>
                 <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 16px;">
-                    {{ $target->target_entity_name }} - 
+                    {{ $target->target_entity_name }} -
                     @switch($target->target_type)
                         @case('product') منتج @break
                         @case('vendor') شركة @break
@@ -24,12 +80,12 @@
                 </p>
             </div>
             <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <a href="{{ route('tenant.sales.targets.edit', $target) }}" 
+                <a href="{{ route('tenant.sales.targets.edit', $target) }}"
                    style="background: rgba(255,255,255,0.2); color: white; padding: 12px 20px; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px);">
                     <i class="fas fa-edit"></i>
                     تعديل
                 </a>
-                <a href="{{ route('tenant.sales.targets.index') }}" 
+                <a href="{{ route('tenant.sales.targets.index') }}"
                    style="background: rgba(255,255,255,0.2); color: white; padding: 12px 20px; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px);">
                     <i class="fas fa-arrow-right"></i>
                     العودة للقائمة
@@ -44,8 +100,8 @@
         <div style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
             <div style="font-size: 48px; font-weight: 700; margin-bottom: 10px;">{{ $target->progress_percentage }}%</div>
             <div style="opacity: 0.9; font-size: 16px;">نسبة التقدم</div>
-            <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 8px; margin-top: 15px; overflow: hidden;">
-                <div style="background: white; height: 100%; width: {{ min(100, $target->progress_percentage) }}%; transition: width 0.3s ease;"></div>
+            <div class="progress-bar" style="margin-top: 15px;">
+                <div class="progress-fill" style="--w: {{ min(100, $target->progress_percentage) }}%;"></div>
             </div>
         </div>
 
@@ -74,7 +130,7 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+    <div class="targets-two-col">
         <!-- Main Content -->
         <div>
             <!-- Progress Chart -->
@@ -92,9 +148,9 @@
                     <i class="fas fa-history" style="margin-left: 8px; color: #10b981;"></i>
                     التقدم الأخير
                 </h3>
-                
+
                 @if($recentProgress->count() > 0)
-                    <div style="overflow-x: auto;">
+                    <div class="responsive-table-wrapper">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead style="background: #f8fafc;">
                                 <tr>
@@ -143,8 +199,8 @@
                     <i class="fas fa-info-circle" style="margin-left: 8px; color: #6366f1;"></i>
                     تفاصيل الهدف
                 </h3>
-                
-                <div style="space-y: 15px;">
+
+                <div style="display:flex; flex-direction:column; gap:15px;">
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 3px;">نوع الفترة</div>
                         <div style="font-weight: 600; color: #374151;">
@@ -155,37 +211,35 @@
                             @endswitch
                         </div>
                     </div>
-                    
+
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 3px;">فترة الهدف</div>
                         <div style="font-weight: 600; color: #374151;">
                             {{ $target->start_date->format('Y-m-d') }} - {{ $target->end_date->format('Y-m-d') }}
                         </div>
                     </div>
-                    
+
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 3px;">الحالة</div>
-                        <span style="background: {{ $target->status_color === 'success' ? '#dcfce7' : ($target->status_color === 'danger' ? '#fef2f2' : ($target->status_color === 'warning' ? '#fef3c7' : '#f3f4f6')) }}; 
-                                     color: {{ $target->status_color === 'success' ? '#166534' : ($target->status_color === 'danger' ? '#dc2626' : ($target->status_color === 'warning' ? '#d97706' : '#374151')) }}; 
-                                     padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                        <span class="status-badge {{ $target->status_color ?? 'default' }}">
                             {{ $target->status_text }}
                         </span>
                     </div>
-                    
+
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 3px;">آخر تحديث</div>
                         <div style="font-weight: 600; color: #374151;">
                             {{ $target->last_updated_at ? $target->last_updated_at->diffForHumans() : 'لم يتم التحديث بعد' }}
                         </div>
                     </div>
-                    
+
                     @if($target->description)
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 3px;">الوصف</div>
                         <div style="color: #374151; line-height: 1.5;">{{ $target->description }}</div>
                     </div>
                     @endif
-                    
+
                     @if($target->notes)
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 3px;">ملاحظات</div>
@@ -202,10 +256,10 @@
                     <i class="fas fa-plus-circle" style="margin-left: 8px; color: #10b981;"></i>
                     تحديث التقدم
                 </h3>
-                
+
                 <form method="POST" action="{{ route('tenant.sales.targets.update-progress', $target) }}">
                     @csrf
-                    
+
                     @if($target->measurement_type === 'quantity' || $target->measurement_type === 'both')
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151; font-size: 14px;">الكمية</label>
@@ -214,7 +268,7 @@
                                placeholder="0.00">
                     </div>
                     @endif
-                    
+
                     @if($target->measurement_type === 'value' || $target->measurement_type === 'both')
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151; font-size: 14px;">القيمة</label>
@@ -223,15 +277,15 @@
                                placeholder="0.00">
                     </div>
                     @endif
-                    
+
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151; font-size: 14px;">ملاحظات</label>
                         <textarea name="notes" rows="2"
                                   style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; resize: vertical;"
                                   placeholder="ملاحظات حول التحديث..."></textarea>
                     </div>
-                    
-                    <button type="submit" 
+
+                    <button type="submit"
                             style="background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;">
                         <i class="fas fa-save"></i> تحديث التقدم
                     </button>
@@ -245,27 +299,27 @@
                     <i class="fas fa-chart-bar" style="margin-left: 8px; color: #f59e0b;"></i>
                     إحصائيات
                 </h3>
-                
-                <div style="space-y: 12px;">
+
+                <div style="display:flex; flex-direction:column; gap:12px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <span style="color: #6b7280; font-size: 14px;">أيام التتبع</span>
                         <span style="font-weight: 600; color: #374151;">{{ $progressStats['total_days_tracked'] }}</span>
                     </div>
-                    
+
                     @if($target->measurement_type === 'quantity' || $target->measurement_type === 'both')
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <span style="color: #6b7280; font-size: 14px;">متوسط يومي (كمية)</span>
                         <span style="font-weight: 600; color: #374151;">{{ number_format($progressStats['avg_daily_quantity'], 2) }}</span>
                     </div>
                     @endif
-                    
+
                     @if($target->measurement_type === 'value' || $target->measurement_type === 'both')
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <span style="color: #6b7280; font-size: 14px;">متوسط يومي (قيمة)</span>
                         <span style="font-weight: 600; color: #374151;">{{ number_format($progressStats['avg_daily_value'], 2) }}</span>
                     </div>
                     @endif
-                    
+
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <span style="color: #6b7280; font-size: 14px;">تقدم الوقت</span>
                         <span style="font-weight: 600; color: #374151;">{{ $progressStats['time_progress'] }}%</span>
@@ -282,7 +336,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Progress Chart
     const chartData = @json($chartData);
-    
+
     const options = {
         series: [{
             name: 'التقدم التراكمي (%)',

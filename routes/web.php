@@ -1123,6 +1123,8 @@ Route::prefix('test')->name('test.')->group(function () {
     Route::get('dropdown', function () {
         return view('test-dropdown');
     })->name('dropdown');
+
+
 });
 
 // Tenant-specific routes (للـ Tenant Admin)
@@ -2133,6 +2135,8 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             Route::post('{target}/progress', [SalesTargetController::class, 'updateProgress'])->name('update-progress');
             Route::get('dashboard/overview', [SalesTargetController::class, 'dashboard'])->name('dashboard');
             Route::get('reports/analytics', [SalesTargetController::class, 'reports'])->name('reports');
+            // Export analytics (excel/pdf)
+            Route::get('reports/export/{format}', [SalesTargetController::class, 'export'])->name('reports.export');
         });
     });
 
