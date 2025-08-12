@@ -399,7 +399,8 @@ function exportReport(format) {
         target_type: '{{ $targetType }}',
         period_type: '{{ $periodType }}',
     });
-    window.location.href = `{{ route('tenant.sales.targets.reports.export', ['format' => '']) }}/${format}?${params.toString()}`.replace('/export/', `/export/${format}`);
+    const exportBase = "{{ route('tenant.sales.targets.reports.export', ['format' => 'FORMAT_PLACEHOLDER']) }}";
+    window.location.href = exportBase.replace('FORMAT_PLACEHOLDER', format) + `?${params.toString()}`;
 }
 
 function printReport() {
