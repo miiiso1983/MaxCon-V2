@@ -1194,6 +1194,29 @@ Route::prefix('test')->name('test.')->group(function () {
     })->name('test-auth-tenant');
 });
 
+    // TEMP: Activate tenant by ID (no auth) - remove after fix
+    Route::get('activate-tenant/{id}', function ($id) {
+        try {
+            $tenant = \App\Models\Tenant::find($id);
+            if (!$tenant) {
+                return response()->json(['ok' => false, 'message' => 'Tenant not found', 'id' => (int)$id], 404);
+            }
+            $tenant->status = 'active';
+            if (isset($tenant->is_active)) { $tenant->is_active = 1; }
+            if (!$tenant->trial_ends_at) { $tenant->trial_ends_at = now()->addDays(30); }
+            $tenant->save();
+            return response()->json(['ok' => true, 'tenant' => [
+                'id' => $tenant->id,
+                'name' => $tenant->name,
+                'status' => $tenant->status,
+                'is_active' => $tenant->is_active ?? null,
+                'trial_ends_at' => optional($tenant->trial_ends_at)->toDateTimeString(),
+            ]]);
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
+        }
+    })->name('test.activate-tenant');
+
 // Tenant-specific routes (للـ Tenant Admin)
 Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(function () {
     // Tenant dashboard
