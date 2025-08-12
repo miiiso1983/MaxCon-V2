@@ -72,6 +72,15 @@ class TenantMiddleware
             return $tenant;
         }
 
+        // Try to identify by domain without www prefix
+        if (str_starts_with($host, 'www.')) {
+            $domainWithoutWww = substr($host, 4);
+            $tenant = Tenant::where('domain', $domainWithoutWww)->first();
+            if ($tenant) {
+                return $tenant;
+            }
+        }
+
         // Try to identify by request parameter (for API or testing)
         if ($request->has('tenant_id')) {
             return Tenant::find($request->get('tenant_id'));
