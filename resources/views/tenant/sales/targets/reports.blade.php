@@ -89,7 +89,14 @@
         </div>
         <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
             <div style="font-size: 36px; font-weight: 700; margin-bottom: 5px;">
-                {{ $targets->filter(function($t) { return $t->end_date->isPast() && $t->progress_percentage < 100; })->count() }}
+                {{ $targets->filter(function($t) {
+                    try {
+                        $endDate = \Carbon\Carbon::parse($t->end_date);
+                        return $endDate->isPast() && $t->progress_percentage < 100;
+                    } catch (\Exception $e) {
+                        return false;
+                    }
+                })->count() }}
             </div>
             <div style="opacity: 0.9;">الأهداف المتأخرة</div>
         </div>
