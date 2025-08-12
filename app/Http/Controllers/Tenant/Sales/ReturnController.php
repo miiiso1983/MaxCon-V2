@@ -354,7 +354,8 @@ class ReturnController extends Controller
             'return_date' => 'required|date',
             'reason' => 'required|string',
             'notes' => 'nullable|string',
-            'refund_method' => 'nullable|string|in:cash,credit,bank_transfer',
+            // Align with DB enum used in this environment
+            'refund_method' => 'nullable|string|in:cash,bank_transfer,credit_note,exchange',
         ]);
 
         $return->update($validated);
