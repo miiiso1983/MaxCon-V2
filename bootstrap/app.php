@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -21,5 +22,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Global exception handler fallback to avoid server error page hiding messages
+        $exceptions->render(function (Throwable $e) {
+            // Return plain text for minimal routes or JSON for API-like checks
+            $path = request()->path();
+            if (str_starts_with($path, '__') || str_contains($path, 'test') || str_contains($path, 'ping')) {
+                return response('EX: ' . $e->getMessage(), 500);
+            }
+            // Otherwise, proceed with default behavior
+            return null; // use default handler
+        });
     })->create();
