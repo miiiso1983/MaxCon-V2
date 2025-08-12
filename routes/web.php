@@ -1222,6 +1222,28 @@ Route::prefix('test')->name('test.')->group(function () {
 // SAFE route for analytics without tenant middleware (uses per-user tenant scoping inside controller)
 Route::middleware(['auth'])->get('/tenant/sales/targets/reports/analytics-safe', [SalesTargetController::class, 'reports'])
     ->name('tenant.sales.targets.reports.safe');
+// Ultra-minimal diagnostics under tenant path without tenant middleware
+Route::middleware(['auth'])->get('/tenant/sales/targets/ping', function () {
+    return response('OK ' . now()->toDateTimeString(), 200);
+})->name('tenant.sales.targets.ping');
+
+Route::middleware(['auth'])->get('/tenant/sales/targets/reports/analytics-raw', function () {
+    $user = auth()->user();
+    $tenantInApp = app()->has('tenant') ? app('tenant') : null;
+    return response()->json([
+        'ok' => true,
+        'path' => '/tenant/sales/targets/reports/analytics-raw',
+        'user' => $user ? [
+            'id' => $user->id,
+            'name' => $user->name,
+            'tenant_id' => $user->tenant_id,
+        ] : null,
+        'tenant_in_app' => $tenantInApp ? [
+            'id' => $tenantInApp->id,
+            'name' => $tenantInApp->name,
+        ] : null,
+    ]);
+})->name('tenant.sales.targets.reports.raw');
 
 Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(function () {
     // Tenant dashboard
