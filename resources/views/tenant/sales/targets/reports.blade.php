@@ -250,17 +250,17 @@
                 </h3>
                 
                 <div class="export-buttons">
-                    <button onclick="exportReport('pdf')"
-                            style="display: block; width: 100%; background: #ef4444; color: white; padding: 12px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 10px;">
+                    <a href="{{ route('tenant.sales.targets.reports.export', ['format' => 'pdf', 'year' => $year, 'target_type' => $targetType, 'period_type' => $periodType]) }}"
+                       class="btn btn-danger" style="display:block; width:100%; background:#ef4444; color:white; padding:12px 15px; border-radius:8px; font-weight:600; text-decoration:none; text-align:center; margin-bottom:10px;">
                         <i class="fas fa-file-pdf"></i> تصدير PDF
-                    </button>
-                    
-                    <button onclick="exportReport('excel')" 
-                            style="display: block; width: 100%; background: #10b981; color: white; padding: 12px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 10px;">
+                    </a>
+
+                    <a href="{{ route('tenant.sales.targets.reports.export', ['format' => 'excel', 'year' => $year, 'target_type' => $targetType, 'period_type' => $periodType]) }}"
+                       class="btn btn-success" style="display:block; width:100%; background:#10b981; color:white; padding:12px 15px; border-radius:8px; font-weight:600; text-decoration:none; text-align:center; margin-bottom:10px;">
                         <i class="fas fa-file-excel"></i> تصدير Excel
-                    </button>
-                    
-                    <button onclick="printReport()" 
+                    </a>
+
+                    <button onclick="printReport()"
                             style="display: block; width: 100%; background: #6b7280; color: white; padding: 12px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
                         <i class="fas fa-print"></i> طباعة
                     </button>
@@ -387,7 +387,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Export functions
 function exportReport(format) {
-    alert(`سيتم تصدير التقرير بصيغة ${format.toUpperCase()}\n\nيتضمن التقرير:\n• إحصائيات شاملة\n• رسوم بيانية\n• تفاصيل الأهداف\n• تحليلات الأداء`);
+    const params = new URLSearchParams({
+        year: '{{ $year }}',
+        target_type: '{{ $targetType }}',
+        period_type: '{{ $periodType }}',
+    });
+    window.location.href = `{{ route('tenant.sales.targets.reports.export', ['format' => '']) }}/${format}?${params.toString()}`.replace('/export/', `/export/${format}`);
 }
 
 function printReport() {
