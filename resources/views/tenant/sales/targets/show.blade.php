@@ -26,6 +26,31 @@
 .targets-two-col > div {
     min-width: 0;
 }
+
+/* Status badge styles */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-badge.success {
+    background: #dcfce7;
+    color: #166534;
+}
+.status-badge.danger {
+    background: #fef2f2;
+    color: #dc2626;
+}
+.status-badge.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+.status-badge.default {
+    background: #f3f4f6;
+    color: #374151;
+}
+
 /* Make any wide tables scroll horizontally on small screens */
 .responsive-table-wrapper {
     overflow-x: auto;
@@ -196,9 +221,7 @@
 
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 3px;">الحالة</div>
-                        <span style="background: {{ $target->status_color === 'success' ? '#dcfce7' : ($target->status_color === 'danger' ? '#fef2f2' : ($target->status_color === 'warning' ? '#fef3c7' : '#f3f4f6')) }};
-                                     color: {{ $target->status_color === 'success' ? '#166534' : ($target->status_color === 'danger' ? '#dc2626' : ($target->status_color === 'warning' ? '#d97706' : '#374151')) }};
-                                     padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                        <span class="status-badge {{ $target->status_color ?? 'default' }}">
                             {{ $target->status_text }}
                         </span>
                     </div>
