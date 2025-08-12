@@ -1124,7 +1124,28 @@ Route::prefix('test')->name('test.')->group(function () {
         return view('test-dropdown');
     })->name('dropdown');
 
+    // Simple test to check what's happening
+    Route::get('simple-test', function () {
+        try {
+            // Check if we can access the database
+            $tenantCount = \App\Models\Tenant::count();
 
+            // Get the tenant
+            $tenant = \App\Models\Tenant::where('domain', 'maxcon.app')->first();
+
+            if (!$tenant) {
+                return 'No tenant found with maxcon.app domain. Total tenants: ' . $tenantCount;
+            }
+
+            // Check if we can access the controller
+            $controller = new \App\Http\Controllers\Tenant\SalesTargetController();
+
+            return 'Tenant found: ' . $tenant->name . '. Controller created successfully.';
+
+        } catch (\Exception $e) {
+            return 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
+        }
+    })->name('simple-test');
 });
 
 // Tenant-specific routes (للـ Tenant Admin)
