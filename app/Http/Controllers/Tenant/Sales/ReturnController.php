@@ -274,6 +274,10 @@ class ReturnController extends Controller
                 }
 
                 $returnItem->calculateTotal();
+                // Ensure legacy total_price is populated if present and not set by model
+                if (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'total_price') && empty($returnItem->total_price)) {
+                    $returnItem->total_price = $returnItem->total_amount ?? ($returnItem->quantity_returned * $returnItem->unit_price);
+                }
                 $returnItem->save();
             }
 
