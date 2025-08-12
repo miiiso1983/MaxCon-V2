@@ -421,6 +421,10 @@ class SalesTargetController extends Controller
      */
     public function reports(Request $request)
     {
+        // Debug knobs
+        $debug = $request->boolean('debug');
+        $raw = $request->boolean('raw');
+
         try {
             $tenantId = $this->resolveTenantId();
 
@@ -430,60 +434,71 @@ class SalesTargetController extends Controller
             $periodType = $request->get('period_type');
 
             if (!$tenantId) {
-                // Return empty view with a friendly message instead of 500
                 $targets = collect();
                 $reportData = [
                     'by_type' => [],
                     'by_period' => [],
                     'by_status' => []
                 ];
-                return view('tenant.sales.targets.reports', compact(
+
+                if ($raw) {
+                    return response()->json([
+                        'ok' => false,
+                        'reason' => 'no_tenant_context',
+                        'year' => $year,
+                        'targetType' => $targetType,
+                        'periodType' => $periodType,
+                    ]);
+                }
+
+                $html = view('tenant.sales.targets.reports', compact(
                     'targets', 'reportData', 'year', 'targetType', 'periodType'
-                ))->with('warning', 'لم يتم التعرف على المستأجر. يرجى تسجيل الدخول.');
+                ))->render();
+                return response($html);
             }
 
             $query = SalesTarget::forTenant($tenantId)->where('year', $year);
 
-            if ($targetType) {
-                $query->where('target_type', $targetType);
-            }
-
-            if ($periodType) {
-                $query->where('period_type', $periodType);
-            }
+            if ($targetType) { $query->where('target_type', $targetType); }
+            if ($periodType) { $query->where('period_type', $periodType); }
 
             $targets = $query->with(['progress'])->get();
 
             // Generate report data
             $reportData = $this->generateReportData($targets);
 
-            return view('tenant.sales.targets.reports', compact(
-                'targets',
-                'reportData',
-                'year',
-                'targetType',
-                'periodType'
-            ));
-        } catch (\Throwable $e) {
-            // Fail-safe: show an empty view instead of 500
-            $year = $request->get('year', Carbon::now()->year);
-            $targetType = $request->get('target_type');
-            $periodType = $request->get('period_type');
-            $targets = collect();
-            $reportData = [
-                'by_type' => [],
-                'by_period' => [],
-                'by_status' => []
-            ];
+            if ($raw || $debug) {
+                return response()->json([
+                    'ok' => true,
+                    'tenant_id' => $tenantId,
+                    'counts' => [
+                        'targets' => $targets->count(),
+                    ],
+                    'filters' => compact('year','targetType','periodType'),
+                ]);
+            }
 
-            // Optionally, you can log the error
+            // Render view inside try/catch to capture blade exceptions
+            $html = view('tenant.sales.targets.reports', compact(
+                'targets', 'reportData', 'year', 'targetType', 'periodType'
+            ))->render();
+            return response($html);
+        } catch (\Throwable $e) {
             \Log::error('SalesTarget reports error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return view('tenant.sales.targets.reports', compact(
-                'targets', 'reportData', 'year', 'targetType', 'periodType'
-            ))->with('error', 'حدث خطأ أثناء تحميل التقارير، تم عرض صفحة فارغة مؤقتاً.');
+            if ($raw) {
+                return response()->json([
+                    'ok' => false,
+                    'error' => $e->getMessage(),
+                ], 200);
+            }
+
+            // Show friendly 500 with message
+            return response()->view('errors.500', [
+                'message' => 'خطأ أثناء تحميل تقارير الأهداف: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
