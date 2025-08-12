@@ -98,7 +98,7 @@ class SalesTargetController extends Controller
         // Set year, month, quarter based on dates
         $startDate = Carbon::parse($validated['start_date']);
         $validated['year'] = $startDate->year;
-        
+
         if ($validated['period_type'] === 'monthly') {
             $validated['month'] = $startDate->month;
         } elseif ($validated['period_type'] === 'quarterly') {
@@ -125,7 +125,7 @@ class SalesTargetController extends Controller
 
         // Progress statistics
         $progressStats = $this->getTargetProgressStats($target);
-        
+
         // Recent progress
         $recentProgress = $target->progress()
                                 ->orderBy('progress_date', 'desc')
@@ -136,9 +136,9 @@ class SalesTargetController extends Controller
         $chartData = $this->getProgressChartData($target);
 
         return view('tenant.sales.targets.show', compact(
-            'target', 
-            'progressStats', 
-            'recentProgress', 
+            'target',
+            'progressStats',
+            'recentProgress',
             'chartData'
         ));
     }
@@ -182,7 +182,7 @@ class SalesTargetController extends Controller
         // Update year, month, quarter if dates changed
         $startDate = Carbon::parse($validated['start_date']);
         $validated['year'] = $startDate->year;
-        
+
         if ($validated['period_type'] === 'monthly') {
             $validated['month'] = $startDate->month;
         } elseif ($validated['period_type'] === 'quarterly') {
@@ -277,7 +277,7 @@ class SalesTargetController extends Controller
     private function getTargetProgressStats(SalesTarget $target)
     {
         $summary = SalesTargetProgress::getProgressSummary($target->id);
-        
+
         return [
             'total_days_tracked' => $summary->total_days ?? 0,
             'avg_daily_quantity' => $summary->avg_daily_quantity ?? 0,
@@ -406,6 +406,71 @@ class SalesTargetController extends Controller
             'periodType'
         ));
     }
+
+    /**
+     * Export analytics report (excel or pdf)
+     */
+    public function export(Request $request, string $format)
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $year = $request->get('year', Carbon::now()->year);
+        $targetType = $request->get('target_type');
+        $periodType = $request->get('period_type');
+
+        $query = SalesTarget::forTenant($tenantId)->where('year', $year);
+        if ($targetType) { $query->where('target_type', $targetType); }
+        if ($periodType) { $query->where('period_type', $periodType); }
+        $targets = $query->with(['progress'])->get();
+
+        if ($format === 'excel') {
+            $fileName = 'sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+            return \Maatwebsite\Excel\Facades\Excel::download(new class($targets) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
+                private $rows;
+                public function __construct($targets) { $this->rows = $targets; }
+                public function array(): array {
+                    $out = [];
+                    foreach ($this->rows as $t) {
+                        $out[] = [
+                            'العنوان' => $t->title,
+                            'الجهة' => $t->target_entity_name,
+                            'النوع' => $t->target_type,
+                            'الفترة' => $t->period_type,
+                            'من' => optional($t->start_date)->format('Y-m-d'),
+                            'إلى' => optional($t->end_date)->format('Y-m-d'),
+                            'القياس' => $t->measurement_type,
+                            'الكمية المستهدفة' => $t->target_quantity,
+                            'القيمة المستهدفة' => $t->target_value,
+                            'النسبة المحققة' => $t->progress_percentage,
+                            'الحالة' => $t->status_text,
+                        ];
+                    }
+                    return $out;
+                }
+                public function headings(): array {
+                    return ['العنوان','الجهة','النوع','الفترة','من','إلى','القياس','الكمية المستهدفة','القيمة المستهدفة','النسبة المحققة','الحالة'];
+                }
+            }, $fileName);
+        }
+
+        if ($format === 'pdf') {
+            $html = view('tenant.sales.targets.reports_pdf', [
+                'targets' => $targets,
+                'year' => $year,
+                'targetType' => $targetType,
+                'periodType' => $periodType,
+            ])->render();
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+                ->setPaper('a4', 'landscape')
+                ->setOption('isHtml5ParserEnabled', true)
+                ->setOption('isRemoteEnabled', true);
+
+            return $pdf->download('sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.pdf');
+        }
+
+        return back()->with('error', 'صيغة تصدير غير مدعومة');
+    }
+
 
     /**
      * Generate report data

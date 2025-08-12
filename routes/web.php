@@ -2133,6 +2133,8 @@ Route::middleware(['auth'])->prefix('tenant')->name('tenant.')->group(function (
             Route::post('{target}/progress', [SalesTargetController::class, 'updateProgress'])->name('update-progress');
             Route::get('dashboard/overview', [SalesTargetController::class, 'dashboard'])->name('dashboard');
             Route::get('reports/analytics', [SalesTargetController::class, 'reports'])->name('reports');
+            // Export analytics (excel/pdf)
+            Route::get('reports/export/{format}', [SalesTargetController::class, 'export'])->name('reports.export');
         });
     });
 

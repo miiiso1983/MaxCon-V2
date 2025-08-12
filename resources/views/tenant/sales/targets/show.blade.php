@@ -75,8 +75,8 @@
         <div style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
             <div style="font-size: 48px; font-weight: 700; margin-bottom: 10px;">{{ $target->progress_percentage }}%</div>
             <div style="opacity: 0.9; font-size: 16px;">نسبة التقدم</div>
-            <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 8px; margin-top: 15px; overflow: hidden;">
-                <div style="background: white; height: 100%; width: {{ min(100, $target->progress_percentage) }}%; transition: width 0.3s ease;"></div>
+            <div class="progress-bar" style="margin-top: 15px;">
+                <div class="progress-fill" style="--w: {{ min(100, $target->progress_percentage) }}%;"></div>
             </div>
         </div>
 
