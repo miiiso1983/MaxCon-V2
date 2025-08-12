@@ -64,7 +64,14 @@ class ReturnItem extends Model
     // Methods
     public function calculateTotal()
     {
-        $this->total_amount = $this->quantity_returned * $this->unit_price;
+        $total = $this->quantity_returned * $this->unit_price;
+        // Write into whichever columns exist in DB (compat with legacy schemas)
+        if (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'total_amount')) {
+            $this->total_amount = $total;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('return_items', 'total_price')) {
+            $this->total_price = $total;
+        }
         $this->save();
     }
 
