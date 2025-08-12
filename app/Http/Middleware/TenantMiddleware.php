@@ -55,6 +55,14 @@ class TenantMiddleware
      */
     private function identifyTenant(Request $request): ?Tenant
     {
+        // If user is authenticated, prefer user's tenant (central-domain scenario)
+        if (Auth::check() && Auth::user()->tenant_id) {
+            $userTenant = Tenant::find(Auth::user()->tenant_id);
+            if ($userTenant) {
+                return $userTenant;
+            }
+        }
+
         // Try to identify by subdomain
         $host = $request->getHost();
         $subdomain = $this->extractSubdomain($host);
