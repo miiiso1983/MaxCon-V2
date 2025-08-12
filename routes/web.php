@@ -1123,6 +1123,8 @@ Route::prefix('test')->name('test.')->group(function () {
     Route::get('dropdown', function () {
         return view('test-dropdown');
     })->name('dropdown');
+
+
 });
 
 // Tenant-specific routes (للـ Tenant Admin)
