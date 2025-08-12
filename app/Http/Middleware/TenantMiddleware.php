@@ -36,10 +36,12 @@ class TenantMiddleware
                     return response()->view('errors.tenant-inactive', [], 403);
                 }
 
-                // Check subscription status if methods exist
-                if (method_exists($tenant, 'isOnTrial') && method_exists($tenant, 'hasActiveSubscription')) {
-                    if (!$tenant->isOnTrial() && !$tenant->hasActiveSubscription()) {
-                        return response()->view('errors.subscription-expired', [], 402);
+                // Check subscription status if methods exist (optional enforcement)
+                if (config('tenancy.enforce_subscription', false)) {
+                    if (method_exists($tenant, 'isOnTrial') && method_exists($tenant, 'hasActiveSubscription')) {
+                        if (!$tenant->isOnTrial() && !$tenant->hasActiveSubscription()) {
+                            return response()->view('errors.subscription-expired', [], 402);
+                        }
                     }
                 }
 

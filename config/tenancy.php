@@ -8,5 +8,8 @@ return [
     // Central (primary) domain for subdomain-based tenancy
     // Used by TenantMiddleware::extractSubdomain
     'central_domain' => env('CENTRAL_DOMAIN', 'maxcon.app'),
+
+    // Whether to enforce subscription/trial checks in middleware
+    'enforce_subscription' => env('ENFORCE_SUBSCRIPTION', false),
 ];
 
