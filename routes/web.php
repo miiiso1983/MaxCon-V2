@@ -1124,9 +1124,49 @@ Route::prefix('test')->name('test.')->group(function () {
         return view('test-dropdown');
     })->name('dropdown');
 
+    // Quick debug for current issue
+    Route::get('quick-debug', function () {
+        try {
+            // Check tenant
+            $tenant = \App\Models\Tenant::where('domain', 'maxcon.app')->first();
+            if (!$tenant) {
+                return response()->json(['error' => 'No tenant found']);
+            }
 
+            // Set tenant context
+            app()->instance('tenant', $tenant);
+            config(['app.tenant' => $tenant]);
 
+            // Check user
+            $user = \App\Models\User::where('tenant_id', $tenant->id)->first();
+            if (!$user) {
+                return response()->json(['error' => 'No user found']);
+            }
+            auth()->login($user);
 
+            // Test controller step by step
+            $request = new \Illuminate\Http\Request();
+            $controller = new \App\Http\Controllers\Tenant\SalesTargetController();
+
+            // Call the reports method
+            $response = $controller->reports($request);
+
+            return response()->json([
+                'success' => true,
+                'tenant_name' => $tenant->name,
+                'user_name' => $user->name,
+                'response_type' => get_class($response)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => explode("\n", $e->getTraceAsString())
+            ]);
+        }
+    })->name('quick-debug');
 });
 
 // Tenant-specific routes (للـ Tenant Admin)
