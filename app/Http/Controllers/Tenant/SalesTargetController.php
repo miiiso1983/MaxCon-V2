@@ -17,6 +17,19 @@ class SalesTargetController extends Controller
         // Remove middleware from constructor - will be handled by routes
     }
 
+
+    /**
+     * Resolve current tenant ID from authenticated user or tenant context
+     */
+    private function resolveTenantId(): ?int
+    {
+        if (auth()->check() && optional(auth()->user())->tenant_id) {
+            return auth()->user()->tenant_id;
+        }
+        $tenant = app()->has('tenant') ? app('tenant') : null;
+        return $tenant->id ?? null;
+    }
+
     /**
      * Display a listing of sales targets
      */
@@ -383,35 +396,70 @@ class SalesTargetController extends Controller
      */
     public function reports(Request $request)
     {
-        $tenantId = auth()->user()->tenant_id;
+        try {
+            $tenantId = $this->resolveTenantId();
 
-        // Default to current year
-        $year = $request->get('year', Carbon::now()->year);
-        $targetType = $request->get('target_type');
-        $periodType = $request->get('period_type');
+            // Default to current year
+            $year = $request->get('year', Carbon::now()->year);
+            $targetType = $request->get('target_type');
+            $periodType = $request->get('period_type');
 
-        $query = SalesTarget::forTenant($tenantId)->where('year', $year);
+            if (!$tenantId) {
+                // Return empty view with a friendly message instead of 500
+                $targets = collect();
+                $reportData = [
+                    'by_type' => [],
+                    'by_period' => [],
+                    'by_status' => []
+                ];
+                return view('tenant.sales.targets.reports', compact(
+                    'targets', 'reportData', 'year', 'targetType', 'periodType'
+                ))->with('warning', 'لم يتم التعرف على المستأجر. يرجى تسجيل الدخول.');
+            }
 
-        if ($targetType) {
-            $query->where('target_type', $targetType);
+            $query = SalesTarget::forTenant($tenantId)->where('year', $year);
+
+            if ($targetType) {
+                $query->where('target_type', $targetType);
+            }
+
+            if ($periodType) {
+                $query->where('period_type', $periodType);
+            }
+
+            $targets = $query->with(['progress'])->get();
+
+            // Generate report data
+            $reportData = $this->generateReportData($targets);
+
+            return view('tenant.sales.targets.reports', compact(
+                'targets',
+                'reportData',
+                'year',
+                'targetType',
+                'periodType'
+            ));
+        } catch (\Throwable $e) {
+            // Fail-safe: show an empty view instead of 500
+            $year = $request->get('year', Carbon::now()->year);
+            $targetType = $request->get('target_type');
+            $periodType = $request->get('period_type');
+            $targets = collect();
+            $reportData = [
+                'by_type' => [],
+                'by_period' => [],
+                'by_status' => []
+            ];
+
+            // Optionally, you can log the error
+            \Log::error('SalesTarget reports error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return view('tenant.sales.targets.reports', compact(
+                'targets', 'reportData', 'year', 'targetType', 'periodType'
+            ))->with('error', 'حدث خطأ أثناء تحميل التقارير، تم عرض صفحة فارغة مؤقتاً.');
         }
-
-        if ($periodType) {
-            $query->where('period_type', $periodType);
-        }
-
-        $targets = $query->with(['progress'])->get();
-
-        // Generate report data
-        $reportData = $this->generateReportData($targets);
-
-        return view('tenant.sales.targets.reports', compact(
-            'targets',
-            'reportData',
-            'year',
-            'targetType',
-            'periodType'
-        ));
     }
 
     /**

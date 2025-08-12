@@ -2157,6 +2157,26 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
             Route::get('dashboard/overview', [SalesTargetController::class, 'dashboard'])->name('dashboard');
             Route::get('reports/analytics', [SalesTargetController::class, 'reports'])->name('reports');
             // Export analytics (excel/pdf)
+            // Health check for tenant context
+            Route::get('reports/health/check', function() {
+                try {
+                    $user = auth()->user();
+                    $tenant = app()->has('tenant') ? app('tenant') : null;
+                    return response()->json([
+                        'authed' => (bool) $user,
+                        'user_id' => $user?->id,
+                        'user_name' => $user?->name,
+                        'user_tenant_id' => $user?->tenant_id,
+                        'tenant_in_app' => $tenant ? [
+                            'id' => $tenant->id,
+                            'name' => $tenant->name,
+                            'domain' => $tenant->domain
+                        ] : null,
+                    ]);
+                } catch (\Throwable $e) {
+                    return response()->json(['error' => $e->getMessage()], 500);
+                }
+            })->name('reports.health');
             Route::get('reports/export/{format}', [SalesTargetController::class, 'export'])->name('reports.export');
         });
     });
