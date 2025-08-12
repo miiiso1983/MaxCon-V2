@@ -1219,6 +1219,11 @@ Route::prefix('test')->name('test.')->group(function () {
 
 // Tenant-specific routes (للـ Tenant Admin)
 
+// Public ultra-minimal health checks (no middleware, no views)
+Route::get('/__ping', function () { return response('PONG ' . now()->toDateTimeString(), 200); });
+Route::get('/__db', function () { try { \DB::select('select 1'); return response('DB OK', 200); } catch (\Throwable $e) { return response('DB ERR: ' . $e->getMessage(), 500); } });
+
+
 // SAFE route for analytics without tenant middleware (uses per-user tenant scoping inside controller)
 Route::middleware(['auth'])->get('/tenant/sales/targets/reports/analytics-safe', [SalesTargetController::class, 'reports'])
     ->name('tenant.sales.targets.reports.safe');
