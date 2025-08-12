@@ -1127,10 +1127,25 @@ Route::prefix('test')->name('test.')->group(function () {
     // Quick debug for current issue
     Route::get('quick-debug', function () {
         try {
-            // Check tenant
+            // Check all tenants first
+            $allTenants = \App\Models\Tenant::all();
+
+            // Check tenant by domain
             $tenant = \App\Models\Tenant::where('domain', 'maxcon.app')->first();
+
             if (!$tenant) {
-                return response()->json(['error' => 'No tenant found']);
+                return response()->json([
+                    'error' => 'No tenant found with domain maxcon.app',
+                    'all_tenants' => $allTenants->map(function($t) {
+                        return [
+                            'id' => $t->id,
+                            'name' => $t->name,
+                            'domain' => $t->domain,
+                            'slug' => $t->slug
+                        ];
+                    })->toArray(),
+                    'total_tenants' => $allTenants->count()
+                ]);
             }
 
             // Set tenant context
@@ -1140,7 +1155,11 @@ Route::prefix('test')->name('test.')->group(function () {
             // Check user
             $user = \App\Models\User::where('tenant_id', $tenant->id)->first();
             if (!$user) {
-                return response()->json(['error' => 'No user found']);
+                return response()->json([
+                    'error' => 'No user found for tenant',
+                    'tenant_id' => $tenant->id,
+                    'tenant_name' => $tenant->name
+                ]);
             }
             auth()->login($user);
 
