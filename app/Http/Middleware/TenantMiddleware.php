@@ -90,8 +90,8 @@ class TenantMiddleware
             return Tenant::where('slug', $request->get('tenant_slug'))->first();
         }
 
-        // Fallbacks: env-configured default tenant, then first active tenant
-        $defaultTenantId = env('DEFAULT_TENANT_ID');
+        // Fallbacks: config or env-configured default tenant, then first active tenant
+        $defaultTenantId = config('tenancy.default_tenant_id', env('DEFAULT_TENANT_ID'));
         if ($defaultTenantId) {
             $tenant = Tenant::find($defaultTenantId);
             if ($tenant) {
