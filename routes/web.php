@@ -1146,6 +1146,52 @@ Route::prefix('test')->name('test.')->group(function () {
             return 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
         }
     })->name('simple-test');
+
+    // Test tenant middleware and auth
+    Route::get('test-auth-tenant', function () {
+        try {
+            // Check current auth status
+            $authStatus = auth()->check();
+            $user = auth()->user();
+
+            // Check tenant context
+            $tenant = app()->has('tenant') ? app('tenant') : null;
+
+            // Try to get first user and login
+            if (!$authStatus) {
+                $firstUser = \App\Models\User::first();
+                if ($firstUser) {
+                    auth()->login($firstUser);
+                    $authStatus = true;
+                    $user = $firstUser;
+                }
+            }
+
+            return response()->json([
+                'auth_status' => $authStatus,
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'tenant_id' => $user->tenant_id
+                ] : null,
+                'tenant_context' => $tenant ? [
+                    'id' => $tenant->id,
+                    'name' => $tenant->name,
+                    'domain' => $tenant->domain
+                ] : null,
+                'all_users_count' => \App\Models\User::count(),
+                'all_tenants_count' => \App\Models\Tenant::count()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+        }
+    })->name('test-auth-tenant');
 });
 
 // Tenant-specific routes (للـ Tenant Admin)
