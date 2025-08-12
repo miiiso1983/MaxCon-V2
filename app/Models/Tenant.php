@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+// use Spatie\Activitylog\Traits\LogsActivity;
+// use Spatie\Activitylog\LogOptions;
 
 /**
  * Tenant Model
@@ -35,7 +35,7 @@ use Spatie\Activitylog\LogOptions;
  */
 class Tenant extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory; // , LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -82,13 +82,13 @@ class Tenant extends Model
     /**
      * Activity log options
      */
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['name', 'slug', 'status', 'plan'])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
-    }
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logOnly(['name', 'slug', 'status', 'plan'])
+    //         ->logOnlyDirty()
+    //         ->dontSubmitEmptyLogs();
+    // }
 
     /**
      * Get the users for the tenant.
