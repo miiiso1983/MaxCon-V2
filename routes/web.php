@@ -1218,6 +1218,11 @@ Route::prefix('test')->name('test.')->group(function () {
     })->name('test.activate-tenant');
 
 // Tenant-specific routes (للـ Tenant Admin)
+
+// SAFE route for analytics without tenant middleware (uses per-user tenant scoping inside controller)
+Route::middleware(['auth'])->get('/tenant/sales/targets/reports/analytics-safe', [SalesTargetController::class, 'reports'])
+    ->name('tenant.sales.targets.reports.safe');
+
 Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(function () {
     // Tenant dashboard
     Route::get('/dashboard', function () {
