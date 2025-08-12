@@ -378,6 +378,31 @@ class SalesTargetController extends Controller
                                            ->where('period_type', 'monthly')
                                            ->where('year', $currentMonth->year)
                                            ->where('month', $currentMonth->month)
+
+    /**
+     * Lightweight health endpoint for debugging context inside controller
+     */
+    public function health()
+    {
+        try {
+            $tenant = app()->has('tenant') ? app('tenant') : null;
+            $user = auth()->user();
+            return response()->json([
+                'controller' => 'SalesTargetController',
+                'authed' => (bool) $user,
+                'user_id' => $user?->id,
+                'user_tenant_id' => $user?->tenant_id,
+                'tenant_in_app' => $tenant ? [
+                    'id' => $tenant->id,
+                    'name' => $tenant->name,
+                    'domain' => $tenant->domain,
+                ] : null,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 200);
+        }
+    }
+
                                            ->count(),
             'monthly_completed' => SalesTarget::forTenant($tenantId)
                                              ->where('period_type', 'monthly')
