@@ -2395,6 +2395,29 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
             }
         })->name('test-template');
 
+        // Migration route for fixing inventory table
+        Route::get('fix-inventory-table', function() {
+            try {
+                // Run the specific migration
+                \Artisan::call('migrate', [
+                    '--path' => 'database/migrations/2025_08_13_200000_add_missing_columns_to_inventory_table.php',
+                    '--force' => true
+                ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Migration completed successfully',
+                    'output' => \Artisan::output()
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        })->name('fix-inventory-table');
+
         // Main Inventory Management (must be last to avoid conflicts)
         Route::get('/', [InventoryController::class, 'index'])->name('index');
         Route::get('create', [InventoryController::class, 'create'])->name('create');
