@@ -218,10 +218,18 @@ async function generateAllProductsQR() {
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
+            },
+            body: JSON.stringify({
+                limit: 50 // Limit to 50 products to avoid large QR codes
+            })
         });
-        
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
+
         if (data.success) {
             displayQR(data.qr_data, {
                 title: 'جميع المنتجات المتوفرة',
@@ -229,10 +237,12 @@ async function generateAllProductsQR() {
                 size: data.data_size
             });
         } else {
-            showError('فشل في إنشاء QR كود');
+            showError(data.error || 'فشل في إنشاء QR كود');
+            console.error('QR Generation Error:', data);
         }
     } catch (error) {
-        showError('حدث خطأ في الاتصال');
+        console.error('Network Error:', error);
+        showError('حدث خطأ في الاتصال: ' + error.message);
     }
 }
 

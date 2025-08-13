@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class ProductQRController extends Controller
 {
@@ -16,26 +17,31 @@ class ProductQRController extends Controller
      */
     public function generateAvailableProductsQR(Request $request): JsonResponse
     {
-        $user = auth()->user();
-        $tenantId = $user->tenant_id;
+        try {
+            $user = Auth::user();
+            $tenantId = $user->tenant_id;
 
-        if (!$tenantId) {
-            return response()->json(['error' => 'No tenant access'], 403);
-        }
+            if (!$tenantId) {
+                return response()->json(['error' => 'No tenant access'], 403);
+            }
 
-        // Get available products (excluding stock information)
-        $products = Product::where('tenant_id', $tenantId)
-            ->where(function($q) {
-                $q->where('status', 'active')->orWhere('is_active', true);
-            })
-            ->with(['category'])
-            ->select([
-                'id', 'name', 'code', 'product_code', 'barcode',
-                'selling_price', 'currency', 'brand', 'manufacturer',
-                'category_id', 'base_unit', 'unit_of_measure', 'description'
-            ])
-            ->orderBy('name')
-            ->get();
+            // Get limit from request (default 50 to avoid large QR codes)
+            $limit = $request->input('limit', 50);
+
+            // Get available products (excluding stock information)
+            $products = Product::where('tenant_id', $tenantId)
+                ->where(function($q) {
+                    $q->where('status', 'active')->orWhere('is_active', true);
+                })
+                ->with(['category'])
+                ->select([
+                    'id', 'name', 'code', 'product_code', 'barcode',
+                    'selling_price', 'currency', 'brand', 'manufacturer',
+                    'category_id', 'base_unit', 'unit_of_measure', 'description'
+                ])
+                ->orderBy('name')
+                ->limit($limit)
+                ->get();
 
         // Format products data for QR code
         $qrData = [
@@ -60,12 +66,35 @@ class ProductQRController extends Controller
             })->toArray()
         ];
 
-        return response()->json([
-            'success' => true,
-            'qr_data' => json_encode($qrData),
-            'products_count' => $products->count(),
-            'data_size' => strlen(json_encode($qrData)) . ' bytes'
-        ]);
+            $qrDataJson = json_encode($qrData);
+
+            // Check if data is too large for QR code
+            if (strlen($qrDataJson) > 2000) {
+                return response()->json([
+                    'error' => 'البيانات كبيرة جداً لـ QR كود. يرجى تقليل عدد المنتجات.',
+                    'data_size' => strlen($qrDataJson) . ' bytes',
+                    'max_size' => '2000 bytes'
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'qr_data' => $qrDataJson,
+                'products_count' => $products->count(),
+                'data_size' => strlen($qrDataJson) . ' bytes'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('QR Generation Error: ' . $e->getMessage(), [
+                'tenant_id' => $tenantId ?? null,
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => 'حدث خطأ في إنشاء QR كود: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -73,7 +102,7 @@ class ProductQRController extends Controller
      */
     public function generateCategoryProductsQR(Request $request, ProductCategory $category): JsonResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($category->tenant_id !== $user->tenant_id) {
             return response()->json(['error' => 'Unauthorized access'], 403);
@@ -134,7 +163,7 @@ class ProductQRController extends Controller
      */
     public function index(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -163,7 +192,7 @@ class ProductQRController extends Controller
      */
     public function generateInvoiceQR(Request $request): JsonResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {

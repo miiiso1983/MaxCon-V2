@@ -2321,7 +2321,7 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
 
         // Invoice QR Example
         Route::get('/invoice-qr-example', function() {
-            $productsCount = \App\Models\Product::where('tenant_id', auth()->user()->tenant_id)
+            $productsCount = \App\Models\Product::where('tenant_id', \Illuminate\Support\Facades\Auth::user()->tenant_id)
                 ->where(function($q) {
                     $q->where('status', 'active')->orWhere('is_active', true);
                 })
