@@ -42,11 +42,12 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         try {
             // Log the incoming row for debugging
             Log::info('Processing row: ', $row);
+            Log::info('Row keys: ', array_keys($row));
 
-            // Handle both Arabic and English headers
-            $productCode = $row['كود_المنتج'] ?? $row['كود المنتج'] ?? $row[0] ?? null;
-            $warehouseCode = $row['كود_المستودع'] ?? $row['كود المستودع'] ?? $row[1] ?? null;
-            $quantity = $row['الكمية'] ?? $row[2] ?? null;
+            // Handle both Arabic and English headers (with and without underscores)
+            $productCode = $row['كود المنتج'] ?? $row['كود_المنتج'] ?? $row['product_code'] ?? $row[0] ?? null;
+            $warehouseCode = $row['كود المستودع'] ?? $row['كود_المستودع'] ?? $row['warehouse_code'] ?? $row[1] ?? null;
+            $quantity = $row['الكمية'] ?? $row['quantity'] ?? $row[2] ?? null;
 
             Log::info('Extracted values: ', [
                 'product_code' => $productCode,
@@ -72,9 +73,9 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 // محاولة إنشاء منتج جديد إذا لم يكن موجود
                 Log::info("Product not found, attempting to create: " . $productCode);
 
-                $productName = $row['اسم_المنتج'] ?? $row['اسم المنتج'] ?? $row['name'] ?? $productCode;
-                $costPrice = $row['سعر_التكلفة'] ?? $row['سعر التكلفة'] ?? $row['cost_price'] ?? 0;
-                $sellingPrice = $row['سعر_البيع'] ?? $row['سعر البيع'] ?? $row['selling_price'] ?? 0;
+                $productName = $row['اسم المنتج'] ?? $row['اسم_المنتج'] ?? $row['name'] ?? $productCode;
+                $costPrice = $row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row['cost_price'] ?? 0;
+                $sellingPrice = $row['سعر البيع'] ?? $row['سعر_البيع'] ?? $row['selling_price'] ?? 0;
 
                 try {
                     $product = Product::create([
@@ -119,10 +120,10 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             }
 
             $quantity = floatval($quantity);
-            $costPrice = !empty($row['سعر_التكلفة'] ?? $row['سعر التكلفة'] ?? $row[3]) ? floatval($row['سعر_التكلفة'] ?? $row['سعر التكلفة'] ?? $row[3]) : null;
-            $locationCode = $row['رمز_الموقع'] ?? $row['رمز الموقع'] ?? $row[4] ?? null;
-            $batchNumber = $row['رقم_الدفعة'] ?? $row['رقم الدفعة'] ?? $row[5] ?? null;
-            $status = $row['الحالة'] ?? $row[7] ?? 'active';
+            $costPrice = !empty($row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row[4]) ? floatval($row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row[4]) : null;
+            $locationCode = $row['رمز الموقع'] ?? $row['رمز_الموقع'] ?? $row[6] ?? null;
+            $batchNumber = $row['رقم الدفعة'] ?? $row['رقم_الدفعة'] ?? $row[7] ?? null;
+            $status = $row['الحالة'] ?? $row[9] ?? 'active';
 
             // Check if inventory item already exists
             $existingInventory = Inventory::where('tenant_id', $this->tenantId)
@@ -138,7 +139,7 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             
             // Parse expiry date
             $expiryDate = null;
-            $expiryDateValue = $row['تاريخ_الانتهاء'] ?? $row['تاريخ الانتهاء'] ?? $row[6] ?? null;
+            $expiryDateValue = $row['تاريخ الانتهاء'] ?? $row['تاريخ_الانتهاء'] ?? $row[8] ?? null;
             if (!empty($expiryDateValue)) {
                 try {
                     $expiryDate = Carbon::parse($expiryDateValue)->format('Y-m-d');
