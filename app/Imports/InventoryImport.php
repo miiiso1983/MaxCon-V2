@@ -45,14 +45,16 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             Log::info('Row keys: ', array_keys($row));
 
             // Handle both Arabic and English headers (with and without underscores)
-            $productCode = $row['كود المنتج'] ?? $row['كود_المنتج'] ?? $row['product_code'] ?? $row[0] ?? null;
-            $warehouseCode = $row['كود المستودع'] ?? $row['كود_المستودع'] ?? $row['warehouse_code'] ?? $row[1] ?? null;
-            $quantity = $row['الكمية'] ?? $row['quantity'] ?? $row[2] ?? null;
+            $productCode = $row['كود المنتج'] ?? $row['كود_المنتج'] ?? $row['product_code'] ?? $row['kod_almntg'] ?? $row[0] ?? null;
+            $warehouseCode = $row['كود المستودع'] ?? $row['كود_المستودع'] ?? $row['warehouse_code'] ?? $row['kod_almstodaa'] ?? $row[1] ?? null;
+            $quantity = $row['الكمية'] ?? $row['quantity'] ?? $row['alkmy'] ?? $row[2] ?? null;
 
             Log::info('Extracted values: ', [
                 'product_code' => $productCode,
                 'warehouse_code' => $warehouseCode,
-                'quantity' => $quantity
+                'quantity' => $quantity,
+                'row_keys' => array_keys($row),
+                'first_5_values' => array_slice($row, 0, 5, true)
             ]);
 
             // Skip empty rows
@@ -79,9 +81,9 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 // محاولة إنشاء منتج جديد إذا لم يكن موجود
                 Log::info("Product not found, attempting to create: " . $productCode);
 
-                $productName = $row['اسم المنتج'] ?? $row['اسم_المنتج'] ?? $row['name'] ?? $productCode;
-                $costPrice = $row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row['cost_price'] ?? 0;
-                $sellingPrice = $row['سعر البيع'] ?? $row['سعر_البيع'] ?? $row['selling_price'] ?? 0;
+                $productName = $row['اسم المنتج'] ?? $row['اسم_المنتج'] ?? $row['name'] ?? $row['asm_almntg'] ?? $productCode;
+                $costPrice = $row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row['cost_price'] ?? $row['saar_altklf'] ?? 0;
+                $sellingPrice = $row['سعر البيع'] ?? $row['سعر_البيع'] ?? $row['selling_price'] ?? $row['saar_albyaa'] ?? 0;
 
                 try {
                     $product = Product::create([
@@ -126,10 +128,10 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             }
 
             $quantity = floatval($quantity);
-            $costPrice = !empty($row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row[4]) ? floatval($row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row[4]) : null;
-            $locationCode = $row['رمز الموقع'] ?? $row['رمز_الموقع'] ?? $row[6] ?? null;
-            $batchNumber = $row['رقم الدفعة'] ?? $row['رقم_الدفعة'] ?? $row[7] ?? null;
-            $status = $row['الحالة'] ?? $row[9] ?? 'active';
+            $costPrice = !empty($row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row['saar_altklf'] ?? $row[4]) ? floatval($row['سعر التكلفة'] ?? $row['سعر_التكلفة'] ?? $row['saar_altklf'] ?? $row[4]) : null;
+            $locationCode = $row['رمز الموقع'] ?? $row['رمز_الموقع'] ?? $row['rmz_almokaa'] ?? $row[6] ?? null;
+            $batchNumber = $row['رقم الدفعة'] ?? $row['رقم_الدفعة'] ?? $row['rkm_aldfaa'] ?? $row[7] ?? null;
+            $status = $row['الحالة'] ?? $row['alhal'] ?? $row[9] ?? 'active';
 
             // Check if inventory item already exists
             $existingInventory = Inventory::where('tenant_id', $this->tenantId)
@@ -145,7 +147,7 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             
             // Parse expiry date
             $expiryDate = null;
-            $expiryDateValue = $row['تاريخ الانتهاء'] ?? $row['تاريخ_الانتهاء'] ?? $row[8] ?? null;
+            $expiryDateValue = $row['تاريخ الانتهاء'] ?? $row['تاريخ_الانتهاء'] ?? $row['tarykh_alanthaaa'] ?? $row[8] ?? null;
             if (!empty($expiryDateValue)) {
                 try {
                     $expiryDate = Carbon::parse($expiryDateValue)->format('Y-m-d');
