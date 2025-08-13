@@ -191,23 +191,120 @@
     </div>
 </div>
 
-<!-- Include QR Code Library -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-<!-- Fallback QR Code Library -->
+<!-- Multiple QR Code Libraries for Maximum Compatibility -->
 <script>
-// Fallback loader for QRCode library
-if (typeof QRCode === 'undefined') {
-    console.log('Loading fallback QRCode library...');
-    const fallbackScript = document.createElement('script');
-    fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
-    fallbackScript.onload = function() {
-        console.log('Fallback QRCode library loaded');
-    };
-    fallbackScript.onerror = function() {
-        console.error('Failed to load fallback QRCode library');
-    };
-    document.head.appendChild(fallbackScript);
+// QR Code generation using multiple fallback methods
+window.QRCodeLoaded = false;
+window.QRCodeMethods = [];
+
+// Method 1: Try qrcode.js from jsdelivr
+function loadQRCodeMethod1() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+        script.onload = function() {
+            if (typeof QRCode !== 'undefined') {
+                window.QRCodeMethods.push('qrcode.js');
+                window.QRCodeLoaded = true;
+                console.log('QRCode Method 1 loaded successfully');
+                resolve();
+            } else {
+                reject('QRCode not available');
+            }
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
 }
+
+// Method 2: Try qrcode.js from unpkg
+function loadQRCodeMethod2() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';
+        script.onload = function() {
+            if (typeof QRCode !== 'undefined') {
+                window.QRCodeMethods.push('unpkg-qrcode');
+                window.QRCodeLoaded = true;
+                console.log('QRCode Method 2 loaded successfully');
+                resolve();
+            } else {
+                reject('QRCode not available');
+            }
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Method 3: Use QR Server API as fallback
+function generateQRWithAPI(text, size = 300) {
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = size;
+        canvas.height = size;
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, size, size);
+            resolve(canvas);
+        };
+        img.onerror = reject;
+
+        // Use QR Server API
+        const encodedText = encodeURIComponent(text);
+        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodedText}`;
+    });
+}
+
+// Method 4: Simple QR generation using Google Charts API
+function generateQRWithGoogle(text, size = 300) {
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = size;
+        canvas.height = size;
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, size, size);
+            resolve(canvas);
+        };
+        img.onerror = reject;
+
+        // Use Google Charts API
+        const encodedText = encodeURIComponent(text);
+        img.src = `https://chart.googleapis.com/chart?chs=${size}x${size}&cht=qr&chl=${encodedText}`;
+    });
+}
+
+// Load QR Code libraries with fallbacks
+async function initializeQRCode() {
+    try {
+        await loadQRCodeMethod1();
+        return;
+    } catch (e) {
+        console.log('Method 1 failed, trying method 2...');
+    }
+
+    try {
+        await loadQRCodeMethod2();
+        return;
+    } catch (e) {
+        console.log('Method 2 failed, will use API fallbacks...');
+    }
+
+    // If all libraries fail, we'll use API methods
+    window.QRCodeMethods.push('api-fallback');
+    window.QRCodeLoaded = true;
+    console.log('Using API fallback methods for QR generation');
+}
+
+// Start loading immediately
+initializeQRCode();
 </script>
 
 <script>
@@ -216,22 +313,22 @@ let currentQRData = null;
 // Wait for QRCode library to load
 function waitForQRCode() {
     return new Promise((resolve, reject) => {
-        if (typeof QRCode !== 'undefined') {
+        if (window.QRCodeLoaded) {
             resolve();
             return;
         }
 
         let attempts = 0;
-        const maxAttempts = 50; // 5 seconds max
+        const maxAttempts = 100; // 10 seconds max
 
         const checkInterval = setInterval(() => {
             attempts++;
-            if (typeof QRCode !== 'undefined') {
+            if (window.QRCodeLoaded) {
                 clearInterval(checkInterval);
                 resolve();
             } else if (attempts >= maxAttempts) {
                 clearInterval(checkInterval);
-                reject(new Error('QRCode library failed to load'));
+                reject(new Error('QRCode library failed to load after 10 seconds'));
             }
         }, 100);
     });
@@ -473,10 +570,10 @@ async function generateInvoiceQR() {
     }
 }
 
-// Display QR code
+// Display QR code with multiple fallback methods
 async function displayQR(qrData, info) {
     try {
-        // Wait for QRCode library to be available
+        // Wait for QRCode system to be available
         await waitForQRCode();
 
         currentQRData = qrData;
@@ -489,39 +586,78 @@ async function displayQR(qrData, info) {
         // Clear previous QR
         container.innerHTML = '';
 
-        // Generate QR code
-        QRCode.toCanvas(qrData, {
-            width: 300,
-            margin: 2,
-            color: {
-                dark: '#000000',
-                light: '#FFFFFF'
-            }
-        }, function (error, canvas) {
-            if (error) {
-                console.error('QR Generation Error:', error);
-                showError('فشل في إنشاء QR كود: ' + error.message);
-                return;
-            }
+        let canvas = null;
 
+        // Try different QR generation methods
+        if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
+            // Method 1: Use qrcode.js library
+            try {
+                canvas = await new Promise((resolve, reject) => {
+                    QRCode.toCanvas(qrData, {
+                        width: 300,
+                        margin: 2,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        }
+                    }, function (error, canvasElement) {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve(canvasElement);
+                        }
+                    });
+                });
+                console.log('QR generated using qrcode.js library');
+            } catch (error) {
+                console.log('qrcode.js failed, trying API method...');
+                canvas = null;
+            }
+        }
+
+        // Method 2: Use QR Server API
+        if (!canvas) {
+            try {
+                canvas = await generateQRWithAPI(qrData, 300);
+                console.log('QR generated using QR Server API');
+            } catch (error) {
+                console.log('QR Server API failed, trying Google Charts...');
+            }
+        }
+
+        // Method 3: Use Google Charts API
+        if (!canvas) {
+            try {
+                canvas = await generateQRWithGoogle(qrData, 300);
+                console.log('QR generated using Google Charts API');
+            } catch (error) {
+                console.log('Google Charts API failed');
+            }
+        }
+
+        if (canvas) {
             container.appendChild(canvas);
 
             // Update info
+            const method = window.QRCodeMethods.join(', ') || 'unknown';
             infoDiv.innerHTML = `
                 <div style="margin-bottom: 10px;"><strong>العنوان:</strong> ${info.title}</div>
                 <div style="margin-bottom: 10px;"><strong>عدد المنتجات:</strong> ${info.count}</div>
                 <div style="margin-bottom: 10px;"><strong>حجم البيانات:</strong> ${info.size}</div>
+                <div style="margin-bottom: 10px;"><strong>طريقة الإنشاء:</strong> ${method}</div>
                 <div><strong>التاريخ:</strong> ${new Date().toLocaleString('ar-EG')}</div>
             `;
 
             // Show result, hide placeholder
             placeholder.style.display = 'none';
             result.style.display = 'block';
-        });
+        } else {
+            throw new Error('جميع طرق إنشاء QR كود فشلت');
+        }
 
     } catch (error) {
-        console.error('QRCode library error:', error);
-        showError('فشل في تحميل مكتبة QR كود: ' + error.message);
+        console.error('QRCode generation error:', error);
+        showError('فشل في إنشاء QR كود: ' + error.message + '\n\nيرجى التحقق من اتصال الإنترنت أو المحاولة لاحقاً.');
     }
 }
 
@@ -678,16 +814,24 @@ function printQR() {
     }
 }
 
-// Check QRCode library on page load
+// Check QRCode system on page load
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
-        if (typeof QRCode === 'undefined') {
-            console.error('QRCode library not loaded');
-            showError('فشل في تحميل مكتبة QR كود. يرجى إعادة تحميل الصفحة أو التحقق من الاتصال بالإنترنت.');
+        if (!window.QRCodeLoaded) {
+            console.error('QRCode system not loaded');
+            showError('جاري تحميل نظام QR كود...\n\nإذا استمرت المشكلة، يرجى التحقق من اتصال الإنترنت.');
+
+            // Try to initialize again
+            initializeQRCode().then(() => {
+                if (window.QRCodeLoaded) {
+                    location.reload();
+                }
+            });
         } else {
-            console.log('QRCode library loaded successfully');
+            console.log('QRCode system loaded successfully');
+            console.log('Available methods:', window.QRCodeMethods);
         }
-    }, 2000); // Wait 2 seconds for library to load
+    }, 3000); // Wait 3 seconds for system to load
 });
 </script>
 @endsection
