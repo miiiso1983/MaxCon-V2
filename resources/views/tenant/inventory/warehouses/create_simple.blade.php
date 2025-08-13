@@ -4,197 +4,248 @@
 
 @push('styles')
 <style>
-    .text-purple {
-        color: #8b5cf6 !important;
+    .warehouse-form {
+        max-width: 800px;
+        margin: 0 auto;
     }
 
-    .card {
-        border: none;
+    .form-card {
+        background: white;
         border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
+        overflow: hidden;
     }
 
-    .card-header {
-        border-radius: 12px 12px 0 0 !important;
-        border-bottom: 1px solid #e9ecef;
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 25px;
+        border-bottom: none;
     }
 
-    .card-footer {
-        border-radius: 0 0 12px 12px !important;
+    .form-body {
+        padding: 30px 25px;
+    }
+
+    .form-footer {
+        background: #f8f9fa;
+        padding: 20px 25px;
         border-top: 1px solid #e9ecef;
     }
 
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        display: block;
+    }
+
     .form-control {
+        border: 2px solid #e5e7eb;
         border-radius: 8px;
-        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        font-size: 14px;
         transition: all 0.3s ease;
+        width: 100%;
     }
 
     .form-control:focus {
         border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
     }
 
-    .btn {
+    .btn-custom {
+        padding: 12px 24px;
         border-radius: 8px;
         font-weight: 600;
-        padding: 10px 20px;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
         border: none;
+        cursor: pointer;
     }
 
-    .btn-primary:hover {
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
         background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
         transform: translateY(-1px);
+        color: white;
     }
 
-    .btn-outline-secondary:hover {
+    .btn-secondary-custom {
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary-custom:hover {
+        background: #f9fafb;
+        border-color: #d1d5db;
         transform: translateY(-1px);
+        color: #6b7280;
+        text-decoration: none;
     }
 
-    @media (max-width: 576px) {
-        .container-fluid {
-            padding-left: 15px;
-            padding-right: 15px;
+    .icon {
+        margin-left: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .warehouse-form {
+            margin: 0 15px;
         }
 
-        .card-body {
-            padding: 1rem;
+        .form-body {
+            padding: 20px;
         }
 
-        .btn {
+        .form-header {
+            padding: 15px 20px;
+        }
+
+        .form-footer {
+            padding: 15px 20px;
+        }
+
+        .btn-custom {
             width: 100%;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .grid-responsive {
+            grid-template-columns: 1fr !important;
         }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="container-fluid px-3 px-md-4">
+<div style="padding: 20px;">
     <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                <div class="mb-3 mb-md-0">
-                    <h1 class="h3 fw-bold text-dark mb-1">
-                        <i class="fas fa-warehouse text-primary me-2"></i>
-                        إنشاء مستودع جديد
-                    </h1>
-                    <p class="text-muted mb-0">أضف مستودع جديد لإدارة المخزون</p>
-                </div>
-                <a href="{{ route('tenant.inventory.warehouses.index') }}"
-                   class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-right me-1"></i>
-                    العودة للقائمة
-                </a>
-            </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h1 style="font-size: 28px; font-weight: 700; color: #1a202c; margin: 0;">
+                <i class="fas fa-warehouse" style="color: #667eea; margin-left: 10px;"></i>
+                إنشاء مستودع جديد
+            </h1>
+            <p style="color: #718096; margin: 5px 0 0 0;">أضف مستودع جديد لإدارة المخزون</p>
         </div>
+        <a href="{{ route('tenant.inventory.warehouses.index') }}"
+           class="btn-custom btn-secondary-custom">
+            <i class="fas fa-arrow-right icon"></i>
+            العودة للقائمة
+        </a>
     </div>
 
     <!-- Display Errors -->
     @if ($errors->any())
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="alert alert-danger">
-                    <h6 class="fw-bold mb-2">يرجى تصحيح الأخطاء التالية:</h6>
-                    <ul class="mb-0 pe-3">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+        <div class="warehouse-form" style="margin-bottom: 20px;">
+            <div style="background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 15px; border-radius: 8px;">
+                <h6 style="margin: 0 0 10px 0; font-weight: 600;">يرجى تصحيح الأخطاء التالية:</h6>
+                <ul style="margin: 0; padding-right: 20px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         </div>
     @endif
 
     @if (session('error'))
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="alert alert-danger">
-                    <strong>خطأ:</strong> {{ session('error') }}
-                </div>
+        <div class="warehouse-form" style="margin-bottom: 20px;">
+            <div style="background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 15px; border-radius: 8px;">
+                <strong>خطأ:</strong> {{ session('error') }}
             </div>
         </div>
     @endif
 
     <!-- Simple Form -->
-    <div class="row">
-        <div class="col-12 col-lg-8 col-xl-6 mx-auto">
-            <form method="POST" action="{{ route('tenant.inventory.warehouses.store') }}" id="warehouseForm">
-                @csrf
+    <div class="warehouse-form">
+        <form method="POST" action="{{ route('tenant.inventory.warehouses.store') }}" id="warehouseForm">
+            @csrf
 
-                <div class="card shadow-sm">
-                    <div class="card-header bg-light">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-info-circle text-primary me-2"></i>
-                            معلومات المستودع
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <!-- Name -->
-                            <div class="col-12 col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="fas fa-warehouse text-success me-1"></i>
-                                    اسم المستودع *
-                                </label>
-                                <input type="text" name="name" value="{{ old('name') }}" required
-                                       class="form-control @error('name') is-invalid @enderror"
-                                       placeholder="أدخل اسم المستودع">
-                                @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+            <div class="form-card">
+                <div class="form-header">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600;">
+                        <i class="fas fa-info-circle icon"></i>
+                        معلومات المستودع
+                    </h3>
+                </div>
 
-                            <!-- Phone -->
-                            <div class="col-12 col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="fas fa-phone text-purple me-1"></i>
-                                    رقم الهاتف
-                                </label>
-                                <input type="text" name="phone" value="{{ old('phone') }}"
-                                       class="form-control @error('phone') is-invalid @enderror"
-                                       placeholder="رقم الهاتف (اختياري)">
-                                @error('phone')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Description -->
-                            <div class="col-12">
-                                <label class="form-label fw-semibold">
-                                    <i class="fas fa-align-left text-warning me-1"></i>
-                                    الوصف
-                                </label>
-                                <textarea name="description" rows="3"
-                                          class="form-control @error('description') is-invalid @enderror"
-                                          placeholder="وصف المستودع (اختياري)">{{ old('description') }}</textarea>
-                                @error('description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                <div class="form-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" class="grid-responsive">
+                        <!-- Name -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-warehouse" style="color: #10b981; margin-left: 5px;"></i>
+                                اسم المستودع *
+                            </label>
+                            <input type="text" name="name" value="{{ old('name') }}" required
+                                   class="form-control"
+                                   placeholder="أدخل اسم المستودع">
+                            @error('name')
+                                <div style="color: #dc2626; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
+                            @enderror
                         </div>
+
+                        <!-- Phone -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-phone" style="color: #8b5cf6; margin-left: 5px;"></i>
+                                رقم الهاتف
+                            </label>
+                            <input type="text" name="phone" value="{{ old('phone') }}"
+                                   class="form-control"
+                                   placeholder="رقم الهاتف (اختياري)">
+                            @error('phone')
+                                <div style="color: #dc2626; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-align-left" style="color: #f59e0b; margin-left: 5px;"></i>
+                            الوصف
+                        </label>
+                        <textarea name="description" rows="3"
+                                  class="form-control"
+                                  placeholder="وصف المستودع (اختياري)">{{ old('description') }}</textarea>
+                        @error('description')
+                            <div style="color: #dc2626; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
-                <!-- Form Actions -->
-                <div class="card-footer bg-light">
-                    <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end">
+                <div class="form-footer">
+                    <div style="display: flex; gap: 15px; justify-content: flex-end; flex-wrap: wrap;">
                         <a href="{{ route('tenant.inventory.warehouses.index') }}"
-                           class="btn btn-outline-secondary order-2 order-sm-1">
-                            <i class="fas fa-times me-1"></i>
+                           class="btn-custom btn-secondary-custom">
+                            <i class="fas fa-times icon"></i>
                             إلغاء
                         </a>
-                        <button type="submit" class="btn btn-primary order-1 order-sm-2">
-                            <i class="fas fa-save me-1"></i>
+                        <button type="submit" class="btn-custom btn-primary-custom">
+                            <i class="fas fa-save icon"></i>
                             إنشاء المستودع
                         </button>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
 
