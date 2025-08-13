@@ -95,10 +95,82 @@ class InventoryController extends Controller
             abort(403, 'No tenant access');
         }
 
-        $warehouses = Warehouse::where('tenant_id', $tenantId)->active()->orderBy('name')->get();
+        $warehouses = Warehouse::where('tenant_id', $tenantId)->orderBy('name')->get();
         $products = Product::where('tenant_id', $tenantId)->orderBy('name')->get();
 
+        // Log for debugging
+        \Log::info('Inventory create page loaded', [
+            'tenant_id' => $tenantId,
+            'warehouses_count' => $warehouses->count(),
+            'products_count' => $products->count()
+        ]);
+
+        // If no products exist, create some sample products
+        if ($products->count() === 0) {
+            $this->createSampleProducts($tenantId);
+            $products = Product::where('tenant_id', $tenantId)->orderBy('name')->get();
+        }
+
+        // If no warehouses exist, create a sample warehouse
+        if ($warehouses->count() === 0) {
+            $this->createSampleWarehouse($tenantId);
+            $warehouses = Warehouse::where('tenant_id', $tenantId)->orderBy('name')->get();
+        }
+
         return view('tenant.inventory.create', compact('warehouses', 'products'));
+    }
+
+    /**
+     * Create sample products for testing
+     */
+    private function createSampleProducts($tenantId)
+    {
+        $sampleProducts = [
+            [
+                'tenant_id' => $tenantId,
+                'name' => 'منتج تجريبي 1',
+                'code' => 'PROD001',
+                'category' => 'أدوية',
+                'unit' => 'قطعة',
+                'description' => 'منتج تجريبي للاختبار',
+                'status' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'tenant_id' => $tenantId,
+                'name' => 'منتج تجريبي 2',
+                'code' => 'PROD002',
+                'category' => 'مستلزمات',
+                'unit' => 'علبة',
+                'description' => 'منتج تجريبي آخر للاختبار',
+                'status' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        ];
+
+        foreach ($sampleProducts as $productData) {
+            Product::create($productData);
+        }
+    }
+
+    /**
+     * Create sample warehouse for testing
+     */
+    private function createSampleWarehouse($tenantId)
+    {
+        Warehouse::create([
+            'tenant_id' => $tenantId,
+            'name' => 'المستودع الرئيسي',
+            'code' => 'WH001',
+            'location' => 'المكتب الرئيسي',
+            'type' => 'main',
+            'status' => 'active',
+            'description' => 'المستودع الرئيسي للشركة',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**

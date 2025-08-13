@@ -82,18 +82,23 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 return null;
             }
 
-            // Check if inventory item already exists
-            $existingInventory = Inventory::where('tenant_id', $this->tenantId)
-                ->where('product_id', $product->id)
-                ->where('warehouse_id', $warehouse->id)
-                ->where('batch_number', $row['رقم_الدفعة'] ?? null)
-                ->first();
-
             $quantity = floatval($quantity);
             $costPrice = !empty($row['سعر_التكلفة'] ?? $row['سعر التكلفة'] ?? $row[3]) ? floatval($row['سعر_التكلفة'] ?? $row['سعر التكلفة'] ?? $row[3]) : null;
             $locationCode = $row['رمز_الموقع'] ?? $row['رمز الموقع'] ?? $row[4] ?? null;
             $batchNumber = $row['رقم_الدفعة'] ?? $row['رقم الدفعة'] ?? $row[5] ?? null;
             $status = $row['الحالة'] ?? $row[7] ?? 'active';
+
+            // Check if inventory item already exists
+            $existingInventory = Inventory::where('tenant_id', $this->tenantId)
+                ->where('product_id', $product->id)
+                ->where('warehouse_id', $warehouse->id)
+                ->when($batchNumber, function($query) use ($batchNumber) {
+                    return $query->where('batch_number', $batchNumber);
+                })
+                ->when(!$batchNumber, function($query) {
+                    return $query->whereNull('batch_number');
+                })
+                ->first();
             
             // Parse expiry date
             $expiryDate = null;
