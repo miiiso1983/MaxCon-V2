@@ -238,7 +238,7 @@
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
                             <div class="product-selector" style="position: relative;">
-                                <input type="hidden" name="products[INDEX][product_id]" required class="product-id-input">
+                                <input type="hidden" name="products[INDEX][product_id]" class="product-id-input">
                                 <div class="product-dropdown" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleProductDropdown(this)">
                                     <span class="selected-text" style="color: #9ca3af;">اختر المنتج</span>
                                     <i class="fas fa-chevron-down" style="color: #6b7280;"></i>
@@ -258,7 +258,7 @@
 
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الكمية *</label>
-                            <input type="number" name="products[INDEX][quantity]" required min="0" step="0.001" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="0" onchange="calculateRowTotal(this)">
+                            <input type="number" name="products[INDEX][quantity]" min="0" step="0.001" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="0" onchange="calculateRowTotal(this)">
                         </div>
 
                         <div>
@@ -577,6 +577,15 @@ function selectProduct(element) {
     selectedText.textContent = text;
     selectedText.style.color = value ? '#374151' : '#9ca3af';
 
+    // إزالة/إضافة تمييز الخطأ
+    const productDropdown = container.querySelector('.product-dropdown');
+    if (value) {
+        productDropdown.style.borderColor = '#e2e8f0';
+        hiddenInput.setCustomValidity('');
+    } else {
+        hiddenInput.setCustomValidity('يرجى اختيار منتج');
+    }
+
     // إغلاق القائمة
     dropdown.style.display = 'none';
 
@@ -735,11 +744,16 @@ function addProductRow() {
     newRow.style.display = 'block';
     newRow.id = 'product-row-' + productRowIndex;
 
-    // Update input names with current index
+    // Update input names with current index and add required attributes
     const inputs = newRow.querySelectorAll('input, select');
     inputs.forEach(input => {
         if (input.name) {
             input.name = input.name.replace('INDEX', productRowIndex);
+
+            // إضافة required للحقول المطلوبة
+            if (input.name.includes('[product_id]') || input.name.includes('[quantity]')) {
+                input.required = true;
+            }
         }
     });
 
@@ -921,12 +935,12 @@ document.getElementById('inventoryForm').addEventListener('submit', function(e) 
     // Validate each product row
     let hasValidProduct = false;
     for (let row of rows) {
-        const productSelect = row.querySelector('select[name*="[product_id]"]');
+        const productIdInput = row.querySelector('input[name*="[product_id]"]');
         const quantityInput = row.querySelector('input[name*="[quantity]"]');
         const expiryInput = row.querySelector('input[name*="[expiry_date]"]');
         const statusSelect = row.querySelector('select[name*="[status]"]');
 
-        if (productSelect.value && quantityInput.value) {
+        if (productIdInput.value && quantityInput.value) {
             const quantity = parseFloat(quantityInput.value);
             if (quantity > 0) {
                 hasValidProduct = true;
