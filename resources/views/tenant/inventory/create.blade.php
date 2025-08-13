@@ -748,12 +748,23 @@ function addProductRow() {
     const inputs = newRow.querySelectorAll('input, select');
     inputs.forEach(input => {
         if (input.name) {
+            const oldName = input.name;
             input.name = input.name.replace('INDEX', productRowIndex);
+            console.log('Updated input name:', oldName, '->', input.name);
 
             // إضافة required للحقول المطلوبة
             if (input.name.includes('[product_id]') || input.name.includes('[quantity]')) {
                 input.required = true;
             }
+        }
+    });
+
+    // تحديث onclick attributes في القائمة المخصصة
+    const productOptions = newRow.querySelectorAll('.product-option[onclick]');
+    productOptions.forEach(option => {
+        const currentOnclick = option.getAttribute('onclick');
+        if (currentOnclick && currentOnclick.includes('INDEX')) {
+            // لا نحتاج تحديث onclick لأنه يستخدم this
         }
     });
 
@@ -919,6 +930,15 @@ document.getElementById('inventoryForm').addEventListener('submit', function(e) 
     if (!warehouseId || !defaultStatus) {
         e.preventDefault();
         alert('يرجى ملء جميع الحقول المطلوبة في المعلومات العامة');
+        return false;
+    }
+
+    // تحقق من أن جميع الأسماء تم تحديثها بشكل صحيح
+    const allInputs = document.querySelectorAll('input[name*="INDEX"], select[name*="INDEX"]');
+    if (allInputs.length > 0) {
+        e.preventDefault();
+        alert('خطأ في النموذج: بعض الحقول لم يتم تحديثها بشكل صحيح');
+        console.log('Inputs with INDEX still present:', allInputs);
         return false;
     }
 
