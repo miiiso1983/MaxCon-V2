@@ -69,9 +69,42 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 ->first();
 
             if (!$product) {
-                Log::warning("Product not found: " . $productCode);
-                $this->stats['errors']++;
-                return null;
+                // محاولة إنشاء منتج جديد إذا لم يكن موجود
+                Log::info("Product not found, attempting to create: " . $productCode);
+
+                $productName = $row['اسم_المنتج'] ?? $row['اسم المنتج'] ?? $row['name'] ?? $productCode;
+                $costPrice = $row['سعر_التكلفة'] ?? $row['سعر التكلفة'] ?? $row['cost_price'] ?? 0;
+                $sellingPrice = $row['سعر_البيع'] ?? $row['سعر البيع'] ?? $row['selling_price'] ?? 0;
+
+                try {
+                    $product = Product::create([
+                        'tenant_id' => $this->tenantId,
+                        'name' => $productName,
+                        'product_code' => $productCode,
+                        'code' => null,
+                        'cost_price' => $costPrice,
+                        'selling_price' => $sellingPrice,
+                        'stock_quantity' => 0,
+                        'min_stock_level' => 10,
+                        'unit_of_measure' => 'قرص',
+                        'category' => 'أخرى',
+                        'is_active' => true,
+                        'status' => 'active',
+                        'currency' => 'IQD',
+                        'base_unit' => 'piece',
+                        'is_taxable' => true,
+                        'tax_rate' => 15.00,
+                        'track_expiry' => true,
+                        'track_batch' => true,
+                        'created_by' => optional(auth()->user())->id,
+                    ]);
+
+                    Log::info("Created new product: " . $product->id . " - " . $product->name);
+                } catch (\Exception $e) {
+                    Log::error("Failed to create product: " . $e->getMessage());
+                    $this->stats['errors']++;
+                    return null;
+                }
             }
 
             // Find warehouse by code
