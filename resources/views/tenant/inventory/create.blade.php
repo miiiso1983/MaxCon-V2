@@ -650,7 +650,7 @@ function removeProductRow(button) {
     row.remove();
 
     // Check if no rows left
-    const remainingRows = container.querySelectorAll('.product-row[id!="product-row-template"]');
+    const remainingRows = container.querySelectorAll('.product-row:not(#product-row-template)');
     if (remainingRows.length === 0) {
         emptyState.style.display = 'block';
         totalSummary.style.display = 'none';
@@ -701,7 +701,7 @@ function calculateRowTotal(input) {
 
 function updateTotals() {
     const container = document.getElementById('products-container');
-    const rows = container.querySelectorAll('.product-row[id!="product-row-template"]');
+    const rows = container.querySelectorAll('.product-row:not(#product-row-template)');
 
     let grandTotal = 0;
     let productCount = 0;
@@ -752,7 +752,7 @@ function generateBatchNumberSuggestion(row) {
 // Update all location suggestions when warehouse changes
 document.querySelector('select[name="warehouse_id"]').addEventListener('change', function() {
     const container = document.getElementById('products-container');
-    const rows = container.querySelectorAll('.product-row[id!="product-row-template"]');
+    const rows = container.querySelectorAll('.product-row:not(#product-row-template)');
 
     rows.forEach(row => {
         updateLocationSuggestions(row);
@@ -783,7 +783,7 @@ document.getElementById('inventoryForm').addEventListener('submit', function(e) 
 
     // Check if at least one product is added
     const container = document.getElementById('products-container');
-    const rows = container.querySelectorAll('.product-row[id!="product-row-template"]');
+    const rows = container.querySelectorAll('.product-row:not(#product-row-template)');
 
     if (rows.length === 0) {
         e.preventDefault();
