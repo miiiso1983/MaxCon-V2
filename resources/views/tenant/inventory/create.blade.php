@@ -128,7 +128,7 @@
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
     <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-    
+
     <div style="position: relative; z-index: 2;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
@@ -146,7 +146,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div style="display: flex; gap: 15px;">
                 <a href="{{ route('tenant.inventory.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-arrow-right"></i>
@@ -174,7 +174,7 @@
     <div id="manual-tab" class="tab-content active">
         <form method="POST" action="{{ route('tenant.inventory.store') }}" id="inventoryForm">
             @csrf
-    
+
     <!-- Basic Information -->
     <div class="content-card" style="margin-bottom: 25px;">
         <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
@@ -330,7 +330,7 @@
             <i class="fas fa-clipboard-list" style="color: #667eea; margin-left: 10px;"></i>
             معلومات إضافية
         </h3>
-        
+
         <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border-right: 4px solid #667eea;">
             <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px;">ملاحظات مهمة:</h4>
             <ul style="margin: 0; padding-right: 20px; color: #4a5568; line-height: 1.6;">
@@ -468,25 +468,60 @@
     </div>
 </div>
 
+
+<!-- Diagnostics UI -->
+<div class="content-card" style="margin-top:20px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div style="font-weight:700;color:#374151;">تشخيص سريع</div>
+    <div style="display:flex;gap:10px;">
+      <button type="button" onclick="runDiagnostics()" style="background:#0ea5e9;color:#fff;padding:8px 14px;border:none;border-radius:8px;font-weight:600;">تشخيص النظام</button>
+      <label style="background:#10b981;color:#fff;padding:8px 14px;border:none;border-radius:8px;font-weight:600;cursor:pointer;">
+        فحص ملف CSV (بدون حفظ)
+        <input type="file" id="dry-run-file" accept=".csv,.xlsx,.xls" style="display:none;" onchange="runImportDryRun(this)">
+      </label>
+    </div>
+  </div>
+  <pre id="diag-output" style="margin-top:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;max-height:260px;overflow:auto;white-space:pre-wrap;direction:ltr;text-align:left;"></pre>
+</div>
+
 @push('scripts')
 <script>
 // Tab switching functionality
-function switchTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-
-    // Remove active class from all tab buttons
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.classList.remove('active');
-    });
-
-    // Show selected tab content
+function switchTab(tabName, el) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.getElementById(tabName + '-tab').classList.add('active');
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+}
 
-    // Add active class to selected tab button
-    event.target.classList.add('active');
+// Diagnostics
+async function runDiagnostics() {
+    try {
+        const res = await fetch("{{ route('tenant.inventory.diagnostics') }}", {credentials: 'same-origin'});
+        const data = await res.json();
+        document.getElementById('diag-output').textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+        document.getElementById('diag-output').textContent = 'Diagnostics failed: ' + e.message;
+    }
+}
+
+async function runImportDryRun(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('excel_file', file);
+    try {
+        const res = await fetch("{{ route('tenant.inventory.import-dry-run') }}", {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: fd,
+            credentials: 'same-origin'
+        });
+        const data = await res.json();
+        document.getElementById('diag-output').textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+        document.getElementById('diag-output').textContent = 'Dry run failed: ' + e.message;
+    }
 }
 
 // Excel file handling
@@ -494,41 +529,28 @@ function handleFileSelect(input) {
     const file = input.files[0];
     const fileInfo = document.getElementById('file-info');
     const uploadBtn = document.getElementById('upload-btn');
+    if (!fileInfo || !uploadBtn) return;
 
     if (file) {
-        // Validate file type
-        const allowedTypes = [
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-excel',
-            'text/csv'
-        ];
-
-        if (!allowedTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls|csv)$/i)) {
+        const allowedExt = /\.(xlsx|xls|csv)$/i;
+        if (!allowedExt.test(file.name)) {
             alert('نوع الملف غير مدعوم. يرجى اختيار ملف Excel أو CSV.');
             clearFile();
             return;
         }
-
-        // Validate file size (10MB max)
         if (file.size > 10 * 1024 * 1024) {
             alert('حجم الملف كبير جداً. الحد الأقصى 10MB.');
             clearFile();
             return;
         }
-
-        // Display file info
         document.getElementById('file-name').textContent = file.name;
         document.getElementById('file-size').textContent = formatFileSize(file.size);
         fileInfo.style.display = 'block';
-
-        // Enable upload button
         uploadBtn.disabled = false;
         uploadBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
         uploadBtn.style.cursor = 'pointer';
-
-        // Simulate progress (for visual feedback)
         const progressFill = document.getElementById('progress-fill');
-        progressFill.style.width = '100%';
+        if (progressFill) progressFill.style.width = '100%';
     }
 }
 
@@ -537,63 +559,41 @@ function clearFile() {
     const fileInfo = document.getElementById('file-info');
     const uploadBtn = document.getElementById('upload-btn');
     const progressFill = document.getElementById('progress-fill');
-
-    fileInput.value = '';
-    fileInfo.style.display = 'none';
-    progressFill.style.width = '0%';
-
-    uploadBtn.disabled = true;
-    uploadBtn.style.background = '#6b7280';
-    uploadBtn.style.cursor = 'not-allowed';
+    if (fileInput) fileInput.value = '';
+    if (fileInfo) fileInfo.style.display = 'none';
+    if (progressFill) progressFill.style.width = '0%';
+    if (uploadBtn) { uploadBtn.disabled = true; uploadBtn.style.background = '#6b7280'; uploadBtn.style.cursor = 'not-allowed'; }
 }
 
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const k = 1024; const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 // Drag and drop functionality
 const uploadArea = document.querySelector('.excel-upload-area');
-
-uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.classList.add('dragover');
-});
-
-uploadArea.addEventListener('dragleave', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('dragover');
-});
-
-uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('dragover');
-
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        document.getElementById('excel-file').files = files;
-        handleFileSelect(document.getElementById('excel-file'));
-    }
-});
+if (uploadArea) {
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); });
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault(); uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) { document.getElementById('excel-file').files = files; handleFileSelect(document.getElementById('excel-file')); }
+    });
+}
 
 // Excel form submission
-document.getElementById('excelForm').addEventListener('submit', function(e) {
-    const fileInput = document.getElementById('excel-file');
-
-    if (!fileInput.files[0]) {
-        e.preventDefault();
-        alert('يرجى اختيار ملف Excel أولاً');
-        return false;
-    }
-
-    // Show loading state
-    const uploadBtn = document.getElementById('upload-btn');
-    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
-    uploadBtn.disabled = true;
-});
+const excelForm = document.getElementById('excelForm');
+if (excelForm) {
+    excelForm.addEventListener('submit', function(e) {
+        const fileInput = document.getElementById('excel-file');
+        if (!fileInput || !fileInput.files[0]) { e.preventDefault(); alert('يرجى اختيار ملف Excel أولاً'); return false; }
+        const uploadBtn = document.getElementById('upload-btn');
+        if (uploadBtn) { uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...'; uploadBtn.disabled = true; }
+    });
+}
 </script>
 
 <script>

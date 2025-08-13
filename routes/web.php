@@ -2375,6 +2375,10 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
         Route::post('import-excel', [InventoryController::class, 'importExcel'])->name('import-excel');
         Route::get('export-excel', [InventoryController::class, 'exportExcel'])->name('export-excel');
 
+        // Diagnostics endpoints
+        Route::get('diagnostics', [InventoryController::class, 'diagnostics'])->name('diagnostics');
+        Route::post('import-dry-run', [InventoryController::class, 'importDryRun'])->name('import-dry-run');
+
         // Test route for debugging
         Route::get('test-template', function() {
             try {
