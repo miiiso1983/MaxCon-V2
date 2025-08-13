@@ -744,12 +744,25 @@ function addProductRow() {
     newRow.style.display = 'block';
     newRow.id = 'product-row-' + productRowIndex;
 
+    // إزالة تأثير custom-select أولاً
+    newRow.querySelectorAll('.simple-select').forEach(select => {
+        select.classList.remove('custom-select');
+        select.removeAttribute('data-custom-select');
+        select.removeAttribute('data-initialized');
+        select.style.display = '';
+
+        // إزالة wrapper إذا وجد
+        if (select.parentElement.classList.contains('custom-select-wrapper')) {
+            select.parentElement.replaceWith(select);
+        }
+    });
+
     // Update input names with current index and add required attributes
     const inputs = newRow.querySelectorAll('input, select');
     inputs.forEach(input => {
-        if (input.name) {
+        if (input.name && input.name.includes('INDEX')) {
             const oldName = input.name;
-            input.name = input.name.replace('INDEX', productRowIndex);
+            input.name = input.name.replace(/INDEX/g, productRowIndex);
             console.log('Updated input name:', oldName, '->', input.name);
 
             // إضافة required للحقول المطلوبة
@@ -758,6 +771,18 @@ function addProductRow() {
             }
         }
     });
+
+    // تحقق نهائي من عدم وجود INDEX
+    const remainingIndexInputs = newRow.querySelectorAll('input[name*="INDEX"], select[name*="INDEX"]');
+    if (remainingIndexInputs.length > 0) {
+        console.error('Still have INDEX in inputs:', remainingIndexInputs);
+        remainingIndexInputs.forEach(input => {
+            if (input.name) {
+                input.name = input.name.replace(/INDEX/g, productRowIndex);
+                console.log('Force updated:', input.name);
+            }
+        });
+    }
 
     // تحديث onclick attributes في القائمة المخصصة
     const productOptions = newRow.querySelectorAll('.product-option[onclick]');
@@ -937,9 +962,23 @@ document.getElementById('inventoryForm').addEventListener('submit', function(e) 
     const allInputs = document.querySelectorAll('input[name*="INDEX"], select[name*="INDEX"]');
     if (allInputs.length > 0) {
         e.preventDefault();
-        alert('خطأ في النموذج: بعض الحقول لم يتم تحديثها بشكل صحيح');
         console.log('Inputs with INDEX still present:', allInputs);
-        return false;
+
+        // محاولة إصلاح أخيرة
+        allInputs.forEach((input, index) => {
+            if (input.name && input.name.includes('INDEX')) {
+                const newName = input.name.replace(/INDEX/g, index);
+                console.log('Emergency fix:', input.name, '->', newName);
+                input.name = newName;
+            }
+        });
+
+        // تحقق مرة أخرى
+        const stillBroken = document.querySelectorAll('input[name*="INDEX"], select[name*="INDEX"]');
+        if (stillBroken.length > 0) {
+            alert('خطأ في النموذج: بعض الحقول لم يتم تحديثها بشكل صحيح');
+            return false;
+        }
     }
 
     // Check if at least one product is added
