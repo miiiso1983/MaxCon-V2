@@ -2306,6 +2306,10 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
 
         // Inventory Products
         Route::resource('inventory-products', InventoryProductController::class);
+        Route::get('inventory-products-import', [InventoryProductController::class, 'import'])->name('inventory-products.import');
+        Route::post('inventory-products-import', [InventoryProductController::class, 'processImport'])->name('inventory-products.process-import');
+        Route::get('inventory-products-template', [InventoryProductController::class, 'downloadTemplate'])->name('inventory-products.template');
+        Route::get('inventory-products-export', [InventoryProductController::class, 'export'])->name('inventory-products.export');
 
         // QR Code Generator
         Route::prefix('qr')->name('qr.')->group(function () {

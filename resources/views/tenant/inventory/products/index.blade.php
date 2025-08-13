@@ -51,6 +51,14 @@
                     <i class="fas fa-plus"></i>
                     منتج جديد
                 </a>
+                <a href="{{ route('tenant.inventory.inventory-products.import') }}" style="background: rgba(16, 185, 129, 0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="fas fa-file-excel"></i>
+                    استيراد Excel
+                </a>
+                <a href="{{ route('tenant.inventory.inventory-products.export') }}" style="background: rgba(245, 158, 11, 0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="fas fa-download"></i>
+                    تصدير Excel
+                </a>
             </div>
         </div>
     </div>

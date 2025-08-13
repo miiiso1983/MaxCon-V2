@@ -10,6 +10,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Http\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ProductsImport;
+use App\Exports\ProductsExport;
 
 class ProductController extends Controller
 {
@@ -237,5 +241,121 @@ class ProductController extends Controller
 
         return redirect()->route('tenant.inventory.inventory-products.index')
             ->with('success', 'تم حذف المنتج بنجاح');
+    }
+
+    /**
+     * Show the import form
+     */
+    public function import(): View
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        if (!$tenantId) {
+            abort(403, 'No tenant access');
+        }
+
+        // Get categories for the template
+        $categories = ProductCategory::where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        return view('tenant.inventory.products.import', compact('categories'));
+    }
+
+    /**
+     * Process the imported Excel file
+     */
+    public function processImport(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max
+        ]);
+
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        if (!$tenantId) {
+            abort(403, 'No tenant access');
+        }
+
+        try {
+            $import = new ProductsImport($tenantId);
+            Excel::import($import, $request->file('excel_file'));
+
+            $importedCount = $import->getImportedCount();
+            $errors = $import->getErrors();
+
+            if (!empty($errors)) {
+                return redirect()->back()
+                    ->with('warning', "تم استيراد {$importedCount} منتج بنجاح، لكن هناك {count($errors)} خطأ")
+                    ->with('import_errors', $errors);
+            }
+
+            return redirect()->route('tenant.inventory.inventory-products.index')
+                ->with('success', "تم استيراد {$importedCount} منتج بنجاح");
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'حدث خطأ أثناء استيراد الملف: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download Excel template
+     */
+    public function downloadTemplate(): Response
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        if (!$tenantId) {
+            abort(403, 'No tenant access');
+        }
+
+        // Get categories for the template
+        $categories = ProductCategory::where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->pluck('name')
+            ->toArray();
+
+        $templateData = [
+            [
+                'اسم المنتج' => 'مثال: دواء الصداع',
+                'كود المنتج' => 'PRD001',
+                'الوصف' => 'وصف المنتج',
+                'الفئة' => $categories[0] ?? 'أدوية',
+                'الشركة المصنعة' => 'شركة الأدوية',
+                'الباركود' => '1234567890123',
+                'وحدة القياس' => 'قرص',
+                'سعر التكلفة' => '10.50',
+                'سعر البيع' => '15.00',
+                'الحد الأدنى للمخزون' => '50',
+                'الكمية الحالية' => '100',
+                'نشط' => 'نعم'
+            ]
+        ];
+
+        return Excel::download(new ProductsExport($templateData, true), 'products_template.xlsx');
+    }
+
+    /**
+     * Export products to Excel
+     */
+    public function export(): Response
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        if (!$tenantId) {
+            abort(403, 'No tenant access');
+        }
+
+        $products = Product::where('tenant_id', $tenantId)
+            ->with('category')
+            ->get();
+
+        return Excel::download(new ProductsExport($products), 'products_' . date('Y-m-d') . '.xlsx');
     }
 }

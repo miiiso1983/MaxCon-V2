@@ -28,6 +28,10 @@
             </div>
             
             <div style="display: flex; gap: 15px;">
+                <a href="{{ route('tenant.inventory.inventory-products.import') }}" style="background: rgba(16, 185, 129, 0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="fas fa-file-excel"></i>
+                    استيراد من Excel
+                </a>
                 <a href="{{ route('tenant.inventory.inventory-products.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-arrow-right"></i>
                     العودة للقائمة
@@ -37,8 +41,89 @@
     </div>
 </div>
 
-<!-- Create Form -->
-<div class="content-card">
+<!-- Import Options -->
+<div class="content-card" style="margin-bottom: 30px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+        <h3 style="color: #2d3748; margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-upload" style="color: #10b981;"></i>
+            خيارات الإضافة
+        </h3>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <!-- Manual Entry Option -->
+        <div style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; transition: all 0.3s ease; cursor: pointer;" onclick="showManualForm()">
+            <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
+                <i class="fas fa-edit"></i>
+            </div>
+            <h4 style="margin: 0 0 10px 0; color: #2d3748; font-size: 16px; font-weight: 600;">إدخال يدوي</h4>
+            <p style="margin: 0; color: #6b7280; font-size: 14px;">إضافة منتج واحد بالتفصيل</p>
+        </div>
+
+        <!-- Excel Import Option -->
+        <div style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; transition: all 0.3s ease; cursor: pointer;" onclick="showExcelForm()">
+            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
+                <i class="fas fa-file-excel"></i>
+            </div>
+            <h4 style="margin: 0 0 10px 0; color: #2d3748; font-size: 16px; font-weight: 600;">استيراد من Excel</h4>
+            <p style="margin: 0; color: #6b7280; font-size: 14px;">رفع ملف Excel لإضافة منتجات متعددة</p>
+        </div>
+    </div>
+</div>
+
+<!-- Excel Import Form (Hidden by default) -->
+<div id="excelForm" class="content-card" style="display: none; margin-bottom: 30px;">
+    <h3 style="color: #2d3748; margin-bottom: 20px; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+        <i class="fas fa-file-excel" style="color: #10b981;"></i>
+        استيراد المنتجات من Excel
+    </h3>
+
+    <form method="POST" action="{{ route('tenant.inventory.inventory-products.process-import') }}" enctype="multipart/form-data">
+        @csrf
+
+        <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h4 style="color: #0369a1; margin: 0 0 15px 0; font-size: 16px; font-weight: 600;">
+                <i class="fas fa-info-circle" style="margin-left: 8px;"></i>
+                تعليمات مهمة
+            </h4>
+            <ul style="color: #0369a1; margin: 0; padding-right: 20px;">
+                <li>تأكد من أن ملف Excel يحتوي على الأعمدة المطلوبة</li>
+                <li>استخدم النموذج المتوفر لضمان التوافق</li>
+                <li>الحد الأقصى لحجم الملف: 10 ميجابايت</li>
+                <li>الصيغ المدعومة: .xlsx, .xls, .csv</li>
+            </ul>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: end;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">
+                    <i class="fas fa-file-upload" style="margin-left: 5px; color: #10b981;"></i>
+                    ملف Excel
+                </label>
+                <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required
+                       style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.3s ease;"
+                       onchange="validateFile(this)">
+                <small style="color: #6b7280; font-size: 12px;">اختر ملف Excel يحتوي على بيانات المنتجات</small>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ route('tenant.inventory.inventory-products.template') }}"
+                   style="background: #f59e0b; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-download"></i>
+                    تحميل النموذج
+                </a>
+                <button type="submit"
+                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-upload"></i>
+                    رفع واستيراد
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Manual Create Form -->
+<div id="manualForm" class="content-card">
     <form method="POST" action="{{ route('tenant.inventory.inventory-products.store') }}" enctype="multipart/form-data">
         @csrf
         
@@ -333,4 +418,88 @@
         </div>
     </form>
 </div>
+
+<script>
+// Show manual form by default
+document.addEventListener('DOMContentLoaded', function() {
+    showManualForm();
+});
+
+function showManualForm() {
+    document.getElementById('manualForm').style.display = 'block';
+    document.getElementById('excelForm').style.display = 'none';
+
+    // Update option styles
+    updateOptionStyles('manual');
+}
+
+function showExcelForm() {
+    document.getElementById('manualForm').style.display = 'none';
+    document.getElementById('excelForm').style.display = 'block';
+
+    // Update option styles
+    updateOptionStyles('excel');
+}
+
+function updateOptionStyles(activeOption) {
+    const options = document.querySelectorAll('[onclick*="show"]');
+    options.forEach(option => {
+        option.style.borderColor = '#e2e8f0';
+        option.style.backgroundColor = 'white';
+    });
+
+    if (activeOption === 'manual') {
+        options[0].style.borderColor = '#3b82f6';
+        options[0].style.backgroundColor = '#eff6ff';
+    } else {
+        options[1].style.borderColor = '#10b981';
+        options[1].style.backgroundColor = '#f0fdf4';
+    }
+}
+
+function validateFile(input) {
+    const file = input.files[0];
+    if (file) {
+        const fileSize = file.size / 1024 / 1024; // Convert to MB
+        const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                             'application/vnd.ms-excel',
+                             'text/csv'];
+
+        if (fileSize > 10) {
+            alert('حجم الملف كبير جداً. الحد الأقصى 10 ميجابايت.');
+            input.value = '';
+            return false;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+            alert('نوع الملف غير مدعوم. يرجى اختيار ملف Excel أو CSV.');
+            input.value = '';
+            return false;
+        }
+
+        // Show file info
+        const fileName = file.name;
+        const fileInfo = document.createElement('div');
+        fileInfo.style.cssText = 'margin-top: 10px; padding: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; color: #166534; font-size: 14px;';
+        fileInfo.innerHTML = `<i class="fas fa-check-circle" style="margin-left: 5px;"></i>تم اختيار الملف: ${fileName}`;
+
+        // Remove existing file info
+        const existingInfo = input.parentNode.querySelector('[style*="f0fdf4"]');
+        if (existingInfo) {
+            existingInfo.remove();
+        }
+
+        input.parentNode.appendChild(fileInfo);
+    }
+}
+
+// Auto-select category if passed in URL
+document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.querySelector('select[name="category_id"]');
+    const categoryId = '{{ request("category_id") }}';
+    if (categorySelect && categoryId) {
+        categorySelect.value = categoryId;
+    }
+});
+</script>
 @endsection

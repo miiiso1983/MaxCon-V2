@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -14,6 +15,7 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class ProductsImport implements
     ToModel,
@@ -28,6 +30,7 @@ class ProductsImport implements
 
     protected $tenantId;
     protected $importedCount = 0;
+    protected $errors = [];
     protected $skippedCount = 0;
 
     public function __construct($tenantId)
@@ -214,5 +217,51 @@ class ProductsImport implements
     public function getSkippedCount(): int
     {
         return $this->skippedCount;
+    }
+
+    /**
+     * Get import errors
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    /**
+     * Handle category creation or finding
+     */
+    private function handleCategory($categoryName)
+    {
+        if (empty($categoryName)) {
+            return null;
+        }
+
+        $category = ProductCategory::where('name', $categoryName)
+            ->where('tenant_id', $this->tenantId)
+            ->first();
+
+        if (!$category) {
+            // إنشاء فئة جديدة
+            try {
+                $category = ProductCategory::create([
+                    'id' => Str::uuid(),
+                    'tenant_id' => $this->tenantId,
+                    'name' => $categoryName,
+                    'description' => "تم إنشاؤها تلقائياً من استيراد Excel",
+                    'status' => 'active',
+                    'created_by' => auth()->id(),
+                ]);
+            } catch (\Exception $e) {
+                $this->errors[] = "خطأ في إنشاء الفئة {$categoryName}: " . $e->getMessage();
+                return null;
+            }
+        }
+
+        return $category->id;
+    }
+
+    public function chunkSize(): int
+    {
+        return 100;
     }
 }
