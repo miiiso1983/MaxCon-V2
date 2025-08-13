@@ -483,72 +483,114 @@ class SalesTargetController extends Controller
      */
     public function export(Request $request, string $format)
     {
-        $tenantId = auth()->user()->tenant_id;
-        $year = $request->get('year', Carbon::now()->year);
-        $targetType = $request->get('target_type');
-        $periodType = $request->get('period_type');
-
-        $query = SalesTarget::forTenant($tenantId)->where('year', $year);
-        if ($targetType) { $query->where('target_type', $targetType); }
-        if ($periodType) { $query->where('period_type', $periodType); }
-        $targets = $query->with(['progress'])->get();
-
-        if ($format === 'excel') {
-            $fileName = 'sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
-            return \Maatwebsite\Excel\Facades\Excel::download(new class($targets) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
-                private $rows;
-                public function __construct($targets) { $this->rows = $targets; }
-                public function array(): array {
-                    $out = [];
-                    foreach ($this->rows as $t) {
-                        $out[] = [
-                            'العنوان' => $t->title,
-                            'الجهة' => $t->target_entity_name,
-                            'النوع' => $t->target_type,
-                            'الفترة' => $t->period_type,
-                            'من' => optional($t->start_date)->format('Y-m-d'),
-                            'إلى' => optional($t->end_date)->format('Y-m-d'),
-                            'القياس' => $t->measurement_type,
-                            'الكمية المستهدفة' => $t->target_quantity,
-                            'القيمة المستهدفة' => $t->target_value,
-                            'النسبة المحققة' => $t->progress_percentage,
-                            'الحالة' => $t->status_text,
-                        ];
-                    }
-                    return $out;
-                }
-                public function headings(): array {
-                    return ['العنوان','الجهة','النوع','الفترة','من','إلى','القياس','الكمية المستهدفة','القيمة المستهدفة','النسبة المحققة','الحالة'];
-                }
-            }, $fileName);
-        }
-
-        if ($format === 'pdf') {
-            $view = 'tenant.sales.targets.reports_pdf';
-            $data = [
-                'targets' => $targets,
-                'year' => $year,
-                'targetType' => $targetType,
-                'periodType' => $periodType,
-            ];
-
-            // Prefer mPDF if available (better RTL/Arabic support), fallback to DomPDF
-            if (class_exists(\niklasravnsborg\LaravelPdf\Facades\Pdf::class)) {
-                $pdf = \niklasravnsborg\LaravelPdf\Facades\Pdf::loadView($view, $data);
-                // If config/pdf.php is present, it can enforce rtl, fonts, and landscape
-                return $pdf->download('sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.pdf');
+        try {
+            $tenantId = auth()->user()->tenant_id;
+            if (!$tenantId) {
+                abort(403, 'غير مسموح بدون مستأجر');
             }
 
-            // Fallback: DomPDF
-            $html = view($view, $data)->render();
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
-                ->setPaper('a4', 'landscape')
-                ->setOption('isHtml5ParserEnabled', true)
-                ->setOption('isRemoteEnabled', true);
-            return $pdf->download('sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.pdf');
-        }
+            $year = $request->get('year', Carbon::now()->year);
+            $targetType = $request->get('target_type');
+            $periodType = $request->get('period_type');
 
-        return back()->with('error', 'صيغة تصدير غير مدعومة');
+            $query = SalesTarget::forTenant($tenantId)->where('year', $year);
+            if ($targetType) { $query->where('target_type', $targetType); }
+            if ($periodType) { $query->where('period_type', $periodType); }
+            $targets = $query->with(['progress'])->get();
+
+            if ($format === 'excel') {
+                $fileName = 'sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+                return \Maatwebsite\Excel\Facades\Excel::download(new class($targets) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
+                    private $rows;
+                    public function __construct($targets) { $this->rows = $targets; }
+                    public function array(): array {
+                        $out = [];
+                        foreach ($this->rows as $t) {
+                            $out[] = [
+                                'العنوان' => $t->title,
+                                'الجهة' => $t->target_entity_name,
+                                'النوع' => $t->target_type,
+                                'الفترة' => $t->period_type,
+                                'من' => optional($t->start_date)->format('Y-m-d'),
+                                'إلى' => optional($t->end_date)->format('Y-m-d'),
+                                'القياس' => $t->measurement_type,
+                                'الكمية المستهدفة' => $t->target_quantity,
+                                'القيمة المستهدفة' => $t->target_value,
+                                'النسبة المحققة' => $t->progress_percentage,
+                                'الحالة' => $t->status_text,
+                            ];
+                        }
+                        return $out;
+                    }
+                    public function headings(): array {
+                        return ['العنوان','الجهة','النوع','الفترة','من','إلى','القياس','الكمية المستهدفة','القيمة المستهدفة','النسبة المحققة','الحالة'];
+                    }
+                }, $fileName);
+            }
+
+            if ($format === 'pdf') {
+                $view = 'tenant.sales.targets.reports_pdf';
+                $data = [
+                    'targets' => $targets,
+                    'year' => $year,
+                    'targetType' => $targetType,
+                    'periodType' => $periodType,
+                ];
+
+                // Ensure temp dir for mPDF exists
+                $tempPath = storage_path('app/mpdf-temp');
+                if (!is_dir($tempPath)) { @mkdir($tempPath, 0775, true); }
+                // Ensure temp dir is writable; if not, fallback to system temp
+                if (!@is_writable($tempPath)) {
+                    \Log::warning('mPDF tempDir not writable, falling back to system temp', ['path' => $tempPath]);
+                    config(['pdf.mpdf.tempDir' => sys_get_temp_dir()]);
+                } else {
+                    config(['pdf.mpdf.tempDir' => $tempPath]);
+                }
+
+                // Try mPDF first (best RTL/Arabic)
+                try {
+                    if (class_exists(\niklasravnsborg\LaravelPdf\Facades\Pdf::class)) {
+                        $pdf = \niklasravnsborg\LaravelPdf\Facades\Pdf::loadView($view, $data);
+                        return $pdf->download('sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.pdf');
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('mPDF export failed', ['message' => $e->getMessage()]);
+                }
+
+                // Fallback: DomPDF
+                try {
+                    $html = view($view, $data)->render();
+                    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+                        ->setPaper('a4', 'landscape')
+                        ->setOption('isHtml5ParserEnabled', true)
+                        ->setOption('isRemoteEnabled', true);
+                    return $pdf->download('sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.pdf');
+                } catch (\Throwable $e) {
+                    \Log::error('DomPDF export failed', ['message' => $e->getMessage()]);
+                    if ($request->boolean('debug')) {
+                        return response()->json([
+                            'ok' => false,
+                            'error' => $e->getMessage(),
+                            'mpdf_available' => class_exists(\niklasravnsborg\LaravelPdf\Facades\Pdf::class),
+                            'tenant_id' => $tenantId,
+                        ], 200);
+                    }
+                    return response('تعذر إنشاء ملف PDF. يرجى تثبيت حزمة mPDF والخطوط العربية. رسالة النظام: ' . $e->getMessage(), 500);
+                }
+            }
+
+            return back()->with('error', 'صيغة تصدير غير مدعومة');
+        } catch (\Throwable $e) {
+            if ($request->boolean('debug')) {
+                return response()->json([
+                    'ok' => false,
+                    'error' => $e->getMessage(),
+                    'trace_top' => collect(explode("\n", $e->getTraceAsString()))->take(3),
+                ], 200);
+            }
+            return response('خطأ أثناء تجهيز التصدير: ' . $e->getMessage(), 500);
+        }
     }
 
 
