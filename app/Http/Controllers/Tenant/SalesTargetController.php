@@ -524,18 +524,27 @@ class SalesTargetController extends Controller
         }
 
         if ($format === 'pdf') {
-            $html = view('tenant.sales.targets.reports_pdf', [
+            $view = 'tenant.sales.targets.reports_pdf';
+            $data = [
                 'targets' => $targets,
                 'year' => $year,
                 'targetType' => $targetType,
                 'periodType' => $periodType,
-            ])->render();
+            ];
 
+            // Prefer mPDF if available (better RTL/Arabic support), fallback to DomPDF
+            if (class_exists(\niklasravnsborg\LaravelPdf\Facades\Pdf::class)) {
+                $pdf = \niklasravnsborg\LaravelPdf\Facades\Pdf::loadView($view, $data);
+                // If config/pdf.php is present, it can enforce rtl, fonts, and landscape
+                return $pdf->download('sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.pdf');
+            }
+
+            // Fallback: DomPDF
+            $html = view($view, $data)->render();
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
                 ->setPaper('a4', 'landscape')
                 ->setOption('isHtml5ParserEnabled', true)
                 ->setOption('isRemoteEnabled', true);
-
             return $pdf->download('sales_targets_analytics_' . now()->format('Y_m_d_H_i_s') . '.pdf');
         }
 

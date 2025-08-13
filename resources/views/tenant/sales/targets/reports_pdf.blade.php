@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <title>تقرير تحليلات أهداف البيع</title>
     <style>
-        body { font-family: DejaVu Sans, Arial, sans-serif; }
-        h1 { font-size: 18px; margin: 0 0 15px 0; }
+        @page { size: A4 landscape; margin: 10mm; }
+        body { direction: rtl; font-family: 'Cairo', 'Amiri', 'DejaVu Sans', sans-serif; }
+        h1 { font-size: 18px; margin: 0 0 15px 0; text-align: right; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; font-size: 12px; text-align: right; }
         th { background: #f3f4f6; }
+        /* أرقام داخل خلايا تبقى LTR عند الحاجة */
+        .ltr { direction: ltr; unicode-bidi: embed; }
+
     </style>
 </head>
 <body>
