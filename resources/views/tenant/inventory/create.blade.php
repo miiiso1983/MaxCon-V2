@@ -993,11 +993,26 @@ document.getElementById('inventoryForm').addEventListener('submit', function(e) 
 
     // Validate each product row
     let hasValidProduct = false;
-    for (let row of rows) {
+    let invalidRows = [];
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
         const productIdInput = row.querySelector('input[name*="[product_id]"]');
         const quantityInput = row.querySelector('input[name*="[quantity]"]');
         const expiryInput = row.querySelector('input[name*="[expiry_date]"]');
         const statusSelect = row.querySelector('select[name*="[status]"]');
+
+        // تحقق من أن المنتج محدد
+        if (!productIdInput.value) {
+            invalidRows.push(`الصف ${i + 1}: لم يتم اختيار منتج`);
+            continue;
+        }
+
+        // تحقق من أن الكمية محددة وصحيحة
+        if (!quantityInput.value || parseFloat(quantityInput.value) <= 0) {
+            invalidRows.push(`الصف ${i + 1}: الكمية مطلوبة ويجب أن تكون أكبر من صفر`);
+            continue;
+        }
 
         if (productIdInput.value && quantityInput.value) {
             const quantity = parseFloat(quantityInput.value);
@@ -1016,16 +1031,29 @@ document.getElementById('inventoryForm').addEventListener('submit', function(e) 
                         }
                     }
                 }
-            } else {
-                e.preventDefault();
-                alert('يرجى إدخال كمية صحيحة لجميع المنتجات');
-                return false;
             }
-        } else if (productSelect.value || quantityInput.value) {
-            e.preventDefault();
-            alert('يرجى ملء جميع الحقول المطلوبة لكل منتج (المنتج والكمية)');
-            return false;
         }
+    }
+
+    // حذف الصفوف الفارغة تلقائي<|im_start|> (اختياري)
+    // يمكن تفعيل هذا لحذف الصفوف الفارغة بدل إظهار خطأ
+    /*
+    for (let i = rows.length - 1; i >= 0; i--) {
+        const row = rows[i];
+        const productIdInput = row.querySelector('input[name*="[product_id]"]');
+        const quantityInput = row.querySelector('input[name*="[quantity]"]');
+
+        if (!productIdInput.value && !quantityInput.value) {
+            row.remove();
+        }
+    }
+    */
+
+    // إظهار أخطاء التحقق
+    if (invalidRows.length > 0) {
+        e.preventDefault();
+        alert('يرجى إصلاح الأخطاء التالية:\n\n' + invalidRows.join('\n'));
+        return false;
     }
 
     if (!hasValidProduct) {
