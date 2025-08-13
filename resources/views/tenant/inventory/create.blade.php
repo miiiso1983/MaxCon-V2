@@ -240,8 +240,8 @@
                             <select name="products[INDEX][product_id]" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateProductInfo(this)">
                                 <option value="">اختر المنتج</option>
                                 @foreach($products as $product)
-                                    <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-code="{{ $product->code }}" data-unit="{{ $product->unit ?? 'وحدة' }}">
-                                        {{ $product->name }} ({{ $product->code }})
+                                    <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-code="{{ $product->code ?? $product->product_code }}" data-unit="{{ $product->unit ?? 'وحدة' }}">
+                                        {{ $product->name }} ({{ $product->code ?? $product->product_code }})
                                     </option>
                                 @endforeach
                             </select>
