@@ -185,6 +185,19 @@ class InventoryController extends Controller
             abort(403, 'No tenant access');
         }
 
+        // تنظيف البيانات أولاً - إزالة الصفوف الفارغة
+        $products = collect($request->products ?? [])->filter(function ($product) {
+            return !empty($product['product_id']) && !empty($product['quantity']) && $product['quantity'] > 0;
+        })->values()->toArray();
+
+        // التحقق من وجود منتجات صحيحة
+        if (empty($products)) {
+            return back()->withErrors(['products' => 'يرجى إضافة منتج واحد على الأقل مع كمية صحيحة'])->withInput();
+        }
+
+        // تحديث البيانات المنظفة
+        $request->merge(['products' => $products]);
+
         $request->validate([
             'warehouse_id' => 'required|exists:warehouses,id',
             'default_status' => 'required|in:active,quarantine,damaged,expired',
