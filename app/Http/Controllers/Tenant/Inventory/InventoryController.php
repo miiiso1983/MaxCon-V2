@@ -259,18 +259,40 @@ class InventoryController extends Controller
     /**
      * Download Excel template for inventory import
      */
-    public function downloadTemplate(): Response
+    public function downloadTemplate()
     {
         try {
             $user = Auth::user();
             $tenantId = $user->tenant_id ?? 1;
 
             if (!$tenantId) {
-                abort(403, 'No tenant access');
+                return response()->json(['error' => 'No tenant access'], 403);
             }
 
-            $export = new InventoryTemplateExport($tenantId);
-            return Excel::download($export, 'inventory_template.xlsx');
+            // Create a simple CSV template instead of complex Excel
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="inventory_template.csv"',
+            ];
+
+            $csvData = [
+                ['كود المنتج', 'كود المستودع', 'الكمية', 'سعر التكلفة', 'رمز الموقع', 'رقم الدفعة', 'تاريخ الانتهاء', 'الحالة', 'ملاحظات'],
+                ['PROD001', 'WH001', '100', '25.50', 'A-01-01', 'BATCH001', '2025-12-31', 'active', 'منتج تجريبي'],
+                ['PROD002', 'WH001', '50', '15.75', 'A-01-02', 'BATCH002', '2026-06-30', 'active', 'منتج تجريبي آخر'],
+            ];
+
+            $callback = function() use ($csvData) {
+                $file = fopen('php://output', 'w');
+                // Add BOM for UTF-8
+                fwrite($file, "\xEF\xBB\xBF");
+
+                foreach ($csvData as $row) {
+                    fputcsv($file, $row);
+                }
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
 
         } catch (\Exception $e) {
             // Log the error for debugging
@@ -278,7 +300,8 @@ class InventoryController extends Controller
 
             // Return a simple error response
             return response()->json([
-                'error' => 'حدث خطأ أثناء تحميل القالب: ' . $e->getMessage()
+                'error' => 'حدث خطأ أثناء تحميل القالب: ' . $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ], 500);
         }
     }
