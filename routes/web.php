@@ -2375,6 +2375,26 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
         Route::post('import-excel', [InventoryController::class, 'importExcel'])->name('import-excel');
         Route::get('export-excel', [InventoryController::class, 'exportExcel'])->name('export-excel');
 
+        // Test route for debugging
+        Route::get('test-template', function() {
+            try {
+                $user = Auth::user();
+                $tenantId = $user->tenant_id ?? 1;
+
+                return response()->json([
+                    'status' => 'success',
+                    'tenant_id' => $tenantId,
+                    'message' => 'Template test successful'
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        })->name('test-template');
+
         // Main Inventory Management (must be last to avoid conflicts)
         Route::get('/', [InventoryController::class, 'index'])->name('index');
         Route::get('create', [InventoryController::class, 'create'])->name('create');

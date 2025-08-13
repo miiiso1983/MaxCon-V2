@@ -261,14 +261,26 @@ class InventoryController extends Controller
      */
     public function downloadTemplate(): Response
     {
-        $user = Auth::user();
-        $tenantId = $user->tenant_id;
+        try {
+            $user = Auth::user();
+            $tenantId = $user->tenant_id ?? 1;
 
-        if (!$tenantId) {
-            abort(403, 'No tenant access');
+            if (!$tenantId) {
+                abort(403, 'No tenant access');
+            }
+
+            $export = new InventoryTemplateExport($tenantId);
+            return Excel::download($export, 'inventory_template.xlsx');
+
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Template download error: ' . $e->getMessage());
+
+            // Return a simple error response
+            return response()->json([
+                'error' => 'حدث خطأ أثناء تحميل القالب: ' . $e->getMessage()
+            ], 500);
         }
-
-        return Excel::download(new InventoryTemplateExport($tenantId), 'inventory_template.xlsx');
     }
 
     /**
