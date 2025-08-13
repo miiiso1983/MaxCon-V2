@@ -193,9 +193,49 @@
 
 <!-- Include QR Code Library -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<!-- Fallback QR Code Library -->
+<script>
+// Fallback loader for QRCode library
+if (typeof QRCode === 'undefined') {
+    console.log('Loading fallback QRCode library...');
+    const fallbackScript = document.createElement('script');
+    fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+    fallbackScript.onload = function() {
+        console.log('Fallback QRCode library loaded');
+    };
+    fallbackScript.onerror = function() {
+        console.error('Failed to load fallback QRCode library');
+    };
+    document.head.appendChild(fallbackScript);
+}
+</script>
 
 <script>
 let currentQRData = null;
+
+// Wait for QRCode library to load
+function waitForQRCode() {
+    return new Promise((resolve, reject) => {
+        if (typeof QRCode !== 'undefined') {
+            resolve();
+            return;
+        }
+
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds max
+
+        const checkInterval = setInterval(() => {
+            attempts++;
+            if (typeof QRCode !== 'undefined') {
+                clearInterval(checkInterval);
+                resolve();
+            } else if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                reject(new Error('QRCode library failed to load'));
+            }
+        }, 100);
+    });
+}
 
 // Category select change handler
 document.getElementById('categorySelect').addEventListener('change', function() {
@@ -434,45 +474,55 @@ async function generateInvoiceQR() {
 }
 
 // Display QR code
-function displayQR(qrData, info) {
-    currentQRData = qrData;
-    
-    const container = document.getElementById('qrCodeContainer');
-    const infoDiv = document.getElementById('qrInfo');
-    const placeholder = document.getElementById('qrPlaceholder');
-    const result = document.getElementById('qrResult');
-    
-    // Clear previous QR
-    container.innerHTML = '';
-    
-    // Generate QR code
-    QRCode.toCanvas(qrData, {
-        width: 300,
-        margin: 2,
-        color: {
-            dark: '#000000',
-            light: '#FFFFFF'
-        }
-    }, function (error, canvas) {
-        if (error) {
-            showError('فشل في إنشاء QR كود');
-            return;
-        }
-        
-        container.appendChild(canvas);
-        
-        // Update info
-        infoDiv.innerHTML = `
-            <div style="margin-bottom: 10px;"><strong>العنوان:</strong> ${info.title}</div>
-            <div style="margin-bottom: 10px;"><strong>عدد المنتجات:</strong> ${info.count}</div>
-            <div style="margin-bottom: 10px;"><strong>حجم البيانات:</strong> ${info.size}</div>
-            <div><strong>التاريخ:</strong> ${new Date().toLocaleString('ar-EG')}</div>
-        `;
-        
-        // Show result, hide placeholder
-        placeholder.style.display = 'none';
-        result.style.display = 'block';
-    });
+async function displayQR(qrData, info) {
+    try {
+        // Wait for QRCode library to be available
+        await waitForQRCode();
+
+        currentQRData = qrData;
+
+        const container = document.getElementById('qrCodeContainer');
+        const infoDiv = document.getElementById('qrInfo');
+        const placeholder = document.getElementById('qrPlaceholder');
+        const result = document.getElementById('qrResult');
+
+        // Clear previous QR
+        container.innerHTML = '';
+
+        // Generate QR code
+        QRCode.toCanvas(qrData, {
+            width: 300,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, function (error, canvas) {
+            if (error) {
+                console.error('QR Generation Error:', error);
+                showError('فشل في إنشاء QR كود: ' + error.message);
+                return;
+            }
+
+            container.appendChild(canvas);
+
+            // Update info
+            infoDiv.innerHTML = `
+                <div style="margin-bottom: 10px;"><strong>العنوان:</strong> ${info.title}</div>
+                <div style="margin-bottom: 10px;"><strong>عدد المنتجات:</strong> ${info.count}</div>
+                <div style="margin-bottom: 10px;"><strong>حجم البيانات:</strong> ${info.size}</div>
+                <div><strong>التاريخ:</strong> ${new Date().toLocaleString('ar-EG')}</div>
+            `;
+
+            // Show result, hide placeholder
+            placeholder.style.display = 'none';
+            result.style.display = 'block';
+        });
+
+    } catch (error) {
+        console.error('QRCode library error:', error);
+        showError('فشل في تحميل مكتبة QR كود: ' + error.message);
+    }
 }
 
 // Show loading
@@ -490,13 +540,32 @@ function showLoading() {
 // Show error
 function showError(message) {
     const placeholder = document.getElementById('qrPlaceholder');
-    placeholder.innerHTML = `
-        <div style="background: #ef4444; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px;">
-            <i class="fas fa-exclamation-triangle"></i>
-        </div>
-        <h4 style="margin: 0 0 10px 0; color: #ef4444; font-size: 18px; font-weight: 600;">خطأ</h4>
-        <p style="margin: 0; font-size: 16px; white-space: pre-line;">${message}</p>
-    `;
+    const result = document.getElementById('qrResult');
+
+    // Hide result if showing
+    if (result) {
+        result.style.display = 'none';
+    }
+
+    // Show error in placeholder
+    if (placeholder) {
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = `
+            <div style="background: #ef4444; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h4 style="margin: 0 0 10px 0; color: #ef4444; font-size: 18px; font-weight: 600;">خطأ</h4>
+            <p style="margin: 0; font-size: 16px; white-space: pre-line;">${message}</p>
+            <div style="margin-top: 20px;">
+                <button onclick="location.reload()" style="background: #6b7280; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">
+                    <i class="fas fa-redo" style="margin-left: 5px;"></i>
+                    إعادة تحميل الصفحة
+                </button>
+            </div>
+        `;
+    }
+
+    console.error('QR Error:', message);
 }
 
 // Test connection function
@@ -608,5 +677,17 @@ function printQR() {
         printWindow.print();
     }
 }
+
+// Check QRCode library on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        if (typeof QRCode === 'undefined') {
+            console.error('QRCode library not loaded');
+            showError('فشل في تحميل مكتبة QR كود. يرجى إعادة تحميل الصفحة أو التحقق من الاتصال بالإنترنت.');
+        } else {
+            console.log('QRCode library loaded successfully');
+        }
+    }, 2000); // Wait 2 seconds for library to load
+});
 </script>
 @endsection
