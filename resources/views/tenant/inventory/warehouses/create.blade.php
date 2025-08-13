@@ -37,6 +37,24 @@
     </div>
 </div>
 
+<!-- Display Errors -->
+@if ($errors->any())
+    <div style="background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0; font-weight: 600;">يرجى تصحيح الأخطاء التالية:</h4>
+        <ul style="margin: 0; padding-right: 20px;">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if (session('error'))
+    <div style="background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <strong>خطأ:</strong> {{ session('error') }}
+    </div>
+@endif
+
 <form method="POST" action="{{ route('tenant.inventory.warehouses.store') }}" id="warehouseForm">
     @csrf
     
@@ -309,6 +327,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('Form data:', { name, type });
 
+            // Check CSRF token
+            const csrfToken = document.querySelector('input[name="_token"]');
+            if (!csrfToken || !csrfToken.value) {
+                e.preventDefault();
+                alert('خطأ في الأمان. يرجى إعادة تحميل الصفحة.');
+                console.error('CSRF token missing');
+                return false;
+            }
+
             if (!name) {
                 e.preventDefault();
                 alert('يرجى إدخال اسم المستودع');
@@ -329,6 +356,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
             }
+
+            // Log form action for debugging
+            console.log('Form action:', warehouseForm.action);
+            console.log('Form method:', warehouseForm.method);
+            console.log('CSRF token:', csrfToken.value);
 
             console.log('Form validation passed, submitting...');
             return true;

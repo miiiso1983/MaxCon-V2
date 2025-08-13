@@ -87,25 +87,51 @@ class WarehouseController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Log the incoming request
+        \Log::info('Warehouse store request received', [
+            'request_data' => $request->all(),
+            'user_id' => Auth::id(),
+            'ip' => $request->ip()
+        ]);
+
         $user = Auth::user();
         $tenantId = $user ? $user->tenant_id : null;
 
         if (!$tenantId) {
+            \Log::error('No tenant access for warehouse creation', [
+                'user_id' => Auth::id(),
+                'user' => $user
+            ]);
             abort(403, 'No tenant access');
         }
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'location' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'manager_id' => 'nullable|exists:users,id',
-            'type' => 'required|in:main,branch,storage,pharmacy',
-            'total_capacity' => 'nullable|numeric|min:0',
-            'settings' => 'nullable|array',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'location' => 'nullable|string|max:255',
+                'address' => 'nullable|string',
+                'phone' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'manager_id' => 'nullable|exists:users,id',
+                'type' => 'required|in:main,branch,storage,pharmacy',
+                'total_capacity' => 'nullable|numeric|min:0',
+                'settings' => 'nullable|array',
+            ]);
+
+            \Log::info('Warehouse validation passed', [
+                'validated_data' => $validated,
+                'tenant_id' => $tenantId
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Warehouse validation failed', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all()
+            ]);
+
+            return back()->withErrors($e->errors())->withInput();
+        }
 
         try {
             DB::beginTransaction();
@@ -129,7 +155,18 @@ class WarehouseController extends Controller
             $warehouse->save();
 
             // Create default locations
-            $this->createDefaultLocations($warehouse);
+            try {
+                $this->createDefaultLocations($warehouse);
+                \Log::info('Default locations created successfully', [
+                    'warehouse_id' => $warehouse->id
+                ]);
+            } catch (\Exception $e) {
+                \Log::warning('Failed to create default locations', [
+                    'warehouse_id' => $warehouse->id,
+                    'error' => $e->getMessage()
+                ]);
+                // Continue without failing the warehouse creation
+            }
 
             DB::commit();
 
