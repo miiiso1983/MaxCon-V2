@@ -77,9 +77,7 @@ class WarehouseController extends Controller
             abort(403, 'No tenant access');
         }
 
-        $managers = User::where('tenant_id', $tenantId)->orderBy('name')->get();
-
-        return view('tenant.inventory.warehouses.create', compact('managers'));
+        return view('tenant.inventory.warehouses.create_simple');
     }
 
     /**
@@ -109,14 +107,7 @@ class WarehouseController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'location' => 'nullable|string|max:255',
-                'address' => 'nullable|string',
                 'phone' => 'nullable|string|max:20',
-                'email' => 'nullable|email|max:255',
-                'manager_id' => 'nullable|exists:users,id',
-                'type' => 'required|in:main,branch,storage,pharmacy',
-                'total_capacity' => 'nullable|numeric|min:0',
-                'settings' => 'nullable|array',
             ]);
 
             \Log::info('Warehouse validation passed', [
@@ -154,19 +145,10 @@ class WarehouseController extends Controller
 
             $warehouse->save();
 
-            // Create default locations
-            try {
-                $this->createDefaultLocations($warehouse);
-                \Log::info('Default locations created successfully', [
-                    'warehouse_id' => $warehouse->id
-                ]);
-            } catch (\Exception $e) {
-                \Log::warning('Failed to create default locations', [
-                    'warehouse_id' => $warehouse->id,
-                    'error' => $e->getMessage()
-                ]);
-                // Continue without failing the warehouse creation
-            }
+            // Skip creating default locations for now
+            \Log::info('Warehouse created without default locations', [
+                'warehouse_id' => $warehouse->id
+            ]);
 
             DB::commit();
 

@@ -89,24 +89,9 @@
             </div>
             
             <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الموقع</label>
-                <input type="text" name="location" value="{{ old('location') }}" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="مثال: بغداد - المنطقة الصناعية">
-                @error('location')
-                    <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
-                @enderror
-            </div>
-            
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">مدير المستودع</label>
-                <select name="manager_id" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                    <option value="">اختر مدير المستودع</option>
-                    @foreach($managers as $manager)
-                        <option value="{{ $manager->id }}" {{ old('manager_id') == $manager->id ? 'selected' : '' }}>
-                            {{ $manager->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('manager_id')
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">رقم الهاتف</label>
+                <input type="text" name="phone" value="{{ old('phone') }}" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="رقم الهاتف (اختياري)">
+                @error('phone')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
@@ -121,58 +106,9 @@
         </div>
     </div>
 
-    <!-- Contact Information -->
-    <div class="content-card" style="margin-bottom: 25px;">
-        <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
-            <i class="fas fa-address-book" style="color: #667eea; margin-left: 10px;"></i>
-            معلومات الاتصال
-        </h3>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">رقم الهاتف</label>
-                <input type="tel" name="phone" value="{{ old('phone') }}" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="07901234567">
-                @error('phone')
-                    <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
-                @enderror
-            </div>
-            
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">البريد الإلكتروني</label>
-                <input type="email" name="email" value="{{ old('email') }}" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="warehouse@company.com">
-                @error('email')
-                    <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
-        
-        <div style="margin-top: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">العنوان الكامل</label>
-            <textarea name="address" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; height: 80px;" placeholder="العنوان التفصيلي للمستودع...">{{ old('address') }}</textarea>
-            @error('address')
-                <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
-            @enderror
-        </div>
-    </div>
 
-    <!-- Capacity Settings -->
-    <div class="content-card" style="margin-bottom: 25px;">
-        <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
-            <i class="fas fa-cube" style="color: #667eea; margin-left: 10px;"></i>
-            إعدادات السعة
-        </h3>
-        
-        <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">السعة الإجمالية (متر مكعب)</label>
-                <input type="number" name="total_capacity" value="{{ old('total_capacity') }}" min="0" step="0.01" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="1000">
-                <div style="font-size: 12px; color: #6b7280; margin-top: 5px;">اتركه فارغاً إذا لم تكن تريد تتبع السعة</div>
-                @error('total_capacity')
-                    <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
-    </div>
+
+
 
     <!-- Advanced Settings -->
     <div class="content-card" style="margin-bottom: 25px;">
