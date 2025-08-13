@@ -185,7 +185,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المستودع *</label>
-                <select name="warehouse_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="warehouse_id" required class="simple-select" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر المستودع</option>
                     @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id }}" {{ old('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
@@ -200,7 +200,7 @@
 
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الحالة الافتراضية *</label>
-                <select name="default_status" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="default_status" required class="simple-select" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="active" {{ old('default_status', 'active') === 'active' ? 'selected' : '' }}>نشط</option>
                     <option value="quarantine" {{ old('default_status') === 'quarantine' ? 'selected' : '' }}>حجر صحي</option>
                     <option value="damaged" {{ old('default_status') === 'damaged' ? 'selected' : '' }}>تالف</option>
@@ -290,7 +290,7 @@
 
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الحالة</label>
-                            <select name="products[INDEX][status]" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" class="status-select">
+                            <select name="products[INDEX][status]" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" class="status-select simple-select">
                                 <option value="active">نشط</option>
                                 <option value="quarantine">حجر صحي</option>
                                 <option value="damaged">تالف</option>
