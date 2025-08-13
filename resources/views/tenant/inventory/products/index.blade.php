@@ -115,7 +115,7 @@
                 <button type="submit" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
                     <i class="fas fa-search"></i>
                 </button>
-                <a href="{{ route('tenant.inventory.products.index') }}" style="background: #6b7280; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: flex; align-items: center;">
+                <a href="{{ route('tenant.inventory.inventory-products.index') }}" style="background: #6b7280; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: flex; align-items: center;">
                     <i class="fas fa-redo"></i>
                 </a>
             </div>
@@ -264,7 +264,7 @@
                                        title="تعديل">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form method="POST" action="{{ route('tenant.inventory.products.destroy', $product) }}" style="display: inline;" 
+                                    <form method="POST" action="{{ route('tenant.inventory.inventory-products.destroy', $product) }}" style="display: inline;"
                                           onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟')">
                                         @csrf
                                         @method('DELETE')

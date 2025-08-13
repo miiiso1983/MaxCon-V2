@@ -43,7 +43,7 @@
 
 <!-- Edit Form -->
 <div class="content-card">
-    <form method="POST" action="{{ route('tenant.inventory.products.update', $product) }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('tenant.inventory.inventory-products.update', $product) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         
@@ -322,7 +322,7 @@
         
         <!-- Action Buttons -->
         <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; gap: 15px; justify-content: flex-end;">
-            <a href="{{ route('tenant.inventory.products.show', $product) }}" 
+            <a href="{{ route('tenant.inventory.inventory-products.show', $product) }}"
                style="background: #6b7280; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-times"></i>
                 إلغاء

@@ -235,7 +235,7 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return redirect()->route('tenant.inventory.products.index')
+        return redirect()->route('tenant.inventory.inventory-products.index')
             ->with('success', 'تم حذف المنتج بنجاح');
     }
 }

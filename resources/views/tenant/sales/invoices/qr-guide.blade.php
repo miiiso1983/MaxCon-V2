@@ -248,7 +248,7 @@
         <i class="fas fa-file-invoice"></i>
         مثال الفاتورة
     </a>
-    <a href="{{ route('tenant.inventory.products.index') }}" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; padding: 15px 25px; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+    <a href="{{ route('tenant.inventory.inventory-products.index') }}" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; padding: 15px 25px; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px;">
         <i class="fas fa-cube"></i>
         إدارة المنتجات
     </a>
