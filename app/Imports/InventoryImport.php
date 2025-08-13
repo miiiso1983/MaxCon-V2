@@ -60,9 +60,12 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 return null;
             }
 
-            // Find product by code
+            // Find product by code (support both 'code' and 'product_code')
             $product = Product::where('tenant_id', $this->tenantId)
-                ->where('code', $productCode)
+                ->where(function($q) use ($productCode) {
+                    $q->where('code', $productCode)
+                      ->orWhere('product_code', $productCode);
+                })
                 ->first();
 
             if (!$product) {
