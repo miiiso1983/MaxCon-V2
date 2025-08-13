@@ -949,9 +949,9 @@ Route::get('/test-direct-product-creation', function () {
         $product->tenant_id = $tenantId;
         $product->name = 'منتج اختبار مباشر ' . now()->format('H:i:s');
         $product->category = 'أدوية';
-        $product->cost_price = 10.50;
-        $product->selling_price = 20.00;
-        $product->stock_quantity = 50;
+        $product->cost_price = '10.50';
+        $product->selling_price = '20.00';
+        $product->stock_quantity = '50.00';
         $product->min_stock_level = 5;
         $product->unit_of_measure = 'قرص';
         $product->manufacturer = 'شركة اختبار';
