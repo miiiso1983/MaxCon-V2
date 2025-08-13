@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class WarehouseController extends Controller
 {
@@ -17,7 +18,7 @@ class WarehouseController extends Controller
      */
     public function index(Request $request): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user ? $user->tenant_id : null;
 
         if (!$tenantId) {
@@ -69,7 +70,7 @@ class WarehouseController extends Controller
      */
     public function create(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user ? $user->tenant_id : null;
 
         if (!$tenantId) {
@@ -86,7 +87,7 @@ class WarehouseController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user ? $user->tenant_id : null;
 
         if (!$tenantId) {
@@ -139,7 +140,7 @@ class WarehouseController extends Controller
      */
     public function show(Warehouse $warehouse): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($warehouse->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -167,7 +168,7 @@ class WarehouseController extends Controller
      */
     public function edit(Warehouse $warehouse): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($warehouse->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -183,7 +184,7 @@ class WarehouseController extends Controller
      */
     public function update(Request $request, Warehouse $warehouse): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($warehouse->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -214,7 +215,7 @@ class WarehouseController extends Controller
      */
     public function destroy(Warehouse $warehouse): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($warehouse->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
