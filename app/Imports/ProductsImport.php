@@ -16,6 +16,8 @@ use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class ProductsImport implements
     ToModel,
@@ -46,7 +48,7 @@ class ProductsImport implements
     {
         // Log the row data for debugging (only first few rows to avoid spam)
         if ($this->importedCount + $this->skippedCount < 5) {
-            \Log::info('ProductsImport: Processing row', [
+            Log::info('ProductsImport: Processing row', [
                 'tenant_id' => $this->tenantId,
                 'row_number' => $this->importedCount + $this->skippedCount + 1,
                 'row_data' => $row
@@ -55,7 +57,7 @@ class ProductsImport implements
 
         // Skip empty rows
         if (empty($row['name']) || empty(trim($row['name']))) {
-            \Log::info('ProductsImport: Skipping empty row');
+            Log::info('ProductsImport: Skipping empty row');
             $this->skippedCount++;
             return null;
         }
@@ -74,7 +76,7 @@ class ProductsImport implements
             ->first();
 
         if ($existingProduct) {
-            \Log::info('ProductsImport: Product already exists', [
+            Log::info('ProductsImport: Product already exists', [
                 'name' => $productName,
                 'barcode' => $productBarcode,
                 'existing_id' => $existingProduct->id
@@ -100,20 +102,21 @@ class ProductsImport implements
 
         // Use the correct field names from database (format as strings for decimal casts)
         $cost = !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? (float)$row['purchase_price'] : 0.0;
-        $product->cost_price = number_format($cost, 2, '.', '');
+        $product->cost_price = round($cost, 2);
 
         $sell = !empty($row['selling_price']) && is_numeric($row['selling_price']) ? (float)$row['selling_price'] : 0.0;
-        $product->selling_price = number_format($sell, 2, '.', '');
+        $product->selling_price = round($sell, 2);
 
         // Use min_stock_level and stock_quantity (current stock)
         $product->min_stock_level = !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? (int)$row['min_stock_level'] : 10;
         $stock = !empty($row['current_stock']) && is_numeric($row['current_stock']) ? (float)$row['current_stock'] : 0.0;
-        $product->stock_quantity = number_format($stock, 2, '.', '');
+        // Stock can be decimal in db, but assign as float and let casts handle
+        $product->stock_quantity = (float) number_format($stock, 2, '.', '');
 
         // Handle dates
         if (!empty($row['expiry_date'])) {
             try {
-                $product->expiry_date = Carbon::parse($row['expiry_date'])->format('Y-m-d');
+                $product->expiry_date = Carbon::parse($row['expiry_date']);
             } catch (\Exception $e) {
                 $product->expiry_date = null;
             }
@@ -137,7 +140,7 @@ class ProductsImport implements
 
         // Log only first few products to avoid spam
         if ($this->importedCount < 3) {
-            \Log::info('ProductsImport: Creating new product', [
+            Log::info('ProductsImport: Creating new product', [
                 'name' => $product->name,
                 'tenant_id' => $product->tenant_id,
                 'category' => $product->category,
@@ -151,7 +154,7 @@ class ProductsImport implements
             $createdProduct = Product::create($productData);
 
             if ($this->importedCount < 3) {
-                \Log::info('ProductsImport: Product created successfully', [
+                Log::info('ProductsImport: Product created successfully', [
                     'product_id' => $createdProduct->id,
                     'product_name' => $createdProduct->name
                 ]);
@@ -160,7 +163,7 @@ class ProductsImport implements
             $this->importedCount++;
             return $createdProduct;
         } catch (\Exception $e) {
-            \Log::error('ProductsImport: Error creating product', [
+            Log::error('ProductsImport: Error creating product', [
                 'error' => $e->getMessage(),
                 'product_name' => $product->name,
                 'row_number' => $this->importedCount + $this->skippedCount + 1
@@ -253,7 +256,7 @@ class ProductsImport implements
                     'name' => $categoryName,
                     'description' => "تم إنشاؤها تلقائياً من استيراد Excel",
                     'status' => 'active',
-                    'created_by' => auth()->id(),
+                    'created_by' => optional(auth()->user())->id,
                 ]);
             } catch (\Exception $e) {
                 $this->errors[] = "خطأ في إنشاء الفئة {$categoryName}: " . $e->getMessage();
