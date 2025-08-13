@@ -550,6 +550,44 @@ class InventoryController extends Controller
     }
 
     /**
+     * عرض آخر logs للتشخيص (مؤقت)
+     */
+    public function showLogs()
+    {
+        $logFile = storage_path('logs/laravel.log');
+
+        if (!file_exists($logFile)) {
+            return response()->json(['error' => 'Log file not found']);
+        }
+
+        // قراءة آخر 100 سطر
+        $lines = [];
+        $file = new \SplFileObject($logFile);
+        $file->seek(PHP_INT_MAX);
+        $totalLines = $file->key();
+
+        $startLine = max(0, $totalLines - 100);
+        $file->seek($startLine);
+
+        while (!$file->eof()) {
+            $line = $file->current();
+            if (strpos($line, 'InventoryImport') !== false ||
+                strpos($line, 'Raw CSV') !== false ||
+                strpos($line, 'Processing row') !== false ||
+                strpos($line, 'Excel import') !== false) {
+                $lines[] = $line;
+            }
+            $file->next();
+        }
+
+        return response()->json([
+            'logs' => $lines,
+            'total_lines' => count($lines),
+            'log_file' => $logFile
+        ]);
+    }
+
+    /**
      * Dry-run import: parse the uploaded file and return parsed rows without saving
      */
     public function importDryRun(Request $request)

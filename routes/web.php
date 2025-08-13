@@ -2377,6 +2377,7 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
 
         // Diagnostics endpoints
         Route::get('diagnostics', [InventoryController::class, 'diagnostics'])->name('diagnostics');
+        Route::get('logs', [InventoryController::class, 'showLogs'])->name('logs');
         Route::post('import-dry-run', [InventoryController::class, 'importDryRun'])->name('import-dry-run');
 
         // Test route for debugging
