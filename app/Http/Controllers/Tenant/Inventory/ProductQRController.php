@@ -25,8 +25,13 @@ class ProductQRController extends Controller
                 return response()->json(['error' => 'No tenant access'], 403);
             }
 
+            // Validate request
+            $validated = $request->validate([
+                'limit' => 'nullable|integer|min:1|max:100'
+            ]);
+
             // Get limit from request (default 50 to avoid large QR codes)
-            $limit = $request->input('limit', 50);
+            $limit = $validated['limit'] ?? 50;
 
             // Get available products (excluding stock information)
             $products = Product::where('tenant_id', $tenantId)
@@ -115,15 +120,26 @@ class ProductQRController extends Controller
                 'data_size' => strlen($qrDataJson) . ' bytes'
             ]);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'بيانات غير صحيحة: ' . implode(', ', $e->validator->errors()->all()),
+                'validation_errors' => $e->validator->errors()
+            ], 400);
         } catch (\Exception $e) {
             \Log::error('QR Generation Error: ' . $e->getMessage(), [
                 'tenant_id' => $tenantId ?? null,
                 'user_id' => Auth::id(),
+                'request_data' => $request->all(),
                 'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
-                'error' => 'حدث خطأ في إنشاء QR كود: ' . $e->getMessage()
+                'error' => 'حدث خطأ في إنشاء QR كود: ' . $e->getMessage(),
+                'debug_info' => [
+                    'tenant_id' => $tenantId ?? null,
+                    'user_id' => Auth::id(),
+                    'request_data' => $request->all()
+                ]
             ], 500);
         }
     }

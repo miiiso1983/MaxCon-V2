@@ -223,7 +223,9 @@ async function generateAllProductsQR() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 limit: 50 // Limit to 50 products to avoid large QR codes
@@ -231,7 +233,21 @@ async function generateAllProductsQR() {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch (e) {
+                errorData = { error: errorText };
+            }
+
+            console.error('HTTP Error Response:', {
+                status: response.status,
+                statusText: response.statusText,
+                data: errorData
+            });
+
+            throw new Error(`HTTP error! status: ${response.status} - ${errorData.error || response.statusText}`);
         }
 
         const data = await response.json();
@@ -417,21 +433,37 @@ async function testConnection() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 limit: 1 // Test with just 1 product
             })
         });
 
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (e) {
+            const text = await response.text();
+            showError(`❌ استجابة غير صالحة
+الحالة: ${response.status}
+النص: ${text.substring(0, 200)}...`);
+            return;
+        }
 
-        if (data.success || data.error) {
+        if (response.ok && data.success) {
             showSuccess(`✅ الاتصال يعمل بشكل صحيح
 الحالة: ${response.status}
 المنتجات: ${data.products_count || 0}
 حجم البيانات: ${data.data_size || 'غير محدد'}
 رقم المستأجر: ${data.tenant_id || 'غير محدد'}`);
+        } else if (data.error) {
+            showError(`⚠️ خطأ من الخادم
+الحالة: ${response.status}
+الخطأ: ${data.error}
+التفاصيل: ${JSON.stringify(data.debug_info || data.validation_errors || {})}`);
         } else {
             showError(`⚠️ استجابة غير متوقعة
 الحالة: ${response.status}
