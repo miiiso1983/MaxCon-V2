@@ -237,7 +237,7 @@
                     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
-                            <select name="products[INDEX][product_id]" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateProductInfo(this)">
+                            <select name="products[INDEX][product_id]" required class="simple-select" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateProductInfo(this)">
                                 <option value="">اختر المنتج</option>
                                 @foreach($products as $product)
                                     <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-code="{{ $product->code ?? $product->product_code }}" data-unit="{{ $product->unit ?? 'وحدة' }}">
@@ -484,7 +484,32 @@
   <pre id="diag-output" style="margin-top:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;max-height:260px;overflow:auto;white-space:pre-wrap;direction:ltr;text-align:left;"></pre>
 </div>
 
+@push('styles')
+<style>
+/* تجاوز custom-select للقوائم البسيطة */
+.simple-select {
+    appearance: auto !important;
+    -webkit-appearance: menulist !important;
+    -moz-appearance: menulist !important;
+}
+</style>
+@endpush
+
 @push('scripts')
+<script>
+// منع custom-select من التأثير على القوائم البسيطة
+document.addEventListener('DOMContentLoaded', function() {
+    // إزالة custom-select من القوائم البسيطة
+    document.querySelectorAll('.simple-select').forEach(function(select) {
+        select.classList.remove('custom-select');
+        // إزالة أي wrapper قد يكون أضافته custom-select
+        if (select.parentElement.classList.contains('custom-select-wrapper')) {
+            select.parentElement.replaceWith(select);
+        }
+    });
+});
+</script>
+
 <script>
 // Tab switching functionality
 function switchTab(tabName, el) {
