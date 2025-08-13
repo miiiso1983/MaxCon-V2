@@ -127,7 +127,7 @@
                 <i class="fas fa-cube" style="color: #3b82f6;"></i>
                 المنتجات ({{ $category->products->count() }})
             </h3>
-            <a href="{{ route('tenant.inventory.products.create') }}?category_id={{ $category->id }}" 
+            <a href="{{ route('tenant.inventory.inventory-products.create') }}?category_id={{ $category->id }}"
                style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
                 <i class="fas fa-plus" style="margin-left: 5px;"></i>
                 إضافة منتج
@@ -167,7 +167,7 @@
                                         مخزون: {{ number_format($product->current_stock ?? $product->stock_quantity ?? 0, 2) }}
                                     </div>
                                 </div>
-                                <a href="{{ route('tenant.inventory.products.show', $product) }}" 
+                                <a href="{{ route('tenant.inventory.inventory-products.show', $product) }}"
                                    style="background: #3b82f6; color: white; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     <i class="fas fa-eye"></i>
                                 </a>
@@ -183,7 +183,7 @@
                 </div>
                 <h4 style="margin: 0 0 10px 0; color: #2d3748; font-size: 16px; font-weight: 600;">لا توجد منتجات</h4>
                 <p style="margin: 0 0 15px 0; font-size: 14px;">لم يتم إضافة أي منتجات لهذه الفئة بعد</p>
-                <a href="{{ route('tenant.inventory.products.create') }}?category_id={{ $category->id }}" 
+                <a href="{{ route('tenant.inventory.inventory-products.create') }}?category_id={{ $category->id }}"
                    style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-plus"></i>
                     إضافة منتج جديد
