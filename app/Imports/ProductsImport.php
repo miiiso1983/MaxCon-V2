@@ -98,18 +98,22 @@ class ProductsImport implements
         // Use unit_of_measure instead of base_unit
         $product->unit_of_measure = !empty($row['unit']) ? trim($row['unit']) : 'قرص';
 
-        // Use the correct field names from database
-        $product->cost_price = !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? floatval($row['purchase_price']) : 0.00;
-        $product->selling_price = !empty($row['selling_price']) && is_numeric($row['selling_price']) ? floatval($row['selling_price']) : 0.00;
+        // Use the correct field names from database (format as strings for decimal casts)
+        $cost = !empty($row['purchase_price']) && is_numeric($row['purchase_price']) ? (float)$row['purchase_price'] : 0.0;
+        $product->cost_price = number_format($cost, 2, '.', '');
+
+        $sell = !empty($row['selling_price']) && is_numeric($row['selling_price']) ? (float)$row['selling_price'] : 0.0;
+        $product->selling_price = number_format($sell, 2, '.', '');
 
         // Use min_stock_level and stock_quantity (current stock)
-        $product->min_stock_level = !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? intval($row['min_stock_level']) : 10;
-        $product->stock_quantity = !empty($row['current_stock']) && is_numeric($row['current_stock']) ? intval($row['current_stock']) : 0;
+        $product->min_stock_level = !empty($row['min_stock_level']) && is_numeric($row['min_stock_level']) ? (int)$row['min_stock_level'] : 10;
+        $stock = !empty($row['current_stock']) && is_numeric($row['current_stock']) ? (float)$row['current_stock'] : 0.0;
+        $product->stock_quantity = number_format($stock, 2, '.', '');
 
         // Handle dates
         if (!empty($row['expiry_date'])) {
             try {
-                $product->expiry_date = Carbon::parse($row['expiry_date']);
+                $product->expiry_date = Carbon::parse($row['expiry_date'])->format('Y-m-d');
             } catch (\Exception $e) {
                 $product->expiry_date = null;
             }
@@ -260,8 +264,5 @@ class ProductsImport implements
         return $category->id;
     }
 
-    public function chunkSize(): int
-    {
-        return 100;
-    }
+
 }
