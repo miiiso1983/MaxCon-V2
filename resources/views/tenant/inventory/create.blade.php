@@ -507,6 +507,25 @@ document.addEventListener('DOMContentLoaded', function() {
             select.parentElement.replaceWith(select);
         }
     });
+
+    // إضافة مراقب للقوائم الجديدة
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) { // Element node
+                    const selects = node.querySelectorAll ? node.querySelectorAll('.simple-select') : [];
+                    selects.forEach(function(select) {
+                        select.classList.remove('custom-select');
+                        if (select.parentElement.classList.contains('custom-select-wrapper')) {
+                            select.parentElement.replaceWith(select);
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 });
 </script>
 
@@ -663,6 +682,21 @@ function addProductRow() {
 
     // Auto-suggest location code based on warehouse
     updateLocationSuggestions(newRow);
+
+    // إصلاح قائمة المنتجات في الصف الجديد
+    const productSelect = newRow.querySelector('.simple-select');
+    if (productSelect) {
+        productSelect.classList.remove('custom-select');
+        // إزالة أي wrapper قد يكون أضافته custom-select
+        if (productSelect.parentElement.classList.contains('custom-select-wrapper')) {
+            productSelect.parentElement.replaceWith(productSelect);
+        }
+        // إضافة event listener للتأكد من عمل القائمة
+        productSelect.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.focus();
+        });
+    }
 }
 
 function removeProductRow(button) {
