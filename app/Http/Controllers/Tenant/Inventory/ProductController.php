@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ProductsImport;
 use App\Exports\ProductsExport;
@@ -306,7 +307,7 @@ class ProductController extends Controller
     /**
      * Download Excel template
      */
-    public function downloadTemplate(): Response
+    public function downloadTemplate(): BinaryFileResponse
     {
         $user = Auth::user();
         $tenantId = $user->tenant_id;
@@ -344,7 +345,7 @@ class ProductController extends Controller
     /**
      * Export products to Excel
      */
-    public function export(): Response
+    public function export(): BinaryFileResponse
     {
         $user = Auth::user();
         $tenantId = $user->tenant_id;
