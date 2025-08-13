@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ProductCategoryController extends Controller
 {
@@ -16,7 +17,7 @@ class ProductCategoryController extends Controller
      */
     public function index(Request $request): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -74,7 +75,7 @@ class ProductCategoryController extends Controller
      */
     public function create(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -95,7 +96,7 @@ class ProductCategoryController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -136,7 +137,7 @@ class ProductCategoryController extends Controller
      */
     public function show(ProductCategory $category): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($category->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -152,7 +153,7 @@ class ProductCategoryController extends Controller
      */
     public function edit(ProductCategory $category): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($category->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -173,7 +174,7 @@ class ProductCategoryController extends Controller
      */
     public function update(Request $request, ProductCategory $category): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($category->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -211,7 +212,7 @@ class ProductCategoryController extends Controller
      */
     public function destroy(ProductCategory $category): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($category->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');

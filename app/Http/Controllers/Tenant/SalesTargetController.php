@@ -8,6 +8,9 @@ use App\Models\SalesTargetProgress;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use Carbon\Carbon;
 
 class SalesTargetController extends Controller
@@ -23,8 +26,8 @@ class SalesTargetController extends Controller
      */
     private function resolveTenantId(): ?int
     {
-        if (auth()->check() && optional(auth()->user())->tenant_id) {
-            return auth()->user()->tenant_id;
+        if (Auth::check() && optional(Auth::user())->tenant_id) {
+            return Auth::user()->tenant_id;
         }
         $tenant = app()->has('tenant') ? app('tenant') : null;
         return $tenant->id ?? null;
@@ -35,7 +38,7 @@ class SalesTargetController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SalesTarget::forTenant(auth()->user()->tenant_id)
+        $query = SalesTarget::forTenant(Auth::user()->tenant_id)
                            ->with(['creator', 'updater']);
 
         // Filters
@@ -77,9 +80,9 @@ class SalesTargetController extends Controller
      */
     public function create()
     {
-        $products = Product::forTenant(auth()->user()->tenant_id)->active()->get();
+        $products = Product::forTenant(Auth::user()->tenant_id)->active()->get();
         $vendors = collect(); // Empty collection since Vendor model doesn't exist yet
-        $salesReps = User::forTenant(auth()->user()->tenant_id)->get(); // Remove role filter for now
+        $salesReps = User::forTenant(Auth::user()->tenant_id)->get(); // Remove role filter for now
 
         return view('tenant.sales.targets.create', compact('products', 'vendors', 'salesReps'));
     }
@@ -117,8 +120,8 @@ class SalesTargetController extends Controller
             $validated['quarter'] = $startDate->quarter;
         }
 
-        $validated['tenant_id'] = auth()->user()->tenant_id;
-        $validated['created_by'] = auth()->id();
+        $validated['tenant_id'] = Auth::user()->tenant_id;
+        $validated['created_by'] = Auth::id();
 
         $target = SalesTarget::create($validated);
 
@@ -160,9 +163,9 @@ class SalesTargetController extends Controller
      */
     public function edit(SalesTarget $target)
     {
-        $products = Product::forTenant(auth()->user()->tenant_id)->active()->get();
+        $products = Product::forTenant(Auth::user()->tenant_id)->active()->get();
         $vendors = collect(); // Empty collection since Vendor model doesn't exist yet
-        $salesReps = User::forTenant(auth()->user()->tenant_id)->get(); // Remove role filter for now
+        $salesReps = User::forTenant(Auth::user()->tenant_id)->get(); // Remove role filter for now
 
         return view('tenant.sales.targets.edit', compact('target', 'products', 'vendors', 'salesReps'));
     }
@@ -238,7 +241,7 @@ class SalesTargetController extends Controller
             'type' => 'manual',
             'id' => null,
             'details' => [
-                'updated_by' => auth()->user()->name,
+                'updated_by' => Auth::user()->name,
                 'notes' => $validated['notes'] ?? null
             ]
         ];
@@ -253,7 +256,7 @@ class SalesTargetController extends Controller
      */
     private function getTargetsStatistics()
     {
-        $tenantId = auth()->user()->tenant_id;
+        $tenantId = Auth::user()->tenant_id;
 
         // Get all active targets for on_track calculation
         $activeTargets = SalesTarget::forTenant($tenantId)
@@ -264,9 +267,9 @@ class SalesTargetController extends Controller
         foreach ($activeTargets as $target) {
             // Convert to Carbon instances explicitly
             /** @var Carbon $startDate */
-            $startDate = Carbon::parse($target->start_date);
+            $startDate = $target->start_date instanceof Carbon ? $target->start_date : Carbon::parse($target->start_date);
             /** @var Carbon $endDate */
-            $endDate = Carbon::parse($target->end_date);
+            $endDate = $target->end_date instanceof Carbon ? $target->end_date : Carbon::parse($target->end_date);
             /** @var Carbon $today */
             $today = Carbon::today();
 
@@ -333,7 +336,7 @@ class SalesTargetController extends Controller
      */
     public function dashboard()
     {
-        $tenantId = auth()->user()->tenant_id;
+        $tenantId = Auth::user()->tenant_id;
 
         // Current active targets
         $activeTargets = SalesTarget::forTenant($tenantId)
@@ -370,7 +373,7 @@ class SalesTargetController extends Controller
      */
     private function getPerformanceSummary()
     {
-        $tenantId = auth()->user()->tenant_id;
+        $tenantId = Auth::user()->tenant_id;
         $currentMonth = Carbon::now();
 
         return [
@@ -484,7 +487,7 @@ class SalesTargetController extends Controller
     public function export(Request $request, string $format)
     {
         try {
-            $tenantId = auth()->user()->tenant_id;
+            $tenantId = Auth::user()->tenant_id;
             if (!$tenantId) {
                 abort(403, 'غير مسموح بدون مستأجر');
             }

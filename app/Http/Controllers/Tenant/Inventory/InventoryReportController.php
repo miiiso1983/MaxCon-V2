@@ -9,6 +9,7 @@ use App\Models\Warehouse;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryReportController extends Controller
 {
@@ -17,7 +18,7 @@ class InventoryReportController extends Controller
      */
     public function index(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -32,7 +33,7 @@ class InventoryReportController extends Controller
      */
     public function stockLevels(Request $request): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -90,7 +91,7 @@ class InventoryReportController extends Controller
      */
     public function movementHistory(Request $request): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -134,7 +135,7 @@ class InventoryReportController extends Controller
      */
     public function lowStock(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -155,7 +156,7 @@ class InventoryReportController extends Controller
      */
     public function expiringItems(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {

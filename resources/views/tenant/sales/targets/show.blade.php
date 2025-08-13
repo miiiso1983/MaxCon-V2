@@ -332,10 +332,11 @@
 
 <!-- Chart Script -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script type="application/json" id="chart-data">@json($chartData)</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Progress Chart
-    const chartData = @json($chartData);
+    const chartData = JSON.parse(document.getElementById('chart-data').textContent);
 
     const options = {
         series: [{

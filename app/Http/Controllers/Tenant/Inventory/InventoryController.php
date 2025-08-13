@@ -9,6 +9,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
 {
@@ -17,7 +18,7 @@ class InventoryController extends Controller
      */
     public function index(Request $request): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -82,7 +83,7 @@ class InventoryController extends Controller
      */
     public function create(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -100,7 +101,7 @@ class InventoryController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -195,7 +196,7 @@ class InventoryController extends Controller
      */
     public function show(Inventory $inventory): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($inventory->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -211,7 +212,7 @@ class InventoryController extends Controller
      */
     public function edit(Inventory $inventory): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($inventory->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -228,7 +229,7 @@ class InventoryController extends Controller
      */
     public function update(Request $request, Inventory $inventory): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($inventory->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
