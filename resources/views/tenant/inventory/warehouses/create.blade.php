@@ -254,46 +254,87 @@
 
 @push('scripts')
 <script>
-// Handle temperature control toggle
-document.getElementById('temperature_controlled').addEventListener('change', function() {
-    const settings = document.getElementById('temperature_settings');
-    settings.style.display = this.checked ? 'block' : 'none';
-});
-
-// Handle humidity control toggle
-document.getElementById('humidity_controlled').addEventListener('change', function() {
-    const settings = document.getElementById('humidity_settings');
-    settings.style.display = this.checked ? 'block' : 'none';
-});
-
-// Initialize on page load
+// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Show temperature settings if checked
-    if (document.getElementById('temperature_controlled').checked) {
-        document.getElementById('temperature_settings').style.display = 'block';
-    }
-    
-    // Show humidity settings if checked
-    if (document.getElementById('humidity_controlled').checked) {
-        document.getElementById('humidity_settings').style.display = 'block';
-    }
-});
+    console.log('Warehouse form script loaded');
 
-// Form validation
-document.getElementById('warehouseForm').addEventListener('submit', function(e) {
-    const name = document.querySelector('input[name="name"]').value.trim();
-    const type = document.querySelector('select[name="type"]').value;
-    
-    if (!name) {
-        e.preventDefault();
-        alert('يرجى إدخال اسم المستودع');
-        return false;
+    // Handle temperature control toggle
+    const tempControl = document.getElementById('temperature_controlled');
+    const tempSettings = document.getElementById('temperature_settings');
+
+    if (tempControl && tempSettings) {
+        tempControl.addEventListener('change', function() {
+            tempSettings.style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Initialize on page load
+        if (tempControl.checked) {
+            tempSettings.style.display = 'block';
+        }
     }
-    
-    if (!type) {
-        e.preventDefault();
-        alert('يرجى اختيار نوع المستودع');
-        return false;
+
+    // Handle humidity control toggle
+    const humidityControl = document.getElementById('humidity_controlled');
+    const humiditySettings = document.getElementById('humidity_settings');
+
+    if (humidityControl && humiditySettings) {
+        humidityControl.addEventListener('change', function() {
+            humiditySettings.style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Initialize on page load
+        if (humidityControl.checked) {
+            humiditySettings.style.display = 'block';
+        }
+    }
+
+    // Form validation and submission
+    const warehouseForm = document.getElementById('warehouseForm');
+    if (warehouseForm) {
+        warehouseForm.addEventListener('submit', function(e) {
+            console.log('Form submission attempted');
+
+            const nameInput = document.querySelector('input[name="name"]');
+            const typeSelect = document.querySelector('select[name="type"]');
+
+            if (!nameInput || !typeSelect) {
+                console.error('Required form elements not found');
+                e.preventDefault();
+                alert('خطأ في النموذج. يرجى إعادة تحميل الصفحة.');
+                return false;
+            }
+
+            const name = nameInput.value.trim();
+            const type = typeSelect.value;
+
+            console.log('Form data:', { name, type });
+
+            if (!name) {
+                e.preventDefault();
+                alert('يرجى إدخال اسم المستودع');
+                nameInput.focus();
+                return false;
+            }
+
+            if (!type) {
+                e.preventDefault();
+                alert('يرجى اختيار نوع المستودع');
+                typeSelect.focus();
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+            }
+
+            console.log('Form validation passed, submitting...');
+            return true;
+        });
+    } else {
+        console.error('Warehouse form not found');
     }
 });
 </script>

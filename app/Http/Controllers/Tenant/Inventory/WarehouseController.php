@@ -119,6 +119,13 @@ class WarehouseController extends Controller
                 $warehouse->code = $warehouse->generateCode();
             }
 
+            // Log for debugging
+            \Log::info('Creating warehouse', [
+                'tenant_id' => $tenantId,
+                'data' => $validated,
+                'user_id' => Auth::id()
+            ]);
+
             $warehouse->save();
 
             // Create default locations
@@ -126,11 +133,24 @@ class WarehouseController extends Controller
 
             DB::commit();
 
-            return redirect()->route('tenant.inventory.warehouses.show', $warehouse)
+            \Log::info('Warehouse created successfully', [
+                'warehouse_id' => $warehouse->id,
+                'warehouse_code' => $warehouse->code
+            ]);
+
+            return redirect()->route('tenant.inventory.warehouses.index')
                 ->with('success', 'تم إنشاء المستودع بنجاح');
 
         } catch (\Exception $e) {
             DB::rollback();
+
+            \Log::error('Warehouse creation failed', [
+                'tenant_id' => $tenantId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $validated
+            ]);
+
             return back()->withErrors(['error' => 'حدث خطأ أثناء إنشاء المستودع: ' . $e->getMessage()])->withInput();
         }
     }
@@ -206,7 +226,7 @@ class WarehouseController extends Controller
 
         $warehouse->update($validated);
 
-        return redirect()->route('tenant.inventory.warehouses.show', $warehouse)
+        return redirect()->route('tenant.inventory.warehouses.index')
             ->with('success', 'تم تحديث المستودع بنجاح');
     }
 
