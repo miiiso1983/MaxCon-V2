@@ -325,6 +325,13 @@ class InventoryController extends Controller
         ]);
 
         try {
+            \Log::info('Starting Excel import for tenant: ' . $tenantId);
+            \Log::info('File info: ', [
+                'name' => $request->file('excel_file')->getClientOriginalName(),
+                'size' => $request->file('excel_file')->getSize(),
+                'mime' => $request->file('excel_file')->getMimeType()
+            ]);
+
             $import = new InventoryImport(
                 $tenantId,
                 $request->boolean('skip_duplicates', true),
@@ -334,16 +341,24 @@ class InventoryController extends Controller
             Excel::import($import, $request->file('excel_file'));
 
             $stats = $import->getStats();
+            \Log::info('Import completed with stats: ', $stats);
 
             $message = "تم استيراد الملف بنجاح! ";
             $message .= "تم إضافة {$stats['created']} عنصر جديد، ";
             $message .= "تم تحديث {$stats['updated']} عنصر، ";
             $message .= "تم تجاهل {$stats['skipped']} عنصر مكرر.";
 
+            if ($stats['errors'] > 0) {
+                $message .= " حدثت {$stats['errors']} أخطاء.";
+            }
+
             return redirect()->route('tenant.inventory.index')
                 ->with('success', $message);
 
         } catch (\Exception $e) {
+            \Log::error('Excel import failed: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+
             return redirect()->back()
                 ->with('error', 'حدث خطأ أثناء استيراد الملف: ' . $e->getMessage())
                 ->withInput();

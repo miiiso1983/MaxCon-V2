@@ -18,6 +18,7 @@ class Inventory extends Model
         'tenant_id',
         'warehouse_id',
         'location_id',
+        'location_code',
         'product_id',
         'batch_number',
         'serial_number',

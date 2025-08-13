@@ -40,13 +40,23 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function model(array $row)
     {
         try {
+            // Log the incoming row for debugging
+            Log::info('Processing row: ', $row);
+
             // Handle both Arabic and English headers
             $productCode = $row['كود_المنتج'] ?? $row['كود المنتج'] ?? $row[0] ?? null;
             $warehouseCode = $row['كود_المستودع'] ?? $row['كود المستودع'] ?? $row[1] ?? null;
             $quantity = $row['الكمية'] ?? $row[2] ?? null;
 
+            Log::info('Extracted values: ', [
+                'product_code' => $productCode,
+                'warehouse_code' => $warehouseCode,
+                'quantity' => $quantity
+            ]);
+
             // Skip empty rows
             if (empty($productCode) || empty($warehouseCode) || empty($quantity)) {
+                Log::info('Skipping empty row');
                 return null;
             }
 
@@ -130,8 +140,8 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
 
             // Create new inventory item
             $this->stats['created']++;
-            
-            return new Inventory([
+
+            $inventoryData = [
                 'tenant_id' => $this->tenantId,
                 'product_id' => $product->id,
                 'warehouse_id' => $warehouse->id,
@@ -143,7 +153,11 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 'batch_number' => $batchNumber,
                 'expiry_date' => $expiryDate,
                 'status' => $status,
-            ]);
+            ];
+
+            Log::info('Creating inventory item: ', $inventoryData);
+
+            return new Inventory($inventoryData);
 
         } catch (\Exception $e) {
             Log::error("Error importing inventory row: " . $e->getMessage(), $row);
@@ -155,14 +169,22 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function rules(): array
     {
         return [
-            'كود_المنتج' => 'required|string',
-            'كود_المستودع' => 'required|string',
-            'الكمية' => 'required|numeric|min:0.001',
+            // Support both Arabic headers with and without underscores
+            'كود المنتج' => 'nullable|string',
+            'كود_المنتج' => 'nullable|string',
+            'كود المستودع' => 'nullable|string',
+            'كود_المستودع' => 'nullable|string',
+            'الكمية' => 'nullable|numeric|min:0.001',
+            'سعر التكلفة' => 'nullable|numeric|min:0',
             'سعر_التكلفة' => 'nullable|numeric|min:0',
+            'رمز الموقع' => 'nullable|string|max:50',
             'رمز_الموقع' => 'nullable|string|max:50',
+            'رقم الدفعة' => 'nullable|string|max:100',
             'رقم_الدفعة' => 'nullable|string|max:100',
+            'تاريخ الانتهاء' => 'nullable|date',
             'تاريخ_الانتهاء' => 'nullable|date',
-            'الحالة' => 'required|in:active,quarantine,damaged,expired',
+            'الحالة' => 'nullable|in:active,quarantine,damaged,expired',
+            'ملاحظات' => 'nullable|string',
         ];
     }
 
