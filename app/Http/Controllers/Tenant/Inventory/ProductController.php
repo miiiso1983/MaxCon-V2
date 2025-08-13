@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Http\Response;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,7 +23,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -101,7 +102,7 @@ class ProductController extends Controller
      */
     public function create(): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -122,7 +123,7 @@ class ProductController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $tenantId = $user->tenant_id;
 
         if (!$tenantId) {
@@ -163,7 +164,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($product->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -179,7 +180,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product): View
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($product->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -199,7 +200,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($product->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
@@ -231,7 +232,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($product->tenant_id !== $user->tenant_id) {
             abort(403, 'Unauthorized access');
