@@ -8,6 +8,9 @@ use App\Models\Warehouse;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\InventoryMovementImport;
+use Symfony\Component\HttpFoundation\Response;
 
 class InventoryMovementController extends Controller
 {
@@ -96,6 +99,115 @@ class InventoryMovementController extends Controller
         $products = Product::where('tenant_id', $tenantId)->orderBy('name')->get();
 
         return view('tenant.inventory.movements.create', compact('warehouses', 'products'));
+    }
+
+    /**
+     * Import movements from Excel
+     */
+    public function importExcel(Request $request)
+    {
+        $user = auth()->user();
+        $tenantId = $user->tenant_id;
+
+        $request->validate([
+            'excel_file' => 'required|file|mimes:csv,xlsx,txt|max:10240',
+        ]);
+
+        try {
+            \Log::info('Starting Movement Excel import for tenant: ' . $tenantId);
+            \Log::info('File info: ', [
+                'name' => $request->file('excel_file')->getClientOriginalName(),
+                'size' => $request->file('excel_file')->getSize(),
+                'mime' => $request->file('excel_file')->getMimeType()
+            ]);
+
+            $import = new InventoryMovementImport($tenantId);
+            Excel::import($import, $request->file('excel_file'));
+
+            $stats = $import->getStats();
+            $totalProcessed = $stats['created'];
+
+            if ($totalProcessed === 0 && $stats['errors'] === 0) {
+                return redirect()->back()->with('warning', 'لم يتم العثور على بيانات صالحة للاستيراد. يرجى التحقق من تنسيق الملف.');
+            }
+
+            $message = "✅ تم استيراد ملف الحركات بنجاح!\n\n";
+            if ($stats['created'] > 0) {
+                $message .= "🆕 تم إنشاء {$stats['created']} حركة\n";
+            }
+            if ($stats['skipped'] > 0) {
+                $message .= "⏭️ تم تجاهل {$stats['skipped']} صف\n";
+            }
+            if ($stats['errors'] > 0) {
+                $message .= "⚠️ حدثت {$stats['errors']} أخطاء\n";
+            }
+            $message .= "\n📊 إجمالي العناصر المعالجة: {$totalProcessed}";
+
+            return redirect()->route('tenant.inventory.movements.create')->with('success', $message);
+        } catch (\Exception $e) {
+            \Log::error('Movement Excel import failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'حدث خطأ أثناء استيراد الملف: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download Excel template for movements
+     */
+    public function downloadTemplate(): Response
+    {
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="inventory_movements_template.csv"',
+        ];
+
+        $csvData = [
+            ['كود المنتج','اسم المنتج','كود المستودع','نوع الحركة','الكمية','السبب','التاريخ','ملاحظات'],
+            ['NEW001','منتج جديد','MAIN-004','in','25','purchase','2025-12-31','سيتم إنشاء المنتج تلقائيًا إذا لم يكن موجودًا'],
+            ['PRD000002','منتج موجود','005','out','10','sale','2025-12-31','تخفيض مخزون منتج موجود'],
+        ];
+
+        $content = "\xEF\xBB\xBF"; // UTF-8 BOM
+        foreach ($csvData as $row) {
+            $content .= implode(',', array_map(function($v){ return '"'.str_replace('"','""',$v).'"'; }, $row)) . "\n";
+        }
+
+        return response($content, 200, $headers);
+    }
+
+    /**
+     * Diagnostics endpoints
+     */
+    public function diagnostics(): Response
+    {
+        $user = auth()->user();
+        $tenantId = $user->tenant_id;
+
+        return response()->json([
+            'tenant_id' => $tenantId,
+            'sample' => [
+                'product_code' => 'NEW001',
+                'warehouse_code' => 'MAIN-004',
+                'movement_type' => 'in',
+                'quantity' => 10,
+                'reason' => 'purchase',
+                'date' => now()->toDateString(),
+            ]
+        ]);
+    }
+
+    public function showLogs(): Response
+    {
+        $logFile = storage_path('logs/laravel.log');
+        if (!file_exists($logFile)) {
+            return response()->json(['error' => 'Log file not found']);
+        }
+
+        $lines = file($logFile);
+        $filtered = array_values(array_filter($lines, function($line){
+            return str_contains($line, 'Movement Import');
+        }));
+        $last = array_slice($filtered, -100);
+        return response()->json(['logs' => $last, 'total_lines' => count($last)]);
     }
 
     /**

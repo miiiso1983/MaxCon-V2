@@ -4,6 +4,87 @@
 @section('page-description', 'إضافة حركة مخزون جديدة للنظام')
 
 @section('content')
+<!-- رسائل التنبيه -->
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 12px; color: white; margin-bottom: 20px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <i class="fas fa-check-circle" style="font-size: 20px; margin-top: 2px;"></i>
+            <div style="flex: 1;">
+                <strong>نجح!</strong>
+                <div style="white-space: pre-line; margin-top: 8px; line-height: 1.6;">{{ session('success') }}</div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; border-radius: 12px; color: white; margin-bottom: 20px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 20px; margin-top: 2px;"></i>
+            <div style="flex: 1;">
+                <strong>خطأ!</strong>
+                <div style="white-space: pre-line; margin-top: 8px; line-height: 1.6;">{{ session('error') }}</div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+@if(session('warning'))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; border-radius: 12px; color: white; margin-bottom: 20px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 20px; margin-top: 2px;"></i>
+            <div style="flex: 1;">
+                <strong>تحذير!</strong>
+                <div style="white-space: pre-line; margin-top: 8px; line-height: 1.6;">{{ session('warning') }}</div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+
+<!-- Tabs -->
+<div class="tab-container" style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 20px;">
+    <div class="tab-header" style="display: flex; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+        <button type="button" id="tab-manual" class="tab-button" onclick="showTab('manual')" style="flex:1; padding: 14px 20px; background: none; border: none; font-size: 16px; font-weight: 700; cursor: pointer;">إدخال يدوي</button>
+        <button type="button" id="tab-excel" class="tab-button" onclick="showTab('excel')" style="flex:1; padding: 14px 20px; background: none; border: none; font-size: 16px; font-weight: 700; cursor: pointer;">رفع ملف Excel</button>
+    </div>
+</div>
+
+<!-- قسم رفع ملف Excel -->
+<div id="excel-upload-section" style="display:none; margin-bottom: 25px;">
+    <div class="content-card" style="padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;">
+        <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 15px; display: flex; align-items: center;">
+            <i class="fas fa-file-excel" style="color: #10b981; margin-left: 10px;"></i>
+            رفع ملف Excel لحركات المخزون
+        </h3>
+        <form method="POST" action="{{ route('tenant.inventory.movements.import-excel') }}" enctype="multipart/form-data">
+            @csrf
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; align-items: end;">
+                <div>
+                    <label style="display:block; margin-bottom:8px; font-weight:600; color:#4a5568;">اختر الملف (CSV/XLSX)</label>
+                    <input type="file" name="excel_file" accept=".csv,.xlsx" required style="width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:8px;">
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <a href="{{ route('tenant.inventory.movements.download-template') }}" class="btn btn-secondary" style="padding: 12px 16px; background:#3b82f6; color:white; border:none; border-radius:8px; text-decoration:none; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-download"></i>
+                        تحميل القالب
+                    </a>
+                    <button type="submit" class="btn btn-primary" style="padding: 12px 16px; background:linear-gradient(135deg,#10b981 0%,#059669 100%); color:white; border:none; border-radius:8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-upload"></i>
+                        رفع ومعالجة الملف
+                    </button>
+                </div>
+            </div>
+            <div style="margin-top: 12px; font-size: 13px; color:#6b7280;">
+                الحقول المطلوبة في الملف: كود المنتج، اسم المنتج، كود المستودع، نوع الحركة (in/out)، الكمية، السبب، التاريخ (YYYY-MM-DD)، ملاحظات.
+            </div>
+        </form>
+        <div style="margin-top:10px;">
+            <a href="{{ route('tenant.inventory.movements.logs') }}" style="font-size: 13px;">عرض سجلات التشخيص</a>
+        </div>
+    </div>
+</div>
+
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
@@ -50,7 +131,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع الحركة *</label>
-                <select name="movement_type" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateMovementOptions()">
+                <select name="movement_type" class="simple-select" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateMovementOptions()">
                     <option value="">اختر نوع الحركة</option>
                     <option value="in">إدخال</option>
                     <option value="out">إخراج</option>
@@ -68,7 +149,7 @@
             
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">سبب الحركة *</label>
-                <select name="movement_reason" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="movement_reason" class="simple-select" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر سبب الحركة</option>
                     <option value="purchase">شراء</option>
                     <option value="sale">بيع</option>
@@ -88,7 +169,7 @@
             
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المستودع *</label>
-                <select name="warehouse_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="warehouse_id" class="simple-select" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر المستودع</option>
                     @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id }}">{{ $warehouse->name }} ({{ $warehouse->code }})</option>
@@ -151,7 +232,7 @@
                     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
-                            <select name="products[INDEX][product_id]" required data-custom-select data-placeholder="اختر المنتج..." data-searchable="true" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateProductInfo(this)">
+                            <select name="products[INDEX][product_id]" class="simple-select" required data-placeholder="اختر المنتج..." data-searchable="true" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateProductInfo(this)">
                                 <option value="">اختر المنتج</option>
                                 @foreach($products as $product)
                                     <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-code="{{ $product->code }}" data-unit="{{ $product->unit ?? 'وحدة' }}">
@@ -454,8 +535,28 @@ document.getElementById('movementForm').addEventListener('submit', function(e) {
 
 // Auto-add first product row when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // Don't auto-add, let user click the button
+    // تبويب افتراضي: الإدخال اليدوي
+    showTab('manual');
 });
+
+function showTab(tab) {
+    const excelSection = document.getElementById('excel-upload-section');
+    const form = document.querySelector('form#movementForm');
+    const tabManual = document.getElementById('tab-manual');
+    const tabExcel = document.getElementById('tab-excel');
+
+    if (tab === 'excel') {
+        excelSection.style.display = 'block';
+        form.style.display = 'none';
+        tabExcel.style.borderBottom = '3px solid #10b981';
+        tabManual.style.borderBottom = 'none';
+    } else {
+        excelSection.style.display = 'none';
+        form.style.display = 'block';
+        tabManual.style.borderBottom = '3px solid #667eea';
+        tabExcel.style.borderBottom = 'none';
+    }
+}
 </script>
 @endpush
 @endsection

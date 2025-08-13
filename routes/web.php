@@ -2273,6 +2273,10 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
 
         // Inventory Movements
         Route::resource('movements', InventoryMovementController::class);
+        Route::post('movements/import-excel', [InventoryMovementController::class, 'importExcel'])->name('movements.import-excel');
+        Route::get('movements/download-template', [InventoryMovementController::class, 'downloadTemplate'])->name('movements.download-template');
+        Route::get('movements/diagnostics', [InventoryMovementController::class, 'diagnostics'])->name('movements.diagnostics');
+        Route::get('movements/logs', [InventoryMovementController::class, 'showLogs'])->name('movements.logs');
 
         // Inventory Audits
         Route::resource('audits', InventoryAuditController::class);
