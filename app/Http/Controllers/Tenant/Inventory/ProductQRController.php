@@ -43,6 +43,23 @@ class ProductQRController extends Controller
                 ->limit($limit)
                 ->get();
 
+            // Log for debugging
+            \Log::info('QR Generation Debug', [
+                'tenant_id' => $tenantId,
+                'products_count' => $products->count(),
+                'limit' => $limit,
+                'user_id' => Auth::id()
+            ]);
+
+            // Check if no products found
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'error' => 'لا توجد منتجات نشطة متاحة لإنشاء QR كود',
+                    'products_count' => 0,
+                    'tenant_id' => $tenantId
+                ], 404);
+            }
+
         // Format products data for QR code
         $qrData = [
             'type' => 'product_catalog',
@@ -52,16 +69,16 @@ class ProductQRController extends Controller
             'products' => $products->map(function($product) {
                 return [
                     'id' => $product->id,
-                    'name' => $product->name,
-                    'code' => $product->code ?? $product->product_code,
-                    'barcode' => $product->barcode,
-                    'price' => (float) $product->selling_price,
+                    'name' => $product->name ?? 'منتج غير محدد',
+                    'code' => $product->code ?? $product->product_code ?? 'غير محدد',
+                    'barcode' => $product->barcode ?? null,
+                    'price' => (float) ($product->selling_price ?? 0),
                     'currency' => $product->currency ?? 'IQD',
-                    'brand' => $product->brand,
-                    'manufacturer' => $product->manufacturer,
+                    'brand' => $product->brand ?? null,
+                    'manufacturer' => $product->manufacturer ?? null,
                     'category' => $product->category ? $product->category->name : null,
                     'unit' => $product->base_unit ?? $product->unit_of_measure ?? 'piece',
-                    'description' => $product->description ? substr($product->description, 0, 100) : null,
+                    'description' => $product->description ? substr($product->description, 0, 50) : null,
                 ];
             })->toArray()
         ];
@@ -69,12 +86,26 @@ class ProductQRController extends Controller
             $qrDataJson = json_encode($qrData);
 
             // Check if data is too large for QR code
-            if (strlen($qrDataJson) > 2000) {
-                return response()->json([
-                    'error' => 'البيانات كبيرة جداً لـ QR كود. يرجى تقليل عدد المنتجات.',
-                    'data_size' => strlen($qrDataJson) . ' bytes',
-                    'max_size' => '2000 bytes'
-                ], 400);
+            $dataSize = strlen($qrDataJson);
+            if ($dataSize > 2000) {
+                // Try to reduce data by limiting products
+                $reducedProducts = array_slice($qrData['products'], 0, 10);
+                $qrData['products'] = $reducedProducts;
+                $qrData['total_products'] = count($reducedProducts);
+                $qrData['note'] = 'تم تقليل عدد المنتجات لتناسب QR كود';
+
+                $qrDataJson = json_encode($qrData);
+                $newDataSize = strlen($qrDataJson);
+
+                if ($newDataSize > 2000) {
+                    return response()->json([
+                        'error' => 'البيانات كبيرة جداً لـ QR كود حتى بعد التقليل.',
+                        'original_size' => $dataSize . ' bytes',
+                        'reduced_size' => $newDataSize . ' bytes',
+                        'max_size' => '2000 bytes',
+                        'products_count' => $products->count()
+                    ], 400);
+                }
             }
 
             return response()->json([

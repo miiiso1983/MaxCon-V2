@@ -75,11 +75,17 @@
                     {{ $totalProducts }} منتج
                 </div>
             </div>
-            <button onclick="generateAllProductsQR()" 
-                    style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;">
-                <i class="fas fa-qrcode" style="margin-left: 8px;"></i>
-                إنشاء QR كود لجميع المنتجات
-            </button>
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px;">
+                <button onclick="generateAllProductsQR()"
+                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    <i class="fas fa-qrcode" style="margin-left: 8px;"></i>
+                    إنشاء QR كود لجميع المنتجات
+                </button>
+                <button onclick="testConnection()"
+                        style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 10px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    <i class="fas fa-network-wired"></i>
+                </button>
+            </div>
         </div>
         
         <!-- Category Products QR -->
@@ -237,12 +243,29 @@ async function generateAllProductsQR() {
                 size: data.data_size
             });
         } else {
-            showError(data.error || 'فشل في إنشاء QR كود');
+            let errorMessage = data.error || 'فشل في إنشاء QR كود';
+
+            // Add more details if available
+            if (data.products_count !== undefined) {
+                errorMessage += `\nعدد المنتجات: ${data.products_count}`;
+            }
+            if (data.data_size) {
+                errorMessage += `\nحجم البيانات: ${data.data_size}`;
+            }
+            if (data.tenant_id) {
+                errorMessage += `\nرقم المستأجر: ${data.tenant_id}`;
+            }
+
+            showError(errorMessage);
             console.error('QR Generation Error:', data);
         }
     } catch (error) {
         console.error('Network Error:', error);
         showError('حدث خطأ في الاتصال: ' + error.message);
+
+        // Add debugging info
+        console.log('Request URL:', '{{ route("tenant.inventory.qr.generate.all") }}');
+        console.log('CSRF Token:', '{{ csrf_token() }}');
     }
 }
 
@@ -380,7 +403,58 @@ function showError(message) {
             <i class="fas fa-exclamation-triangle"></i>
         </div>
         <h4 style="margin: 0 0 10px 0; color: #ef4444; font-size: 18px; font-weight: 600;">خطأ</h4>
-        <p style="margin: 0; font-size: 16px;">${message}</p>
+        <p style="margin: 0; font-size: 16px; white-space: pre-line;">${message}</p>
+    `;
+}
+
+// Test connection function
+async function testConnection() {
+    try {
+        showLoading();
+
+        // Test basic connectivity
+        const response = await fetch('{{ route("tenant.inventory.qr.generate.all") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                limit: 1 // Test with just 1 product
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success || data.error) {
+            showSuccess(`✅ الاتصال يعمل بشكل صحيح
+الحالة: ${response.status}
+المنتجات: ${data.products_count || 0}
+حجم البيانات: ${data.data_size || 'غير محدد'}
+رقم المستأجر: ${data.tenant_id || 'غير محدد'}`);
+        } else {
+            showError(`⚠️ استجابة غير متوقعة
+الحالة: ${response.status}
+البيانات: ${JSON.stringify(data)}`);
+        }
+
+    } catch (error) {
+        showError(`❌ فشل الاتصال
+الخطأ: ${error.message}
+الرابط: {{ route("tenant.inventory.qr.generate.all") }}
+CSRF: {{ csrf_token() }}`);
+    }
+}
+
+// Show success message
+function showSuccess(message) {
+    const placeholder = document.getElementById('qrPlaceholder');
+    placeholder.innerHTML = `
+        <div style="background: #10b981; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h4 style="margin: 0 0 10px 0; color: #10b981; font-size: 18px; font-weight: 600;">نجح الاختبار</h4>
+        <p style="margin: 0; font-size: 16px; white-space: pre-line;">${message}</p>
     `;
 }
 
