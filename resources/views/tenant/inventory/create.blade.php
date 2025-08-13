@@ -124,6 +124,46 @@
 @endpush
 
 @section('content')
+<!-- عرض رسائل النجاح والخطأ -->
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 12px; color: white; margin-bottom: 20px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <i class="fas fa-check-circle" style="font-size: 20px; margin-top: 2px;"></i>
+            <div style="flex: 1;">
+                <strong>نجح!</strong>
+                <div style="white-space: pre-line; margin-top: 8px; line-height: 1.6;">{{ session('success') }}</div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; border-radius: 12px; color: white; margin-bottom: 20px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 20px; margin-top: 2px;"></i>
+            <div style="flex: 1;">
+                <strong>خطأ!</strong>
+                <div style="white-space: pre-line; margin-top: 8px; line-height: 1.6;">{{ session('error') }}</div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+
+@if(session('warning'))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; border-radius: 12px; color: white; margin-bottom: 20px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 20px; margin-top: 2px;"></i>
+            <div style="flex: 1;">
+                <strong>تحذير!</strong>
+                <div style="white-space: pre-line; margin-top: 8px; line-height: 1.6;">{{ session('warning') }}</div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>

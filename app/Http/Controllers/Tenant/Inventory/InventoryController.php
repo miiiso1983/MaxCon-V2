@@ -429,16 +429,43 @@ class InventoryController extends Controller
             $stats = $import->getStats();
             \Log::info('Import completed with stats: ', $stats);
 
-            $message = "تم استيراد الملف بنجاح! ";
-            $message .= "تم إضافة {$stats['created']} عنصر جديد، ";
-            $message .= "تم تحديث {$stats['updated']} عنصر، ";
-            $message .= "تم تجاهل {$stats['skipped']} عنصر مكرر.";
+            // تحقق من وجود نتائج
+            $totalProcessed = $stats['created'] + $stats['updated'];
 
-            if ($stats['errors'] > 0) {
-                $message .= " حدثت {$stats['errors']} أخطاء.";
+            if ($totalProcessed === 0 && $stats['errors'] === 0) {
+                return redirect()->back()
+                    ->with('warning', 'لم يتم العثور على بيانات صالحة للاستيراد. يرجى التحقق من تنسيق الملف.')
+                    ->withInput();
             }
 
-            return redirect()->route('tenant.inventory.index')
+            if ($stats['errors'] > 0 && $totalProcessed === 0) {
+                return redirect()->back()
+                    ->with('error', "فشل في استيراد الملف. حدثت {$stats['errors']} أخطاء. يرجى مراجعة تنسيق البيانات.")
+                    ->withInput();
+            }
+
+            // رسالة نجاح مفصلة
+            $message = "✅ تم استيراد الملف بنجاح!\n\n";
+
+            if ($stats['created'] > 0) {
+                $message .= "🆕 تم إنشاء {$stats['created']} منتج جديد\n";
+            }
+
+            if ($stats['updated'] > 0) {
+                $message .= "🔄 تم تحديث {$stats['updated']} سجل مخزون\n";
+            }
+
+            if ($stats['skipped'] > 0) {
+                $message .= "⏭️ تم تجاهل {$stats['skipped']} عنصر مكرر\n";
+            }
+
+            if ($stats['errors'] > 0) {
+                $message .= "⚠️ حدثت {$stats['errors']} أخطاء (تم تجاهلها)\n";
+            }
+
+            $message .= "\n📊 إجمالي العناصر المعالجة: {$totalProcessed}";
+
+            return redirect()->route('tenant.inventory.create')
                 ->with('success', $message);
 
         } catch (\Exception $e) {
