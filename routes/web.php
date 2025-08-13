@@ -2370,6 +2370,11 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
             require __DIR__ . '/tenant/regulatory.php';
         });
 
+        // Excel Import/Export for Inventory
+        Route::get('download-template', [InventoryController::class, 'downloadTemplate'])->name('download-template');
+        Route::post('import-excel', [InventoryController::class, 'importExcel'])->name('import-excel');
+        Route::get('export-excel', [InventoryController::class, 'exportExcel'])->name('export-excel');
+
         // Main Inventory Management (must be last to avoid conflicts)
         Route::get('/', [InventoryController::class, 'index'])->name('index');
         Route::get('create', [InventoryController::class, 'create'])->name('create');

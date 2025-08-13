@@ -9,7 +9,12 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\InventoryTemplateExport;
+use App\Exports\InventoryExport;
+use App\Imports\InventoryImport;
 
 class InventoryController extends Controller
 {
@@ -249,5 +254,100 @@ class InventoryController extends Controller
 
         return redirect()->route('tenant.inventory.index')
             ->with('success', 'تم تحديث المخزون بنجاح');
+    }
+
+    /**
+     * Download Excel template for inventory import
+     */
+    public function downloadTemplate(): Response
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        if (!$tenantId) {
+            abort(403, 'No tenant access');
+        }
+
+        return Excel::download(new InventoryTemplateExport($tenantId), 'inventory_template.xlsx');
+    }
+
+    /**
+     * Import inventory from Excel file
+     */
+    public function importExcel(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        if (!$tenantId) {
+            abort(403, 'No tenant access');
+        }
+
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max
+            'skip_duplicates' => 'nullable|boolean',
+            'update_existing' => 'nullable|boolean',
+        ]);
+
+        try {
+            $import = new InventoryImport(
+                $tenantId,
+                $request->boolean('skip_duplicates', true),
+                $request->boolean('update_existing', false)
+            );
+
+            Excel::import($import, $request->file('excel_file'));
+
+            $stats = $import->getStats();
+
+            $message = "تم استيراد الملف بنجاح! ";
+            $message .= "تم إضافة {$stats['created']} عنصر جديد، ";
+            $message .= "تم تحديث {$stats['updated']} عنصر، ";
+            $message .= "تم تجاهل {$stats['skipped']} عنصر مكرر.";
+
+            return redirect()->route('tenant.inventory.index')
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'حدث خطأ أثناء استيراد الملف: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Export inventory to Excel
+     */
+    public function exportExcel(Request $request): Response
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        if (!$tenantId) {
+            abort(403, 'No tenant access');
+        }
+
+        // Apply same filters as index method
+        $query = Inventory::with(['product', 'warehouse'])
+            ->where('tenant_id', $tenantId);
+
+        if ($request->filled('warehouse_id')) {
+            $query->where('warehouse_id', $request->warehouse_id);
+        }
+
+        if ($request->filled('product_id')) {
+            $query->where('product_id', $request->product_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $inventoryItems = $query->get();
+
+        return Excel::download(
+            new InventoryExport($inventoryItems),
+            'inventory_export_' . date('Y-m-d_H-i-s') . '.xlsx'
+        );
     }
 }

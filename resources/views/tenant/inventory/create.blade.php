@@ -3,6 +3,126 @@
 @section('page-title', 'إضافة مخزون جديد')
 @section('page-description', 'إضافة عنصر مخزون جديد للنظام')
 
+@push('styles')
+<style>
+    .tab-container {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
+    }
+
+    .tab-header {
+        display: flex;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .tab-button {
+        flex: 1;
+        padding: 20px;
+        background: none;
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: #6b7280;
+    }
+
+    .tab-button.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .tab-button:hover:not(.active) {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .tab-content {
+        padding: 30px;
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .excel-upload-area {
+        border: 3px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        background: #f9fafb;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .excel-upload-area:hover {
+        border-color: #667eea;
+        background: #f0f4ff;
+    }
+
+    .excel-upload-area.dragover {
+        border-color: #667eea;
+        background: #e0e7ff;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+
+    .upload-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 10px;
+    }
+
+    .upload-subtext {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .file-info {
+        background: #e0f2fe;
+        border: 1px solid #0891b2;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        display: none;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
@@ -37,8 +157,23 @@
     </div>
 </div>
 
-<form method="POST" action="{{ route('tenant.inventory.store') }}" id="inventoryForm">
-    @csrf
+<!-- Tabs Container -->
+<div class="tab-container">
+    <div class="tab-header">
+        <button type="button" class="tab-button active" onclick="switchTab('manual')">
+            <i class="fas fa-edit"></i>
+            إدخال يدوي
+        </button>
+        <button type="button" class="tab-button" onclick="switchTab('excel')">
+            <i class="fas fa-file-excel"></i>
+            رفع ملف Excel
+        </button>
+    </div>
+
+    <!-- Manual Entry Tab -->
+    <div id="manual-tab" class="tab-content active">
+        <form method="POST" action="{{ route('tenant.inventory.store') }}" id="inventoryForm">
+            @csrf
     
     <!-- Basic Information -->
     <div class="content-card" style="margin-bottom: 25px;">
@@ -218,9 +353,249 @@
             إضافة المخزون
         </button>
     </div>
-</form>
+        </form>
+    </div>
+
+    <!-- Excel Upload Tab -->
+    <div id="excel-tab" class="tab-content">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h3 style="color: #2d3748; margin-bottom: 10px;">
+                <i class="fas fa-file-excel" style="color: #10b981; margin-left: 10px;"></i>
+                رفع ملف Excel للمخزون
+            </h3>
+            <p style="color: #6b7280; font-size: 16px;">
+                قم برفع ملف Excel يحتوي على بيانات المخزون لإضافة عدة عناصر دفعة واحدة
+            </p>
+        </div>
+
+        <!-- Download Template -->
+        <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h4 style="color: #0c4a6e; margin: 0 0 8px 0; font-size: 16px;">
+                        <i class="fas fa-download" style="margin-left: 8px;"></i>
+                        تحميل قالب Excel
+                    </h4>
+                    <p style="color: #075985; margin: 0; font-size: 14px;">
+                        قم بتحميل القالب المعد مسبقاً وملء البيانات المطلوبة
+                    </p>
+                </div>
+                <a href="{{ route('tenant.inventory.download-template') }}"
+                   style="background: #0ea5e9; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-download"></i>
+                    تحميل القالب
+                </a>
+            </div>
+        </div>
+
+        <!-- Upload Area -->
+        <form method="POST" action="{{ route('tenant.inventory.import-excel') }}" enctype="multipart/form-data" id="excelForm">
+            @csrf
+
+            <div class="excel-upload-area" onclick="document.getElementById('excel-file').click()">
+                <input type="file" id="excel-file" name="excel_file" class="file-input" accept=".xlsx,.xls,.csv" onchange="handleFileSelect(this)">
+
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+
+                <div class="upload-text">
+                    انقر هنا لاختيار ملف Excel أو اسحب الملف إلى هنا
+                </div>
+
+                <div class="upload-subtext">
+                    الملفات المدعومة: .xlsx, .xls, .csv (الحد الأقصى: 10MB)
+                </div>
+
+                <div class="file-info" id="file-info">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-file-excel" style="color: #10b981; font-size: 20px;"></i>
+                            <div>
+                                <div id="file-name" style="font-weight: 600; color: #374151;"></div>
+                                <div id="file-size" style="font-size: 12px; color: #6b7280;"></div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="clearFile()" style="background: #ef4444; color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Options -->
+            <div style="margin-top: 25px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="color: #374151; margin: 0 0 15px 0; font-size: 16px;">
+                    <i class="fas fa-cog" style="color: #667eea; margin-left: 8px;"></i>
+                    خيارات الرفع
+                </h4>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="skip_duplicates" value="1" checked style="width: 18px; height: 18px;">
+                            <span style="font-weight: 600; color: #4a5568;">تجاهل المنتجات المكررة</span>
+                        </label>
+                        <p style="color: #6b7280; font-size: 13px; margin: 5px 0 0 26px;">
+                            تجاهل المنتجات الموجودة مسبقاً في نفس المستودع
+                        </p>
+                    </div>
+
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="update_existing" value="1" style="width: 18px; height: 18px;">
+                            <span style="font-weight: 600; color: #4a5568;">تحديث الكميات الموجودة</span>
+                        </label>
+                        <p style="color: #6b7280; font-size: 13px; margin: 5px 0 0 26px;">
+                            إضافة الكميات الجديدة للمنتجات الموجودة
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div style="margin-top: 25px; text-align: center;">
+                <button type="submit" id="upload-btn" disabled
+                        style="background: #6b7280; color: white; padding: 15px 30px; border: none; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: not-allowed; display: inline-flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-upload"></i>
+                    رفع ومعالجة الملف
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 @push('scripts')
+<script>
+// Tab switching functionality
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+
+    // Show selected tab content
+    document.getElementById(tabName + '-tab').classList.add('active');
+
+    // Add active class to selected tab button
+    event.target.classList.add('active');
+}
+
+// Excel file handling
+function handleFileSelect(input) {
+    const file = input.files[0];
+    const fileInfo = document.getElementById('file-info');
+    const uploadBtn = document.getElementById('upload-btn');
+
+    if (file) {
+        // Validate file type
+        const allowedTypes = [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+            'text/csv'
+        ];
+
+        if (!allowedTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls|csv)$/i)) {
+            alert('نوع الملف غير مدعوم. يرجى اختيار ملف Excel أو CSV.');
+            clearFile();
+            return;
+        }
+
+        // Validate file size (10MB max)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('حجم الملف كبير جداً. الحد الأقصى 10MB.');
+            clearFile();
+            return;
+        }
+
+        // Display file info
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-size').textContent = formatFileSize(file.size);
+        fileInfo.style.display = 'block';
+
+        // Enable upload button
+        uploadBtn.disabled = false;
+        uploadBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        uploadBtn.style.cursor = 'pointer';
+
+        // Simulate progress (for visual feedback)
+        const progressFill = document.getElementById('progress-fill');
+        progressFill.style.width = '100%';
+    }
+}
+
+function clearFile() {
+    const fileInput = document.getElementById('excel-file');
+    const fileInfo = document.getElementById('file-info');
+    const uploadBtn = document.getElementById('upload-btn');
+    const progressFill = document.getElementById('progress-fill');
+
+    fileInput.value = '';
+    fileInfo.style.display = 'none';
+    progressFill.style.width = '0%';
+
+    uploadBtn.disabled = true;
+    uploadBtn.style.background = '#6b7280';
+    uploadBtn.style.cursor = 'not-allowed';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Drag and drop functionality
+const uploadArea = document.querySelector('.excel-upload-area');
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('excel-file').files = files;
+        handleFileSelect(document.getElementById('excel-file'));
+    }
+});
+
+// Excel form submission
+document.getElementById('excelForm').addEventListener('submit', function(e) {
+    const fileInput = document.getElementById('excel-file');
+
+    if (!fileInput.files[0]) {
+        e.preventDefault();
+        alert('يرجى اختيار ملف Excel أولاً');
+        return false;
+    }
+
+    // Show loading state
+    const uploadBtn = document.getElementById('upload-btn');
+    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
+    uploadBtn.disabled = true;
+});
+</script>
+
 <script>
 let productRowIndex = 0;
 
