@@ -40,29 +40,34 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function model(array $row)
     {
         try {
+            // Handle both Arabic and English headers
+            $productCode = $row['كود_المنتج'] ?? $row['كود المنتج'] ?? $row[0] ?? null;
+            $warehouseCode = $row['كود_المستودع'] ?? $row['كود المستودع'] ?? $row[1] ?? null;
+            $quantity = $row['الكمية'] ?? $row[2] ?? null;
+
             // Skip empty rows
-            if (empty($row['كود_المنتج']) || empty($row['كود_المستودع']) || empty($row['الكمية'])) {
+            if (empty($productCode) || empty($warehouseCode) || empty($quantity)) {
                 return null;
             }
 
             // Find product by code
             $product = Product::where('tenant_id', $this->tenantId)
-                ->where('code', $row['كود_المنتج'])
+                ->where('code', $productCode)
                 ->first();
 
             if (!$product) {
-                Log::warning("Product not found: " . $row['كود_المنتج']);
+                Log::warning("Product not found: " . $productCode);
                 $this->stats['errors']++;
                 return null;
             }
 
             // Find warehouse by code
             $warehouse = Warehouse::where('tenant_id', $this->tenantId)
-                ->where('code', $row['كود_المستودع'])
+                ->where('code', $warehouseCode)
                 ->first();
 
             if (!$warehouse) {
-                Log::warning("Warehouse not found: " . $row['كود_المستودع']);
+                Log::warning("Warehouse not found: " . $warehouseCode);
                 $this->stats['errors']++;
                 return null;
             }
@@ -74,19 +79,20 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 ->where('batch_number', $row['رقم_الدفعة'] ?? null)
                 ->first();
 
-            $quantity = floatval($row['الكمية']);
-            $costPrice = !empty($row['سعر_التكلفة']) ? floatval($row['سعر_التكلفة']) : null;
-            $locationCode = $row['رمز_الموقع'] ?? null;
-            $batchNumber = $row['رقم_الدفعة'] ?? null;
-            $status = $row['الحالة'] ?? 'active';
+            $quantity = floatval($quantity);
+            $costPrice = !empty($row['سعر_التكلفة'] ?? $row['سعر التكلفة'] ?? $row[3]) ? floatval($row['سعر_التكلفة'] ?? $row['سعر التكلفة'] ?? $row[3]) : null;
+            $locationCode = $row['رمز_الموقع'] ?? $row['رمز الموقع'] ?? $row[4] ?? null;
+            $batchNumber = $row['رقم_الدفعة'] ?? $row['رقم الدفعة'] ?? $row[5] ?? null;
+            $status = $row['الحالة'] ?? $row[7] ?? 'active';
             
             // Parse expiry date
             $expiryDate = null;
-            if (!empty($row['تاريخ_الانتهاء'])) {
+            $expiryDateValue = $row['تاريخ_الانتهاء'] ?? $row['تاريخ الانتهاء'] ?? $row[6] ?? null;
+            if (!empty($expiryDateValue)) {
                 try {
-                    $expiryDate = Carbon::parse($row['تاريخ_الانتهاء'])->format('Y-m-d');
+                    $expiryDate = Carbon::parse($expiryDateValue)->format('Y-m-d');
                 } catch (\Exception $e) {
-                    Log::warning("Invalid expiry date format: " . $row['تاريخ_الانتهاء']);
+                    Log::warning("Invalid expiry date format: " . $expiryDateValue);
                 }
             }
 
