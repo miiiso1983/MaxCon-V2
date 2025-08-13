@@ -90,25 +90,65 @@ class ProductQRController extends Controller
 
             $qrDataJson = json_encode($qrData);
 
-            // Check if data is too large for QR code
+            // Check if data is too large for QR code and optimize progressively
             $dataSize = strlen($qrDataJson);
             if ($dataSize > 2000) {
-                // Try to reduce data by limiting products
-                $reducedProducts = array_slice($qrData['products'], 0, 10);
-                $qrData['products'] = $reducedProducts;
-                $qrData['total_products'] = count($reducedProducts);
-                $qrData['note'] = 'تم تقليل عدد المنتجات لتناسب QR كود';
+                // Progressive reduction strategy
+                $attempts = [
+                    ['products' => 10, 'desc_length' => 30],
+                    ['products' => 5, 'desc_length' => 20],
+                    ['products' => 3, 'desc_length' => 10],
+                    ['products' => 2, 'desc_length' => 0],
+                    ['products' => 1, 'desc_length' => 0]
+                ];
 
-                $qrDataJson = json_encode($qrData);
-                $newDataSize = strlen($qrDataJson);
+                foreach ($attempts as $attempt) {
+                    // Create optimized version
+                    $optimizedProducts = array_slice($qrData['products'], 0, $attempt['products']);
 
-                if ($newDataSize > 2000) {
+                    // Further optimize each product
+                    $optimizedProducts = array_map(function($product) use ($attempt) {
+                        return [
+                            'id' => $product['id'],
+                            'name' => substr($product['name'], 0, 25), // Shorter names
+                            'code' => $product['code'],
+                            'price' => $product['price'],
+                            'currency' => $product['currency'],
+                            'category' => $product['category'] ? substr($product['category'], 0, 15) : null,
+                            'unit' => $product['unit'],
+                            'description' => $attempt['desc_length'] > 0 && $product['description']
+                                ? substr($product['description'], 0, $attempt['desc_length'])
+                                : null
+                        ];
+                    }, $optimizedProducts);
+
+                    $optimizedQrData = [
+                        'type' => 'compact_catalog',
+                        'tenant_id' => $tenantId,
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'total_products' => $attempt['products'],
+                        'note' => 'نسخة مُحسنة للطباعة',
+                        'products' => $optimizedProducts
+                    ];
+
+                    $optimizedJson = json_encode($optimizedQrData);
+                    $optimizedSize = strlen($optimizedJson);
+
+                    if ($optimizedSize <= 2000) {
+                        // Success! Use this optimized version
+                        $qrDataJson = $optimizedJson;
+                        break;
+                    }
+                }
+
+                // If still too large after all attempts
+                if (strlen($qrDataJson) > 2000) {
                     return response()->json([
-                        'error' => 'البيانات كبيرة جداً لـ QR كود حتى بعد التقليل.',
+                        'error' => 'البيانات كبيرة جداً لـ QR كود. يرجى استخدام QR كود الفئات بدلاً من ذلك.',
                         'original_size' => $dataSize . ' bytes',
-                        'reduced_size' => $newDataSize . ' bytes',
+                        'final_size' => strlen($qrDataJson) . ' bytes',
                         'max_size' => '2000 bytes',
-                        'products_count' => $products->count()
+                        'suggestion' => 'استخدم QR كود لفئة محددة أو قلل عدد المنتجات'
                     ], 400);
                 }
             }

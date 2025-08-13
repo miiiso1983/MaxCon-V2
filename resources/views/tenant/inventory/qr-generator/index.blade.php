@@ -70,16 +70,22 @@
                 <div>
                     <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 16px; font-weight: 600;">جميع المنتجات المتوفرة</h4>
                     <p style="color: #6b7280; margin: 0; font-size: 14px;">QR كود شامل لجميع المنتجات النشطة في المخزون</p>
+                    <p style="color: #f59e0b; margin: 5px 0 0 0; font-size: 12px; font-weight: 500;">💡 إذا كانت البيانات كبيرة، استخدم الزر "مبسط" أو QR الفئات</p>
                 </div>
                 <div style="background: #f0fdf4; color: #166534; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
                     {{ $totalProducts }} منتج
                 </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 10px;">
                 <button onclick="generateAllProductsQR()"
                         style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
                     <i class="fas fa-qrcode" style="margin-left: 8px;"></i>
                     إنشاء QR كود لجميع المنتجات
+                </button>
+                <button onclick="generateCompactQR()"
+                        style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 10px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    <i class="fas fa-compress-alt"></i>
+                    مبسط
                 </button>
                 <button onclick="testConnection()"
                         style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 10px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
@@ -274,6 +280,76 @@ async function generateAllProductsQR() {
 
             showError(errorMessage);
             console.error('QR Generation Error:', data);
+        }
+    } catch (error) {
+        console.error('Network Error:', error);
+        showError('حدث خطأ في الاتصال: ' + error.message);
+
+        // Add debugging info
+        console.log('Request URL:', '{{ route("tenant.inventory.qr.generate.all") }}');
+        console.log('CSRF Token:', '{{ csrf_token() }}');
+    }
+}
+
+// Generate compact QR with minimal data
+async function generateCompactQR() {
+    try {
+        showLoading();
+        const response = await fetch('{{ route("tenant.inventory.qr.generate.all") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                limit: 3 // Very limited for compact QR
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch (e) {
+                errorData = { error: errorText };
+            }
+
+            console.error('HTTP Error Response:', {
+                status: response.status,
+                statusText: response.statusText,
+                data: errorData
+            });
+
+            throw new Error(`HTTP error! status: ${response.status} - ${errorData.error || response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            displayQR(data.qr_data, {
+                title: 'QR مبسط (3 منتجات)',
+                count: data.products_count,
+                size: data.data_size
+            });
+        } else {
+            let errorMessage = data.error || 'فشل في إنشاء QR كود مبسط';
+
+            // Add more details if available
+            if (data.products_count !== undefined) {
+                errorMessage += `\nعدد المنتجات: ${data.products_count}`;
+            }
+            if (data.data_size) {
+                errorMessage += `\nحجم البيانات: ${data.data_size}`;
+            }
+            if (data.suggestion) {
+                errorMessage += `\nاقتراح: ${data.suggestion}`;
+            }
+
+            showError(errorMessage);
+            console.error('Compact QR Generation Error:', data);
         }
     } catch (error) {
         console.error('Network Error:', error);
