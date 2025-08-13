@@ -57,7 +57,13 @@ class InventoryImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
 
             // Skip empty rows
             if (empty($productCode) || empty($warehouseCode) || empty($quantity)) {
-                Log::info('Skipping empty row');
+                Log::info('Skipping empty row', [
+                    'productCode' => $productCode,
+                    'warehouseCode' => $warehouseCode,
+                    'quantity' => $quantity,
+                    'reason' => 'One or more required fields are empty'
+                ]);
+                $this->stats['skipped']++;
                 return null;
             }
 

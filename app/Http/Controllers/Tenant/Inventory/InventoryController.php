@@ -418,6 +418,20 @@ class InventoryController extends Controller
                 'mime' => $request->file('excel_file')->getMimeType()
             ]);
 
+            // اختبار قراءة الملف مباشرة
+            $file = $request->file('excel_file');
+            $path = $file->getRealPath();
+
+            // قراءة أول 3 صفوف للتشخيص
+            if (($handle = fopen($path, "r")) !== FALSE) {
+                $rowCount = 0;
+                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE && $rowCount < 3) {
+                    \Log::info("Raw CSV row {$rowCount}: ", $data);
+                    $rowCount++;
+                }
+                fclose($handle);
+            }
+
             $import = new InventoryImport(
                 $tenantId,
                 $request->boolean('skip_duplicates', true),
