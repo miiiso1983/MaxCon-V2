@@ -237,14 +237,23 @@
                     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
-                            <select name="products[INDEX][product_id]" required class="simple-select" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateProductInfo(this)">
-                                <option value="">اختر المنتج</option>
-                                @foreach($products as $product)
-                                    <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-code="{{ $product->code ?? $product->product_code }}" data-unit="{{ $product->unit ?? 'وحدة' }}">
-                                        {{ $product->name }} ({{ $product->code ?? $product->product_code }})
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="product-selector" style="position: relative;">
+                                <input type="hidden" name="products[INDEX][product_id]" required class="product-id-input">
+                                <div class="product-dropdown" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleProductDropdown(this)">
+                                    <span class="selected-text" style="color: #9ca3af;">اختر المنتج</span>
+                                    <i class="fas fa-chevron-down" style="color: #6b7280;"></i>
+                                </div>
+                                <div class="product-options" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none;">
+                                    <div class="product-option" data-value="" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #f3f4f6;" onclick="selectProduct(this, '', 'اختر المنتج', '', '')">
+                                        اختر المنتج
+                                    </div>
+                                    @foreach($products as $product)
+                                        <div class="product-option" data-value="{{ $product->id }}" data-name="{{ $product->name }}" data-code="{{ $product->code ?? $product->product_code }}" data-unit="{{ $product->unit ?? 'وحدة' }}" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #f3f4f6;" onclick="selectProduct(this)">
+                                            {{ $product->name }} ({{ $product->code ?? $product->product_code }})
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
 
                         <div>
@@ -492,6 +501,15 @@
     -webkit-appearance: menulist !important;
     -moz-appearance: menulist !important;
 }
+
+/* قائمة المنتجات المخصصة */
+.product-option:hover {
+    background-color: #f3f4f6 !important;
+}
+.product-option.selected {
+    background-color: #dbeafe !important;
+    color: #1e40af !important;
+}
 </style>
 @endpush
 
@@ -526,6 +544,69 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// دوال قائمة المنتجات المخصصة
+function toggleProductDropdown(element) {
+    const dropdown = element.nextElementSibling;
+    const isVisible = dropdown.style.display === 'block';
+
+    // إغلاق جميع القوائم الأخرى
+    document.querySelectorAll('.product-options').forEach(option => {
+        option.style.display = 'none';
+    });
+
+    // فتح/إغلاق القائمة الحالية
+    dropdown.style.display = isVisible ? 'none' : 'block';
+}
+
+function selectProduct(element) {
+    const value = element.getAttribute('data-value');
+    const name = element.getAttribute('data-name');
+    const code = element.getAttribute('data-code');
+    const unit = element.getAttribute('data-unit');
+    const text = element.textContent.trim();
+
+    const container = element.closest('.product-selector');
+    const hiddenInput = container.querySelector('.product-id-input');
+    const selectedText = container.querySelector('.selected-text');
+    const dropdown = container.querySelector('.product-options');
+
+    // تحديث القيم
+    hiddenInput.value = value;
+    selectedText.textContent = text;
+    selectedText.style.color = value ? '#374151' : '#9ca3af';
+
+    // إغلاق القائمة
+    dropdown.style.display = 'none';
+
+    // تحديث معلومات المنتج
+    if (value) {
+        updateProductInfoCustom(container.closest('.product-row'), name, code, unit);
+    }
+}
+
+function updateProductInfoCustom(row, name, code, unit) {
+    // تحديث كود المنتج
+    const productCodeInput = row.querySelector('input[name*="[product_code]"]');
+    if (productCodeInput) {
+        productCodeInput.value = code || '';
+    }
+
+    // تحديث وحدة القياس
+    const unitSelect = row.querySelector('select[name*="[unit]"]');
+    if (unitSelect) {
+        unitSelect.value = unit || 'وحدة';
+    }
+}
+
+// إغلاق القوائم عند النقر خارجها
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.product-selector')) {
+        document.querySelectorAll('.product-options').forEach(option => {
+            option.style.display = 'none';
+        });
+    }
 });
 </script>
 
@@ -683,20 +764,7 @@ function addProductRow() {
     // Auto-suggest location code based on warehouse
     updateLocationSuggestions(newRow);
 
-    // إصلاح قائمة المنتجات في الصف الجديد
-    const productSelect = newRow.querySelector('.simple-select');
-    if (productSelect) {
-        productSelect.classList.remove('custom-select');
-        // إزالة أي wrapper قد يكون أضافته custom-select
-        if (productSelect.parentElement.classList.contains('custom-select-wrapper')) {
-            productSelect.parentElement.replaceWith(productSelect);
-        }
-        // إضافة event listener للتأكد من عمل القائمة
-        productSelect.addEventListener('click', function(e) {
-            e.stopPropagation();
-            this.focus();
-        });
-    }
+    // لا حاجة لإصلاح القائمة المخصصة - تعمل تلقائي<|im_start|>
 }
 
 function removeProductRow(button) {
