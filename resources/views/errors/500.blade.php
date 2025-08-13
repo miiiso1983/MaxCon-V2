@@ -185,9 +185,23 @@
                 <h4>ℹ️ معلومات إضافية</h4>
                 <p><strong>الوقت:</strong> {{ now()->format('Y-m-d H:i:s') }}</p>
                 <p><strong>كود المرجع:</strong> {{ Str::random(8) }}</p>
-                @if(auth()->check())
-                    <p><strong>المستخدم:</strong> {{ auth()->user()->name }}</p>
-                @endif
+                @php
+                    try {
+                        if(auth()->check()) {
+                            echo '<p><strong>المستخدم:</strong> ' . auth()->user()->name . '</p>';
+                            if(auth()->user()->tenant_id) {
+                                echo '<p><strong>رقم المستأجر:</strong> ' . auth()->user()->tenant_id . '</p>';
+                            }
+                            echo '<p><strong>البريد الإلكتروني:</strong> ' . auth()->user()->email . '</p>';
+                        } else {
+                            echo '<p><strong>المستخدم:</strong> غير مسجل دخول</p>';
+                        }
+                    } catch(\Exception $e) {
+                        echo '<p><strong>المستخدم:</strong> خطأ في جلب معلومات المستخدم</p>';
+                    }
+                @endphp
+                <p><strong>الصفحة المطلوبة:</strong> {{ request()->path() }}</p>
+                <p><strong>المتصفح:</strong> {{ request()->header('User-Agent') ? Str::limit(request()->header('User-Agent'), 50) : 'غير محدد' }}</p>
             </div>
         @endif
         
@@ -202,7 +216,9 @@
             <button class="btn btn-secondary" onclick="location.reload()">إعادة المحاولة</button>
             @if(config('app.debug'))
                 <a href="/debug-error?url={{ urlencode(request()->fullUrl()) }}" class="btn" style="background: #f39c12;">تشخيص مفصل</a>
+                <button onclick="downloadErrorReport()" class="btn" style="background: #28a745;">تحميل تقرير الخطأ</button>
             @endif
+            <button onclick="copyErrorInfo()" class="btn" style="background: #6c757d;">نسخ معلومات الخطأ</button>
         </div>
 
         @if(config('app.debug'))
@@ -210,10 +226,21 @@
             <p><strong>نصائح للمطورين:</strong></p>
             <ul style="list-style: none; padding: 0; text-align: right;">
                 <li>• تحقق من ملف اللوج: <code>storage/logs/laravel.log</code></li>
-                <li>• تأكد من إعدادات قاعدة البيانات</li>
-                <li>• تحقق من صلاحيات الملفات</li>
-                <li>• راجع متغيرات البيئة في <code>.env</code></li>
+                <li>• تأكد من إعدادات قاعدة البيانات في <code>.env</code></li>
+                <li>• تحقق من صلاحيات الملفات والمجلدات</li>
+                <li>• راجع متغيرات البيئة والتكوين</li>
+                <li>• تأكد من تشغيل <code>php artisan config:clear</code></li>
+                <li>• تحقق من <code>composer install</code> و <code>npm install</code></li>
             </ul>
+
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #007bff;">
+                <p><strong>🔧 معلومات تقنية سريعة:</strong></p>
+                <p>• <strong>إصدار PHP:</strong> {{ PHP_VERSION }}</p>
+                <p>• <strong>إصدار Laravel:</strong> {{ app()->version() }}</p>
+                <p>• <strong>البيئة:</strong> {{ app()->environment() }}</p>
+                <p>• <strong>الذاكرة المستخدمة:</strong> {{ round(memory_get_usage(true) / 1024 / 1024, 2) }} MB</p>
+                <p>• <strong>وقت التشغيل:</strong> {{ round((microtime(true) - LARAVEL_START) * 1000, 2) }} ms</p>
+            </div>
         </div>
         @else
         <div style="margin-top: 30px; font-size: 14px; color: #7f8c8d;">
@@ -236,6 +263,137 @@
         console.log('الرابط:', window.location.href);
         console.log('User Agent:', navigator.userAgent);
         console.groupEnd();
+
+        // نسخ معلومات الخطأ
+        function copyErrorInfo() {
+            const errorInfo = `
+خطأ في الخادم - MaxCon ERP
+============================
+الوقت: {{ now()->format('Y-m-d H:i:s') }}
+كود المرجع: {{ Str::random(8) }}
+@php
+try {
+    if(auth()->check()) {
+        echo "المستخدم: " . auth()->user()->name . "\n";
+        echo "البريد الإلكتروني: " . auth()->user()->email . "\n";
+        if(auth()->user()->tenant_id) {
+            echo "رقم المستأجر: " . auth()->user()->tenant_id . "\n";
+        }
+    } else {
+        echo "المستخدم: غير مسجل دخول\n";
+    }
+} catch(\Exception $e) {
+    echo "المستخدم: خطأ في جلب المعلومات\n";
+}
+@endphp
+الرابط: {{ request()->fullUrl() }}
+طريقة الطلب: {{ request()->method() }}
+الصفحة: {{ request()->path() }}
+عنوان IP: {{ request()->ip() }}
+@if(isset($exception))
+نوع الخطأ: {{ get_class($exception) }}
+رسالة الخطأ: {{ $exception->getMessage() }}
+الملف: {{ $exception->getFile() }}
+السطر: {{ $exception->getLine() }}
+@endif
+إصدار PHP: {{ PHP_VERSION }}
+إصدار Laravel: {{ app()->version() }}
+البيئة: {{ app()->environment() }}
+            `.trim();
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(errorInfo).then(function() {
+                    alert('✅ تم نسخ معلومات الخطأ إلى الحافظة');
+                }, function() {
+                    alert('❌ فشل في نسخ المعلومات');
+                });
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = errorInfo;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('✅ تم نسخ معلومات الخطأ');
+                } catch (err) {
+                    alert('❌ فشل في نسخ المعلومات');
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // تحميل تقرير الخطأ
+        function downloadErrorReport() {
+            const errorReport = `
+تقرير خطأ الخادم - MaxCon ERP
+===============================
+
+معلومات الخطأ:
+--------------
+الوقت: {{ now()->format('Y-m-d H:i:s T') }}
+كود المرجع: {{ Str::random(8) }}
+@php
+try {
+    if(auth()->check()) {
+        echo "المستخدم: " . auth()->user()->name . "\n";
+        echo "البريد الإلكتروني: " . auth()->user()->email . "\n";
+        echo "ID المستخدم: " . auth()->id() . "\n";
+        if(auth()->user()->tenant_id) {
+            echo "رقم المستأجر: " . auth()->user()->tenant_id . "\n";
+        }
+    } else {
+        echo "المستخدم: غير مسجل دخول\n";
+    }
+} catch(\Exception $e) {
+    echo "المستخدم: خطأ في جلب المعلومات\n";
+}
+@endphp
+
+معلومات الطلب:
+--------------
+الرابط الكامل: {{ request()->fullUrl() }}
+طريقة الطلب: {{ request()->method() }}
+المسار: {{ request()->path() }}
+عنوان IP: {{ request()->ip() }}
+User Agent: {{ request()->userAgent() }}
+
+@if(isset($exception))
+تفاصيل الخطأ التقنية:
+--------------------
+نوع الخطأ: {{ get_class($exception) }}
+رسالة الخطأ: {{ $exception->getMessage() }}
+الملف: {{ $exception->getFile() }}
+السطر: {{ $exception->getLine() }}
+كود الخطأ: {{ $exception->getCode() }}
+
+Stack Trace:
+-----------
+{{ $exception->getTraceAsString() }}
+@endif
+
+معلومات النظام:
+---------------
+إصدار PHP: {{ PHP_VERSION }}
+إصدار Laravel: {{ app()->version() }}
+البيئة: {{ app()->environment() }}
+المنطقة الزمنية: {{ config('app.timezone') }}
+الذاكرة المستخدمة: {{ round(memory_get_usage(true) / 1024 / 1024, 2) }} MB
+وقت التشغيل: {{ round((microtime(true) - LARAVEL_START) * 1000, 2) }} ms
+
+تم إنشاء هذا التقرير تلقائياً بواسطة نظام MaxCon ERP
+            `.trim();
+
+            const blob = new Blob([errorReport], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'error-report-{{ now()->format("Y-m-d-H-i-s") }}.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
