@@ -263,20 +263,25 @@ class InventoryMovementController extends Controller
             abort(403, 'No tenant access');
         }
 
-        $request->validate([
-            'movement_type' => 'required|in:in,out,transfer_in,transfer_out,adjustment_in,adjustment_out,return_in,return_out',
-            'movement_reason' => 'required|string',
-            'warehouse_id' => 'required|exists:warehouses,id',
-            'movement_date' => 'required|date',
-            'reference_number' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
-            'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|numeric|min:0.001',
-            'products.*.unit_cost' => 'nullable|numeric|min:0',
-            'products.*.batch_number' => 'nullable|string|max:100',
-            'products.*.notes' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validated = $request->validate([
+                'movement_type' => 'required|in:in,out,transfer_in,transfer_out,adjustment_in,adjustment_out,return_in,return_out',
+                'movement_reason' => 'required|string',
+                'warehouse_id' => 'required|exists:warehouses,id',
+                'movement_date' => 'required|date',
+                'reference_number' => 'nullable|string|max:255',
+                'notes' => 'nullable|string',
+                'products' => 'required|array|min:1',
+                'products.*.product_id' => 'required|exists:products,id',
+                'products.*.quantity' => 'required|numeric|min:0.001',
+                'products.*.unit_cost' => 'nullable|numeric|min:0',
+                'products.*.batch_number' => 'nullable|string|max:100',
+                'products.*.notes' => 'nullable|string|max:255',
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Movement store validation failed', ['error' => $e->getMessage(), 'input' => $request->all()]);
+            return back()->withErrors(['error' => 'تعذر التحقق من بيانات الحركة: ' . $e->getMessage()])->withInput();
+        }
 
         // Generate movement number
         $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(
