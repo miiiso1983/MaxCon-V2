@@ -140,7 +140,7 @@
     </div>
 </div>
 
-<form method="POST" action="{{ route('tenant.inventory.movements.store') }}" id="movementForm">
+<form method="POST" action="{{ route('tenant.inventory.movements.store') }}" id="movementForm" novalidate>
     @csrf
 
     <!-- Basic Information -->
