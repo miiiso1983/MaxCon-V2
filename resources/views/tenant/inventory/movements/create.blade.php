@@ -93,7 +93,7 @@
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
     <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-    
+
     <div style="position: relative; z-index: 2;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
@@ -111,7 +111,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div style="display: flex; gap: 15px;">
                 <a href="{{ route('tenant.inventory.movements.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-arrow-right"></i>
@@ -124,14 +124,14 @@
 
 <form method="POST" action="{{ route('tenant.inventory.movements.store') }}" id="movementForm">
     @csrf
-    
+
     <!-- Basic Information -->
     <div class="content-card" style="margin-bottom: 25px;">
         <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
             <i class="fas fa-info-circle" style="color: #667eea; margin-left: 10px;"></i>
             معلومات الحركة
         </h3>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع الحركة *</label>
@@ -150,7 +150,7 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">سبب الحركة *</label>
                 <select name="movement_reason" class="simple-select" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
@@ -170,7 +170,7 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المستودع *</label>
                 <select name="warehouse_id" class="simple-select" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
@@ -183,9 +183,9 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
 
-            
+
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">تاريخ الحركة *</label>
                 <input type="datetime-local" name="movement_date" value="{{ old('movement_date', now()->format('Y-m-d\TH:i')) }}" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
@@ -193,7 +193,7 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">رقم المرجع</label>
                 <input type="text" name="reference_number" value="{{ old('reference_number') }}" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="رقم الفاتورة أو المرجع">
@@ -202,7 +202,7 @@
                 @enderror
             </div>
         </div>
-        
+
         <div style="margin-top: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">ملاحظات</label>
             <textarea name="notes" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; height: 80px;" placeholder="ملاحظات إضافية حول الحركة...">{{ old('notes') }}</textarea>
@@ -236,14 +236,26 @@
                     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
-                            <select name="products[INDEX][product_id]" class="simple-select" required data-placeholder="اختر المنتج..." data-searchable="true" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateProductInfo(this)">
-                                <option value="">اختر المنتج</option>
-                                @foreach($products as $product)
-                                    <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-code="{{ $product->code }}" data-unit="{{ $product->unit ?? 'وحدة' }}">
-                                        {{ $product->name }} ({{ $product->code }})
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="product-selector" style="position: relative;">
+                                <input type="hidden" name="products[INDEX][product_id]" class="product-id-input">
+                                <div class="product-dropdown" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleProductDropdown(this)">
+                                    <span class="selected-text" style="color: #9ca3af;">اختر المنتج</span>
+                                    <i class="fas fa-chevron-down" style="color: #6b7280;"></i>
+                                </div>
+                                <div class="product-options" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; max-height: 240px; overflow-y: auto; z-index: 1000; display: none;">
+                                    <div style="padding:8px; border-bottom:1px solid #f3f4f6;">
+                                        <input type="text" class="product-search" placeholder="ابحث عن المنتج..." style="width:100%; padding:8px; border:1px solid #e5e7eb; border-radius:6px;">
+                                    </div>
+                                    <div class="product-option" data-value="" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #f3f4f6;" onclick="selectProduct(this)">
+                                        اختر المنتج
+                                    </div>
+                                    @foreach($products as $product)
+                                        <div class="product-option" data-value="{{ $product->id }}" data-name="{{ $product->name }}" data-code="{{ $product->code ?? $product->product_code }}" data-unit="{{ $product->unit ?? 'وحدة' }}" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #f3f4f6;" onclick="selectProduct(this)">
+                                            {{ $product->name }} ({{ $product->code ?? $product->product_code }})
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
 
                         <div>
@@ -565,6 +577,53 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Preview rows:', data.preview_rows);
                 } else {
                     alert('فشل الاستيراد التجريبي: ' + (data.message || 'غير معروف'));
+
+// دوال قائمة المنتجات المخصصة (مقتبسة من صفحة المخزون)
+function toggleProductDropdown(element) {
+    const dropdown = element.nextElementSibling;
+    const isVisible = dropdown.style.display === 'block';
+    document.querySelectorAll('.product-options').forEach(opt => opt.style.display = 'none');
+    dropdown.style.display = isVisible ? 'none' : 'block';
+}
+
+function selectProduct(element) {
+    const value = element.getAttribute('data-value');
+    const name = element.getAttribute('data-name');
+    const code = element.getAttribute('data-code');
+    const unit = element.getAttribute('data-unit');
+    const text = element.textContent.trim();
+
+    const selector = element.closest('.product-selector');
+    selector.querySelector('.product-id-input').value = value || '';
+    selector.querySelector('.selected-text').textContent = text || 'اختر المنتج';
+    selector.querySelector('.product-options').style.display = 'none';
+
+    // تحديث معلومات المنتج في الصف
+    const row = element.closest('.product-row');
+    if (row) {
+        const info = row.querySelector('.product-info');
+        if (info) {
+            row.querySelector('.product-name').textContent = name || '';
+            row.querySelector('.product-code').textContent = code || '';
+            row.querySelector('.product-unit').textContent = unit || '';
+            info.style.display = value ? 'block' : 'none';
+        }
+
+// بحث فوري داخل قائمة المنتجات
+document.addEventListener('input', function(e){
+    if (e.target && e.target.classList.contains('product-search')) {
+        const q = e.target.value.toLowerCase();
+        const list = e.target.closest('.product-options');
+        list.querySelectorAll('.product-option').forEach(opt => {
+            const text = opt.textContent.toLowerCase();
+            opt.style.display = text.includes(q) ? 'block' : 'none';
+        });
+    }
+});
+
+    }
+}
+
                 }
             } catch (e) {
                 alert('حدث خطأ أثناء الاستيراد التجريبي');
