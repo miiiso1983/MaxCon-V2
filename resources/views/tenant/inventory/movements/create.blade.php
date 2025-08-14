@@ -444,7 +444,7 @@ function removeProductRow(button) {
     row.remove();
 
     // Check if no rows left
-    const remainingRows = container.querySelectorAll('.product-row[id!="product-row-template"]');
+    const remainingRows = container.querySelectorAll('.product-row:not(#product-row-template)');
     if (remainingRows.length === 0) {
         emptyState.style.display = 'block';
         totalSummary.style.display = 'none';
@@ -492,7 +492,7 @@ function calculateRowTotal(input) {
 
 function updateTotals() {
     const container = document.getElementById('products-container');
-    const rows = container.querySelectorAll('.product-row[id!="product-row-template"]');
+    const rows = container.querySelectorAll('.product-row:not(#product-row-template)');
 
     let grandTotal = 0;
     let productCount = 0;
@@ -527,6 +527,9 @@ document.addEventListener('DOMContentLoaded', function(){
     const warehouse = document.querySelector('select[name="warehouse_id"]').value;
     const movementReason = document.querySelector('select[name="movement_reason"]').value;
 
+    // Ensure manual tab is visible before validating required fields to avoid focusable error
+    try { showTab('manual'); } catch(_) {}
+
     if (!movementType || !warehouse || !movementReason) {
         e.preventDefault();
         alert('يرجى ملء جميع الحقول المطلوبة في معلومات الحركة');
@@ -535,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Check if at least one enabled product is added
     const container = document.getElementById('products-container');
-    const rows = container.querySelectorAll('.product-row[id!="product-row-template"]');
+    const rows = container.querySelectorAll('.product-row:not(#product-row-template)');
 
     if (rows.length === 0) {
         e.preventDefault();
