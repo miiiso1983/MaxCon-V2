@@ -523,10 +523,10 @@ document.getElementById('movementForm').addEventListener('submit', function(e) {
     // Validate each product row
     let hasValidProduct = false;
     for (let row of rows) {
-        const productSelect = row.querySelector('select[name*="[product_id]"]');
+        const productInput = row.querySelector('input[name*="[product_id]"]');
         const quantityInput = row.querySelector('input[name*="[quantity]"]');
 
-        if (productSelect.value && quantityInput.value) {
+        if (productInput && productInput.value && quantityInput && quantityInput.value) {
             const quantity = parseFloat(quantityInput.value);
             if (quantity > 0) {
                 hasValidProduct = true;
@@ -535,7 +535,7 @@ document.getElementById('movementForm').addEventListener('submit', function(e) {
                 alert('يرجى إدخال كمية صحيحة لجميع المنتجات');
                 return false;
             }
-        } else if (productSelect.value || quantityInput.value) {
+        } else if ((productInput && productInput.value) || (quantityInput && quantityInput.value)) {
             e.preventDefault();
             alert('يرجى ملء جميع الحقول المطلوبة لكل منتج (المنتج والكمية)');
             return false;

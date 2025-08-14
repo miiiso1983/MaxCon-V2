@@ -38,10 +38,23 @@ class InventoryMovementImport implements ToModel, WithHeadingRow, WithValidation
             Log::info('Movement Import - Processing row: ', $row);
 
             // Map headers (Arabic, underscored, transliterated)
-            $productCode = $row['كود المنتج'] ?? $row['كود_المنتج'] ?? $row['product_code'] ?? $row['kod_almntg'] ?? $row[0] ?? null;
+            // Also support odd headers observed in logs (inventory_movements_template, noaa_alhrk)
+            $productCode = $row['كود المنتج']
+                ?? $row['كود_المنتج']
+                ?? $row['product_code']
+                ?? $row['inventory_movements_template']
+                ?? $row['kod_almntg']
+                ?? $row[0]
+                ?? null;
             $productName = $row['اسم المنتج'] ?? $row['اسم_المنتج'] ?? $row['name'] ?? $row['asm_almntg'] ?? null;
             $warehouseCode = $row['كود المستودع'] ?? $row['كود_المستودع'] ?? $row['warehouse_code'] ?? $row['kod_almstodaa'] ?? $row[1] ?? null;
-            $movementType = $row['نوع الحركة'] ?? $row['نوع_الحركة'] ?? $row['movement_type'] ?? $row['noaa_alhrka'] ?? $row[2] ?? null;
+            $movementType = $row['نوع الحركة']
+                ?? $row['نوع_الحركة']
+                ?? $row['movement_type']
+                ?? $row['noaa_alhrka']
+                ?? $row['noaa_alhrk']
+                ?? $row[2]
+                ?? null;
             $quantity = $row['الكمية'] ?? $row['quantity'] ?? $row['alkmy'] ?? $row[3] ?? null;
             $reason = $row['السبب'] ?? $row['reason'] ?? $row['alsbb'] ?? $row[4] ?? null;
             $movementDate = $row['التاريخ'] ?? $row['date'] ?? $row['altarykh'] ?? $row[5] ?? null;
