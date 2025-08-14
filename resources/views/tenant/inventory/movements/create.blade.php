@@ -567,35 +567,7 @@ document.getElementById('movementForm').addEventListener('submit', function(e) {
     }
 });
 
-// Auto-add first product row when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // تبويب افتراضي: الإدخال اليدوي
-    showTab('manual');
-
-    // استيراد تجريبي
-    const dryBtn = document.getElementById('btnDryRun');
-    if (dryBtn) {
-        dryBtn.addEventListener('click', async function() {
-            const fileInput = document.querySelector('#excel-upload-section input[type="file"][name="excel_file"]');
-            if (!fileInput || !fileInput.files.length) {
-                alert('يرجى اختيار ملف أولاً');
-                return;
-            }
-            const formData = new FormData();
-            formData.append('excel_file', fileInput.files[0]);
-            try {
-                const res = await fetch("{{ route('tenant.inventory.movements.import-dry-run') }}", {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.status === 'ok') {
-                    openDryRunModal(data);
-                } else {
-                    alert('فشل الاستيراد التجريبي: ' + (data.message || 'غير معروف'));
-
-// دوال قائمة المنتجات المخصصة (مقتبسة من صفحة المخزون)
+// دوال قائمة المنتجات المخصصة (مقتبسة من صفحة المخزون) — معرفة في النطاق العام
 window.toggleProductDropdown = function(element) {
     const dropdown = element.nextElementSibling;
     const isVisible = dropdown.style.display === 'block';
@@ -608,9 +580,40 @@ window.selectProduct = function(element) {
     const name = element.getAttribute('data-name');
     const code = element.getAttribute('data-code');
     const unit = element.getAttribute('data-unit');
+    const text = element.textContent.trim();
 
-// Modal helpers
-function openDryRunModal(data) {
+    const selector = element.closest('.product-selector');
+    selector.querySelector('.product-id-input').value = value || '';
+    selector.querySelector('.selected-text').textContent = text || 'اختر المنتج';
+    selector.querySelector('.product-options').style.display = 'none';
+
+    // تحديث معلومات المنتج في الصف
+    const row = element.closest('.product-row');
+    if (row) {
+        const info = row.querySelector('.product-info');
+        if (info) {
+            row.querySelector('.product-name').textContent = name || '';
+            row.querySelector('.product-code').textContent = code || '';
+            row.querySelector('.product-unit').textContent = unit || '';
+            info.style.display = value ? 'block' : 'none';
+        }
+    }
+}
+
+// بحث فوري داخل قائمة المنتجات
+window.addEventListener('input', function(e){
+    if (e.target && e.target.classList.contains('product-search')) {
+        const q = e.target.value.toLowerCase();
+        const list = e.target.closest('.product-options');
+        list.querySelectorAll('.product-option').forEach(opt => {
+            const text = opt.textContent.toLowerCase();
+            opt.style.display = text.includes(q) ? 'block' : 'none';
+        });
+    }
+});
+
+// Modal helpers — معرفة في النطاق العام
+window.openDryRunModal = function(data) {
     const modal = document.getElementById('dryRunModal');
     const meta = document.getElementById('dry-run-meta');
     const wrap = document.getElementById('dry-run-table-container');
@@ -639,7 +642,7 @@ function openDryRunModal(data) {
     modal.style.display = 'flex';
 }
 
-function closeDryRunModal() {
+window.closeDryRunModal = function() {
     document.getElementById('dryRunModal').style.display = 'none';
 }
 
@@ -652,38 +655,42 @@ function escapeHtml(v){
       .replace(/'/g,'&#039;');
 }
 
-    const text = element.textContent.trim();
 
-    const selector = element.closest('.product-selector');
-    selector.querySelector('.product-id-input').value = value || '';
-    selector.querySelector('.selected-text').textContent = text || 'اختر المنتج';
-    selector.querySelector('.product-options').style.display = 'none';
+// Auto-add first product row when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // تبويب افتراضي: الإدخال اليدوي
+    showTab('manual');
 
-    // تحديث معلومات المنتج في الصف
-    const row = element.closest('.product-row');
-    if (row) {
-        const info = row.querySelector('.product-info');
-        if (info) {
-            row.querySelector('.product-name').textContent = name || '';
-            row.querySelector('.product-code').textContent = code || '';
-            row.querySelector('.product-unit').textContent = unit || '';
-            info.style.display = value ? 'block' : 'none';
-        }
+    // استيراد تجريبي
+    const dryBtn = document.getElementById('btnDryRun');
+    if (dryBtn) {
+        dryBtn.addEventListener('click', async function() {
+            const fileInput = document.querySelector('#excel-upload-section input[type="file"][name="excel_file"]');
+            if (!fileInput || !fileInput.files.length) {
+                alert('يرجى اختيار ملف أولاً');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('excel_file', fileInput.files[0]);
+            try {
+                const res = await fetch("{{ route('tenant.inventory.movements.import-dry-run') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    openDryRunModal(data);
+                } else {
+                    alert('فشل الاستيراد التجريبي: ' + (data.message || 'غير معروف'));
 
-// بحث فوري داخل قائمة المنتجات
-document.addEventListener('input', function(e){
-    if (e.target && e.target.classList.contains('product-search')) {
-        const q = e.target.value.toLowerCase();
-        const list = e.target.closest('.product-options');
-        list.querySelectorAll('.product-option').forEach(opt => {
-            const text = opt.textContent.toLowerCase();
-            opt.style.display = text.includes(q) ? 'block' : 'none';
-        });
-    }
-});
-
-    }
-}
+// [REMOVED - moved to global scope above]
+/* window.toggleProductDropdown = function(element) { ... }
+   window.selectProduct = function(element) { ... }
+   function openDryRunModal(data) { ... }
+   function closeDryRunModal() { ... }
+   function escapeHtml(v) { ... }
+*/
 
                 }
             } catch (e) {
