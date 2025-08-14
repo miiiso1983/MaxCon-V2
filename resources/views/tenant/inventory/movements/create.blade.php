@@ -153,7 +153,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع الحركة *</label>
-                <select name="movement_type" class="simple-select" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateMovementOptions()">
+                <select name="movement_type" class="simple-select" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" onchange="updateMovementOptions()">
                     <option value="">اختر نوع الحركة</option>
                     <option value="in">إدخال</option>
                     <option value="out">إخراج</option>
@@ -171,7 +171,7 @@
 
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">سبب الحركة *</label>
-                <select name="movement_reason" class="simple-select" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="movement_reason" class="simple-select" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر سبب الحركة</option>
                     <option value="purchase">شراء</option>
                     <option value="sale">بيع</option>
@@ -191,7 +191,7 @@
 
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المستودع *</label>
-                <select name="warehouse_id" class="simple-select" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="warehouse_id" class="simple-select" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر المستودع</option>
                     @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id }}">{{ $warehouse->name }} ({{ $warehouse->code }})</option>
