@@ -516,8 +516,13 @@ function updateTotals() {
     document.getElementById('total-products').textContent = productCount;
 }
 
-// Form validation
-document.getElementById('movementForm').addEventListener('submit', function(e) {
+// Form validation (wrapped to ensure DOM is ready)
+document.addEventListener('DOMContentLoaded', function(){
+    const formEl = document.getElementById('movementForm');
+    if (!formEl) return;
+    // Populate reasons based on current movement type (if already chosen)
+    try { updateMovementOptions(); } catch(_) {}
+    formEl.addEventListener('submit', function(e) {
     const movementType = document.querySelector('select[name="movement_type"]').value;
     const warehouse = document.querySelector('select[name="warehouse_id"]').value;
     const movementReason = document.querySelector('select[name="movement_reason"]').value;
@@ -566,6 +571,8 @@ document.getElementById('movementForm').addEventListener('submit', function(e) {
         return false;
     }
 });
+}); // end DOMContentLoaded wrapper for form validation
+
 
 // دوال قائمة المنتجات المخصصة (مقتبسة من صفحة المخزون) — معرفة في النطاق العام
 window.toggleProductDropdown = function(element) {
