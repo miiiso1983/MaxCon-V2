@@ -645,7 +645,10 @@ window.openDryRunModal = function(data) {
     const meta = document.getElementById('dry-run-meta');
     const wrap = document.getElementById('dry-run-table-container');
 
-    meta.textContent = `الملف: ${data.file?.name || ''} — نوع: ${data.file?.mime || ''} — صفوف معاينة: ${data.preview_rows?.length || 0}`;
+    var fileName = (data.file && data.file.name) ? data.file.name : '';
+    var fileMime = (data.file && data.file.mime) ? data.file.mime : '';
+    var rowsLen = (data.preview_rows && data.preview_rows.length) ? data.preview_rows.length : 0;
+    meta.textContent = 'الملف: ' + fileName + ' — نوع: ' + fileMime + ' — صفوف معاينة: ' + rowsLen;
 
     const rows = data.preview_rows || [];
     if (rows.length === 0) {
@@ -657,10 +660,10 @@ window.openDryRunModal = function(data) {
         const columns = Array.from(columnsSet);
 
         let html = '<table style="width:100%; border-collapse: collapse;">';
-        html += '<thead><tr>' + columns.map(c => `<th style="position:sticky; top:0; background:#f9fafb; text-align:right; padding:8px; border-bottom:1px solid #e5e7eb; font-weight:700;">${escapeHtml(c)}</th>`).join('') + '</tr></thead>';
+        html += '<thead><tr>' + columns.map(function(c){ return '<th style="position:sticky; top:0; background:#f9fafb; text-align:right; padding:8px; border-bottom:1px solid #e5e7eb; font-weight:700;">' + escapeHtml(c) + '</th>'; }).join('') + '</tr></thead>';
         html += '<tbody>';
         rows.forEach(row => {
-            html += '<tr>' + columns.map(c => `<td style="padding:8px; border-bottom:1px solid #f3f4f6; font-size:13px;">${escapeHtml(row[c] ?? '')}</td>`).join('') + '</tr>';
+            html += '<tr>' + columns.map(function(c){ var val = (row[c] !== undefined && row[c] !== null) ? row[c] : ''; return '<td style="padding:8px; border-bottom:1px solid #f3f4f6; font-size:13px;">' + escapeHtml(val) + '</td>'; }).join('') + '</tr>';
         });
         html += '</tbody></table>';
         wrap.innerHTML = html;
