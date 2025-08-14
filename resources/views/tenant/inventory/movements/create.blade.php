@@ -255,7 +255,7 @@
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتج *</label>
                             <div class="product-selector" style="position: relative;">
-                                <input type="hidden" name="products[INDEX][product_id]" class="product-id-input">
+                                <input type="hidden" name="products[INDEX][product_id]" class="product-id-input" disabled>
                                 <div class="product-dropdown" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleProductDropdown(this)">
                                     <span class="selected-text" style="color: #9ca3af;">اختر المنتج</span>
                                     <i class="fas fa-chevron-down" style="color: #6b7280;"></i>
@@ -278,12 +278,12 @@
 
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الكمية *</label>
-                            <input type="number" name="products[INDEX][quantity]" required min="0" step="0.001" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="0" onchange="calculateRowTotal(this)">
+                            <input type="number" name="products[INDEX][quantity]" min="0" step="0.001" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="0" onchange="calculateRowTotal(this)" disabled>
                         </div>
 
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">تكلفة الوحدة</label>
-                            <input type="number" name="products[INDEX][unit_cost]" min="0" step="0.01" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="0.00" onchange="calculateRowTotal(this)">
+                            <input type="number" name="products[INDEX][unit_cost]" min="0" step="0.01" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="0.00" onchange="calculateRowTotal(this)" disabled>
                         </div>
 
                         <div>
@@ -295,12 +295,12 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">رقم الدفعة</label>
-                            <input type="text" name="products[INDEX][batch_number]" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="رقم الدفعة">
+                            <input type="text" name="products[INDEX][batch_number]" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="رقم الدفعة" disabled>
                         </div>
 
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">ملاحظات المنتج</label>
-                            <input type="text" name="products[INDEX][notes]" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="ملاحظات خاصة بهذا المنتج">
+                            <input type="text" name="products[INDEX][notes]" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="ملاحظات خاصة بهذا المنتج" disabled>
                         </div>
                     </div>
 
@@ -533,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function(){
         return false;
     }
 
-    // Check if at least one product is added
+    // Check if at least one enabled product is added
     const container = document.getElementById('products-container');
     const rows = container.querySelectorAll('.product-row[id!="product-row-template"]');
 
@@ -584,6 +584,12 @@ window.toggleProductDropdown = function(element) {
 
 window.selectProduct = function(element) {
     const value = element.getAttribute('data-value');
+
+// تمكين حقول الصف عند اختيار المنتج
+function enableRowInputs(row){
+    row.querySelectorAll('input[disabled]').forEach(inp => inp.disabled = false);
+}
+
     const name = element.getAttribute('data-name');
     const code = element.getAttribute('data-code');
     const unit = element.getAttribute('data-unit');
@@ -597,6 +603,7 @@ window.selectProduct = function(element) {
     // تحديث معلومات المنتج في الصف
     const row = element.closest('.product-row');
     if (row) {
+        enableRowInputs(row);
         const info = row.querySelector('.product-info');
         if (info) {
             row.querySelector('.product-name').textContent = name || '';
