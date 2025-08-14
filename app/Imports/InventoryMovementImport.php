@@ -43,6 +43,7 @@ class InventoryMovementImport implements ToModel, WithHeadingRow, WithValidation
                 ?? $row['كود_المنتج']
                 ?? $row['product_code']
                 ?? $row['inventory_movements_template']
+                ?? $row['inventory_movements_template2']
                 ?? $row['kod_almntg']
                 ?? ($row['0'] ?? null)
                 ?? ($row[0] ?? null)
@@ -68,17 +69,38 @@ class InventoryMovementImport implements ToModel, WithHeadingRow, WithValidation
                 return null;
             }
 
-            // Normalize movement type
-            $movementType = strtolower(trim($movementType));
-            $allowedTypes = ['in','out','transfer_in','transfer_out','adjustment_in','adjustment_out','return_in','return_out'];
-            if (!in_array($movementType, $allowedTypes)) {
-                // map common arabic words
+            // Normalize movement type with robust fallback
+            $origType = $movementType;
+            $normalize = function($v) {
+                if ($v === null) return null;
+                $v = trim(strtolower((string)$v));
                 $map = [
-                    'ادخال' => 'in', 'إدخال' => 'in',
-                    'اخراج' => 'out', 'إخراج' => 'out',
+                    'ادخال' => 'in', 'إدخال' => 'in', 'ادخال ','إدخال ' => 'in',
+                    'اخراج' => 'out', 'إخراج' => 'out', 'اخراج ','إخراج ' => 'out',
                 ];
-                $movementType = $map[$movementType] ?? $movementType;
+                return $map[$v] ?? $v;
+            };
+            $movementType = $normalize($movementType);
+            $allowedTypes = ['in','out','transfer_in','transfer_out','adjustment_in','adjustment_out','return_in','return_out'];
+
+            if (!in_array($movementType, $allowedTypes)) {
+                // try other candidates from row if misaligned
+                $candidates = [];
+                foreach (['نوع الحركة','نوع_الحركة','movement_type','noaa_alhrka','noaa_alhrk','2',2] as $k) {
+                    if (isset($row[$k])) { $candidates[] = $row[$k]; }
+                }
+                // also scan any value equal to allowed types
+                foreach ($row as $k => $v) {
+                    $nv = $normalize($v);
+                    if (in_array($nv, $allowedTypes)) { $candidates[] = $v; }
+                }
+                \Log::warning('Movement Import - Type candidates', ['orig' => $origType, 'candidates' => $candidates]);
+                foreach ($candidates as $cand) {
+                    $candN = $normalize($cand);
+                    if (in_array($candN, $allowedTypes)) { $movementType = $candN; break; }
+                }
             }
+
             if (!in_array($movementType, $allowedTypes)) {
                 Log::warning('Movement Import - Invalid type', ['movementType' => $movementType]);
                 $this->stats['skipped']++;
