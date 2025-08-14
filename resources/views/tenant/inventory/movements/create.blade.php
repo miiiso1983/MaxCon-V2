@@ -355,6 +355,18 @@
 <script>
 let productRowIndex = 0;
 
+// Helper: safely get all product rows (excluding template), compatible with old browsers
+function getProductRows() {
+    const container = document.getElementById('products-container');
+    if (!container) return [];
+    try {
+        return Array.from(container.querySelectorAll('.product-row:not(#product-row-template)'));
+    } catch (_) {
+        // Fallback for environments where CSS selector may fail
+        return Array.from(container.getElementsByClassName('product-row')).filter(r => r.id !== 'product-row-template');
+    }
+}
+
 function updateMovementOptions() {
     const movementType = document.querySelector('select[name="movement_type"]').value;
     const reasonSelect = document.querySelector('select[name="movement_reason"]');
@@ -444,7 +456,7 @@ function removeProductRow(button) {
     row.remove();
 
     // Check if no rows left
-    const remainingRows = container.querySelectorAll('.product-row:not(#product-row-template)');
+    const remainingRows = getProductRows();
     if (remainingRows.length === 0) {
         emptyState.style.display = 'block';
         totalSummary.style.display = 'none';
@@ -491,8 +503,7 @@ function calculateRowTotal(input) {
 }
 
 function updateTotals() {
-    const container = document.getElementById('products-container');
-    const rows = container.querySelectorAll('.product-row:not(#product-row-template)');
+    const rows = getProductRows();
 
     let grandTotal = 0;
     let productCount = 0;
@@ -537,8 +548,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     // Check if at least one enabled product is added
-    const container = document.getElementById('products-container');
-    const rows = container.querySelectorAll('.product-row:not(#product-row-template)');
+    const rows = getProductRows();
 
     if (rows.length === 0) {
         e.preventDefault();
