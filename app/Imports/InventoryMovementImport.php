@@ -35,7 +35,7 @@ class InventoryMovementImport implements ToModel, WithHeadingRow, WithValidation
     public function model(array $row)
     {
         try {
-            Log::info('Movement Import - Processing row: ', $row);
+            Log::info('Movement Import v3 - Processing row', ['keys' => array_keys($row)]);
 
             // Map headers (Arabic, underscored, transliterated)
             // Also support odd headers observed in logs (inventory_movements_template, noaa_alhrk)
