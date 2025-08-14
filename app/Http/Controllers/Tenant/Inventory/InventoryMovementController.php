@@ -294,39 +294,59 @@ class InventoryMovementController extends Controller
         $createdMovements = [];
         $totalMovementCost = 0;
 
-        // Create a movement for each product
-        foreach ($request->products as $productData) {
-            if (empty($productData['product_id']) || empty($productData['quantity'])) {
-                continue; // Skip empty rows
+        try {
+            $products = is_array($request->products) ? $request->products : [];
+            foreach ($products as $productData) {
+                if (empty($productData['product_id']) || empty($productData['quantity'])) {
+                    continue; // Skip empty rows
+                }
+
+                $quantity = (float) ($productData['quantity'] ?? 0);
+                if ($quantity <= 0) { continue; }
+
+                $unitCost = (float) ($productData['unit_cost'] ?? 0);
+                $totalCost = $quantity * $unitCost;
+                $totalMovementCost += $totalCost;
+
+                $baseNotes = (string) ($request->notes ?? '');
+                $rowNotes = (string) ($productData['notes'] ?? '');
+                $combinedNotes = trim($baseNotes . ($rowNotes !== '' ? ' | ' . $rowNotes : ''));
+
+                $movement = InventoryMovement::create([
+                    'tenant_id' => $tenantId,
+                    'movement_number' => $movementNumber,
+                    'warehouse_id' => $request->warehouse_id,
+                    'product_id' => $productData['product_id'],
+                    'movement_type' => $request->movement_type,
+                    'movement_reason' => $request->movement_reason,
+                    'quantity' => $quantity,
+                    'unit_cost' => $unitCost,
+                    'total_cost' => $totalCost,
+                    'movement_date' => $request->movement_date,
+                    'reference_number' => $request->reference_number,
+                    'batch_number' => $productData['batch_number'] ?? null,
+                    'notes' => $combinedNotes,
+                    'created_by' => $user->id,
+                    'balance_before' => 0,
+                    'balance_after' => 0,
+                ]);
+
+                $createdMovements[] = $movement;
             }
-
-            $unitCost = $productData['unit_cost'] ?? 0;
-            $totalCost = $productData['quantity'] * $unitCost;
-            $totalMovementCost += $totalCost;
-
-            $movement = InventoryMovement::create([
-                'tenant_id' => $tenantId,
-                'movement_number' => $movementNumber,
-                'warehouse_id' => $request->warehouse_id,
-                'product_id' => $productData['product_id'],
-                'movement_type' => $request->movement_type,
-                'movement_reason' => $request->movement_reason,
-                'quantity' => $productData['quantity'],
-                'unit_cost' => $unitCost,
-                'total_cost' => $totalCost,
-                'movement_date' => $request->movement_date,
-                'reference_number' => $request->reference_number,
-                'batch_number' => $productData['batch_number'] ?? null,
-                'notes' => $request->notes . ($productData['notes'] ? ' | ' . $productData['notes'] : ''),
-                'created_by' => $user->id,
-                'balance_before' => 0, // Will be calculated in real implementation
-                'balance_after' => 0,  // Will be calculated in real implementation
+        } catch (\Throwable $e) {
+            \Log::error('Movement store failed during creation', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all(),
             ]);
-
-            $createdMovements[] = $movement;
+            return back()->with('error', 'حدث خطأ أثناء إنشاء حركة المخزون: ' . $e->getMessage())->withInput();
         }
 
         $productCount = count($createdMovements);
+        if ($productCount === 0) {
+            return back()->withErrors(['products' => 'لم يتم إنشاء أي حركة. يرجى التأكد من اختيار منتج وإدخال كمية صحيحة.'])->withInput();
+        }
+
         $message = "تم إنشاء حركة المخزون بنجاح ({$productCount} منتج، إجمالي: " . number_format($totalMovementCost, 2) . " د.ع)";
 
         return redirect()->route('tenant.inventory.movements.index')
