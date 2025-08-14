@@ -211,6 +211,47 @@ class InventoryMovementController extends Controller
     }
 
     /**
+     * Dry-run import for movements: parse the uploaded file and return parsed rows without saving
+     */
+    public function importDryRun(Request $request): Response
+    {
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
+        ]);
+
+        try {
+            $file = $request->file('excel_file');
+            $mime = $file->getMimeType();
+            $name = $file->getClientOriginalName();
+
+            $rows = [];
+            if (preg_match('/csv|plain/', $mime) || preg_match('/\.csv$/i', $name)) {
+                $handle = fopen($file->getRealPath(), 'r');
+                $bom = fread($handle, 3);
+                if ($bom !== "\xEF\xBB\xBF") {
+                    fseek($handle, 0);
+                }
+                $header = null;
+                while (($data = fgetcsv($handle, 0, ',')) !== false) {
+                    if ($header === null) { $header = $data; continue; }
+                    $rows[] = array_combine($header, $data);
+                    if (count($rows) >= 10) break;
+                }
+                fclose($handle);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'file' => [ 'name' => $name, 'size' => $file->getSize(), 'mime' => $mime ],
+                'preview_rows' => $rows,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Movement Import dry run failed: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Store a newly created movement
      */
     public function store(Request $request)

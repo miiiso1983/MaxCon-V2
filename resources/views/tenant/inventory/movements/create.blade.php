@@ -73,6 +73,10 @@
                         <i class="fas fa-upload"></i>
                         رفع ومعالجة الملف
                     </button>
+                    <button type="button" id="btnDryRun" style="padding: 12px 16px; background:#6b7280; color:white; border:none; border-radius:8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-vials"></i>
+                        استيراد تجريبي
+                    </button>
                 </div>
             </div>
             <div style="margin-top: 12px; font-size: 13px; color:#6b7280;">
@@ -537,6 +541,36 @@ document.getElementById('movementForm').addEventListener('submit', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     // تبويب افتراضي: الإدخال اليدوي
     showTab('manual');
+
+    // استيراد تجريبي
+    const dryBtn = document.getElementById('btnDryRun');
+    if (dryBtn) {
+        dryBtn.addEventListener('click', async function() {
+            const fileInput = document.querySelector('#excel-upload-section input[type="file"][name="excel_file"]');
+            if (!fileInput || !fileInput.files.length) {
+                alert('يرجى اختيار ملف أولاً');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('excel_file', fileInput.files[0]);
+            try {
+                const res = await fetch("{{ route('tenant.inventory.movements.import-dry-run') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    alert('تمت القراءة التجريبية بنجاح. عدد الصفوف المعروضة: ' + (data.preview_rows?.length || 0));
+                    console.log('Preview rows:', data.preview_rows);
+                } else {
+                    alert('فشل الاستيراد التجريبي: ' + (data.message || 'غير معروف'));
+                }
+            } catch (e) {
+                alert('حدث خطأ أثناء الاستيراد التجريبي');
+            }
+        });
+    }
 });
 
 function showTab(tab) {

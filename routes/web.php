@@ -2271,12 +2271,14 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
         Route::get('warehouses/{warehouse}/capacity-report', [WarehouseController::class, 'capacityReport'])->name('warehouses.capacity-report');
         Route::get('warehouses/{warehouse}/inventory-report', [WarehouseController::class, 'inventoryReport'])->name('warehouses.inventory-report');
 
-        // Inventory Movements
-        Route::resource('movements', InventoryMovementController::class);
+        // Inventory Movements (place specific routes BEFORE resource to avoid conflicts with {movement})
         Route::post('movements/import-excel', [InventoryMovementController::class, 'importExcel'])->name('movements.import-excel');
         Route::get('movements/download-template', [InventoryMovementController::class, 'downloadTemplate'])->name('movements.download-template');
         Route::get('movements/diagnostics', [InventoryMovementController::class, 'diagnostics'])->name('movements.diagnostics');
         Route::get('movements/logs', [InventoryMovementController::class, 'showLogs'])->name('movements.logs');
+        Route::post('movements/import-dry-run', [InventoryMovementController::class, 'importDryRun'])->name('movements.import-dry-run');
+        Route::post('movements/import-excel', [InventoryMovementController::class, 'importExcel'])->name('movements.import-excel');
+        Route::resource('movements', InventoryMovementController::class);
 
         // Inventory Audits
         Route::resource('audits', InventoryAuditController::class);
