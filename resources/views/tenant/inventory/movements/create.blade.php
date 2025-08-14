@@ -89,6 +89,24 @@
     </div>
 </div>
 
+<!-- Modal معاينة الاستيراد التجريبي -->
+<div id="dryRunModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+  <div style="background: #fff; width: min(900px, 95%); max-height: 80vh; overflow: auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+    <div style="display:flex; align-items:center; justify-content: space-between; padding:16px 20px; border-bottom:1px solid #e5e7eb;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-vials" style="color:#10b981"></i>
+        <h3 style="margin:0; font-weight:800; font-size:18px; color:#111827;">معاينة الاستيراد التجريبي</h3>
+      </div>
+      <button type="button" onclick="closeDryRunModal()" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:8px 12px; cursor:pointer;"><i class="fas fa-times"></i> إغلاق</button>
+    </div>
+    <div style="padding: 16px 20px;">
+      <div id="dry-run-meta" style="font-size:13px; color:#6b7280; margin-bottom:10px;"></div>
+      <div id="dry-run-table-container" style="border:1px solid #e5e7eb; border-radius:12px; overflow:auto;"></div>
+    </div>
+  </div>
+</div>
+
+
 <!-- Page Header -->
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
@@ -573,24 +591,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 const data = await res.json();
                 if (data.status === 'ok') {
-                    alert('تمت القراءة التجريبية بنجاح. عدد الصفوف المعروضة: ' + (data.preview_rows?.length || 0));
-                    console.log('Preview rows:', data.preview_rows);
+                    openDryRunModal(data);
                 } else {
                     alert('فشل الاستيراد التجريبي: ' + (data.message || 'غير معروف'));
 
 // دوال قائمة المنتجات المخصصة (مقتبسة من صفحة المخزون)
-function toggleProductDropdown(element) {
+window.toggleProductDropdown = function(element) {
     const dropdown = element.nextElementSibling;
     const isVisible = dropdown.style.display === 'block';
     document.querySelectorAll('.product-options').forEach(opt => opt.style.display = 'none');
     dropdown.style.display = isVisible ? 'none' : 'block';
 }
 
-function selectProduct(element) {
+window.selectProduct = function(element) {
     const value = element.getAttribute('data-value');
     const name = element.getAttribute('data-name');
     const code = element.getAttribute('data-code');
     const unit = element.getAttribute('data-unit');
+
+// Modal helpers
+function openDryRunModal(data) {
+    const modal = document.getElementById('dryRunModal');
+    const meta = document.getElementById('dry-run-meta');
+    const wrap = document.getElementById('dry-run-table-container');
+
+    meta.textContent = `الملف: ${data.file?.name || ''} — نوع: ${data.file?.mime || ''} — صفوف معاينة: ${data.preview_rows?.length || 0}`;
+
+    const rows = data.preview_rows || [];
+    if (rows.length === 0) {
+        wrap.innerHTML = '<div style="padding:16px; color:#6b7280;">لا توجد صفوف لعرضها</div>';
+    } else {
+        // جمع الأعمدة المتاحة من كل الصفوف
+        const columnsSet = new Set();
+        rows.forEach(r => Object.keys(r).forEach(k => columnsSet.add(k)));
+        const columns = Array.from(columnsSet);
+
+        let html = '<table style="width:100%; border-collapse: collapse;">';
+        html += '<thead><tr>' + columns.map(c => `<th style="position:sticky; top:0; background:#f9fafb; text-align:right; padding:8px; border-bottom:1px solid #e5e7eb; font-weight:700;">${escapeHtml(c)}</th>`).join('') + '</tr></thead>';
+        html += '<tbody>';
+        rows.forEach(row => {
+            html += '<tr>' + columns.map(c => `<td style="padding:8px; border-bottom:1px solid #f3f4f6; font-size:13px;">${escapeHtml(row[c] ?? '')}</td>`).join('') + '</tr>';
+        });
+        html += '</tbody></table>';
+        wrap.innerHTML = html;
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closeDryRunModal() {
+    document.getElementById('dryRunModal').style.display = 'none';
+}
+
+function escapeHtml(v){
+    return String(v)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/\"/g,'&quot;')
+      .replace(/'/g,'&#039;');
+}
+
     const text = element.textContent.trim();
 
     const selector = element.closest('.product-selector');

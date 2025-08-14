@@ -44,16 +44,18 @@ class InventoryMovementImport implements ToModel, WithHeadingRow, WithValidation
                 ?? $row['product_code']
                 ?? $row['inventory_movements_template']
                 ?? $row['kod_almntg']
-                ?? $row[0]
+                ?? ($row['0'] ?? null)
+                ?? ($row[0] ?? null)
                 ?? null;
             $productName = $row['اسم المنتج'] ?? $row['اسم_المنتج'] ?? $row['name'] ?? $row['asm_almntg'] ?? null;
-            $warehouseCode = $row['كود المستودع'] ?? $row['كود_المستودع'] ?? $row['warehouse_code'] ?? $row['kod_almstodaa'] ?? $row[1] ?? null;
+            $warehouseCode = $row['كود المستودع'] ?? $row['كود_المستودع'] ?? $row['warehouse_code'] ?? $row['kod_almstodaa'] ?? ($row['1'] ?? null) ?? ($row[1] ?? null) ?? null;
             $movementType = $row['نوع الحركة']
                 ?? $row['نوع_الحركة']
                 ?? $row['movement_type']
                 ?? $row['noaa_alhrka']
                 ?? $row['noaa_alhrk']
-                ?? $row[2]
+                ?? ($row['2'] ?? null)
+                ?? ($row[2] ?? null)
                 ?? null;
             $quantity = $row['الكمية'] ?? $row['quantity'] ?? $row['alkmy'] ?? $row[3] ?? null;
             $reason = $row['السبب'] ?? $row['reason'] ?? $row['alsbb'] ?? $row[4] ?? null;
@@ -132,7 +134,7 @@ class InventoryMovementImport implements ToModel, WithHeadingRow, WithValidation
                 'movement_date' => $movementDateParsed,
                 'reference_number' => 'ExcelImport',
                 'notes' => $notes,
-                'created_by' => optional(auth()->user())->id,
+                'created_by' => optional(auth()->user())->id ?? null,
             ]);
 
             $this->stats['created']++;
