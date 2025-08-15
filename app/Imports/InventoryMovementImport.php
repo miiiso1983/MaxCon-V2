@@ -15,6 +15,8 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class InventoryMovementImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
 {
@@ -142,25 +144,60 @@ class InventoryMovementImport implements ToModel, WithHeadingRow, WithValidation
                 $movementDateParsed = now();
             }
 
-            // Create movement
-            $movement = new InventoryMovement([
-                'tenant_id' => $this->tenantId,
-                'movement_number' => 'IMP-' . date('Ymd-His') . '-' . uniqid(),
+            // Build payload compatible with both legacy and new schemas
+            $payload = [
                 'warehouse_id' => $warehouse->id,
                 'product_id' => $product->id,
-                'movement_type' => $movementType,
-                'movement_reason' => $reason ?: 'adjustment',
-                'quantity' => (float)$quantity,
-                'unit_cost' => 0,
-                'total_cost' => 0,
-                'movement_date' => $movementDateParsed,
-                'reference_number' => 'ExcelImport',
+                'quantity' => (float) $quantity,
+                'batch_number' => $row['batch_number'] ?? null,
                 'notes' => $notes,
                 'created_by' => optional(auth()->user())->id ?? null,
-            ]);
+                'updated_at' => now(),
+                'created_at' => now(),
+            ];
 
-            $this->stats['created']++;
-            return $movement;
+            if (Schema::hasColumn('inventory_movements', 'tenant_id')) {
+                $payload['tenant_id'] = $this->tenantId;
+            }
+            if (Schema::hasColumn('inventory_movements', 'movement_number')) {
+                $payload['movement_number'] = 'IMP-' . date('Ymd-His') . '-' . uniqid();
+            }
+            if (Schema::hasColumn('inventory_movements', 'movement_type')) {
+                $payload['movement_type'] = $movementType;
+            } elseif (Schema::hasColumn('inventory_movements', 'type')) {
+                // Legacy: map extended types to legacy enum
+                $payload['type'] = in_array($movementType, ['transfer_in','transfer_out']) ? 'transfer'
+                    : (in_array($movementType, ['adjustment_in','adjustment_out']) ? 'adjustment' : $movementType);
+            }
+            if (Schema::hasColumn('inventory_movements', 'movement_reason')) {
+                $payload['movement_reason'] = $reason ?: 'adjustment';
+            } else {
+                $payload['notes'] = trim(($payload['notes'] ?? '') . ' | reason:' . ($reason ?: 'adjustment'));
+            }
+            if (Schema::hasColumn('inventory_movements', 'unit_cost')) {
+                $payload['unit_cost'] = 0;
+            } elseif (Schema::hasColumn('inventory_movements', 'cost_price')) {
+                $payload['cost_price'] = 0;
+            }
+            if (Schema::hasColumn('inventory_movements', 'total_cost')) {
+                $payload['total_cost'] = 0;
+            }
+            if (Schema::hasColumn('inventory_movements', 'movement_date')) {
+                $payload['movement_date'] = $movementDateParsed;
+            }
+            if (Schema::hasColumn('inventory_movements', 'reference_number')) {
+                $payload['reference_number'] = 'ExcelImport';
+            }
+
+            try {
+                DB::table('inventory_movements')->insert($payload);
+                $this->stats['created']++;
+            } catch (\Throwable $e) {
+                Log::error('Movement Import - DB insert failed', ['error' => $e->getMessage(), 'payload' => $payload]);
+                $this->stats['errors']++;
+            }
+
+            return null;
         } catch (\Throwable $e) {
             Log::error('Movement Import - Error: '.$e->getMessage());
             $this->stats['errors']++;
