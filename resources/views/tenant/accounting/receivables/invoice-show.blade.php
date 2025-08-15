@@ -81,21 +81,18 @@ function sendReceiptWhatsApp(paymentId, phone) {
   try {
     var meta = document.querySelector('meta[name="csrf-token"]');
     var token = meta ? meta.getAttribute('content') : '';
-    (function(){
-      var routePreferred = @json(Route::has('tenant.inventory.accounting.receivables.payments.send-whatsapp'));
-      var routeFallback  = @json(Route::has('tenant.accounting.receivables.payments.send-whatsapp'));
-      var baseUrl;
-      if (routePreferred) {
-        baseUrl = @json(route('tenant.inventory.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false));
-      } else if (routeFallback) {
-        baseUrl = @json(route('tenant.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false));
-      } else {
-        baseUrl = @json(url('/tenant/inventory/accounting/receivables/payments/PAYMENT_ID/send-whatsapp'));
+    var baseUrlTemplate = (function(){
+      var hasPreferred = @json(\Illuminate\Support\Facades\Route::has('tenant.inventory.accounting.receivables.payments.send-whatsapp'));
+      var hasFallback  = @json(\Illuminate\Support\Facades\Route::has('tenant.accounting.receivables.payments.send-whatsapp'));
+      if (hasPreferred) {
+        return @json(route('tenant.inventory.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false));
+      } else if (hasFallback) {
+        return @json(route('tenant.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false));
       }
-      window.__sendWhatsAppUrlTemplate = baseUrl;
+      return @json(url('/tenant/inventory/accounting/receivables/payments/PAYMENT_ID/send-whatsapp'));
     })();
 
-    fetch(window.__sendWhatsAppUrlTemplate.replace('PAYMENT_ID', paymentId), {
+    fetch(baseUrlTemplate.replace('PAYMENT_ID', paymentId), {
       method: 'POST',
       headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ phone: phone || '' }).toString()
