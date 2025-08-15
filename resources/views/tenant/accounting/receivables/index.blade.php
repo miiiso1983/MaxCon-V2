@@ -54,7 +54,7 @@
           <td style="padding:10px; text-align:center; font-weight:700;">{{ number_format($inv->remaining_amount, 2) }} د.ع</td>
           <td style="padding:10px; text-align:center;">{{ $inv->payment_status }}</td>
           <td style="padding:10px; text-align:center;">
-            <a href="{{ route('tenant.accounting.receivables.invoice', $inv) }}" class="btn" style="background:#10b981; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none;">تحصيل</a>
+            <a href="{{ route('tenant.inventory.accounting.receivables.invoice', $inv) }}" class="btn" style="background:#10b981; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none;">تحصيل</a>
           </td>
         </tr>
         @endforeach

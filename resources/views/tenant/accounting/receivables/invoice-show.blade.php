@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <form method="POST" action="{{ route('tenant.accounting.receivables.invoice.payments.store', $invoice) }}" style="display:grid; gap:10px;">
+    <form method="POST" action="{{ route('tenant.inventory.accounting.receivables.invoice.payments.store', $invoice) }}" style="display:grid; gap:10px;">
       @csrf
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:10px;">
         <input type="number" step="0.01" min="0.01" max="{{ $invoice->remaining_amount }}" name="amount" placeholder="المبلغ" style="padding:10px; border:1px solid #e5e7eb; border-radius:8px;" required>
@@ -70,7 +70,7 @@ function sendReceiptWhatsApp(paymentId, phone) {
   try {
     var meta = document.querySelector('meta[name="csrf-token"]');
     var token = meta ? meta.getAttribute('content') : '';
-    fetch("{{ route('tenant.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID']) }}".replace('PAYMENT_ID', paymentId), {
+    fetch("{{ route('tenant.inventory.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID']) }}".replace('PAYMENT_ID', paymentId), {
       method: 'POST',
       headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ phone: phone || '' }).toString()
