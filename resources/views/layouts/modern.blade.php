@@ -969,11 +969,13 @@
                             </a>
                         </div>
 
+                                @if(\Illuminate\Support\Facades\Route::has('tenant.inventory.accounting.receivables.index'))
                                 <a href="{{ route('tenant.inventory.accounting.receivables.index') }}"
                                    class="nav-link {{ request()->routeIs('tenant.inventory.accounting.receivables.*') ? 'active' : '' }}">
                                     <i class="fas fa-hand-holding-usd"></i>
                                     التحصيل - الذمم المدينة
                                 </a>
+                                @endif
                     </div>
 
 

@@ -529,12 +529,14 @@
                                 التقارير المالية
                             </a>
                         </li>
+                        @if(\Illuminate\Support\Facades\Route::has('tenant.inventory.accounting.receivables.index'))
                         <li>
                             <a href="{{ route('tenant.inventory.accounting.receivables.index') }}" class="submenu-item {{ request()->routeIs('tenant.inventory.accounting.receivables.*') ? 'active' : '' }}">
                                 <i class="fas fa-hand-holding-usd"></i>
                                 التحصيل - الذمم المدينة
                             </a>
                         </li>
+                        @endif
                     </ul>
                 </li>
 
