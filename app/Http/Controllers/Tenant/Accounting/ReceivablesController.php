@@ -75,7 +75,7 @@ class ReceivablesController extends Controller
         $payment->pdf_path = app(ReceiptService::class)->generatePdf($payment);
         $payment->save();
 
-        return redirect()->route('tenant.accounting.receivables.invoice', $invoice)
+        return redirect()->route('tenant.inventory.accounting.receivables.invoice', $invoice)
             ->with('success', 'تم تسجيل الدفعة وإنشاء سند الاستلام');
     }
 

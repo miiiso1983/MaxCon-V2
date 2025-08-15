@@ -51,7 +51,7 @@
             @if($p->pdf_path)
               <a href="{{ Storage::url($p->pdf_path) }}" target="_blank" class="btn" style="background:#3b82f6; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none;">عرض السند</a>
             @endif
-            <button type="button" onclick="sendReceiptWhatsApp({{ $p->id }}, '{{ addslashes(optional($invoice->customer)->phone) }}')" class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
+            <button type="button" onclick="sendReceiptWhatsApp({{ $p->id }}, '{{ addslashes($invoice->customer->phone ?? '') }}')" class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
           </div>
         </div>
       @empty
