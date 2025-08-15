@@ -4354,9 +4354,19 @@ Route::get('/debug-error', function () {
 Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(function(){
     Route::get('/maintenance/diagnose-accounting', function () {
         $user = auth()->user();
-        if (!$user || !(method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin())) {
-            abort(403);
+        $allowed = false;
+        if ($user) {
+            try {
+                if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) { $allowed = true; }
+                if (method_exists($user, 'isTenantAdmin') && $user->isTenantAdmin()) { $allowed = true; }
+            } catch (\Throwable $e) { /* ignore */ }
+            $roleVal = $user->role ?? null;
+            if (in_array($roleVal, ['super_admin','tenant_admin'])) { $allowed = true; }
+            if (method_exists($user, 'hasRole')) {
+                if ($user->hasRole('super-admin') || $user->hasRole('tenant-admin')) { $allowed = true; }
+            }
         }
+        if (!$allowed) { abort(403); }
 
         $report = [
             'timestamp' => now()->toDateTimeString(),
