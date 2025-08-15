@@ -31,7 +31,9 @@
             <h3 style="margin:0; font-size:18px;">حركات آخر 7 أيام</h3>
             <a href="{{ route('tenant.inventory.reports.movement-history') }}" style="text-decoration:none; color:#3b82f6; font-weight:700;">تاريخ الحركات</a>
         </div>
-        <canvas id="recentMovements" height="110"></canvas>
+        <div style="height: 300px;">
+            <canvas id="recentMovements"></canvas>
+        </div>
     </div>
 </div>
 
@@ -43,11 +45,40 @@
   var labels = Object.keys(data);
   var values = Object.values(data);
   var ctx = document.getElementById('recentMovements').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: { labels: labels, datasets: [{ label: 'عدد الحركات', data: values, backgroundColor: '#8b5cf6' }] },
-    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-  });
+  if (typeof Chart !== 'undefined') {
+    // Set some nicer defaults for Arabic UI
+    Chart.defaults.font.family = 'Cairo, sans-serif';
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#334155';
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'عدد الحركات',
+          data: values,
+          backgroundColor: 'rgba(139, 92, 246, 0.8)',
+          borderColor: '#7c3aed',
+          borderWidth: 1,
+          borderRadius: 6,
+          maxBarThickness: 28
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, labels: { usePointStyle: true } },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, grid: { color: 'rgba(226,232,240,0.6)' } }
+        },
+        layout: { padding: 10 }
+      }
+    });
+  }
 })();
 </script>
 @endpush

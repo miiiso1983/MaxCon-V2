@@ -218,6 +218,7 @@
 
     <!-- Custom Reports -->
     <div class="content-card" style="transition: all 0.3s ease; cursor: pointer;"
+         onclick="window.location.href='{{ route('tenant.inventory.reports.custom.index') }}'"
          onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.1)'"
          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
 
@@ -246,21 +247,18 @@
             </span>
             <span style="background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
                 <i class="fas fa-share"></i> مشاركة
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="{{ route('tenant.inventory.reports.custom.index') }}" style="color:#8b5cf6; font-weight:600; text-decoration:none;">افتح التقارير المخصصة</a>
-                <i class="fas fa-arrow-left" style="color: #8b5cf6;"></i>
-            </div>
-        </div>
             </span>
         </div>
-
         <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: #6b7280; font-size: 14px;">قريباً</span>
+                <span style="color: #6b7280; font-size: 14px;">انقر للعرض</span>
                 <i class="fas fa-arrow-left" style="color: #8b5cf6;"></i>
+        <div style="margin-top: 10px; text-align: left;">
+            <a href="{{ route('tenant.inventory.reports.custom.index') }}" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color:#fff; padding:10px 16px; border-radius:10px; text-decoration:none; font-weight:700;">افتح التقارير المخصصة</a>
+        </div>
             </div>
         </div>
+
     </div>
 
     <!-- Analytics Dashboard -->
