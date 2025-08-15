@@ -321,27 +321,51 @@ class InventoryMovementController extends Controller
                 $rowNotes = (string) ($productData['notes'] ?? '');
                 $combinedNotes = trim($baseNotes . ($rowNotes !== '' ? ' | ' . $rowNotes : ''));
 
+                // Build payload with DB-compatibility: include columns only if they exist
                 $payload = [
-                    'tenant_id' => $tenantId,
-                    'movement_number' => $movementNumber,
                     'warehouse_id' => $request->warehouse_id,
                     'product_id' => $productData['product_id'],
-                    'movement_type' => $request->movement_type,
-                    // 'movement_reason' will be added conditionally below
                     'quantity' => $quantity,
-                    'unit_cost' => $unitCost,
-                    'total_cost' => $totalCost,
-                    'movement_date' => $request->movement_date,
-                    'reference_number' => $request->reference_number,
                     'batch_number' => $productData['batch_number'] ?? null,
                     'notes' => $combinedNotes,
                     'created_by' => $user->id,
-                    'balance_before' => 0,
-                    'balance_after' => 0,
                 ];
 
+                // Optional columns guarded by existence
+                if (Schema::hasColumn('inventory_movements', 'tenant_id')) {
+                    $payload['tenant_id'] = $tenantId;
+                }
+                if (Schema::hasColumn('inventory_movements', 'movement_number')) {
+                    $payload['movement_number'] = $movementNumber;
+                }
+                if (Schema::hasColumn('inventory_movements', 'movement_type')) {
+                    $payload['movement_type'] = $request->movement_type;
+                } elseif (Schema::hasColumn('inventory_movements', 'type')) {
+                    // legacy column
+                    $payload['type'] = in_array($request->movement_type, ['in','out']) ? $request->movement_type : 'adjustment';
+                }
                 if (Schema::hasColumn('inventory_movements', 'movement_reason')) {
                     $payload['movement_reason'] = $request->movement_reason;
+                }
+                if (Schema::hasColumn('inventory_movements', 'unit_cost')) {
+                    $payload['unit_cost'] = $unitCost;
+                } elseif (Schema::hasColumn('inventory_movements', 'cost_price')) {
+                    $payload['cost_price'] = $unitCost;
+                }
+                if (Schema::hasColumn('inventory_movements', 'total_cost')) {
+                    $payload['total_cost'] = $totalCost;
+                }
+                if (Schema::hasColumn('inventory_movements', 'movement_date')) {
+                    $payload['movement_date'] = $request->movement_date;
+                }
+                if (Schema::hasColumn('inventory_movements', 'reference_number')) {
+                    $payload['reference_number'] = $request->reference_number;
+                }
+                if (Schema::hasColumn('inventory_movements', 'balance_before')) {
+                    $payload['balance_before'] = 0;
+                }
+                if (Schema::hasColumn('inventory_movements', 'balance_after')) {
+                    $payload['balance_after'] = 0;
                 }
 
                 $movement = InventoryMovement::create($payload);
