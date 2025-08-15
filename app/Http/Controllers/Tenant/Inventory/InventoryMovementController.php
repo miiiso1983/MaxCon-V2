@@ -11,6 +11,7 @@ use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryMovementImport;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Schema;
 
 class InventoryMovementController extends Controller
 {
@@ -283,6 +284,14 @@ class InventoryMovementController extends Controller
             return back()->withErrors(['error' => 'تعذر التحقق من بيانات الحركة: ' . $e->getMessage()])->withInput();
         }
 
+        // Ensure DB has required columns (handle partially migrated servers)
+        if (!Schema::hasColumn('inventory_movements', 'movement_reason')) {
+            // Fallback: store reason into notes and use legacy columns
+            $request->merge([
+                'notes' => trim(($request->notes ?? '') . ' | reason:' . ($request->movement_reason ?? '')),
+            ]);
+        }
+
         // Generate movement number
         $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(
             InventoryMovement::where('tenant_id', $tenantId)
@@ -318,7 +327,7 @@ class InventoryMovementController extends Controller
                     'warehouse_id' => $request->warehouse_id,
                     'product_id' => $productData['product_id'],
                     'movement_type' => $request->movement_type,
-                    'movement_reason' => $request->movement_reason,
+                    'movement_reason' => Schema::hasColumn('inventory_movements', 'movement_reason') ? $request->movement_reason : null,
                     'quantity' => $quantity,
                     'unit_cost' => $unitCost,
                     'total_cost' => $totalCost,
