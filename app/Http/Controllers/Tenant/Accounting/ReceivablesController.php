@@ -49,7 +49,24 @@ class ReceivablesController extends Controller
     public function showInvoice(Invoice $invoice): View
     {
         $this->authorizeAccess($invoice);
-        $invoice->load(['customer','payments','salesRep']);
+
+        // Load relations needed for display and calculations
+        $invoice->load(['customer','payments','salesRep','items']);
+
+        // Ensure totals are computed if missing
+        if ((float)($invoice->total_amount ?? 0) <= 0 && $invoice->items && $invoice->items->count() > 0) {
+            try { $invoice->calculateTotals(); } catch (\Throwable $e) { /* ignore */ }
+            $invoice->refresh();
+        }
+
+        // Sync paid and remaining with actual payments sum
+        $paidSum = (float) $invoice->payments->sum('amount');
+        $expectedRemaining = max(((float)$invoice->total_amount) - $paidSum, 0);
+        $needsUpdate = false;
+        if ((float)($invoice->paid_amount ?? 0) !== $paidSum) { $invoice->paid_amount = $paidSum; $needsUpdate = true; }
+        if ((float)($invoice->remaining_amount ?? 0) !== $expectedRemaining) { $invoice->remaining_amount = $expectedRemaining; $needsUpdate = true; }
+        if ($needsUpdate) { $invoice->save(); $invoice->refresh(); }
+
         return view('tenant.accounting.receivables.invoice-show', compact('invoice'));
     }
 
@@ -57,14 +74,22 @@ class ReceivablesController extends Controller
     {
         $this->authorizeAccess($invoice);
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $invoice->remaining_amount,
+            'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|in:cash,bank_transfer,check,credit_card,other',
             'reference_number' => 'nullable|string|max:100',
             'notes' => 'nullable|string|max:500',
+
+        // Cap amount at remaining on server-side to prevent validation confusion with decimals/rounding
+        $amount = (float) $validated['amount'];
+        $remaining = (float) ($invoice->remaining_amount ?? 0);
+        if ($remaining > 0 && $amount > $remaining + 0.0001) {
+            $amount = $remaining; // clamp silently
+        }
+
         ]);
 
         $payment = $invoice->addPayment(
-            $validated['amount'],
+            $amount,
             $validated['payment_method'],
             $validated['reference_number'] ?? null,
             $validated['notes'] ?? null
