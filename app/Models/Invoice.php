@@ -319,6 +319,20 @@ class Invoice extends Model
 
         $this->save();
 
+        // Post accounting entry and update customer balance
+        try {
+            app(\App\Services\Accounting\ReceivablesService::class)->postPaymentEntry($this, $payment);
+            if ($this->customer) {
+                app(\App\Services\Accounting\ReceivablesService::class)->applyPaymentToCustomer($this->customer, (float) $amount);
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to post accounting entry for invoice payment', [
+                'invoice_id' => $this->id,
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return $payment;
     }
 
