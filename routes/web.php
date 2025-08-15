@@ -2281,6 +2281,7 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
         Route::resource('movements', InventoryMovementController::class);
 
         // Inventory Audits
+        Route::get('audits/warehouse-products', [InventoryAuditController::class, 'warehouseProducts'])->name('audits.warehouse-products');
         Route::resource('audits', InventoryAuditController::class);
 
         // Inventory Alerts

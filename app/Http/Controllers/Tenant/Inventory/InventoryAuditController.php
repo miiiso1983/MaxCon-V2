@@ -8,6 +8,7 @@ use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;use Illuminate\Support\Facades\Schema;
 
 class InventoryAuditController extends Controller
 {
@@ -110,7 +111,7 @@ class InventoryAuditController extends Controller
             4, '0', STR_PAD_LEFT
         );
 
-        InventoryAudit::create([
+        $audit = InventoryAudit::create([
             'tenant_id' => $tenantId,
             'audit_number' => $auditNumber,
             'warehouse_id' => $request->input('warehouse_id'),
@@ -121,8 +122,32 @@ class InventoryAuditController extends Controller
             'created_by' => $user->id,
         ]);
 
-        return redirect()->route('tenant.inventory.audits.index')
-            ->with('success', 'تم إنشاء الجرد بنجاح');
+        // If audit_items[] provided from UI, insert initial items
+        $items = $request->input('audit_items', []);
+        if (is_array($items) && count($items)) {
+            $now = now();
+            $bulk = [];
+            foreach ($items as $item) {
+                $pid = (int) ($item['product_id'] ?? 0);
+                if (!$pid) { continue; }
+                $expected = (float) ($item['expected_quantity'] ?? 0);
+                $bulk[] = [
+                    'audit_id' => $audit->id,
+                    'product_id' => $pid,
+                    'system_quantity' => $expected,
+                    'expected_quantity' => $expected,
+                    'status' => 'pending',
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+            if (!empty($bulk)) {
+                DB::table('inventory_audit_items')->insert($bulk);
+            }
+        }
+
+        return redirect()->route('tenant.inventory.audits.show', $audit)
+            ->with('success', 'تم إنشاء الجرد وإضافة العناصر المحددة بنجاح');
     }
 
     /**
@@ -140,4 +165,40 @@ class InventoryAuditController extends Controller
 
         return view('tenant.inventory.audits.show', compact('audit'));
     }
+
+    /**
+     * Get products available in a warehouse for audit (JSON)
+     */
+    public function warehouseProducts(Request $request)
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        $request->validate([
+            'warehouse_id' => 'required|exists:warehouses,id'
+        ]);
+        $warehouseId = (int) $request->query('warehouse_id');
+
+        // Query inventory joined with products, limited to tenant and status active
+        $rows = DB::table('inventory as i')
+            ->join('products as p', 'p.id', '=', 'i.product_id')
+            ->where('i.warehouse_id', $warehouseId)
+            ->when(Schema::hasColumn('i', 'tenant_id'), function($q) use ($tenantId){
+                $q->where('i.tenant_id', $tenantId);
+            })
+            ->select([
+                'p.id as product_id',
+                'p.name as product_name',
+                DB::raw("COALESCE(p.code, p.product_code) as product_code"),
+                'i.available_quantity',
+                'i.quantity',
+                'i.batch_number',
+            ])
+            ->orderBy('p.name')
+            ->limit(1000)
+            ->get();
+
+        return response()->json(['data' => $rows]);
+    }
+
 }

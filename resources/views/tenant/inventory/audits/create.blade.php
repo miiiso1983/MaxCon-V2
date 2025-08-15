@@ -8,7 +8,7 @@
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; color: white; position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
     <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-    
+
     <div style="position: relative; z-index: 2;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
@@ -26,7 +26,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div style="display: flex; gap: 15px;">
                 <a href="{{ route('tenant.inventory.audits.index') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-arrow-right"></i>
@@ -39,14 +39,14 @@
 
 <form method="POST" action="{{ route('tenant.inventory.audits.store') }}" id="auditForm">
     @csrf
-    
+
     <!-- Basic Information -->
     <div class="content-card" style="margin-bottom: 25px;">
         <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 20px; display: flex; align-items: center;">
             <i class="fas fa-info-circle" style="color: #667eea; margin-left: 10px;"></i>
             معلومات الجرد
         </h3>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع الجرد *</label>
@@ -61,7 +61,7 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المستودع *</label>
                 <select name="warehouse_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
@@ -76,7 +76,7 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">تاريخ الجدولة *</label>
                 <input type="datetime-local" name="scheduled_date" value="{{ old('scheduled_date', now()->addDay()->format('Y-m-d\T09:00')) }}" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
@@ -84,7 +84,7 @@
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الحالة</label>
                 <select name="status" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
@@ -96,7 +96,7 @@
                 @enderror
             </div>
         </div>
-        
+
         <div style="margin-top: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">ملاحظات</label>
             <textarea name="notes" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; height: 100px;" placeholder="ملاحظات حول عملية الجرد...">{{ old('notes') }}</textarea>
@@ -112,7 +112,7 @@
             <i class="fas fa-target" style="color: #667eea; margin-left: 10px;"></i>
             نطاق الجرد
         </h3>
-        
+
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نطاق الجرد</label>
             <div style="display: flex; gap: 20px; flex-wrap: wrap;">
@@ -134,7 +134,7 @@
                 </label>
             </div>
         </div>
-        
+
         <!-- Category Selection -->
         <div id="categorySelection" style="display: none; margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الفئة</label>
@@ -147,13 +147,13 @@
                 <option value="other">أخرى</option>
             </select>
         </div>
-        
+
         <!-- Location Selection -->
         <div id="locationSelection" style="display: none; margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">الموقع</label>
             <input type="text" name="location" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;" placeholder="مثال: A-01-01">
         </div>
-        
+
         <!-- Products Selection -->
         <div id="productsSelection" style="display: none;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المنتجات المحددة</label>
@@ -166,6 +166,101 @@
                 </div>
             </div>
         </div>
+    <!-- Warehouse Products Preview -->
+    <div id="warehouse-products-panel" style="margin-top: 20px; display:none;">
+        <div style="display:flex; align-items:center; justify-content: space-between; margin-bottom:10px;">
+            <h3 style="margin:0;">المنتجات في المستودع</h3>
+            <input type="text" id="wp-search" placeholder="بحث بالاسم/الكود" style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px;">
+        </div>
+        <div style="max-height: 360px; overflow:auto; border:1px solid #e2e8f0; border-radius: 10px;">
+            <table id="wp-table" style="width:100%; border-collapse: collapse;">
+                <thead style="position: sticky; top:0; background:#f8fafc;">
+                    <tr>
+                        <th style="padding:10px; border-bottom:1px solid #e2e8f0;"><input type="checkbox" id="wp-select-all"></th>
+                        <th style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right;">المنتج</th>
+                        <th style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right;">الكود</th>
+                        <th style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right;">الكمية المتاحة</th>
+                        <th style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right;">الكمية المتوقعة</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+            <button type="button" id="wp-add-selected" style="padding:10px 18px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer;">إضافة العناصر للجرد</button>
+        </div>
+    </div>
+
+    <script>
+    (function(){
+      const sel = n => document.querySelector(n);
+      const selAll = n => Array.prototype.slice.call(document.querySelectorAll(n));
+      const panel = sel('#warehouse-products-panel');
+      const tbody = sel('#wp-table tbody');
+      const search = sel('#wp-search');
+      const selectAll = sel('#wp-select-all');
+      let rows = [];
+
+      function render(list){
+        tbody.innerHTML = '';
+        list.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="padding:8px; border-bottom:1px solid #f1f5f9;"><input type="checkbox" class="wp-row-check" data-id="${r.product_id}"></td>
+            <td style="padding:8px; border-bottom:1px solid #f1f5f9;">${r.product_name || ''}</td>
+            <td style="padding:8px; border-bottom:1px solid #f1f5f9;">${r.product_code || ''}</td>
+            <td style="padding:8px; border-bottom:1px solid #f1f5f9;">${r.available_quantity ?? r.quantity ?? 0}</td>
+            <td style="padding:8px; border-bottom:1px solid #f1f5f9;"><input type="number" class="wp-expected" data-id="${r.product_id}" value="${r.available_quantity ?? r.quantity ?? 0}" min="0" step="0.001" style="width:120px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:6px;"></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function fetchProducts(){
+        const warehouseId = sel('select[name="warehouse_id"]').value;
+        if(!warehouseId){ panel.style.display='none'; tbody.innerHTML=''; return; }
+        fetch("{{ route('tenant.inventory.audits.warehouse-products') }}?warehouse_id="+encodeURIComponent(warehouseId), { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+        .then(r => r.json()).then(json => {
+          rows = json.data || [];
+          render(rows);
+          panel.style.display = rows.length ? 'block' : 'none';
+          selectAll.checked = false;
+        }).catch(err => { console.error(err); panel.style.display='none'; });
+      }
+
+      sel('select[name="warehouse_id"]').addEventListener('change', fetchProducts);
+      document.addEventListener('DOMContentLoaded', fetchProducts);
+
+      search.addEventListener('input', function(){
+        const q = this.value.trim().toLowerCase();
+        const f = !q ? rows : rows.filter(r => ((r.product_name||'').toLowerCase().includes(q) || (r.product_code||'').toLowerCase().includes(q)));
+        render(f);
+        selectAll.checked = false;
+      });
+
+      selectAll.addEventListener('change', function(){
+        selAll('.wp-row-check').forEach(ch => ch.checked = selectAll.checked);
+      });
+
+      // On submit: attach selected items to the form as hidden inputs
+      sel('#wp-add-selected').addEventListener('click', function(){
+        const form = document.getElementById('auditForm');
+        // remove previous hidden inputs
+        selAll('input[name^="audit_items["]').forEach(el => el.remove());
+        const selected = selAll('.wp-row-check:checked').map(ch => parseInt(ch.getAttribute('data-id')));
+        if(!selected.length){ alert('يرجى اختيار منتج واحد على الأقل'); return; }
+        selected.forEach(pid => {
+          const row = rows.find(r => r.product_id == pid);
+          const exp = sel('.wp-expected[data-id="'+pid+'"]');
+          const expected = exp && exp.value ? exp.value : (row.available_quantity ?? row.quantity ?? 0);
+          const base = 'audit_items['+pid+']';
+          const h1 = document.createElement('input'); h1.type='hidden'; h1.name=base+'[product_id]'; h1.value=pid; form.appendChild(h1);
+          const h2 = document.createElement('input'); h2.type='hidden'; h2.name=base+'[expected_quantity]'; h2.value=expected; form.appendChild(h2);
+        });
+        alert('تم تجهيز العناصر. أكمل إنشاء الجرد لحفظها.');
+      });
+    })();
+    </script>
     </div>
 
     <!-- Form Actions -->
@@ -190,7 +285,7 @@ document.querySelectorAll('input[name="audit_scope"]').forEach(radio => {
         document.getElementById('categorySelection').style.display = 'none';
         document.getElementById('locationSelection').style.display = 'none';
         document.getElementById('productsSelection').style.display = 'none';
-        
+
         // Show relevant selection div
         switch(this.value) {
             case 'category':
@@ -214,7 +309,7 @@ function loadProducts() {
         document.getElementById('productsList').innerHTML = '<p style="color: #6b7280; text-align: center;">يرجى اختيار المستودع أولاً</p>';
         return;
     }
-    
+
     // Simulate loading products (in real implementation, this would be an AJAX call)
     const products = [
         {id: 1, name: 'باراسيتامول 500mg', code: 'PAR500'},
@@ -222,12 +317,12 @@ function loadProducts() {
         {id: 3, name: 'فيتامين د 1000 وحدة', code: 'VITD1000'},
         {id: 4, name: 'كريم مرطب للبشرة', code: 'MOIST001'},
     ];
-    
+
     let html = '';
     products.forEach(product => {
         html += `
-            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;" 
-                   onmouseover="this.style.backgroundColor='#e5e7eb'" 
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;"
+                   onmouseover="this.style.backgroundColor='#e5e7eb'"
                    onmouseout="this.style.backgroundColor='transparent'">
                 <input type="checkbox" name="selected_products[]" value="${product.id}" style="width: 16px; height: 16px;">
                 <div>
@@ -237,7 +332,7 @@ function loadProducts() {
             </label>
         `;
     });
-    
+
     document.getElementById('productsList').innerHTML = html;
 }
 
@@ -245,7 +340,7 @@ function loadProducts() {
 document.getElementById('productSearch').addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
     const productLabels = document.querySelectorAll('#productsList label');
-    
+
     productLabels.forEach(label => {
         const productName = label.textContent.toLowerCase();
         if (productName.includes(searchTerm)) {
@@ -261,17 +356,17 @@ document.getElementById('auditForm').addEventListener('submit', function(e) {
     const auditType = document.querySelector('select[name="audit_type"]').value;
     const warehouseId = document.querySelector('select[name="warehouse_id"]').value;
     const scheduledDate = document.querySelector('input[name="scheduled_date"]').value;
-    
+
     if (!auditType || !warehouseId || !scheduledDate) {
         e.preventDefault();
         alert('يرجى ملء جميع الحقول المطلوبة');
         return false;
     }
-    
+
     // Check if scheduled date is in the future
     const selectedDate = new Date(scheduledDate);
     const now = new Date();
-    
+
     if (selectedDate < now) {
         e.preventDefault();
         alert('يجب أن يكون تاريخ الجدولة في المستقبل');
