@@ -321,13 +321,13 @@ class InventoryMovementController extends Controller
                 $rowNotes = (string) ($productData['notes'] ?? '');
                 $combinedNotes = trim($baseNotes . ($rowNotes !== '' ? ' | ' . $rowNotes : ''));
 
-                $movement = InventoryMovement::create([
+                $payload = [
                     'tenant_id' => $tenantId,
                     'movement_number' => $movementNumber,
                     'warehouse_id' => $request->warehouse_id,
                     'product_id' => $productData['product_id'],
                     'movement_type' => $request->movement_type,
-                    'movement_reason' => Schema::hasColumn('inventory_movements', 'movement_reason') ? $request->movement_reason : null,
+                    // 'movement_reason' will be added conditionally below
                     'quantity' => $quantity,
                     'unit_cost' => $unitCost,
                     'total_cost' => $totalCost,
@@ -338,7 +338,13 @@ class InventoryMovementController extends Controller
                     'created_by' => $user->id,
                     'balance_before' => 0,
                     'balance_after' => 0,
-                ]);
+                ];
+
+                if (Schema::hasColumn('inventory_movements', 'movement_reason')) {
+                    $payload['movement_reason'] = $request->movement_reason;
+                }
+
+                $movement = InventoryMovement::create($payload);
 
                 $createdMovements[] = $movement;
             }
