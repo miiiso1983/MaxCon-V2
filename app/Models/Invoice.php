@@ -312,9 +312,9 @@ class Invoice extends Model
             $this->payment_status = 'paid';
             $this->status = 'paid';
             $this->paid_at = now();
-        } elseif ($this->paid_amount > 0) {
+        } else {
+            // Keep invoice status as-is to avoid enum mismatch; use payment_status to reflect partial payment
             $this->payment_status = 'partial';
-            $this->status = 'partial_paid';
         }
 
         $this->save();
