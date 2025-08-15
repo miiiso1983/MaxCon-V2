@@ -204,7 +204,7 @@
                 <p><strong>المتصفح:</strong> {{ request()->header('User-Agent') ? Str::limit(request()->header('User-Agent'), 50) : 'غير محدد' }}</p>
             </div>
         @endif
-        
+
         <div class="links">
             @if(auth()->check())
                 <a href="{{ route('tenant.dashboard') }}" class="btn">لوحة التحكم</a>
@@ -220,6 +220,56 @@
             @endif
             <button onclick="window.copyErrorInfo && copyErrorInfo()" class="btn" style="background: #6c757d;">نسخ معلومات الخطأ</button>
         </div>
+
+
+        <!-- Minimal, independent copyErrorInfo implementation and data (executes even if other scripts fail) -->
+        <textarea id="errorInfoText" style="position:absolute;left:-9999px;top:-9999px;opacity:0;" aria-hidden="true">
+خطأ في الخادم - MaxCon ERP
+============================
+الوقت: {{ now()->format('Y-m-d H:i:s') }}
+الرابط: {{ request()->fullUrl() }}
+الصفحة: {{ request()->path() }}
+طريقة الطلب: {{ request()->method() }}
+عنوان IP: {{ request()->ip() }}
+@if(auth()->check())
+المستخدم: {{ auth()->user()->name }}
+البريد الإلكتروني: {{ auth()->user()->email }}
+المستأجر: {{ auth()->user()->tenant_id ?? '-' }}
+@endif
+@if(isset($exception))
+نوع الخطأ: {{ get_class($exception) }}
+رسالة الخطأ: {{ $exception->getMessage() }}
+الملف: {{ $exception->getFile() }}
+السطر: {{ $exception->getLine() }}
+@endif
+إصدار PHP: {{ PHP_VERSION }}
+إصدار Laravel: {{ app()->version() }}
+البيئة: {{ app()->environment() }}
+        </textarea>
+        <script>
+        // Define a minimal copyErrorInfo early and independently
+        (function(){
+            if (typeof window.copyErrorInfo !== 'function') {
+                window.copyErrorInfo = function(){
+                    try {
+                        var ta = document.getElementById('errorInfoText');
+                        if (!ta) { alert('لا توجد معلومات للنسخ'); return false; }
+                        var text = ta.value || ta.textContent || '';
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(text).then(function(){ alert('✅ تم النسخ'); }).catch(fallback);
+                        } else { fallback(); }
+                        function fallback(){
+                            var el = document.createElement('textarea');
+                            el.value = text; document.body.appendChild(el); el.select();
+                            try { document.execCommand('copy'); alert('✅ تم النسخ'); } catch(e) { alert('❌ تعذر النسخ'); }
+                            document.body.removeChild(el);
+                        }
+                    } catch (e) { console.error('copyErrorInfo failed', e); }
+                    return false;
+                };
+            }
+        })();
+        </script>
 
         @if(config('app.debug'))
         <div style="margin-top: 30px; font-size: 14px; color: #7f8c8d;">
