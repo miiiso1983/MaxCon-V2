@@ -516,11 +516,26 @@
                 </li>
 
                 <!-- وحدة المحاسبة -->
-                <li>
-                    <a href="#" onclick="alert('وحدة المحاسبة - قريباً')">
+                <li class="has-submenu">
+                    <a href="#" class="menu-toggle">
                         <i class="fas fa-calculator"></i>
-                        المحاسبة
+                        النظام المحاسبي
+                        <i class="fas fa-chevron-down toggle-icon"></i>
                     </a>
+                    <ul class="submenu">
+                        <li>
+                            <a href="{{ route('tenant.inventory.accounting.reports.index') }}" class="submenu-item {{ request()->routeIs('tenant.inventory.accounting.reports.*') ? 'active' : '' }}">
+                                <i class="fas fa-chart-line"></i>
+                                التقارير المالية
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('tenant.inventory.accounting.receivables.index') }}" class="submenu-item {{ request()->routeIs('tenant.inventory.accounting.receivables.*') ? 'active' : '' }}">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                التحصيل - الذمم المدينة
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 <!-- نظام التقارير الديناميكي - مخفي للمستأجرين -->
