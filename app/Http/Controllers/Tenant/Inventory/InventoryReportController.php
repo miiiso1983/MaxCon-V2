@@ -28,6 +28,126 @@ class InventoryReportController extends Controller
         return view('tenant.inventory.reports.index');
     }
 
+    public function customIndex(): View
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+        if (!$tenantId) { abort(403, 'No tenant access'); }
+        $warehouses = Warehouse::where('tenant_id', $tenantId)->orderBy('name')->get(['id','name']);
+        $products = Product::where('tenant_id', $tenantId)->orderBy('name')->limit(500)->get(['id','name']);
+        return view('tenant.inventory.reports.custom-index', compact('warehouses','products'));
+    }
+
+    public function runCustom(Request $request): View
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+        if (!$tenantId) { abort(403, 'No tenant access'); }
+
+        $type = $request->input('type', 'inventory_summary');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $warehouseId = $request->input('warehouse_id');
+        $productId = $request->input('product_id');
+
+        $reportData = [ 'type' => $type, 'title' => 'تقرير مخصص', 'period' => ($dateFrom && $dateTo) ? ($dateFrom.' → '.$dateTo) : null ];
+
+        switch ($type) {
+            case 'inventory_summary':
+                $q = Inventory::with(['product','warehouse'])
+                    ->where('tenant_id', $tenantId);
+                if ($warehouseId) { $q->where('warehouse_id', $warehouseId); }
+                if ($productId) { $q->where('product_id', $productId); }
+                $items = $q->get();
+                $reportData['data'] = $items;
+                $reportData['summary'] = [
+                    'total_items' => $items->count(),
+                    'total_quantity' => (float) $items->sum('quantity'),
+                    'total_available' => (float) $items->sum('available_quantity'),
+                    'total_value' => (float) $items->sum(function($i){ return $i->quantity * ($i->cost_price ?? 0); }),
+                    'by_status' => $items->groupBy('status')->map->count(),
+                    'by_warehouse' => $items->groupBy(fn($i) => optional($i->warehouse)->name ?: ('#'.$i->warehouse_id))->map->count(),
+                ];
+                break;
+
+            case 'movement_analysis':
+                $q = InventoryMovement::with(['product','warehouse'])
+                    ->where('tenant_id', $tenantId);
+                if ($warehouseId) { $q->where('warehouse_id', $warehouseId); }
+                if ($productId) { $q->where('product_id', $productId); }
+                if ($dateFrom) { $q->whereDate('movement_date', '>=', $dateFrom); }
+                if ($dateTo) { $q->whereDate('movement_date', '<=', $dateTo); }
+                $mv = $q->orderBy('movement_date','asc')->get();
+                $reportData['data'] = $mv;
+                $reportData['summary'] = [
+                    'daily_movements' => $mv->groupBy(fn($m) => optional($m->movement_date)->format('Y-m-d'))->map->count(),
+                    'by_type' => $mv->groupBy('movement_type')->map->count(),
+                ];
+                break;
+
+            case 'cost_analysis':
+                $q = InventoryMovement::where('tenant_id', $tenantId);
+                if ($dateFrom) { $q->whereDate('movement_date', '>=', $dateFrom); }
+                if ($dateTo) { $q->whereDate('movement_date', '<=', $dateTo); }
+                $mv = $q->get();
+                $monthly = $mv->groupBy(fn($m) => optional($m->movement_date)->format('Y-m'));
+                $reportData['data'] = [
+                    'monthly_trend' => $monthly->map(function($grp){
+                        return [ 'count' => $grp->count(), 'total_cost' => (float) $grp->sum('total_cost') ];
+                    })
+                ];
+                break;
+
+            case 'expiry_tracking':
+                $expiring = Inventory::with(['product','warehouse'])
+                    ->where('tenant_id', $tenantId)
+                    ->whereNotNull('expiry_date')
+                    ->orderBy('expiry_date','asc')
+                    ->get();
+                $reportData['data'] = [
+                    'expired' => $expiring->where('expiry_date', '<', now()),
+                    'expiring_soon' => $expiring->whereBetween('expiry_date', [now(), now()->addDays(90)])
+                ];
+                break;
+
+            default:
+                // Fallback to inventory summary
+                return $this->runCustom($request->merge(['type' => 'inventory_summary']));
+        }
+
+        return view('tenant.inventory.reports.custom-results', compact('reportData'));
+    }
+
+    public function analytics(): View
+    {
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+        if (!$tenantId) { abort(403, 'No tenant access'); }
+
+        $totalProducts = Product::where('tenant_id', $tenantId)->count();
+        $totalItems = Inventory::where('tenant_id', $tenantId)->count();
+        $lowStock = Inventory::where('tenant_id', $tenantId)
+            ->whereRaw('available_quantity <= (SELECT min_stock_level FROM products WHERE products.id = inventory.product_id)')->count();
+        $expired = Inventory::where('tenant_id', $tenantId)->whereNotNull('expiry_date')->where('expiry_date','<', now())->count();
+
+        // Movements last 7 days
+        $recent = InventoryMovement::where('tenant_id', $tenantId)
+            ->whereDate('movement_date', '>=', now()->subDays(6)->toDateString())
+            ->get()
+            ->groupBy(fn($m) => optional($m->movement_date)->format('Y-m-d'))
+            ->map->count();
+
+        return view('tenant.inventory.reports.analytics', [
+            'metrics' => [
+                'products' => $totalProducts,
+                'items' => $totalItems,
+                'low_stock' => $lowStock,
+                'expired' => $expired,
+            ],
+            'recent' => $recent,
+        ]);
+    }
+
     /**
      * Stock levels report
      */

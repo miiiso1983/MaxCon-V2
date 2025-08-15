@@ -2297,7 +2297,16 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
             Route::get('movement-history', [InventoryReportController::class, 'movementHistory'])->name('movement-history');
             Route::get('low-stock', [InventoryReportController::class, 'lowStock'])->name('low-stock');
             Route::get('expiring-items', [InventoryReportController::class, 'expiringItems'])->name('expiring-items');
+
+            // New: Custom Reports + Analytics
+            Route::get('custom', [InventoryReportController::class, 'customIndex'])->name('custom.index');
+            Route::post('custom/run', [InventoryReportController::class, 'runCustom'])->name('custom.run');
+            Route::get('analytics', [InventoryReportController::class, 'analytics'])->name('analytics');
         });
+
+        // Aliases to match existing links
+        Route::get('custom-reports', [InventoryReportController::class, 'customIndex'])->name('custom-reports.index');
+        Route::post('custom-reports/run', [InventoryReportController::class, 'runCustom'])->name('custom-reports.run');
 
         // Custom Reports
         Route::prefix('custom-reports')->name('custom-reports.')->group(function () {
