@@ -78,6 +78,7 @@ class ReceivablesController extends Controller
             'payment_method' => 'required|in:cash,bank_transfer,check,credit_card,other',
             'reference_number' => 'nullable|string|max:100',
             'notes' => 'nullable|string|max:500',
+        ]);
 
         // Cap amount at remaining on server-side to prevent validation confusion with decimals/rounding
         $amount = (float) $validated['amount'];
@@ -85,8 +86,6 @@ class ReceivablesController extends Controller
         if ($remaining > 0 && $amount > $remaining + 0.0001) {
             $amount = $remaining; // clamp silently
         }
-
-        ]);
 
         $payment = $invoice->addPayment(
             $amount,
