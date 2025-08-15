@@ -969,8 +969,6 @@
                             </a>
                         </div>
 
-                            <!-- Receivables Shortcut inside Accounting content -->
-                            <div class="nav-section-content">
                                 @if(\Illuminate\Support\Facades\Route::has('tenant.inventory.accounting.receivables.index'))
                                 <a href="{{ route('tenant.inventory.accounting.receivables.index') }}"
                                    class="nav-link {{ request()->routeIs('tenant.inventory.accounting.receivables.*') ? 'active' : '' }}">
@@ -978,7 +976,8 @@
                                     التحصيل - الذمم المدينة
                                 </a>
                                 @endif
-                            </div>
+
+
 
                     </div>
 
