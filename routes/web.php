@@ -4338,52 +4338,7 @@ Route::get('/debug-error', function () {
         abort(404);
     }
 
-// Maintenance: diagnose and fix accounting tables (secure: Super Admin only)
-Route::middleware(['auth','tenant'])->get('/tenant/maintenance/diagnose-accounting', function () {
-    $user = auth()->user();
-    if (!$user || !(method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin())) {
-        abort(403);
-    }
 
-    $report = [
-        'timestamp' => now()->toDateTimeString(),
-        'env' => app()->environment(),
-        'db_connection' => config('database.default'),
-        'missing' => [],
-        'ran_migrate' => false,
-    ];
-
-    // Checks
-    if (!\Illuminate\Support\Facades\Schema::hasTable('invoice_payments')) {
-        $report['missing'][] = 'invoice_payments';
-    }
-    if (!\Illuminate\Support\Facades\Schema::hasColumn('invoices', 'paid_amount')) {
-        $report['missing'][] = 'invoices.paid_amount';
-    }
-    if (!\Illuminate\Support\Facades\Schema::hasColumn('invoices', 'remaining_amount')) {
-        $report['missing'][] = 'invoices.remaining_amount';
-    }
-
-    try {
-        if (!empty($report['missing'])) {
-            \Artisan::call('migrate', ['--force' => true]);
-            $report['ran_migrate'] = true;
-            $report['artisan_output'] = \Artisan::output();
-        }
-    } catch (\Throwable $e) {
-        $report['migrate_error'] = $e->getMessage();
-    }
-
-    // Re-check status
-    $report['status'] = [
-        'invoice_payments_table' => \Illuminate\Support\Facades\Schema::hasTable('invoice_payments'),
-        'invoices_paid_amount' => \Illuminate\Support\Facades\Schema::hasColumn('invoices', 'paid_amount'),
-        'invoices_remaining_amount' => \Illuminate\Support\Facades\Schema::hasColumn('invoices', 'remaining_amount'),
-        'invoice_payments_receipt_number' => (\Illuminate\Support\Facades\Schema::hasTable('invoice_payments') && \Illuminate\Support\Facades\Schema::hasColumn('invoice_payments', 'receipt_number')),
-    ];
-
-    return response()->json($report);
-})->name('tenant.maintenance.diagnose-accounting');
 
 
     $url = request('url', 'غير محدد');
@@ -4393,3 +4348,51 @@ Route::middleware(['auth','tenant'])->get('/tenant/maintenance/diagnose-accounti
         'message' => 'صفحة تشخيص الأخطاء - الرابط المطلوب: ' . $url
     ]);
 })->name('debug.error');
+
+
+// Maintenance: diagnose and fix accounting tables (secure: Super Admin only)
+Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(function(){
+    Route::get('/maintenance/diagnose-accounting', function () {
+        $user = auth()->user();
+        if (!$user || !(method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin())) {
+            abort(403);
+        }
+
+        $report = [
+            'timestamp' => now()->toDateTimeString(),
+            'env' => app()->environment(),
+            'db_connection' => config('database.default'),
+            'missing' => [],
+            'ran_migrate' => false,
+        ];
+
+        if (!\Illuminate\Support\Facades\Schema::hasTable('invoice_payments')) {
+            $report['missing'][] = 'invoice_payments';
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('invoices', 'paid_amount')) {
+            $report['missing'][] = 'invoices.paid_amount';
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('invoices', 'remaining_amount')) {
+            $report['missing'][] = 'invoices.remaining_amount';
+        }
+
+        try {
+            if (!empty($report['missing'])) {
+                \Artisan::call('migrate', ['--force' => true]);
+                $report['ran_migrate'] = true;
+                $report['artisan_output'] = \Artisan::output();
+            }
+        } catch (\Throwable $e) {
+            $report['migrate_error'] = $e->getMessage();
+        }
+
+        $report['status'] = [
+            'invoice_payments_table' => \Illuminate\Support\Facades\Schema::hasTable('invoice_payments'),
+            'invoices_paid_amount' => \Illuminate\Support\Facades\Schema::hasColumn('invoices', 'paid_amount'),
+            'invoices_remaining_amount' => \Illuminate\Support\Facades\Schema::hasColumn('invoices', 'remaining_amount'),
+            'invoice_payments_receipt_number' => (\Illuminate\Support\Facades\Schema::hasTable('invoice_payments') && \Illuminate\Support\Facades\Schema::hasColumn('invoice_payments', 'receipt_number')),
+        ];
+
+        return response()->json($report);
+    })->name('maintenance.diagnose-accounting');
+});
