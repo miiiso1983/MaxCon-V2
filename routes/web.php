@@ -2380,15 +2380,6 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
 	            });
             // Financial Reports
 
-	        // Backward-compatible named routes (in case some cached views still reference old names)
-	        Route::middleware(['auth','tenant'])->group(function () {
-	            Route::get('/tenant/inventory/accounting/receivables/invoice/{invoice}', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'showInvoice'])
-	                ->name('tenant.accounting.receivables.invoice');
-	            Route::post('/tenant/inventory/accounting/receivables/invoice/{invoice}/payments', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'storePayment'])
-	                ->name('tenant.accounting.receivables.invoice.payments.store');
-	            Route::post('/tenant/inventory/accounting/receivables/payments/{payment}/send-whatsapp', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'sendReceiptWhatsApp'])
-	                ->name('tenant.accounting.receivables.payments.send-whatsapp');
-	        });
             Route::prefix('reports')->name('reports.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\Tenant\Accounting\FinancialReportController::class, 'index'])->name('index');
                 Route::get('trial-balance', [\App\Http\Controllers\Tenant\Accounting\FinancialReportController::class, 'trialBalance'])->name('trial-balance');
