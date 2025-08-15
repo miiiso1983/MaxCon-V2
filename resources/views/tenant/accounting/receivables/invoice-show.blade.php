@@ -9,7 +9,7 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
       <div>
         <div style="font-weight:800; font-size:18px;">فاتورة: {{ $invoice->invoice_number }}</div>
-        <div style="color:#6b7280;">العميل: {{ $invoice->customer->name ?? '-' }} | المندوب: {{ optional($invoice->salesRep)->name ?? '-' }}</div>
+        <div style="color:#6b7280;">العميل: {{ optional($invoice->customer)->name ?? '-' }} | المندوب: {{ optional($invoice->salesRep)->name ?? '-' }}</div>
       </div>
       <div>
         <div>الإجمالي: <strong>{{ number_format($invoice->total_amount,2) }} د.ع</strong></div>
@@ -62,7 +62,7 @@
             @if($p->pdf_path)
               <a href="{{ Storage::url($p->pdf_path) }}" target="_blank" class="btn" style="background:#3b82f6; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none;">عرض السند</a>
             @endif
-            <button type="button" onclick="sendReceiptWhatsApp({{ $p->id }}, '{{ addslashes($invoice->customer->phone ?? '') }}')" class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
+            <button type="button" onclick="sendReceiptWhatsApp({{ $p->id }}, '{{ addslashes(optional($invoice->customer)->phone) }}')" class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
           </div>
         </div>
       @empty
