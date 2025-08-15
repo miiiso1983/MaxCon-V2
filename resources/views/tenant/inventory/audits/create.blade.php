@@ -208,49 +208,50 @@
 
     <script>
     (function(){
-      const sel = n => document.querySelector(n);
-      const selAll = n => Array.prototype.slice.call(document.querySelectorAll(n));
+      function sel(n){ return document.querySelector(n); }
+      function selAll(n){ return Array.prototype.slice.call(document.querySelectorAll(n)); }
       const panel = sel('#warehouse-products-panel');
       const tbody = sel('#wp-table tbody');
       const search = sel('#wp-search');
       const selectAll = sel('#wp-select-all');
       const categorySel = sel('#wp-category');
       const locationSel = sel('#wp-location');
-      let rows = [];
+      var rows = [];
 
       function uniqueCategories(list){
-        const set = new Set();
-        list.forEach(r => { if(r.category){ set.add(r.category); } });
-        return Array.from(set);
+        var set = {};
+        list.forEach(function(r){ if(r.category){ set[r.category] = true; } });
+        return Object.keys(set);
       }
 
       function uniqueLocations(list){
-        const map = new Map();
-        list.forEach(r => { if(r.location_id){ map.set(r.location_id, r.location_name || ('الموقع #' + r.location_id)); } });
-        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+        var map = {};
+        list.forEach(function(r){ if(r.location_id){ map[r.location_id] = r.location_name || ('الموقع #' + r.location_id); } });
+        return Object.keys(map).map(function(id){ return { id: id, name: map[id] }; });
       }
 
       function populateCategories(list){
         const cats = uniqueCategories(list);
-        categorySel.innerHTML = '<option value="">كل الأقسام</option>' + cats.map(c => '<option value="'+c+'">'+c+'</option>').join('');
+        categorySel.innerHTML = '<option value="">كل الأقسام</option>' + cats.map(function(c){ return '<option value="'+c+'">'+c+'</option>'; }).join('');
       }
 
       function populateLocations(list){
         const locs = uniqueLocations(list);
-        locationSel.innerHTML = '<option value="">كل المواقع</option>' + locs.map(o => '<option value="'+o.id+'">'+o.name+'</option>').join('');
+        locationSel.innerHTML = '<option value="">كل المواقع</option>' + locs.map(function(o){ return '<option value="'+o.id+'">'+o.name+'</option>'; }).join('');
       }
 
       function render(list){
         tbody.innerHTML = '';
-        list.forEach(r => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td style="padding:8px; border-bottom:1px solid #f1f5f9;"><input type="checkbox" class="wp-row-check" data-id="${r.product_id}"></td>
-            <td style="padding:8px; border-bottom:1px solid #f1f5f9;">${r.product_name || ''}</td>
-            <td style="padding:8px; border-bottom:1px solid #f1f5f9;">${r.product_code || ''}</td>
-            <td style="padding:8px; border-bottom:1px solid #f1f5f9;">${r.available_quantity ?? r.quantity ?? 0}</td>
-            <td style="padding:8px; border-bottom:1px solid #f1f5f9;"><input type="number" class="wp-expected" data-id="${r.product_id}" value="${r.available_quantity ?? r.quantity ?? 0}" min="0" step="0.001" style="width:120px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:6px;"></td>
-          `;
+        list.forEach(function(r){
+          var tr = document.createElement('tr');
+          var available = (typeof r.available_quantity !== 'undefined' && r.available_quantity !== null) ? r.available_quantity : ((typeof r.quantity !== 'undefined' && r.quantity !== null) ? r.quantity : 0);
+          tr.innerHTML = ''+
+            '<td style="padding:8px; border-bottom:1px solid #f1f5f9;"><input type="checkbox" class="wp-row-check" data-id="'+r.product_id+'"></td>'+
+            '<td style="padding:8px; border-bottom:1px solid #f1f5f9;">'+(r.product_name || '')+'</td>'+
+            '<td style="padding:8px; border-bottom:1px solid #f1f5f9;">'+(r.product_code || '')+'</td>'+
+            '<td style="padding:8px; border-bottom:1px solid #f1f5f9;">'+available+'</td>'+
+            '<td style="padding:8px; border-bottom:1px solid #f1f5f9;"><input type="number" class="wp-expected" data-id="'+r.product_id+'" value="'+available+'" min="0" step="0.001" style="width:120px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:6px;"></td>';
+
           tbody.appendChild(tr);
         });
       }
@@ -259,24 +260,24 @@
         const warehouseId = sel('select[name="warehouse_id"]').value;
         if(!warehouseId){ panel.style.display='none'; tbody.innerHTML=''; return; }
         fetch("{{ route('tenant.inventory.audits.warehouse-products') }}?warehouse_id="+encodeURIComponent(warehouseId), { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
-        .then(r => r.json()).then(json => {
+        .then(function(r){ return r.json(); }).then(function(json){
           rows = json.data || [];
           populateCategories(rows);
           populateLocations(rows);
           render(rows);
           panel.style.display = rows.length ? 'block' : 'none';
           selectAll.checked = false;
-        }).catch(err => { console.error(err); panel.style.display='none'; });
+        }).catch(function(err){ console.error(err); panel.style.display='none'; });
       }
 
       function applyFilters(){
-        const cat = categorySel.value;
-        const loc = locationSel.value;
-        const q = search.value.trim().toLowerCase();
-        let f = rows;
-        if(cat){ f = f.filter(r => (r.category||'') === cat); }
-        if(loc){ f = f.filter(r => String(r.location_id||'') === String(loc)); }
-        if(q){ f = f.filter(r => ((r.product_name||'').toLowerCase().includes(q) || (r.product_code||'').toLowerCase().includes(q))); }
+        var cat = categorySel.value;
+        var loc = locationSel.value;
+        var q = (search.value || '').trim().toLowerCase();
+        var f = rows.slice();
+        if(cat){ f = f.filter(function(r){ return (r.category||'') === cat; }); }
+        if(loc){ f = f.filter(function(r){ return String(r.location_id||'') === String(loc); }); }
+        if(q){ f = f.filter(function(r){ return ((r.product_name||'').toLowerCase().indexOf(q) > -1 || (r.product_code||'').toLowerCase().indexOf(q) > -1); }); }
         render(f);
         selectAll.checked = false;
       }
@@ -290,14 +291,14 @@
       search.addEventListener('input', applyFilters);
 
       selectAll.addEventListener('change', function(){
-        const boxes = selAll('.wp-row-check');
-        const MAX = 200;
+        var boxes = selAll('.wp-row-check');
+        var MAX = 200;
         if (this.checked && boxes.length > MAX) {
           alert('سيتم تحديد أول ' + MAX + ' عنصر فقط حفاظاً على الأداء');
-          boxes.forEach((ch, i) => ch.checked = i < MAX);
+          boxes.forEach(function(ch, i){ ch.checked = i < MAX; });
           this.checked = false;
         } else {
-          boxes.forEach(ch => ch.checked = this.checked);
+          boxes.forEach(function(ch){ ch.checked = this.checked; }.bind(this));
         }
       });
 

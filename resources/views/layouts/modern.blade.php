@@ -1496,7 +1496,8 @@
                         var el = selector ? document.querySelector(selector) : null;
                         var text = el ? (el.innerText || el.textContent || '') : '';
                         if (!text) {
-                            text = (document.querySelector('.alert.alert-danger')?.innerText) || (document.body.innerText || '');
+                            var errEl = document.querySelector('.alert.alert-danger');
+                            text = errEl ? (errEl.innerText || errEl.textContent || '') : (document.body.innerText || '');
                         }
                         if (navigator.clipboard && navigator.clipboard.writeText) {
                             navigator.clipboard.writeText(text).then(function(){

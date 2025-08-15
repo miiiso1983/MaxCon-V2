@@ -8,6 +8,7 @@ use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;use Illuminate\Support\Facades\Schema;
 
 class InventoryAuditController extends Controller
@@ -111,16 +112,32 @@ class InventoryAuditController extends Controller
             4, '0', STR_PAD_LEFT
         );
 
-        $audit = InventoryAudit::create([
-            'tenant_id' => $tenantId,
+        // Build payload compatible with legacy/new schema
+        $payload = [
+            'warehouse_id' => (int) $request->input('warehouse_id'),
             'audit_number' => $auditNumber,
-            'warehouse_id' => $request->input('warehouse_id'),
-            'audit_type' => $request->input('audit_type'),
-            'status' => $request->input('status'),
-            'scheduled_date' => $request->input('scheduled_date'),
-            'notes' => $request->input('notes'),
-            'created_by' => $user->id,
-        ]);
+        ];
+        $statusRequested = (string) $request->input('status', 'scheduled');
+        // Map scheduled->planned for legacy enum
+        $statusMapped = $statusRequested === 'scheduled' ? 'planned' : $statusRequested;
+
+        if (Schema::hasColumn('inventory_audits', 'tenant_id')) { $payload['tenant_id'] = $tenantId; }
+        if (Schema::hasColumn('inventory_audits', 'audit_type')) { $payload['audit_type'] = $request->input('audit_type'); }
+        if (Schema::hasColumn('inventory_audits', 'status')) { $payload['status'] = $statusMapped; }
+        if (Schema::hasColumn('inventory_audits', 'scheduled_date')) { $payload['scheduled_date'] = $request->input('scheduled_date'); }
+        if (Schema::hasColumn('inventory_audits', 'audit_date')) { $payload['audit_date'] = substr((string)$request->input('scheduled_date'), 0, 10) ?: date('Y-m-d'); }
+        if (Schema::hasColumn('inventory_audits', 'notes')) { $payload['notes'] = $request->input('notes'); }
+        if (Schema::hasColumn('inventory_audits', 'description')) { $payload['description'] = $request->input('notes'); }
+        if (Schema::hasColumn('inventory_audits', 'created_by')) { $payload['created_by'] = $user->id; }
+        if (Schema::hasColumn('inventory_audits', 'auditor_id')) { $payload['auditor_id'] = $user->id; }
+
+        try {
+            $auditId = DB::table('inventory_audits')->insertGetId($payload);
+            $audit = InventoryAudit::find($auditId);
+        } catch (\Throwable $e) {
+            Log::error('Audit store failed', ['error' => $e->getMessage(), 'payload' => $payload]);
+            return back()->with('error', 'تعذر إنشاء الجرد: ' . $e->getMessage())->withInput();
+        }
 
         // If audit_items[] provided from UI, insert initial items
         $items = $request->input('audit_items', []);
