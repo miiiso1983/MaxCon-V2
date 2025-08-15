@@ -170,7 +170,15 @@
     <div id="warehouse-products-panel" style="margin-top: 20px; display:none;">
         <div style="display:flex; align-items:center; justify-content: space-between; margin-bottom:10px;">
             <h3 style="margin:0;">المنتجات في المستودع</h3>
-            <input type="text" id="wp-search" placeholder="بحث بالاسم/الكود" style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px;">
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <select id="wp-category" style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px;">
+                    <option value="">كل الأقسام</option>
+                </select>
+                <select id="wp-location" style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px;">
+                    <option value="">كل المواقع</option>
+                </select>
+                <input type="text" id="wp-search" placeholder="بحث بالاسم/الكود" style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px;">
+            </div>
         </div>
         <div style="max-height: 360px; overflow:auto; border:1px solid #e2e8f0; border-radius: 10px;">
             <table id="wp-table" style="width:100%; border-collapse: collapse;">
@@ -184,6 +192,13 @@
                     </tr>
                 </thead>
                 <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" style="padding:8px; background:#f8fafc; border-top:1px solid #e2e8f0; text-align:left; font-size:12px; color:#64748b;">
+                            تلميح: يمكنك استخدام مربع البحث لتصفية المنتجات أو اختيار قسم من القائمة.
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
@@ -199,7 +214,31 @@
       const tbody = sel('#wp-table tbody');
       const search = sel('#wp-search');
       const selectAll = sel('#wp-select-all');
+      const categorySel = sel('#wp-category');
+      const locationSel = sel('#wp-location');
       let rows = [];
+
+      function uniqueCategories(list){
+        const set = new Set();
+        list.forEach(r => { if(r.category){ set.add(r.category); } });
+        return Array.from(set);
+      }
+
+      function uniqueLocations(list){
+        const map = new Map();
+        list.forEach(r => { if(r.location_id){ map.set(r.location_id, r.location_name || ('الموقع #' + r.location_id)); } });
+        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+      }
+
+      function populateCategories(list){
+        const cats = uniqueCategories(list);
+        categorySel.innerHTML = '<option value="">كل الأقسام</option>' + cats.map(c => '<option value="'+c+'">'+c+'</option>').join('');
+      }
+
+      function populateLocations(list){
+        const locs = uniqueLocations(list);
+        locationSel.innerHTML = '<option value="">كل المواقع</option>' + locs.map(o => '<option value="'+o.id+'">'+o.name+'</option>').join('');
+      }
 
       function render(list){
         tbody.innerHTML = '';
@@ -222,24 +261,44 @@
         fetch("{{ route('tenant.inventory.audits.warehouse-products') }}?warehouse_id="+encodeURIComponent(warehouseId), { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
         .then(r => r.json()).then(json => {
           rows = json.data || [];
+          populateCategories(rows);
+          populateLocations(rows);
           render(rows);
           panel.style.display = rows.length ? 'block' : 'none';
           selectAll.checked = false;
         }).catch(err => { console.error(err); panel.style.display='none'; });
       }
 
+      function applyFilters(){
+        const cat = categorySel.value;
+        const loc = locationSel.value;
+        const q = search.value.trim().toLowerCase();
+        let f = rows;
+        if(cat){ f = f.filter(r => (r.category||'') === cat); }
+        if(loc){ f = f.filter(r => String(r.location_id||'') === String(loc)); }
+        if(q){ f = f.filter(r => ((r.product_name||'').toLowerCase().includes(q) || (r.product_code||'').toLowerCase().includes(q))); }
+        render(f);
+        selectAll.checked = false;
+      }
+      categorySel.addEventListener('change', applyFilters);
+      locationSel.addEventListener('change', applyFilters);
+
+
       sel('select[name="warehouse_id"]').addEventListener('change', fetchProducts);
       document.addEventListener('DOMContentLoaded', fetchProducts);
 
-      search.addEventListener('input', function(){
-        const q = this.value.trim().toLowerCase();
-        const f = !q ? rows : rows.filter(r => ((r.product_name||'').toLowerCase().includes(q) || (r.product_code||'').toLowerCase().includes(q)));
-        render(f);
-        selectAll.checked = false;
-      });
+      search.addEventListener('input', applyFilters);
 
       selectAll.addEventListener('change', function(){
-        selAll('.wp-row-check').forEach(ch => ch.checked = selectAll.checked);
+        const boxes = selAll('.wp-row-check');
+        const MAX = 200;
+        if (this.checked && boxes.length > MAX) {
+          alert('سيتم تحديد أول ' + MAX + ' عنصر فقط حفاظاً على الأداء');
+          boxes.forEach((ch, i) => ch.checked = i < MAX);
+          this.checked = false;
+        } else {
+          boxes.forEach(ch => ch.checked = this.checked);
+        }
       });
 
       // On submit: attach selected items to the form as hidden inputs

@@ -142,7 +142,12 @@ class InventoryAuditController extends Controller
                 ];
             }
             if (!empty($bulk)) {
-                DB::table('inventory_audit_items')->insert($bulk);
+                if (Schema::hasTable('inventory_audit_items')) {
+                    DB::table('inventory_audit_items')->insert($bulk);
+                } else {
+                    // Table missing on legacy DB: skip silently but notify user after redirect
+                    session()->flash('warning', 'تم إنشاء الجرد، لكن لم تُحفظ عناصر الجرد لأن جدول العناصر غير متوفر على الخادم. يرجى تشغيل المهاجرات.');
+                }
             }
         }
 
@@ -183,9 +188,10 @@ class InventoryAuditController extends Controller
         $rows = DB::table('inventory as i')
             ->join('products as p', 'p.id', '=', 'i.product_id')
             ->where('i.warehouse_id', $warehouseId)
-            ->when(Schema::hasColumn('i', 'tenant_id'), function($q) use ($tenantId){
+            ->when(Schema::hasColumn('inventory', 'tenant_id'), function($q) use ($tenantId){
                 $q->where('i.tenant_id', $tenantId);
             })
+            ->leftJoin('warehouse_locations as wl', 'wl.id', '=', 'i.location_id')
             ->select([
                 'p.id as product_id',
                 'p.name as product_name',
@@ -193,6 +199,9 @@ class InventoryAuditController extends Controller
                 'i.available_quantity',
                 'i.quantity',
                 'i.batch_number',
+                'p.category as category',
+                'i.location_id',
+                DB::raw("COALESCE(wl.name, wl.code) as location_name")
             ])
             ->orderBy('p.name')
             ->limit(1000)
