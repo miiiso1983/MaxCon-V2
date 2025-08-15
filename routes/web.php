@@ -2370,6 +2370,14 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
             Route::post('journal-entries/{journalEntry}/post', [\App\Http\Controllers\Tenant\Accounting\JournalEntryController::class, 'post'])->name('journal-entries.post');
             Route::get('account-details', [\App\Http\Controllers\Tenant\Accounting\JournalEntryController::class, 'getAccountDetails'])->name('account-details');
 
+
+	            // Receivables (Collections)
+	            Route::prefix('receivables')->name('receivables.')->group(function () {
+	                Route::get('/', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'index'])->name('index');
+	                Route::get('/invoice/{invoice}', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'showInvoice'])->name('invoice');
+	                Route::post('/invoice/{invoice}/payments', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'storePayment'])->name('invoice.payments.store');
+	                Route::post('/payments/{payment}/send-whatsapp', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'sendReceiptWhatsApp'])->name('payments.send-whatsapp');
+	            });
             // Financial Reports
             Route::prefix('reports')->name('reports.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\Tenant\Accounting\FinancialReportController::class, 'index'])->name('index');
