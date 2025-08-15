@@ -1488,6 +1488,36 @@
                     if (savedState === 'collapsed') {
                         section.classList.add('collapsed');
                         content.style.maxHeight = '0';
+
+            // Safe fallback for copyErrorInfo used in some pages
+            if (typeof window.copyErrorInfo !== 'function') {
+                window.copyErrorInfo = function(selector){
+                    try {
+                        var el = selector ? document.querySelector(selector) : null;
+                        var text = el ? (el.innerText || el.textContent || '') : '';
+                        if (!text) {
+                            text = (document.querySelector('.alert.alert-danger')?.innerText) || (document.body.innerText || '');
+                        }
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(text).then(function(){
+                                alert('تم نسخ معلومات الخطأ');
+                            }).catch(function(){ alert('تعذر النسخ'); });
+                        } else {
+                            // Fallback textarea
+                            var ta = document.createElement('textarea');
+                            ta.value = text;
+                            document.body.appendChild(ta);
+                            ta.select();
+                            try { document.execCommand('copy'); alert('تم نسخ معلومات الخطأ'); } catch(e) {}
+                            document.body.removeChild(ta);
+                        }
+                    } catch (e) {
+                        console.error('copyErrorInfo fallback failed', e);
+                    }
+                    return false;
+                };
+            }
+
                     } else if (savedState === 'expanded') {
                         section.classList.remove('collapsed');
                         content.style.maxHeight = '1000px';
