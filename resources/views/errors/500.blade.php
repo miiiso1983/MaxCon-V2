@@ -218,7 +218,7 @@
                 <a href="/debug-error?url={{ urlencode(request()->fullUrl()) }}" class="btn" style="background: #f39c12;">تشخيص مفصل</a>
                 <button onclick="downloadErrorReport()" class="btn" style="background: #28a745;">تحميل تقرير الخطأ</button>
             @endif
-            <button onclick="copyErrorInfo()" class="btn" style="background: #6c757d;">نسخ معلومات الخطأ</button>
+            <button onclick="window.copyErrorInfo && copyErrorInfo()" class="btn" style="background: #6c757d;">نسخ معلومات الخطأ</button>
         </div>
 
         @if(config('app.debug'))
