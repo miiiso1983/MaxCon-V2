@@ -75,22 +75,25 @@
 
 
 
+@php
+  $whatsTpl = null;
+  if (\Illuminate\Support\Facades\Route::has('tenant.inventory.accounting.receivables.payments.send-whatsapp')) {
+      $whatsTpl = route('tenant.inventory.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false);
+  } elseif (\Illuminate\Support\Facades\Route::has('tenant.accounting.receivables.payments.send-whatsapp')) {
+      $whatsTpl = route('tenant.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false);
+  } else {
+      $whatsTpl = url('/tenant/inventory/accounting/receivables/payments/PAYMENT_ID/send-whatsapp');
+  }
+@endphp
+
+
 @push('scripts')
 <script>
 function sendReceiptWhatsApp(paymentId, phone) {
   try {
     var meta = document.querySelector('meta[name="csrf-token"]');
     var token = meta ? meta.getAttribute('content') : '';
-    var baseUrlTemplate = (function(){
-      var hasPreferred = @json(\Illuminate\Support\Facades\Route::has('tenant.inventory.accounting.receivables.payments.send-whatsapp'));
-      var hasFallback  = @json(\Illuminate\Support\Facades\Route::has('tenant.accounting.receivables.payments.send-whatsapp'));
-      if (hasPreferred) {
-        return @json(route('tenant.inventory.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false));
-      } else if (hasFallback) {
-        return @json(route('tenant.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false));
-      }
-      return @json(url('/tenant/inventory/accounting/receivables/payments/PAYMENT_ID/send-whatsapp'));
-    })();
+    var baseUrlTemplate = @json($whatsTpl);
 
     fetch(baseUrlTemplate.replace('PAYMENT_ID', paymentId), {
       method: 'POST',
