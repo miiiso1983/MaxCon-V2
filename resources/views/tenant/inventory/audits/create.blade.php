@@ -37,7 +37,7 @@
     </div>
 </div>
 
-<form method="POST" action="{{ route('tenant.inventory.audits.store') }}" id="auditForm">
+<form method="POST" action="{{ route('tenant.inventory.audits.store') }}" id="auditForm" novalidate>
     @csrf
 
     <!-- Basic Information -->
@@ -50,7 +50,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع الجرد *</label>
-                <select name="audit_type" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="audit_type" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر نوع الجرد</option>
                     <option value="full" {{ old('audit_type') === 'full' ? 'selected' : '' }}>جرد شامل</option>
                     <option value="partial" {{ old('audit_type') === 'partial' ? 'selected' : '' }}>جرد جزئي</option>
@@ -64,7 +64,7 @@
 
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">المستودع *</label>
-                <select name="warehouse_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <select name="warehouse_id" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <option value="">اختر المستودع</option>
                     @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id }}" {{ old('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
@@ -79,7 +79,7 @@
 
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">تاريخ الجدولة *</label>
-                <input type="datetime-local" name="scheduled_date" value="{{ old('scheduled_date', now()->addDay()->format('Y-m-d\T09:00')) }}" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <input type="datetime-local" name="scheduled_date" value="{{ old('scheduled_date', now()->addDay()->format('Y-m-d\T09:00')) }}" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                 @error('scheduled_date')
                     <div style="color: #f56565; font-size: 14px; margin-top: 5px;">{{ $message }}</div>
                 @enderror
