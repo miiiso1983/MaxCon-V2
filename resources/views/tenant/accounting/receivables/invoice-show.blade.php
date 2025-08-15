@@ -18,7 +18,18 @@
       </div>
     </div>
 
-    <form method="POST" action="{{ route('tenant.inventory.accounting.receivables.invoice.payments.store', $invoice) }}" style="display:grid; gap:10px;">
+    @php
+      $storeRouteNamePreferred = 'tenant.inventory.accounting.receivables.invoice.payments.store';
+      $storeRouteNameFallback  = 'tenant.accounting.receivables.invoice.payments.store';
+      if (\Illuminate\Support\Facades\Route::has($storeRouteNamePreferred)) {
+        $storeAction = route($storeRouteNamePreferred, $invoice, false);
+      } elseif (\Illuminate\Support\Facades\Route::has($storeRouteNameFallback)) {
+        $storeAction = route($storeRouteNameFallback, $invoice, false);
+      } else {
+        $storeAction = url('/tenant/inventory/accounting/receivables/invoice/'.$invoice->id.'/payments');
+      }
+    @endphp
+    <form method="POST" action="{{ $storeAction }}" style="display:grid; gap:10px;">
       @csrf
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:10px;">
         <input type="number" step="0.01" min="0.01" max="{{ $invoice->remaining_amount }}" name="amount" placeholder="المبلغ" style="padding:10px; border:1px solid #e5e7eb; border-radius:8px;" required>
@@ -70,7 +81,21 @@ function sendReceiptWhatsApp(paymentId, phone) {
   try {
     var meta = document.querySelector('meta[name="csrf-token"]');
     var token = meta ? meta.getAttribute('content') : '';
-    fetch("{{ route('tenant.inventory.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID']) }}".replace('PAYMENT_ID', paymentId), {
+    (function(){
+      var routePreferred = @json(Route::has('tenant.inventory.accounting.receivables.payments.send-whatsapp'));
+      var routeFallback  = @json(Route::has('tenant.accounting.receivables.payments.send-whatsapp'));
+      var baseUrl;
+      if (routePreferred) {
+        baseUrl = @json(route('tenant.inventory.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false));
+      } else if (routeFallback) {
+        baseUrl = @json(route('tenant.accounting.receivables.payments.send-whatsapp', ['payment' => 'PAYMENT_ID'], false));
+      } else {
+        baseUrl = @json(url('/tenant/inventory/accounting/receivables/payments/PAYMENT_ID/send-whatsapp'));
+      }
+      window.__sendWhatsAppUrlTemplate = baseUrl;
+    })();
+
+    fetch(window.__sendWhatsAppUrlTemplate.replace('PAYMENT_ID', paymentId), {
       method: 'POST',
       headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ phone: phone || '' }).toString()

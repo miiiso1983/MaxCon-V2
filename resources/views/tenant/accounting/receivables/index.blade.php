@@ -54,7 +54,17 @@
           <td style="padding:10px; text-align:center; font-weight:700;">{{ number_format($inv->remaining_amount, 2) }} د.ع</td>
           <td style="padding:10px; text-align:center;">{{ $inv->payment_status }}</td>
           <td style="padding:10px; text-align:center;">
-            <a href="{{ route('tenant.inventory.accounting.receivables.invoice', $inv) }}" class="btn" style="background:#10b981; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none;">تحصيل</a>
+            @php
+              $invoiceUrl = null;
+              if (\Illuminate\Support\Facades\Route::has('tenant.inventory.accounting.receivables.invoice')) {
+                $invoiceUrl = route('tenant.inventory.accounting.receivables.invoice', $inv, false);
+              } elseif (\Illuminate\Support\Facades\Route::has('tenant.accounting.receivables.invoice')) {
+                $invoiceUrl = route('tenant.accounting.receivables.invoice', $inv, false);
+              } else {
+                $invoiceUrl = url('/tenant/inventory/accounting/receivables/invoice/'.$inv->id);
+              }
+            @endphp
+            <a href="{{ $invoiceUrl }}" class="btn" style="background:#10b981; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none;">تحصيل</a>
           </td>
         </tr>
         @endforeach
