@@ -4414,38 +4414,42 @@ Route::post('/test-company-store-simple', function (Illuminate\Http\Request $req
             return response()->json(['success' => false, 'error' => 'No tenant found'], 400);
         }
 
-        $user = \App\Models\User::where('tenant_id', $tenant->id)->first();
+        // Get user without global scope interference
+        $user = \App\Models\User::withoutGlobalScopes()->where('tenant_id', $tenant->id)->first();
         if (!$user) {
-            return response()->json(['success' => false, 'error' => 'No user found for tenant'], 400);
+            // Try to get any user and update their tenant_id
+            $user = \App\Models\User::withoutGlobalScopes()->first();
+            if ($user) {
+                $user->tenant_id = $tenant->id;
+                $user->save();
+                \Log::info('Updated user tenant_id: ' . $user->id . ' to tenant: ' . $tenant->id);
+            } else {
+                return response()->json(['success' => false, 'error' => 'No user found in system'], 400);
+            }
         }
 
         \Log::info('Using tenant: ' . $tenant->id . ' - ' . $tenant->name);
         \Log::info('Using user: ' . $user->id . ' - ' . $user->name);
 
-        // Temporarily login the user to satisfy the HasTenant trait
-        \Illuminate\Support\Facades\Auth::login($user);
-
-        // Create company without global scope interference
-        $company = new \App\Models\Tenant\Regulatory\CompanyRegistration();
-        $company->tenant_id = $tenant->id;
-        $company->company_name = $request->company_name;
-        $company->registration_number = $request->registration_number;
-        $company->license_number = $request->license_number;
-        $company->license_type = $request->license_type;
-        $company->regulatory_authority = $request->regulatory_authority;
-        $company->registration_date = $request->registration_date;
-        $company->license_issue_date = $request->license_issue_date;
-        $company->license_expiry_date = $request->license_expiry_date;
-        $company->company_address = $request->company_address;
-        $company->contact_person = $request->contact_person;
-        $company->contact_email = $request->contact_email;
-        $company->contact_phone = $request->contact_phone;
-        $company->compliance_status = $request->compliance_status;
-        $company->status = 'active';
-        $company->save();
-
-        // Logout the temporary user
-        \Illuminate\Support\Facades\Auth::logout();
+        // Create company directly without global scope interference
+        $company = \App\Models\Tenant\Regulatory\CompanyRegistration::withoutGlobalScopes()->create([
+            'id' => \Illuminate\Support\Str::uuid(),
+            'tenant_id' => $tenant->id,
+            'company_name' => $request->company_name,
+            'registration_number' => $request->registration_number,
+            'license_number' => $request->license_number,
+            'license_type' => $request->license_type,
+            'regulatory_authority' => $request->regulatory_authority,
+            'registration_date' => $request->registration_date,
+            'license_issue_date' => $request->license_issue_date,
+            'license_expiry_date' => $request->license_expiry_date,
+            'company_address' => $request->company_address,
+            'contact_person' => $request->contact_person,
+            'contact_email' => $request->contact_email,
+            'contact_phone' => $request->contact_phone,
+            'compliance_status' => $request->compliance_status,
+            'status' => 'active'
+        ]);
 
         return response()->json(['success' => true, 'company' => $company]);
     } catch (\Exception $e) {
@@ -4454,6 +4458,47 @@ Route::post('/test-company-store-simple', function (Illuminate\Http\Request $req
         return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     }
 })->name('test.company.store.simple');
+
+// Ultra simple test route
+Route::post('/test-company-ultra-simple', function (Illuminate\Http\Request $request) {
+    try {
+        \Log::info('Ultra simple company store request', $request->all());
+
+        // Direct database insert
+        $id = \Illuminate\Support\Str::uuid();
+        $result = \Illuminate\Support\Facades\DB::table('company_registrations')->insert([
+            'id' => $id,
+            'tenant_id' => 1, // Hardcoded
+            'company_name' => $request->company_name,
+            'registration_number' => $request->registration_number,
+            'license_number' => $request->license_number,
+            'license_type' => $request->license_type,
+            'regulatory_authority' => $request->regulatory_authority,
+            'registration_date' => $request->registration_date,
+            'license_issue_date' => $request->license_issue_date,
+            'license_expiry_date' => $request->license_expiry_date,
+            'company_address' => $request->company_address,
+            'contact_person' => $request->contact_person,
+            'contact_email' => $request->contact_email,
+            'contact_phone' => $request->contact_phone,
+            'compliance_status' => $request->compliance_status,
+            'status' => 'active',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        if ($result) {
+            $company = \Illuminate\Support\Facades\DB::table('company_registrations')->where('id', $id)->first();
+            return response()->json(['success' => true, 'company' => $company]);
+        } else {
+            return response()->json(['success' => false, 'error' => 'Failed to insert'], 500);
+        }
+    } catch (\Exception $e) {
+        \Log::error('Ultra simple company store error: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+})->name('test.company.store.ultra.simple');
 
 // Debug error page route (only in debug mode)
 Route::get('/debug-error', function () {

@@ -95,9 +95,10 @@
             </select>
         </div>
         
-        <button type="submit" id="submitBtn">إنشاء الشركة</button>
+        <button type="submit" id="submitBtn">إنشاء الشركة (Ultra Simple)</button>
+        <button type="button" id="testSimpleBtn" style="background: #28a745; margin-left: 10px;">اختبار Simple Route</button>
     </form>
-    
+
     <div id="result"></div>
     
     <script>
@@ -112,8 +113,8 @@
             submitBtn.textContent = 'جاري الإنشاء...';
             result.innerHTML = '';
             
-            // Test with simple route (no middleware)
-            fetch('{{ route("test.company.store.simple") }}', {
+            // Test with ultra simple route (direct DB insert)
+            fetch('{{ route("test.company.store.ultra.simple") }}', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -145,6 +146,51 @@
             .finally(() => {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'إنشاء الشركة';
+            });
+        });
+
+        // Test simple route button
+        document.getElementById('testSimpleBtn').addEventListener('click', function() {
+            const form = document.getElementById('testForm');
+            const formData = new FormData(form);
+            const result = document.getElementById('result');
+            const btn = this;
+
+            btn.disabled = true;
+            btn.textContent = 'جاري الاختبار...';
+            result.innerHTML = '';
+
+            fetch('{{ route("test.company.store.simple") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                console.log('Simple route response status:', response.status);
+
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP ${response.status}: ${text}`);
+                    });
+                }
+            })
+            .then(data => {
+                console.log('Simple route success data:', data);
+                result.innerHTML = '<div class="success">✅ Simple Route: تم إنشاء الشركة بنجاح!</div>';
+                result.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(error => {
+                console.error('Simple route error:', error);
+                result.innerHTML = '<div class="error">❌ Simple Route خطأ: ' + error.message + '</div>';
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.textContent = 'اختبار Simple Route';
             });
         });
     </script>
