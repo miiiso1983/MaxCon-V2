@@ -149,7 +149,6 @@ class ReceivablesController extends Controller
             abort(403);
         }
     }
-}
 
     /**
      * Web receipt view (unified design with PDF)
