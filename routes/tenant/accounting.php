@@ -153,5 +153,10 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
         Route::get('/invoice/{invoice}', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'showInvoice'])->name('invoice');
         Route::post('/invoice/{invoice}/payments', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'storePayment'])->name('invoice.payments.store');
         Route::post('/payments/{payment}/send-whatsapp', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'sendReceiptWhatsApp'])->name('payments.send-whatsapp');
+
+        // QR Code Test Page
+        Route::get('/qr-test', function() {
+            return view('tenant.accounting.receivables.qr-test');
+        })->name('qr-test');
     });
 });
