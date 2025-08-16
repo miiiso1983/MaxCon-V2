@@ -4464,6 +4464,14 @@ Route::post('/test-company-ultra-simple', function (Illuminate\Http\Request $req
     try {
         \Log::info('Ultra simple company store request', $request->all());
 
+        // Check current connection and table structure
+        \Log::info('Current DB connection: ' . \Illuminate\Support\Facades\DB::connection()->getName());
+        \Log::info('Current DB driver: ' . \Illuminate\Support\Facades\DB::connection()->getDriverName());
+
+        // Check if table exists and get columns
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('company_registrations');
+        \Log::info('Table columns: ' . implode(', ', $columns));
+
         // Direct database insert using MySQL connection
         $id = \Illuminate\Support\Str::uuid();
         $result = \Illuminate\Support\Facades\DB::table('company_registrations')->insert([
@@ -4499,6 +4507,64 @@ Route::post('/test-company-ultra-simple', function (Illuminate\Http\Request $req
         return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     }
 })->name('test.company.store.ultra.simple');
+
+// Debug route to check table structure
+Route::get('/debug-company-table', function () {
+    try {
+        $connection = \Illuminate\Support\Facades\DB::connection();
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('company_registrations');
+
+        return response()->json([
+            'connection' => $connection->getName(),
+            'driver' => $connection->getDriverName(),
+            'database' => $connection->getDatabaseName(),
+            'columns' => $columns,
+            'table_exists' => \Illuminate\Support\Facades\Schema::hasTable('company_registrations'),
+            'license_number_exists' => \Illuminate\Support\Facades\Schema::hasColumn('company_registrations', 'license_number')
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+})->name('debug.company.table');
+
+// Simple test route without CSRF
+Route::post('/test-company-no-csrf', function (Illuminate\Http\Request $request) {
+    try {
+        \Log::info('No CSRF company store request', $request->all());
+
+        $id = \Illuminate\Support\Str::uuid();
+        $result = \Illuminate\Support\Facades\DB::table('company_registrations')->insert([
+            'id' => $id,
+            'tenant_id' => 1,
+            'company_name' => $request->input('company_name', 'شركة افتراضية'),
+            'registration_number' => $request->input('registration_number', 'REG-DEFAULT'),
+            'license_number' => $request->input('license_number', 'LIC-DEFAULT'),
+            'license_type' => $request->input('license_type', 'manufacturing'),
+            'regulatory_authority' => $request->input('regulatory_authority', 'وزارة الصحة'),
+            'registration_date' => $request->input('registration_date', '2024-01-01'),
+            'license_issue_date' => $request->input('license_issue_date', '2024-01-01'),
+            'license_expiry_date' => $request->input('license_expiry_date', '2025-12-31'),
+            'company_address' => $request->input('company_address', 'بغداد'),
+            'contact_person' => $request->input('contact_person', 'شخص افتراضي'),
+            'contact_email' => $request->input('contact_email', 'default@test.com'),
+            'contact_phone' => $request->input('contact_phone', '123456789'),
+            'compliance_status' => $request->input('compliance_status', 'compliant'),
+            'status' => 'active',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        if ($result) {
+            $company = \Illuminate\Support\Facades\DB::table('company_registrations')->where('id', $id)->first();
+            return response()->json(['success' => true, 'company' => $company]);
+        } else {
+            return response()->json(['success' => false, 'error' => 'Failed to insert'], 500);
+        }
+    } catch (\Exception $e) {
+        \Log::error('No CSRF company store error: ' . $e->getMessage());
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Debug error page route (only in debug mode)
 Route::get('/debug-error', function () {
