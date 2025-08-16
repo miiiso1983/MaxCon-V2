@@ -193,7 +193,7 @@ class ReceivablesController extends Controller
             'payment_method' => $payment->payment_method,
             'payment_date' => $dateStr,
             'generated_at' => now()->format('Y-m-d H:i:s'),
-            'verification_url' => route('tenant.receipts.payment.web', ['payment' => $payment->id], true)
+            'note' => 'سند استلام صادر من نظام ماكس كون للإدارة الصيدلانية'
         ];
 
         $qrJsonData = json_encode($qrData, JSON_UNESCAPED_UNICODE);

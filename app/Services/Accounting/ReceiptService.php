@@ -32,7 +32,7 @@ class ReceiptService
             'payment_method' => $payment->payment_method,
             'payment_date' => optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d'),
             'generated_at' => now()->format('Y-m-d H:i:s'),
-            'verification_url' => route('tenant.receipts.payment.web', ['payment' => $payment->id], true)
+            'note' => 'سند استلام صادر من نظام ماكس كون للإدارة الصيدلانية'
         ];
 
         $qrPng = null;

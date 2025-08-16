@@ -13,7 +13,7 @@
 
         <!-- QR Code Test Section -->
         <div class="p-6 card-padding">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 qr-grid">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 qr-grid">
                 <!-- JSON QR Code -->
                 <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">QR كود بيانات JSON</h3>
@@ -39,6 +39,19 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Arabic Only QR Code -->
+                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">QR كود عربي فقط</h3>
+                    <div class="bg-white rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
+                        <div id="arabic-qr-container" class="min-h-[200px] flex items-center justify-center qr-container">
+                            <div class="text-gray-500">جاري تحميل QR كود...</div>
+                        </div>
+                        <button onclick="generateArabicQR()" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            إنشاء QR كود عربي
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -49,7 +62,7 @@
             <h2 class="text-xl font-semibold text-gray-900">بيانات QR كود</h2>
         </div>
         <div class="p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 mb-3">بيانات JSON:</h3>
                     <pre id="json-data" class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-xs overflow-auto max-h-80 text-right"></pre>
@@ -57,6 +70,10 @@
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 mb-3">نص بسيط:</h3>
                     <pre id="text-data" class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-xs overflow-auto max-h-80 text-right"></pre>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">نص عربي فقط:</h3>
+                    <pre id="arabic-data" class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-xs overflow-auto max-h-80 text-right"></pre>
                 </div>
             </div>
         </div>
@@ -86,6 +103,12 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 /* Additional responsive styles */
+@media (max-width: 1024px) {
+    .grid-cols-1.lg\\:grid-cols-3 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 768px) {
     .qr-grid {
         gap: 1rem;
@@ -132,7 +155,7 @@ var sampleReceiptData = {
     payment_method: 'نقداً',
     payment_date: '2024-01-15',
     generated_at: new Date().toISOString(),
-    verification_url: window.location.origin + '/tenant/receipts/payment/123/web'
+    note: 'سند استلام صادر من نظام ماكس كون للإدارة الصيدلانية'
 };
 
 var sampleTextData = `سند استلام
@@ -144,6 +167,15 @@ var sampleTextData = `سند استلام
 التاريخ: 2024-01-15
 الشركة: شركة ماكس كون للأدوية
 المندوب: أحمد محمد`;
+
+var sampleArabicData = `سند استلام
+رقم: RCPT-2024-0001
+فاتورة: INV-2024-0001
+العميل: صيدلية الشفاء
+المبلغ: 150,000 دينار عراقي
+الدفع: نقداً
+التاريخ: 15/1/2024
+الشركة: شركة ماكس كون للأدوية`;
 
 function generateJSONQR() {
     var container = document.getElementById('json-qr-container');
@@ -223,6 +255,44 @@ function generateTextQR() {
     }
 }
 
+function generateArabicQR() {
+    var container = document.getElementById('arabic-qr-container');
+    var dataContainer = document.getElementById('arabic-data');
+
+    container.innerHTML = '<div class="text-gray-500">جاري إنشاء QR كود...</div>';
+    dataContainer.textContent = sampleArabicData;
+
+    // Try using qrcode.js library
+    if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
+        var canvas = document.createElement('canvas');
+        QRCode.toCanvas(canvas, sampleArabicData, {
+            width: 200,
+            height: 200,
+            margin: 2,
+            color: {
+                dark: '#2d3748',
+                light: '#ffffff'
+            }
+        }, function (error) {
+            if (error) {
+                console.error('Error generating QR code:', error);
+                fallbackQR(container, sampleArabicData);
+                return;
+            }
+
+            container.innerHTML = '';
+            container.appendChild(canvas);
+
+            var desc = document.createElement('div');
+            desc.className = 'text-gray-600 mt-3 text-sm';
+            desc.textContent = 'QR كود يحتوي على نص عربي مبسط';
+            container.appendChild(desc);
+        });
+    } else {
+        fallbackQR(container, sampleArabicData);
+    }
+}
+
 function fallbackQR(container, data) {
     var img = document.createElement('img');
     img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&format=png&data=' + encodeURIComponent(data);
@@ -245,6 +315,7 @@ function fallbackQR(container, data) {
 document.addEventListener('DOMContentLoaded', function() {
     generateJSONQR();
     generateTextQR();
+    generateArabicQR();
 });
 </script>
 @endpush
