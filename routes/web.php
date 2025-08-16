@@ -4408,33 +4408,49 @@ Route::post('/test-company-store-simple', function (Illuminate\Http\Request $req
     try {
         \Log::info('Simple company store request', $request->all());
 
-        // Get first tenant for testing
+        // Get first tenant and user for testing
         $tenant = \App\Models\Tenant::first();
         if (!$tenant) {
             return response()->json(['success' => false, 'error' => 'No tenant found'], 400);
         }
 
-        $company = \App\Models\Tenant\Regulatory\CompanyRegistration::create([
-            'tenant_id' => $tenant->id,
-            'company_name' => $request->company_name,
-            'registration_number' => $request->registration_number,
-            'license_number' => $request->license_number,
-            'license_type' => $request->license_type,
-            'regulatory_authority' => $request->regulatory_authority,
-            'registration_date' => $request->registration_date,
-            'license_issue_date' => $request->license_issue_date,
-            'license_expiry_date' => $request->license_expiry_date,
-            'company_address' => $request->company_address,
-            'contact_person' => $request->contact_person,
-            'contact_email' => $request->contact_email,
-            'contact_phone' => $request->contact_phone,
-            'compliance_status' => $request->compliance_status,
-            'status' => 'active'
-        ]);
+        $user = \App\Models\User::where('tenant_id', $tenant->id)->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'error' => 'No user found for tenant'], 400);
+        }
+
+        \Log::info('Using tenant: ' . $tenant->id . ' - ' . $tenant->name);
+        \Log::info('Using user: ' . $user->id . ' - ' . $user->name);
+
+        // Temporarily login the user to satisfy the HasTenant trait
+        \Illuminate\Support\Facades\Auth::login($user);
+
+        // Create company without global scope interference
+        $company = new \App\Models\Tenant\Regulatory\CompanyRegistration();
+        $company->tenant_id = $tenant->id;
+        $company->company_name = $request->company_name;
+        $company->registration_number = $request->registration_number;
+        $company->license_number = $request->license_number;
+        $company->license_type = $request->license_type;
+        $company->regulatory_authority = $request->regulatory_authority;
+        $company->registration_date = $request->registration_date;
+        $company->license_issue_date = $request->license_issue_date;
+        $company->license_expiry_date = $request->license_expiry_date;
+        $company->company_address = $request->company_address;
+        $company->contact_person = $request->contact_person;
+        $company->contact_email = $request->contact_email;
+        $company->contact_phone = $request->contact_phone;
+        $company->compliance_status = $request->compliance_status;
+        $company->status = 'active';
+        $company->save();
+
+        // Logout the temporary user
+        \Illuminate\Support\Facades\Auth::logout();
 
         return response()->json(['success' => true, 'company' => $company]);
     } catch (\Exception $e) {
         \Log::error('Simple company store error: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
         return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     }
 })->name('test.company.store.simple');

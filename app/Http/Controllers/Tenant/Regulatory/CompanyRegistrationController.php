@@ -98,6 +98,27 @@ class CompanyRegistrationController extends Controller
             throw $e;
         }
 
+        // Ensure user is authenticated and has tenant_id
+        if (!Auth::check()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'يجب تسجيل الدخول أولاً'
+                ], 401);
+            }
+            return redirect()->route('login')->with('error', 'يجب تسجيل الدخول أولاً');
+        }
+
+        if (!Auth::user()->tenant_id) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'المستخدم غير مرتبط بشركة'
+                ], 400);
+            }
+            return redirect()->back()->with('error', 'المستخدم غير مرتبط بشركة');
+        }
+
         $company = CompanyRegistration::create([
             'id' => Str::uuid(),
             'tenant_id' => Auth::user()->tenant_id,
