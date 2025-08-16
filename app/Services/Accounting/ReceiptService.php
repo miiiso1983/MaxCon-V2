@@ -18,22 +18,8 @@ class ReceiptService
     {
         $invoice = $payment->invoice()->with(['customer', 'salesRep', 'tenant'])->first();
         // Prepare QR data
-        // Create simple, readable QR code content for mobile scanning
-        $tenantName = $invoice->tenant->name ?? 'ماكس كون';
-        $customerName = optional($invoice->customer)->name ?? 'عميل';
-        $paymentMethodLabel = $this->getPaymentMethodLabel($payment->payment_method);
-        $formattedAmount = number_format((float) $payment->amount, 2);
-        $paymentDate = optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d');
-
-        // Simple, clean format for better mobile scanning
-        $qrText = "سند استلام - {$tenantName}\n";
-        $qrText .= "رقم السند: {$payment->receipt_number}\n";
-        $qrText .= "رقم الفاتورة: {$invoice->invoice_number}\n";
-        $qrText .= "العميل: {$customerName}\n";
-        $qrText .= "المبلغ: {$formattedAmount} دينار عراقي\n";
-        $qrText .= "طريقة الدفع: {$paymentMethodLabel}\n";
-        $qrText .= "التاريخ: {$paymentDate}\n";
-        $qrText .= "حالة السند: مدفوع ومعتمد";
+        // Create signed public URL for receipt verification (like invoice verification)
+        $qrText = \URL::signedRoute('public.receipt.verify', ['payment' => $payment->id]);
 
         $qrPng = null;
 
@@ -66,19 +52,11 @@ class ReceiptService
             }
         }
 
-        // Method 3: Generate simple text-based QR if all else fails
+        // Method 3: Generate fallback URL-based QR if signed URL fails
         if (!$qrPng) {
             try {
-                $simpleData = "سند استلام\n" .
-                             "رقم السند: {$payment->receipt_number}\n" .
-                             "رقم الفاتورة: {$invoice->invoice_number}\n" .
-                             "العميل: " . (optional($invoice->customer)->name ?? 'عميل') . "\n" .
-                             "المبلغ المستلم: " . number_format((float)$payment->amount, 2) . " د.ع\n" .
-                             "طريقة الدفع: " . ($payment->getPaymentMethodLabel() ?? $payment->payment_method) . "\n" .
-                             "التاريخ: " . ($payment->payment_date ? $payment->payment_date->format('Y-m-d') : now()->format('Y-m-d')) . "\n" .
-                             "الشركة: " . ($invoice->tenant->name ?? 'شركة ماكس كون');
-
-                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($simpleData);
+                $fallbackUrl = url("/receipt/{$payment->id}/verify");
+                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($fallbackUrl);
                 $qrImageData = @file_get_contents($qrUrl);
                 if ($qrImageData !== false) {
                     $qrPng = base64_encode($qrImageData);

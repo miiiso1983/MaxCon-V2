@@ -79,4 +79,50 @@ class InvoicePayment extends Model
         }
         return $prefix . str_pad($seq, 4, '0', STR_PAD_LEFT);
     }
+
+    /**
+     * Generate signed verification URL for this receipt
+     */
+    public function getVerificationUrl(): string
+    {
+        return \URL::signedRoute('public.receipt.verify', ['payment' => $this->id]);
+    }
+
+    /**
+     * Generate QR code for receipt verification
+     */
+    public function generateQrCode(): ?string
+    {
+        try {
+            $verificationUrl = $this->getVerificationUrl();
+
+            // Method 1: SimpleSoftwareIO QrCode
+            if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
+                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(300)->margin(2)->generate($verificationUrl));
+                return $qrPng;
+            }
+
+            // Method 2: External API fallback
+            $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($verificationUrl);
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 10,
+                    'user_agent' => 'MaxCon Receipt System'
+                ]
+            ]);
+            $qrImageData = @file_get_contents($qrUrl, false, $context);
+
+            if ($qrImageData !== false) {
+                return base64_encode($qrImageData);
+            }
+
+        } catch (\Throwable $e) {
+            \Log::error('Failed to generate QR code for receipt: ' . $e->getMessage(), [
+                'payment_id' => $this->id,
+                'receipt_number' => $this->receipt_number
+            ]);
+        }
+
+        return null;
+    }
 }

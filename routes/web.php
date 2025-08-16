@@ -4359,6 +4359,15 @@ Route::get('/invoice/{invoice}/verify', function (Illuminate\Http\Request $reque
     return view('tenant.sales.invoices.public-show', compact('invoice'));
 })->name('public.invoice.verify');
 
+// Public signed receipt verification route (no auth)
+Route::get('/receipt/{payment}/verify', function (Illuminate\Http\Request $request, \App\Models\InvoicePayment $payment) {
+    if (!$request->hasValidSignature()) {
+        abort(403, 'Invalid or expired link');
+    }
+    $payment->load(['invoice.tenant', 'invoice.customer', 'invoice.salesRep']);
+    return view('tenant.accounting.receivables.public-receipt', compact('payment'));
+})->name('public.receipt.verify');
+
 // Debug error page route (only in debug mode)
 Route::get('/debug-error', function () {
     if (!config('app.debug')) {

@@ -177,20 +177,11 @@ class ReceivablesController extends Controller
         $dateStr = $payment->payment_date ? \Illuminate\Support\Carbon::parse($payment->payment_date)->format('Y-m-d') : now()->format('Y-m-d');
         $paymentMethod = method_exists($payment,'getPaymentMethodLabel') ? $payment->getPaymentMethodLabel() : ($payment->payment_method ?? '-');
 
-        // QR (SVG data URL) - Simple, readable format for mobile scanning
+        // QR (SVG data URL) - Create signed public URL for receipt verification
         $qrUrl = null;
-        $paymentMethodLabel = $this->getPaymentMethodLabel($payment->payment_method);
-        $formattedAmount = number_format((float) $payment->amount, 2);
 
-        // Simple, clean format for better mobile scanning
-        $qrText = "سند استلام - {$companyName}\n";
-        $qrText .= "رقم السند: {$payment->receipt_number}\n";
-        $qrText .= "رقم الفاتورة: {$invoice->invoice_number}\n";
-        $qrText .= "العميل: {$customerName}\n";
-        $qrText .= "المبلغ: {$formattedAmount} دينار عراقي\n";
-        $qrText .= "طريقة الدفع: {$paymentMethodLabel}\n";
-        $qrText .= "التاريخ: {$dateStr}\n";
-        $qrText .= "حالة السند: مدفوع ومعتمد";
+        // Create signed public URL for receipt verification (like invoice verification)
+        $qrText = \URL::signedRoute('public.receipt.verify', ['payment' => $payment->id]);
 
         // Try multiple methods to generate QR code with larger size for mobile scanning
         try {
@@ -213,11 +204,11 @@ class ReceivablesController extends Controller
             }
         }
 
-        // Method 3: Simple text fallback
+        // Method 3: Simple text fallback (if URL generation fails)
         if (!$qrUrl) {
             try {
-                $simpleData = "سند استلام رقم: {$payment->receipt_number}\nالمبلغ: " . number_format((float)$payment->amount, 2) . " د.ع\nالتاريخ: {$dateStr}";
-                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($simpleData);
+                $fallbackUrl = url("/receipt/{$payment->id}/verify");
+                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($fallbackUrl);
                 $qrUrl = $qrApiUrl;
             } catch (\Throwable $e) {
                 \Log::error('All QR Code generation methods failed for web receipt: ' . $e->getMessage());
