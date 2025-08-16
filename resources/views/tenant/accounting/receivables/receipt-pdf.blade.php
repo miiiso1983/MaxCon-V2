@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <style>
   @page { margin: 16mm; }
+  /* mPDF direction fix */
+  body { direction: rtl; unicode-bidi: plaintext; }
+  /* modern layout tweaks */
+  .badge { display:inline-block; padding:4px 8px; border-radius:9999px; background:#eef2ff; color:#3730a3; font-size:11px; margin-right:6px; }
+  .amount { font-size:16px; font-weight:800; color:#111827; }
+
   body { font-family: DejaVu Sans, Arial, sans-serif; color:#0f172a; }
   .brand {
     border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
