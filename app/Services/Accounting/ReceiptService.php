@@ -41,7 +41,6 @@ class ReceiptService
             'autoLangToFont' => true,
         ]);
 
-        $mpdf->SetRTL(true);
         $mpdf->SetTitle('سند استلام');
         $mpdf->WriteHTML($html);
         $content = $mpdf->Output('', 'S');
