@@ -25,7 +25,7 @@ class ReceiptService
         ]);
 
         $filename = 'receipts/' . now()->format('Ymd_His') . '_' . ($payment->id ?: 'payment') . '.pdf';
-        Storage::put($filename, $pdf->output());
+        Storage::disk('public')->put($filename, $pdf->output());
         return $filename;
     }
 }
