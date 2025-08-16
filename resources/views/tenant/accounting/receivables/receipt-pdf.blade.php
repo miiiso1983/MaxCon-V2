@@ -12,18 +12,20 @@
 
   body { font-family: DejaVu Sans, Arial, sans-serif; color:#0f172a; }
   .brand {
-    border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
-    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    border-radius: 16px; padding: 18px 18px; margin-bottom: 14px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 60%, #1e40af 100%);
     color:#fff;
+    box-shadow: 0 6px 16px rgba(30,64,175,.25);
   }
-  .brand h1 { margin:0; font-size: 20px; font-weight: 800; letter-spacing: .3px; }
-  .brand .meta { margin-top:6px; font-size: 12px; opacity:.95 }
-  .card { border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .brand h1 { margin:0; font-size: 22px; font-weight: 900; letter-spacing: .2px; }
+  .brand h2 { margin:6px 0 0 0; font-size: 14px; font-weight:700; opacity:.95 }
+  .brand .meta { margin-top:6px; font-size: 12px; opacity:.9 }
+  .card { border:1px solid #e5e7eb; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow: 0 2px 8px rgba(2,6,23,.04); }
   .row { display:flex; justify-content:space-between; gap:18px; }
   .col { flex:1; }
   .label { color:#64748b; font-size: 12px; margin-bottom:4px; }
-  .val { font-weight: 700; font-size: 13px; }
-  .footer { margin-top:14px; text-align:center; color:#64748b; font-size:11px; }
+  .val { font-weight: 800; font-size: 13.5px; color:#0f172a; }
+  .footer { margin-top:16px; text-align:center; color:#64748b; font-size:11px; }
 </style>
 </head>
 <body>
