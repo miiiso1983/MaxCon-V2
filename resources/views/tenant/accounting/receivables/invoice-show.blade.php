@@ -11,10 +11,34 @@
         <div style="font-weight:800; font-size:18px;">فاتورة: {{ $invoice->invoice_number }}</div>
         <div style="color:#6b7280;">العميل: {{ optional($invoice->customer)->name ?? '-' }} | المندوب: {{ optional($invoice->salesRep)->name ?? '-' }}</div>
       </div>
-      <div>
-        <div>الإجمالي: <strong>{{ number_format($invoice->total_amount,2) }} د.ع</strong></div>
-        <div>المدفوع: <strong>{{ number_format($invoice->paid_amount,2) }} د.ع</strong></div>
-        <div>المتبقي: <strong style="color:#ef4444;">{{ number_format($invoice->remaining_amount,2) }} د.ع</strong></div>
+      <div style="display:flex; gap:20px; align-items:center;">
+        <div>
+          <div>الإجمالي: <strong>{{ number_format($invoice->total_amount,2) }} د.ع</strong></div>
+          <div>المدفوع: <strong>{{ number_format($invoice->paid_amount,2) }} د.ع</strong></div>
+          <div>المتبقي: <strong style="color:#ef4444;">{{ number_format($invoice->remaining_amount,2) }} د.ع</strong></div>
+        </div>
+
+        <!-- Invoice QR Code -->
+        <div style="text-align:center; padding:10px; border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb;">
+          <div style="font-size:12px; color:#6b7280; margin-bottom:5px;">QR كود الفاتورة</div>
+          <div id="invoiceQrCode" style="display:flex; justify-content:center;">
+            @php
+              $qrCode = $invoice->qr_code;
+              if (empty($qrCode)) {
+                  try {
+                      $qrCode = $invoice->generateQrCode();
+                  } catch (\Throwable $e) {
+                      $qrCode = null;
+                  }
+              }
+            @endphp
+            @if($qrCode)
+              <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" style="width:80px; height:80px;">
+            @else
+              <div style="width:80px; height:80px; background:#f3f4f6; border:1px dashed #d1d5db; display:flex; align-items:center; justify-content:center; font-size:10px; color:#6b7280;">QR غير متوفر</div>
+            @endif
+          </div>
+        </div>
       </div>
     </div>
 
@@ -90,6 +114,26 @@
       @endforelse
     </div>
   </div>
+
+  <!-- Products Catalog QR Code -->
+  <div class="content-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <div>
+        <div style="font-weight:700; margin-bottom:4px;">كتالوج المنتجات المتوفرة</div>
+        <div style="color:#6b7280; font-size:14px;">امسح الكود للاطلاع على المنتجات المتوفرة</div>
+      </div>
+      <div style="text-align:center;">
+        <div id="productsCount" style="font-size:12px; color:#6b7280; margin-bottom:5px;">جاري التحميل...</div>
+        <button onclick="generateProductsQR()" style="background:#3b82f6; color:#fff; padding:6px 12px; border:none; border-radius:6px; font-size:12px; cursor:pointer;">تحديث الكتالوج</button>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:center; align-items:center; padding:20px; border:2px dashed #e5e7eb; border-radius:12px; background:#f9fafb;">
+      <div id="productsCatalogQR" style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+        <div style="color:#6b7280; font-size:14px;">انقر على "تحديث الكتالوج" لإنشاء QR كود المنتجات</div>
+      </div>
+    </div>
+  </div>
 </div>
 @endsection
 
@@ -111,7 +155,11 @@
 <script type="application/json" id="whatsapp-config">
 {!! json_encode([
     'urlTemplate' => $whatsTpl,
-    'migrateReceiptsUrl' => $migrateReceiptsUrl ?? ''
+    'migrateReceiptsUrl' => $migrateReceiptsUrl ?? '',
+    'tenantId' => auth()->user()->tenant_id ?? 0,
+    'tenantName' => auth()->user()->tenant->name ?? 'شركة ماكس كون',
+    'tenantPhone' => auth()->user()->tenant->phone ?? '',
+    'qrRoute' => \Illuminate\Support\Facades\Route::has('tenant.inventory.qr.generate.invoice') ? route('tenant.inventory.qr.generate.invoice', [], false) : null
 ]) !!}
 </script>
 <script>
@@ -166,5 +214,139 @@ function fixReceipts() {
   } catch (e) { console.error(e); alert('خطأ غير متوقع'); }
 }
 
+// Generate Products Catalog QR Code
+function generateProductsQR() {
+  try {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    var token = meta ? meta.getAttribute('content') : '';
+    var config = JSON.parse(document.getElementById('whatsapp-config').textContent);
+
+    // Show loading state
+    document.getElementById('productsCatalogQR').innerHTML = '<div style="color:#6b7280; font-size:14px;">جاري إنشاء QR كود المنتجات...</div>';
+
+    // Check if we have a route for generating QR data
+    var qrRoute = config.qrRoute;
+    if (!qrRoute) {
+      // Fallback: generate simple QR with tenant info
+      var fallbackData = {
+        type: 'catalog',
+        tenant: config.tenantName,
+        message: 'للاطلاع على كتالوج المنتجات المتوفرة',
+        contact: config.tenantPhone,
+        generated_at: new Date().toISOString()
+      };
+
+      generateQRFromData(JSON.stringify(fallbackData), 'كتالوج المنتجات');
+      document.getElementById('productsCount').textContent = 'كتالوج عام';
+      return;
+    }
+
+    // Make request to generate QR data
+    fetch(qrRoute, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': token,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        type: 'featured',
+        limit: 20
+      })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      if (data.success && data.qr_data) {
+        generateQRFromData(data.qr_data, 'امسح الكود للاطلاع على ' + (data.products_count || 0) + ' منتج متوفر');
+        document.getElementById('productsCount').textContent = (data.products_count || 0) + ' منتج متوفر';
+      } else if (data.qr_data) {
+        // Handle case where success field might not be present but qr_data exists
+        generateQRFromData(data.qr_data, 'امسح الكود للاطلاع على ' + (data.products_count || 0) + ' منتج متوفر');
+        document.getElementById('productsCount').textContent = (data.products_count || 0) + ' منتج متوفر';
+      } else {
+        document.getElementById('productsCatalogQR').innerHTML = '<div style="color: #ef4444; font-size: 14px;">فشل في إنشاء QR كود: ' + (data.message || data.error || 'خطأ غير معروف') + '</div>';
+      }
+    })
+    .catch(function(error) {
+      console.error('Error:', error);
+      // Fallback on error
+      var fallbackData = {
+        type: 'catalog',
+        tenant: config.tenantName,
+        message: 'للاطلاع على كتالوج المنتجات المتوفرة',
+        contact: config.tenantPhone,
+        generated_at: new Date().toISOString()
+      };
+      generateQRFromData(JSON.stringify(fallbackData), 'كتالوج المنتجات');
+      document.getElementById('productsCount').textContent = 'كتالوج عام';
+    });
+  } catch (e) {
+    console.error(e);
+    document.getElementById('productsCatalogQR').innerHTML = '<div style="color: #ef4444; font-size: 14px;">خطأ غير متوقع</div>';
+  }
+}
+
+function generateQRFromData(qrData, description) {
+  var qrContainer = document.getElementById('productsCatalogQR');
+  qrContainer.innerHTML = '';
+
+  // Try using qrcode.js library if available
+  if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
+    var canvas = document.createElement('canvas');
+    qrContainer.appendChild(canvas);
+
+    QRCode.toCanvas(canvas, qrData, {
+      width: 200,
+      height: 200,
+      margin: 2,
+      color: {
+        dark: '#2d3748',
+        light: '#ffffff'
+      }
+    }, function (error) {
+      if (error) {
+        console.error('Error generating QR code:', error);
+        fallbackQRGeneration(qrData, description);
+        return;
+      }
+
+      // Add description
+      var desc = document.createElement('div');
+      desc.style.cssText = 'font-size:12px; color:#6b7280; text-align:center; margin-top:8px;';
+      desc.textContent = description;
+      qrContainer.appendChild(desc);
+    });
+  } else {
+    fallbackQRGeneration(qrData, description);
+  }
+}
+
+function fallbackQRGeneration(qrData, description) {
+  var qrContainer = document.getElementById('productsCatalogQR');
+  qrContainer.innerHTML = '';
+
+  // Fallback: use QR Server API
+  var img = document.createElement('img');
+  img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrData);
+  img.style.cssText = 'width:200px; height:200px; border:1px solid #e5e7eb;';
+  img.onerror = function() {
+    qrContainer.innerHTML = '<div style="color: #ef4444; font-size: 14px;">خطأ في إنشاء QR كود</div>';
+  };
+  qrContainer.appendChild(img);
+
+  var desc = document.createElement('div');
+  desc.style.cssText = 'font-size:12px; color:#6b7280; text-align:center; margin-top:8px;';
+  desc.textContent = description;
+  qrContainer.appendChild(desc);
+}
+
+// Auto-generate QR on page load
+document.addEventListener('DOMContentLoaded', function() {
+  generateProductsQR();
+});
+
 </script>
+
+<!-- QR Code Library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 @endpush
