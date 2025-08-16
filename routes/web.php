@@ -2392,6 +2392,18 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
 	                Route::get('/qr-test', function() {
 	                    return view('tenant.accounting.receivables.qr-test');
 	                })->name('qr-test');
+
+	                // Receipt Debug Page
+	                Route::get('/receipt-debug', function() {
+	                    return view('tenant.accounting.receivables.receipt-debug');
+	                })->name('receipt-debug');
+
+	                // Debug API endpoints
+	                Route::prefix('debug-api')->group(function() {
+	                    Route::get('/stats', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'debugStats']);
+	                    Route::get('/payments', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'debugPayments']);
+	                    Route::post('/create-test', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'createTestData']);
+	                });
 	            });
             // Financial Reports
 

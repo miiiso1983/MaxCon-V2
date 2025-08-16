@@ -264,4 +264,133 @@ class ReceivablesController extends Controller
 
         return $methods[$method] ?? $method ?? 'نقداً';
     }
+
+    /**
+     * Debug API: Get system statistics
+     */
+    public function debugStats()
+    {
+        $tenantId = Auth::user()->tenant_id;
+
+        return response()->json([
+            'invoices_count' => \App\Models\Invoice::where('tenant_id', $tenantId)->count(),
+            'payments_count' => \App\Models\InvoicePayment::whereHas('invoice', function($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            })->count(),
+            'customers_count' => \App\Models\Customer::where('tenant_id', $tenantId)->count(),
+        ]);
+    }
+
+    /**
+     * Debug API: Get payments list
+     */
+    public function debugPayments()
+    {
+        $tenantId = Auth::user()->tenant_id;
+
+        $payments = \App\Models\InvoicePayment::with(['invoice'])
+            ->whereHas('invoice', function($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            })
+            ->latest()
+            ->take(10)
+            ->get()
+            ->map(function($payment) {
+                return [
+                    'id' => $payment->id,
+                    'receipt_number' => $payment->receipt_number,
+                    'amount' => number_format((float)$payment->amount, 2),
+                    'invoice_number' => $payment->invoice->invoice_number,
+                    'payment_date' => $payment->payment_date ? $payment->payment_date->format('Y-m-d') : null,
+                ];
+            });
+
+        return response()->json([
+            'payments' => $payments
+        ]);
+    }
+
+    /**
+     * Debug API: Create test data
+     */
+    public function createTestData()
+    {
+        $tenantId = Auth::user()->tenant_id;
+
+        try {
+            // Create test customer if not exists
+            $customer = \App\Models\Customer::firstOrCreate([
+                'tenant_id' => $tenantId,
+                'name' => 'عميل اختبار'
+            ], [
+                'email' => 'test@example.com',
+                'phone' => '+964770123456',
+                'address' => 'عنوان اختبار'
+            ]);
+
+            // Create test invoice
+            $invoice = \App\Models\Invoice::create([
+                'tenant_id' => $tenantId,
+                'customer_id' => $customer->id,
+                'invoice_number' => 'TEST-' . now()->format('YmdHis'),
+                'invoice_date' => now(),
+                'due_date' => now()->addDays(30),
+                'subtotal' => 100.00,
+                'tax_amount' => 0.00,
+                'total_amount' => 100.00,
+                'paid_amount' => 0.00,
+                'remaining_amount' => 100.00,
+                'status' => 'pending',
+                'payment_status' => 'pending',
+                'notes' => 'فاتورة اختبار لتجربة سند الاستلام',
+                'created_by' => Auth::id()
+            ]);
+
+            // Create test payment
+            $payment = \App\Models\InvoicePayment::create([
+                'invoice_id' => $invoice->id,
+                'amount' => 50.00,
+                'payment_date' => now(),
+                'payment_method' => 'cash',
+                'reference_number' => 'TEST-PAY-' . now()->format('YmdHis'),
+                'notes' => 'دفعة اختبار لتجربة سند الاستلام',
+                'created_by' => Auth::id()
+            ]);
+
+            // Generate receipt number
+            $payment->receipt_number = \App\Models\InvoicePayment::generateReceiptNumber($tenantId);
+
+            // Generate PDF
+            try {
+                $payment->pdf_path = app(\App\Services\Accounting\ReceiptService::class)->generatePdf($payment);
+            } catch (\Throwable $e) {
+                \Log::error('Failed to generate test receipt PDF: ' . $e->getMessage());
+            }
+
+            $payment->save();
+
+            // Update invoice amounts
+            $invoice->paid_amount = 50.00;
+            $invoice->remaining_amount = 50.00;
+            $invoice->payment_status = 'partial';
+            $invoice->save();
+
+            return response()->json([
+                'success' => true,
+                'payment_id' => $payment->id,
+                'receipt_number' => $payment->receipt_number,
+                'invoice_id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'message' => 'تم إنشاء بيانات الاختبار بنجاح'
+            ]);
+
+        } catch (\Throwable $e) {
+            \Log::error('Failed to create test data: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في إنشاء بيانات الاختبار: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
