@@ -338,12 +338,20 @@ function submitForm(event) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
     submitBtn.disabled = true;
 
+    // Debug: Log form data
+    console.log('Form action:', event.target.action);
+    console.log('Form data:', data);
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
+
     // Send data to server
     fetch(event.target.action, {
         method: 'POST',
         body: formData,
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
     .then(response => {
@@ -364,11 +372,12 @@ function submitForm(event) {
         window.location.href = '{{ route("tenant.inventory.regulatory.companies.index") }}';
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Full Error:', error);
 
-        // Try to parse error response
-        if (error.response) {
+        // More detailed error handling
+        if (error.response && typeof error.response.json === 'function') {
             error.response.json().then(errorData => {
+                console.error('Error Data:', errorData);
                 if (errorData.errors) {
                     let errorMessage = 'أخطاء في البيانات:\n';
                     Object.keys(errorData.errors).forEach(field => {
@@ -378,11 +387,14 @@ function submitForm(event) {
                 } else {
                     alert('❌ ' + (errorData.message || 'حدث خطأ أثناء حفظ البيانات'));
                 }
-            }).catch(() => {
-                alert('❌ حدث خطأ أثناء حفظ البيانات. الرجاء المحاولة مرة أخرى.');
+            }).catch(parseError => {
+                console.error('Parse Error:', parseError);
+                alert('❌ حدث خطأ في تحليل الاستجابة. الرجاء المحاولة مرة أخرى.');
             });
         } else {
-            alert('❌ حدث خطأ أثناء حفظ البيانات. الرجاء المحاولة مرة أخرى.');
+            // Network or other errors
+            console.error('Network or other error:', error);
+            alert('❌ حدث خطأ في الشبكة أو الخادم. الرجاء التحقق من الاتصال والمحاولة مرة أخرى.');
         }
 
         // Restore button

@@ -4368,6 +4368,77 @@ Route::get('/receipt/{payment}/verify', function (Illuminate\Http\Request $reque
     return view('tenant.accounting.receivables.public-receipt', compact('payment'));
 })->name('public.receipt.verify');
 
+// Test route for company creation
+Route::post('/test-company-store', function (Illuminate\Http\Request $request) {
+    try {
+        \Log::info('Test company store request', $request->all());
+
+        $company = \App\Models\Tenant\Regulatory\CompanyRegistration::create([
+            'tenant_id' => 1, // Hardcoded for test
+            'company_name' => $request->company_name,
+            'registration_number' => $request->registration_number,
+            'license_number' => $request->license_number,
+            'license_type' => $request->license_type,
+            'regulatory_authority' => $request->regulatory_authority,
+            'registration_date' => $request->registration_date,
+            'license_issue_date' => $request->license_issue_date,
+            'license_expiry_date' => $request->license_expiry_date,
+            'company_address' => $request->company_address,
+            'contact_person' => $request->contact_person,
+            'contact_email' => $request->contact_email,
+            'contact_phone' => $request->contact_phone,
+            'compliance_status' => $request->compliance_status,
+            'status' => 'active'
+        ]);
+
+        return response()->json(['success' => true, 'company' => $company]);
+    } catch (\Exception $e) {
+        \Log::error('Test company store error: ' . $e->getMessage());
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+})->name('test.company.store');
+
+// Test form route
+Route::get('/test-company-form', function () {
+    return view('test-company-form');
+})->name('test.company.form');
+
+// Test company store without middleware
+Route::post('/test-company-store-simple', function (Illuminate\Http\Request $request) {
+    try {
+        \Log::info('Simple company store request', $request->all());
+
+        // Get first tenant for testing
+        $tenant = \App\Models\Tenant::first();
+        if (!$tenant) {
+            return response()->json(['success' => false, 'error' => 'No tenant found'], 400);
+        }
+
+        $company = \App\Models\Tenant\Regulatory\CompanyRegistration::create([
+            'tenant_id' => $tenant->id,
+            'company_name' => $request->company_name,
+            'registration_number' => $request->registration_number,
+            'license_number' => $request->license_number,
+            'license_type' => $request->license_type,
+            'regulatory_authority' => $request->regulatory_authority,
+            'registration_date' => $request->registration_date,
+            'license_issue_date' => $request->license_issue_date,
+            'license_expiry_date' => $request->license_expiry_date,
+            'company_address' => $request->company_address,
+            'contact_person' => $request->contact_person,
+            'contact_email' => $request->contact_email,
+            'contact_phone' => $request->contact_phone,
+            'compliance_status' => $request->compliance_status,
+            'status' => 'active'
+        ]);
+
+        return response()->json(['success' => true, 'company' => $company]);
+    } catch (\Exception $e) {
+        \Log::error('Simple company store error: ' . $e->getMessage());
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+})->name('test.company.store.simple');
+
 // Debug error page route (only in debug mode)
 Route::get('/debug-error', function () {
     if (!config('app.debug')) {
