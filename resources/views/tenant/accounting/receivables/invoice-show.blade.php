@@ -18,25 +18,13 @@
           <div>المتبقي: <strong style="color:#ef4444;">{{ number_format($invoice->remaining_amount,2) }} د.ع</strong></div>
         </div>
 
-        <!-- Invoice QR Code -->
+        <!-- Invoice Summary QR Code -->
         <div style="text-align:center; padding:10px; border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb;">
-          <div style="font-size:12px; color:#6b7280; margin-bottom:5px;">QR كود الفاتورة</div>
+          <div style="font-size:12px; color:#6b7280; margin-bottom:5px;">QR معلومات الفاتورة</div>
           <div id="invoiceQrCode" style="display:flex; justify-content:center;">
-            @php
-              $qrCode = $invoice->qr_code;
-              if (empty($qrCode)) {
-                  try {
-                      $qrCode = $invoice->generateQrCode();
-                  } catch (\Throwable $e) {
-                      $qrCode = null;
-                  }
-              }
-            @endphp
-            @if($qrCode)
-              <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" style="width:80px; height:80px;">
-            @else
-              <div style="width:80px; height:80px; background:#f3f4f6; border:1px dashed #d1d5db; display:flex; align-items:center; justify-content:center; font-size:10px; color:#6b7280;">QR غير متوفر</div>
-            @endif
+            <div id="invoice-qr-container" style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#6b7280;">
+              جاري التحميل...
+            </div>
           </div>
         </div>
       </div>
@@ -159,7 +147,18 @@
     'tenantId' => auth()->user()->tenant_id ?? 0,
     'tenantName' => auth()->user()->tenant->name ?? 'شركة ماكس كون',
     'tenantPhone' => auth()->user()->tenant->phone ?? '',
-    'qrRoute' => \Illuminate\Support\Facades\Route::has('tenant.inventory.qr.generate.invoice') ? route('tenant.inventory.qr.generate.invoice', [], false) : null
+    'qrRoute' => \Illuminate\Support\Facades\Route::has('tenant.inventory.qr.generate.invoice') ? route('tenant.inventory.qr.generate.invoice', [], false) : null,
+    'invoice' => [
+        'id' => $invoice->id,
+        'invoice_number' => $invoice->invoice_number,
+        'customer' => optional($invoice->customer)->name ?? 'عميل',
+        'sales_rep' => optional($invoice->salesRep)->name ?? '-',
+        'total_amount' => (float)$invoice->total_amount,
+        'paid_amount' => (float)$invoice->paid_amount,
+        'remaining_amount' => (float)$invoice->remaining_amount,
+        'invoice_date' => $invoice->invoice_date ? $invoice->invoice_date->format('Y-m-d') : now()->format('Y-m-d'),
+        'payment_status' => $invoice->payment_status ?? 'pending'
+    ]
 ]) !!}
 </script>
 <script>
@@ -340,8 +339,80 @@ function fallbackQRGeneration(qrData, description) {
   qrContainer.appendChild(desc);
 }
 
+// Generate Invoice Summary QR Code
+function generateInvoiceQR() {
+  try {
+    var config = JSON.parse(document.getElementById('whatsapp-config').textContent);
+
+    // Create invoice summary data
+    var invoiceData = {
+      type: 'invoice_summary',
+      invoice_number: config.invoice.invoice_number,
+      invoice_id: config.invoice.id,
+      customer: config.invoice.customer,
+      sales_rep: config.invoice.sales_rep,
+      tenant: config.tenantName,
+      total_amount: config.invoice.total_amount,
+      paid_amount: config.invoice.paid_amount,
+      remaining_amount: config.invoice.remaining_amount,
+      currency: 'IQD',
+      invoice_date: config.invoice.invoice_date,
+      payment_status: config.invoice.payment_status,
+      generated_at: new Date().toISOString()
+    };
+
+    var qrContainer = document.getElementById('invoice-qr-container');
+    var qrDataString = JSON.stringify(invoiceData);
+
+    // Try to generate QR using qrcode.js library if available
+    if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
+      var canvas = document.createElement('canvas');
+      QRCode.toCanvas(canvas, qrDataString, {
+        width: 80,
+        height: 80,
+        margin: 1,
+        color: {
+          dark: '#2d3748',
+          light: '#ffffff'
+        }
+      }, function (error) {
+        if (error) {
+          console.error('Error generating invoice QR code:', error);
+          fallbackInvoiceQR(qrDataString);
+          return;
+        }
+
+        qrContainer.innerHTML = '';
+        qrContainer.appendChild(canvas);
+      });
+    } else {
+      fallbackInvoiceQR(qrDataString);
+    }
+  } catch (e) {
+    console.error('Invoice QR generation error:', e);
+    document.getElementById('invoice-qr-container').innerHTML = '<div style="font-size:10px; color:#ef4444;">QR غير متوفر</div>';
+  }
+}
+
+function fallbackInvoiceQR(qrData) {
+  var qrContainer = document.getElementById('invoice-qr-container');
+  var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=80x80&format=png&data=' + encodeURIComponent(qrData);
+
+  var img = document.createElement('img');
+  img.src = qrApiUrl;
+  img.style.cssText = 'width:80px; height:80px; border-radius:4px;';
+  img.onload = function() {
+    qrContainer.innerHTML = '';
+    qrContainer.appendChild(img);
+  };
+  img.onerror = function() {
+    qrContainer.innerHTML = '<div style="font-size:10px; color:#ef4444; text-align:center;">QR غير متوفر</div>';
+  };
+}
+
 // Auto-generate QR on page load
 document.addEventListener('DOMContentLoaded', function() {
+  generateInvoiceQR();
   generateProductsQR();
 });
 

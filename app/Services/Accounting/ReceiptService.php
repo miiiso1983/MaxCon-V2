@@ -70,7 +70,15 @@ class ReceiptService
         // Method 3: Generate simple text-based QR if all else fails
         if (!$qrPng) {
             try {
-                $simpleData = "سند استلام رقم: {$payment->receipt_number}\nالمبلغ: " . number_format($payment->amount, 2) . " د.ع\nالتاريخ: " . ($payment->payment_date ? $payment->payment_date->format('Y-m-d') : now()->format('Y-m-d'));
+                $simpleData = "سند استلام\n" .
+                             "رقم السند: {$payment->receipt_number}\n" .
+                             "رقم الفاتورة: {$invoice->invoice_number}\n" .
+                             "العميل: " . (optional($invoice->customer)->name ?? 'عميل') . "\n" .
+                             "المبلغ المستلم: " . number_format((float)$payment->amount, 2) . " د.ع\n" .
+                             "طريقة الدفع: " . ($payment->getPaymentMethodLabel() ?? $payment->payment_method) . "\n" .
+                             "التاريخ: " . ($payment->payment_date ? $payment->payment_date->format('Y-m-d') : now()->format('Y-m-d')) . "\n" .
+                             "الشركة: " . ($invoice->tenant->name ?? 'شركة ماكس كون');
+
                 $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($simpleData);
                 $qrImageData = @file_get_contents($qrUrl);
                 if ($qrImageData !== false) {
