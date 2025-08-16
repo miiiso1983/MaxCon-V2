@@ -80,9 +80,8 @@
             <div style="color:#6b7280;">التاريخ: {{ optional($p->payment_date)->format('Y-m-d') }} — سند: {{ $p->receipt_number ?? '-' }}</div>
           </div>
           <div style="display:flex; gap:8px;">
-            @php($streamUrl = route('tenant.receipts.payment.show', ['payment' => $p->id], false))
-              <a href="{{ $streamUrl }}" target="_blank" class="btn" style="background:#3b82f6; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none;">عرض السند</a>
-            <button type="button" onclick='sendReceiptWhatsApp({{ $p->id }}, {{ json_encode(optional($invoice->customer)->phone) }})' class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
+            <a href="{{ route('tenant.receipts.payment.show', ['payment' => $p->id], false) }}" target="_blank" class="btn" style="background:#3b82f6; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none;">عرض السند</a>
+            <button type="button" onclick="sendReceiptWhatsApp({{ $p->id }}, '{{ addslashes(optional($invoice->customer)->phone) }}')" class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
           </div>
         </div>
       @empty
