@@ -4593,3 +4593,34 @@ Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(f
         return response()->json($report);
     })->name('maintenance.diagnose-accounting');
 });
+
+
+// Fallback explicit registration (outside group) to ensure availability in prod even if grouping is refactored
+Route::middleware(['auth','tenant'])->get('/tenant/receipts/payment/{payment}', function (\App\Models\InvoicePayment $payment) {
+    $user = auth()->user();
+    if (!$user || !$payment->invoice || $payment->invoice->tenant_id !== $user->tenant_id) {
+        abort(403);
+    }
+
+    $path = $payment->pdf_path;
+    try {
+        if (!$path || !\Storage::disk('public')->exists($path)) {
+            $newPath = app(\App\Services\Accounting\ReceiptService::class)->generatePdf($payment);
+            $payment->pdf_path = $newPath;
+            $payment->save();
+            $path = $newPath;
+        }
+    } catch (\Throwable $e) {
+        abort(404, 'Receipt PDF not available');
+    }
+
+    $absPath = storage_path('app/public/' . ltrim($path, '/'));
+    if (!file_exists($absPath)) {
+        abort(404, 'Receipt file not found');
+    }
+
+    return response()->file($absPath, [
+        'Content-Type' => 'application/pdf',
+        'Cache-Control' => 'private, max-age=3600'
+    ]);
+})->name('tenant.receipts.payment.show');
