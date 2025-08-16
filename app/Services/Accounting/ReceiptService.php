@@ -14,7 +14,7 @@ class ReceiptService
      */
     public function generatePdf(InvoicePayment $payment): string
     {
-        $invoice = $payment->invoice()->with(['customer', 'salesRep'])->first();
+        $invoice = $payment->invoice()->with(['customer', 'salesRep', 'tenant'])->first();
         $html = View::make('tenant.accounting.receivables.receipt-pdf', compact('invoice', 'payment'))
             ->render();
 
