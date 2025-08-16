@@ -1,4 +1,4 @@
-@extends('tenant.layouts.app')
+@extends('layouts.tenant')
 
 @section('title', 'اختبار QR كود سند الاستلام')
 
