@@ -30,16 +30,22 @@
 </head>
 <body>
   @php
-    $companyName = $invoice->tenant->company_name ?? $invoice->tenant->name ?? config('app.name', 'MaxCon');
+    $companyName = optional($invoice->tenant)->company_name ?? optional($invoice->tenant)->name ?? config('app.name', 'MaxCon');
     $salesRepName = optional($invoice->salesRep)->name ?? '-';
     $customerName = optional($invoice->customer)->name ?? '-';
     $receiptNo = $payment->receipt_number ?? ('RC-' . str_pad((string)$payment->id, 6, '0', STR_PAD_LEFT));
     $invNo = $invoice->invoice_number ?? ('INV-' . $invoice->id);
+    $dateStr = $payment->payment_date ? \Illuminate\Support\Carbon::parse($payment->payment_date)->format('Y-m-d') : now()->format('Y-m-d');
   @endphp
 
-  <div class="brand">
-    <h1>سند استلام</h1>
-    <div class="meta">{{ $companyName }}</div>
+  <div class="brand" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+    <div>
+      <h1>سند استلام</h1>
+      <h2>{{ $companyName }}</h2>
+    </div>
+    @if(!empty($logoB64))
+      <img src="{{ $logoB64 }}" alt="Logo" style="height:48px; width:auto; border-radius:8px; background:#fff; padding:4px;"/>
+    @endif
   </div>
 
   <div class="card">
@@ -50,7 +56,7 @@
       </div>
       <div class="col">
         <div class="label">التاريخ</div>
-        <div class="val">{{ optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d') }}</div>
+        <div class="val">{{ $dateStr }}</div>
       </div>
       <div class="col">
         <div class="label">رقم الفاتورة</div>
@@ -78,6 +84,17 @@
         <div class="label">المبلغ المستلم</div>
         <div class="val">{{ number_format((float)$payment->amount, 2) }} د.ع</div>
       </div>
+
+  @if(!empty($qrPng))
+    <div class="card" style="display:flex; align-items:center; gap:14px;">
+      <div>
+        <div class="label">رمز QR</div>
+        <div class="val" style="font-weight:600; font-size:12px; color:#334155;">يحمل كافة بيانات سند الاستلام</div>
+      </div>
+      <img src="data:image/png;base64,{{ $qrPng }}" alt="QR" style="height:96px; width:96px;" />
+    </div>
+  @endif
+
       <div class="col">
         <div class="label">المرجع</div>
         <div class="val">{{ $payment->reference_number ?? '-' }}</div>

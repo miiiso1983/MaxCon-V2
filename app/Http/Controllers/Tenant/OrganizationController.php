@@ -63,7 +63,7 @@ class OrganizationController extends Controller
             'commercial_register' => 'nullable|string|max:50',
             'website' => 'nullable|url|max:255',
             'description' => 'nullable|string|max:1000',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:4096',
             'industry' => 'nullable|string|max:100',
             'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'employee_count' => 'nullable|integer|min:1',

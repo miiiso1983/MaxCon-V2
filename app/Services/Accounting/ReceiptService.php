@@ -17,7 +17,40 @@ class ReceiptService
     public function generatePdf(InvoicePayment $payment): string
     {
         $invoice = $payment->invoice()->with(['customer', 'salesRep', 'tenant'])->first();
-        $html = View::make('tenant.accounting.receivables.receipt-pdf', compact('invoice', 'payment'))
+        // Prepare QR data
+        $qrData = [
+            'receipt_number' => $payment->receipt_number,
+            'payment_id' => $payment->id,
+            'invoice_id' => $invoice->id,
+            'invoice_number' => $invoice->invoice_number,
+            'tenant' => $invoice->tenant->name ?? null,
+            'customer' => optional($invoice->customer)->name,
+            'sales_rep' => optional($invoice->salesRep)->name,
+            'amount' => (float) $payment->amount,
+            'payment_method' => $payment->payment_method,
+            'payment_date' => optional($payment->payment_date)->format('Y-m-d'),
+        ];
+        $qrPng = null;
+        try {
+            if (class_exists('SimpleSoftwareIO\QrCode\Facade\QrCode')) {
+                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facade\QrCode::format('png')->size(220)->margin(1)->generate(json_encode($qrData, JSON_UNESCAPED_UNICODE)));
+            }
+        } catch (\Throwable $e) {
+            $qrPng = null;
+        }
+
+        // Prepare logo base64 if available
+        $logoB64 = null;
+        try {
+            $logoPath = $invoice->tenant->logo ?? null;
+            if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+                $logoB64 = base64_encode(Storage::disk('public')->get($logoPath));
+                $logoMime = \Illuminate\Support\Str::endsWith(strtolower($logoPath), '.png') ? 'image/png' : 'image/jpeg';
+                $logoB64 = 'data:' . $logoMime . ';base64,' . $logoB64;
+            }
+        } catch (\Throwable $e) { $logoB64 = null; }
+
+        $html = View::make('tenant.accounting.receivables.receipt-pdf', compact('invoice', 'payment', 'qrPng', 'qrData', 'logoB64'))
             ->render();
 
         // Configure mPDF for Arabic RTL

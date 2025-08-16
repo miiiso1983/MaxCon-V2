@@ -61,6 +61,7 @@ class Tenant extends Model
         'current_customers_count',
         'storage_limit',
         'contact_info',
+        'logo',
     ];
 
     /**
