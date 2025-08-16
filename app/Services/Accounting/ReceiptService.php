@@ -18,46 +18,30 @@ class ReceiptService
     {
         $invoice = $payment->invoice()->with(['customer', 'salesRep', 'tenant'])->first();
         // Prepare QR data
-        // Create professional formatted text for QR code with invoice-like design
-        $tenantName = $invoice->tenant->name ?? 'شركة ماكس كون';
+        // Create simple, readable QR code content for mobile scanning
+        $tenantName = $invoice->tenant->name ?? 'ماكس كون';
         $customerName = optional($invoice->customer)->name ?? 'عميل';
-        $salesRepName = optional($invoice->salesRep)->name ?? '-';
         $paymentMethodLabel = $this->getPaymentMethodLabel($payment->payment_method);
         $formattedAmount = number_format((float) $payment->amount, 2);
         $paymentDate = optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d');
 
-        // Create invoice-style formatted text
-        $qrText = "┌─────────────────────────────────────┐\n";
-        $qrText .= "│        {$tenantName} • التحقق من السند        │\n";
-        $qrText .= "└─────────────────────────────────────┘\n\n";
-
-        $qrText .= "بيانات السند                    معلومات العميل\n";
-        $qrText .= "─────────────────────────────────────\n";
-        $qrText .= "رقم السند                           العميل\n";
-        $qrText .= "{$payment->receipt_number}                    {$customerName}\n\n";
-
-        $qrText .= "رقم الفاتورة                        المندوب\n";
-        $qrText .= "{$invoice->invoice_number}                      {$salesRepName}\n\n";
-
-        $qrText .= "تاريخ السند                         الحالة\n";
-        $qrText .= "{$paymentDate}                      مدفوع\n\n";
-
-        $qrText .= "─────────────────────────────────────\n";
-        $qrText .= "                المبالغ                \n";
-        $qrText .= "─────────────────────────────────────\n";
-        $qrText .= "المبلغ المستلم                {$formattedAmount} د.ع\n";
-        $qrText .= "طريقة الدفع                    {$paymentMethodLabel}\n\n";
-
-        $qrText .= "─────────────────────────────────────\n";
-        $qrText .= "سند صحيح ومعتمد من نظام ماكس كون للإدارة الصيدلانية";
+        // Simple, clean format for better mobile scanning
+        $qrText = "سند استلام - {$tenantName}\n";
+        $qrText .= "رقم السند: {$payment->receipt_number}\n";
+        $qrText .= "رقم الفاتورة: {$invoice->invoice_number}\n";
+        $qrText .= "العميل: {$customerName}\n";
+        $qrText .= "المبلغ: {$formattedAmount} دينار عراقي\n";
+        $qrText .= "طريقة الدفع: {$paymentMethodLabel}\n";
+        $qrText .= "التاريخ: {$paymentDate}\n";
+        $qrText .= "حالة السند: مدفوع ومعتمد";
 
         $qrPng = null;
 
-        // Try multiple methods to generate QR code
+        // Try multiple methods to generate QR code with larger size for mobile scanning
         try {
-            // Method 1: SimpleSoftwareIO QrCode
+            // Method 1: SimpleSoftwareIO QrCode - Larger size for better mobile scanning
             if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
-                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(220)->margin(1)->generate($qrText));
+                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(300)->margin(2)->generate($qrText));
             }
         } catch (\Throwable $e) {
             \Log::warning('QR Code generation failed with SimpleSoftwareIO: ' . $e->getMessage());
@@ -66,7 +50,7 @@ class ReceiptService
         // Method 2: Fallback to external API if first method failed
         if (!$qrPng) {
             try {
-                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($qrText);
+                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($qrText);
                 $context = stream_context_create([
                     'http' => [
                         'timeout' => 10,
@@ -94,7 +78,7 @@ class ReceiptService
                              "التاريخ: " . ($payment->payment_date ? $payment->payment_date->format('Y-m-d') : now()->format('Y-m-d')) . "\n" .
                              "الشركة: " . ($invoice->tenant->name ?? 'شركة ماكس كون');
 
-                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($simpleData);
+                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($simpleData);
                 $qrImageData = @file_get_contents($qrUrl);
                 if ($qrImageData !== false) {
                     $qrPng = base64_encode($qrImageData);

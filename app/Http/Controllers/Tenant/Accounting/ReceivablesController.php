@@ -177,41 +177,26 @@ class ReceivablesController extends Controller
         $dateStr = $payment->payment_date ? \Illuminate\Support\Carbon::parse($payment->payment_date)->format('Y-m-d') : now()->format('Y-m-d');
         $paymentMethod = method_exists($payment,'getPaymentMethodLabel') ? $payment->getPaymentMethodLabel() : ($payment->payment_method ?? '-');
 
-        // QR (SVG data URL) - Professional formatted text with invoice-like design
+        // QR (SVG data URL) - Simple, readable format for mobile scanning
         $qrUrl = null;
         $paymentMethodLabel = $this->getPaymentMethodLabel($payment->payment_method);
         $formattedAmount = number_format((float) $payment->amount, 2);
 
-        // Create invoice-style formatted text
-        $qrText = "┌─────────────────────────────────────┐\n";
-        $qrText .= "│        {$companyName} • التحقق من السند        │\n";
-        $qrText .= "└─────────────────────────────────────┘\n\n";
+        // Simple, clean format for better mobile scanning
+        $qrText = "سند استلام - {$companyName}\n";
+        $qrText .= "رقم السند: {$payment->receipt_number}\n";
+        $qrText .= "رقم الفاتورة: {$invoice->invoice_number}\n";
+        $qrText .= "العميل: {$customerName}\n";
+        $qrText .= "المبلغ: {$formattedAmount} دينار عراقي\n";
+        $qrText .= "طريقة الدفع: {$paymentMethodLabel}\n";
+        $qrText .= "التاريخ: {$dateStr}\n";
+        $qrText .= "حالة السند: مدفوع ومعتمد";
 
-        $qrText .= "بيانات السند                    معلومات العميل\n";
-        $qrText .= "─────────────────────────────────────\n";
-        $qrText .= "رقم السند                           العميل\n";
-        $qrText .= "{$payment->receipt_number}                    {$customerName}\n\n";
-
-        $qrText .= "رقم الفاتورة                        المندوب\n";
-        $qrText .= "{$invoice->invoice_number}                      {$salesRepName}\n\n";
-
-        $qrText .= "تاريخ السند                         الحالة\n";
-        $qrText .= "{$dateStr}                      مدفوع\n\n";
-
-        $qrText .= "─────────────────────────────────────\n";
-        $qrText .= "                المبالغ                \n";
-        $qrText .= "─────────────────────────────────────\n";
-        $qrText .= "المبلغ المستلم                {$formattedAmount} د.ع\n";
-        $qrText .= "طريقة الدفع                    {$paymentMethodLabel}\n\n";
-
-        $qrText .= "─────────────────────────────────────\n";
-        $qrText .= "سند صحيح ومعتمد من نظام ماكس كون للإدارة الصيدلانية";
-
-        // Try multiple methods to generate QR code
+        // Try multiple methods to generate QR code with larger size for mobile scanning
         try {
-            // Method 1: SimpleSoftwareIO QrCode (SVG)
+            // Method 1: SimpleSoftwareIO QrCode (SVG) - Larger size for better mobile scanning
             if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
-                $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(220)->margin(1)->generate($qrText);
+                $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(300)->margin(2)->generate($qrText);
                 $qrUrl = 'data:image/svg+xml;base64,' . base64_encode($svg);
             }
         } catch (\Throwable $e) {
@@ -221,7 +206,7 @@ class ReceivablesController extends Controller
         // Method 2: Fallback to PNG via external API
         if (!$qrUrl) {
             try {
-                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($qrText);
+                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($qrText);
                 $qrUrl = $qrApiUrl; // Direct URL for img src
             } catch (\Throwable $e) {
                 \Log::warning('QR Code API fallback failed: ' . $e->getMessage());
@@ -232,7 +217,7 @@ class ReceivablesController extends Controller
         if (!$qrUrl) {
             try {
                 $simpleData = "سند استلام رقم: {$payment->receipt_number}\nالمبلغ: " . number_format((float)$payment->amount, 2) . " د.ع\nالتاريخ: {$dateStr}";
-                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($simpleData);
+                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=' . urlencode($simpleData);
                 $qrUrl = $qrApiUrl;
             } catch (\Throwable $e) {
                 \Log::error('All QR Code generation methods failed for web receipt: ' . $e->getMessage());
