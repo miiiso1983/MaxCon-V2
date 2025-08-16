@@ -18,31 +18,39 @@ class ReceiptService
     {
         $invoice = $payment->invoice()->with(['customer', 'salesRep', 'tenant'])->first();
         // Prepare QR data
-        $qrData = [
-            'type' => 'payment_receipt',
-            'receipt_number' => $payment->receipt_number,
-            'payment_id' => $payment->id,
-            'invoice_id' => $invoice->id,
-            'invoice_number' => $invoice->invoice_number,
-            'tenant' => $invoice->tenant->name ?? 'شركة ماكس كون',
-            'customer' => optional($invoice->customer)->name ?? 'عميل',
-            'sales_rep' => optional($invoice->salesRep)->name ?? '-',
-            'amount' => (float) $payment->amount,
-            'currency' => 'IQD',
-            'payment_method' => $payment->payment_method,
-            'payment_date' => optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d'),
-            'generated_at' => now()->format('Y-m-d H:i:s'),
-            'note' => 'سند استلام صادر من نظام ماكس كون للإدارة الصيدلانية'
-        ];
+        // Create professional formatted text for QR code
+        $tenantName = $invoice->tenant->name ?? 'شركة ماكس كون';
+        $customerName = optional($invoice->customer)->name ?? 'عميل';
+        $salesRepName = optional($invoice->salesRep)->name ?? '-';
+        $paymentMethodLabel = $this->getPaymentMethodLabel($payment->payment_method);
+        $formattedAmount = number_format((float) $payment->amount, 2);
+        $paymentDate = optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d');
+
+        $qrText = "🧾 سند استلام\n";
+        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $qrText .= "📋 رقم السند: {$payment->receipt_number}\n";
+        $qrText .= "📄 رقم الفاتورة: {$invoice->invoice_number}\n";
+        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $qrText .= "🏢 الشركة: {$tenantName}\n";
+        $qrText .= "👤 العميل: {$customerName}\n";
+        if ($salesRepName !== '-') {
+            $qrText .= "👨‍💼 المندوب: {$salesRepName}\n";
+        }
+        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $qrText .= "💰 المبلغ المستلم: {$formattedAmount} د.ع\n";
+        $qrText .= "💳 طريقة الدفع: {$paymentMethodLabel}\n";
+        $qrText .= "📅 التاريخ: {$paymentDate}\n";
+        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $qrText .= "✅ تم الاستلام بنجاح\n";
+        $qrText .= "🔒 مصدق من نظام ماكس كون";
 
         $qrPng = null;
-        $qrJsonData = json_encode($qrData, JSON_UNESCAPED_UNICODE);
 
         // Try multiple methods to generate QR code
         try {
             // Method 1: SimpleSoftwareIO QrCode
             if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
-                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(220)->margin(1)->generate($qrJsonData));
+                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(220)->margin(1)->generate($qrText));
             }
         } catch (\Throwable $e) {
             \Log::warning('QR Code generation failed with SimpleSoftwareIO: ' . $e->getMessage());
@@ -51,7 +59,7 @@ class ReceiptService
         // Method 2: Fallback to external API if first method failed
         if (!$qrPng) {
             try {
-                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($qrJsonData);
+                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($qrText);
                 $context = stream_context_create([
                     'http' => [
                         'timeout' => 10,
@@ -132,6 +140,25 @@ class ReceiptService
         $filename = 'receipts/' . now()->format('Ymd_His') . '_' . ($payment->id ?: 'payment') . '.pdf';
         Storage::disk('public')->put($filename, $content);
         return $filename;
+    }
+
+    /**
+     * Get Arabic label for payment method
+     */
+    private function getPaymentMethodLabel($method): string
+    {
+        $methods = [
+            'cash' => 'نقداً',
+            'credit_card' => 'بطاقة ائتمان',
+            'debit_card' => 'بطاقة خصم',
+            'bank_transfer' => 'تحويل بنكي',
+            'check' => 'شيك',
+            'online' => 'دفع إلكتروني',
+            'installment' => 'تقسيط',
+            'other' => 'أخرى'
+        ];
+
+        return $methods[$method] ?? $method ?? 'نقداً';
     }
 }
 

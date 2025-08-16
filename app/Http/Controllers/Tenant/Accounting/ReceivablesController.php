@@ -177,32 +177,34 @@ class ReceivablesController extends Controller
         $dateStr = $payment->payment_date ? \Illuminate\Support\Carbon::parse($payment->payment_date)->format('Y-m-d') : now()->format('Y-m-d');
         $paymentMethod = method_exists($payment,'getPaymentMethodLabel') ? $payment->getPaymentMethodLabel() : ($payment->payment_method ?? '-');
 
-        // QR (SVG data URL)
+        // QR (SVG data URL) - Professional formatted text
         $qrUrl = null;
-        $qrData = [
-            'type' => 'payment_receipt',
-            'receipt_number' => $payment->receipt_number,
-            'payment_id' => $payment->id,
-            'invoice_id' => $invoice->id,
-            'invoice_number' => $invoice->invoice_number,
-            'tenant' => $companyName,
-            'customer' => $customerName,
-            'sales_rep' => $salesRepName,
-            'amount' => (float) $payment->amount,
-            'currency' => 'IQD',
-            'payment_method' => $payment->payment_method,
-            'payment_date' => $dateStr,
-            'generated_at' => now()->format('Y-m-d H:i:s'),
-            'note' => 'سند استلام صادر من نظام ماكس كون للإدارة الصيدلانية'
-        ];
+        $paymentMethodLabel = $this->getPaymentMethodLabel($payment->payment_method);
+        $formattedAmount = number_format((float) $payment->amount, 2);
 
-        $qrJsonData = json_encode($qrData, JSON_UNESCAPED_UNICODE);
+        $qrText = "🧾 سند استلام\n";
+        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $qrText .= "📋 رقم السند: {$payment->receipt_number}\n";
+        $qrText .= "📄 رقم الفاتورة: {$invoice->invoice_number}\n";
+        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $qrText .= "🏢 الشركة: {$companyName}\n";
+        $qrText .= "👤 العميل: {$customerName}\n";
+        if ($salesRepName !== '-') {
+            $qrText .= "👨‍💼 المندوب: {$salesRepName}\n";
+        }
+        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $qrText .= "💰 المبلغ المستلم: {$formattedAmount} د.ع\n";
+        $qrText .= "💳 طريقة الدفع: {$paymentMethodLabel}\n";
+        $qrText .= "📅 التاريخ: {$dateStr}\n";
+        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $qrText .= "✅ تم الاستلام بنجاح\n";
+        $qrText .= "🔒 مصدق من نظام ماكس كون";
 
         // Try multiple methods to generate QR code
         try {
             // Method 1: SimpleSoftwareIO QrCode (SVG)
             if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
-                $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(220)->margin(1)->generate($qrJsonData);
+                $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(220)->margin(1)->generate($qrText);
                 $qrUrl = 'data:image/svg+xml;base64,' . base64_encode($svg);
             }
         } catch (\Throwable $e) {
@@ -212,7 +214,7 @@ class ReceivablesController extends Controller
         // Method 2: Fallback to PNG via external API
         if (!$qrUrl) {
             try {
-                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($qrJsonData);
+                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($qrText);
                 $qrUrl = $qrApiUrl; // Direct URL for img src
             } catch (\Throwable $e) {
                 \Log::warning('QR Code API fallback failed: ' . $e->getMessage());
@@ -242,5 +244,24 @@ class ReceivablesController extends Controller
         return view('tenant.accounting.receivables.receipt-web', compact(
             'invoice','payment','companyName','salesRepName','customerName','receiptNo','invNo','dateStr','paymentMethod','qrUrl','logoUrl'
         ));
+    }
+
+    /**
+     * Get Arabic label for payment method
+     */
+    private function getPaymentMethodLabel($method): string
+    {
+        $methods = [
+            'cash' => 'نقداً',
+            'credit_card' => 'بطاقة ائتمان',
+            'debit_card' => 'بطاقة خصم',
+            'bank_transfer' => 'تحويل بنكي',
+            'check' => 'شيك',
+            'online' => 'دفع إلكتروني',
+            'installment' => 'تقسيط',
+            'other' => 'أخرى'
+        ];
+
+        return $methods[$method] ?? $method ?? 'نقداً';
     }
 }

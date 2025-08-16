@@ -40,15 +40,15 @@
                     </div>
                 </div>
 
-                <!-- Arabic Only QR Code -->
+                <!-- Professional Arabic QR Code -->
                 <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">QR كود عربي فقط</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">QR كود احترافي منسق</h3>
                     <div class="bg-white rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
                         <div id="arabic-qr-container" class="min-h-[200px] flex items-center justify-center qr-container">
                             <div class="text-gray-500">جاري تحميل QR كود...</div>
                         </div>
                         <button onclick="generateArabicQR()" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                            إنشاء QR كود عربي
+                            إنشاء QR كود احترافي
                         </button>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                     <pre id="text-data" class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-xs overflow-auto max-h-80 text-right"></pre>
                 </div>
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-3">نص عربي فقط:</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">نص احترافي منسق:</h3>
                     <pre id="arabic-data" class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-xs overflow-auto max-h-80 text-right"></pre>
                 </div>
             </div>
@@ -168,14 +168,21 @@ var sampleTextData = `سند استلام
 الشركة: شركة ماكس كون للأدوية
 المندوب: أحمد محمد`;
 
-var sampleArabicData = `سند استلام
-رقم: RCPT-2024-0001
-فاتورة: INV-2024-0001
-العميل: صيدلية الشفاء
-المبلغ: 150,000 دينار عراقي
-الدفع: نقداً
-التاريخ: 15/1/2024
-الشركة: شركة ماكس كون للأدوية`;
+var sampleArabicData = `🧾 سند استلام
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 رقم السند: RCPT-2024-0001
+📄 رقم الفاتورة: INV-2024-0001
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏢 الشركة: شركة ماكس كون للأدوية
+👤 العميل: صيدلية الشفاء
+👨‍💼 المندوب: أحمد محمد
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 المبلغ المستلم: 150,000.00 د.ع
+💳 طريقة الدفع: نقداً
+📅 التاريخ: 2024-01-15
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ تم الاستلام بنجاح
+🔒 مصدق من نظام ماكس كون`;
 
 function generateJSONQR() {
     var container = document.getElementById('json-qr-container');
@@ -285,7 +292,7 @@ function generateArabicQR() {
 
             var desc = document.createElement('div');
             desc.className = 'text-gray-600 mt-3 text-sm';
-            desc.textContent = 'QR كود يحتوي على نص عربي مبسط';
+            desc.textContent = 'QR كود احترافي منسق مع رموز تعبيرية';
             container.appendChild(desc);
         });
     } else {
