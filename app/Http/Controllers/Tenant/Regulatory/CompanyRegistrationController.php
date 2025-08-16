@@ -65,26 +65,38 @@ class CompanyRegistrationController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'company_name' => 'required|string|max:255',
-            'company_name_en' => 'nullable|string|max:255',
-            'registration_number' => 'required|string|unique:company_registrations,registration_number',
-            'license_number' => 'required|string|unique:company_registrations,license_number',
-            'license_type' => 'required|in:manufacturing,import,export,distribution,wholesale,retail,research',
-            'regulatory_authority' => 'required|string|max:255',
-            'registration_date' => 'required|date',
-            'license_issue_date' => 'required|date',
-            'license_expiry_date' => 'required|date|after:license_issue_date',
-            'company_address' => 'required|string',
-            'contact_person' => 'required|string|max:255',
-            'contact_email' => 'required|email|max:255',
-            'contact_phone' => 'required|string|max:20',
-            'business_activities' => 'nullable|array',
-            'authorized_products' => 'nullable|array',
-            'compliance_status' => 'required|in:compliant,non_compliant,under_investigation,corrective_action',
-            'next_inspection_date' => 'nullable|date|after:today',
-            'notes' => 'nullable|string'
-        ]);
+        try {
+            $request->validate([
+                'company_name' => 'required|string|max:255',
+                'company_name_en' => 'nullable|string|max:255',
+                'registration_number' => 'required|string|unique:company_registrations,registration_number',
+                'license_number' => 'required|string|unique:company_registrations,license_number',
+                'license_type' => 'required|in:manufacturing,import,export,distribution,wholesale,retail,research',
+                'regulatory_authority' => 'required|string|max:255',
+                'registration_date' => 'required|date',
+                'license_issue_date' => 'required|date',
+                'license_expiry_date' => 'required|date|after:license_issue_date',
+                'company_address' => 'required|string',
+                'contact_person' => 'required|string|max:255',
+                'contact_email' => 'required|email|max:255',
+                'contact_phone' => 'required|string|max:20',
+                'business_activities' => 'nullable|array',
+                'authorized_products' => 'nullable|array',
+                'compliance_status' => 'required|in:compliant,non_compliant,under_investigation,corrective_action',
+                'next_inspection_date' => 'nullable|date|after:today',
+                'notes' => 'nullable|string'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle AJAX validation errors
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'فشل التحقق من البيانات',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
 
         $company = CompanyRegistration::create([
             'id' => Str::uuid(),
@@ -109,6 +121,15 @@ class CompanyRegistrationController extends Controller
             'next_inspection_date' => $request->next_inspection_date,
             'notes' => $request->notes
         ]);
+
+        // Handle AJAX requests
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تسجيل الشركة بنجاح',
+                'company' => $company
+            ]);
+        }
 
         return redirect()->route('tenant.inventory.regulatory.companies.index')
                         ->with('success', 'تم تسجيل الشركة بنجاح');

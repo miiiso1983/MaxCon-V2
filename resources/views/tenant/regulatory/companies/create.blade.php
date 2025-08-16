@@ -27,7 +27,8 @@
 
     <!-- Form -->
     <div style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
-        <form id="companyForm" onsubmit="submitForm(event)">
+        <form id="companyForm" action="{{ route('tenant.inventory.regulatory.companies.store') }}" method="POST" onsubmit="submitForm(event)">
+            @csrf
             <!-- Basic Information -->
             <div style="margin-bottom: 30px;">
                 <h3 style="color: #2d3748; margin: 0 0 20px 0; font-size: 20px; font-weight: 700; border-bottom: 2px solid #4facfe; padding-bottom: 10px;">
@@ -331,16 +332,63 @@ function submitForm(event) {
         return;
     }
     
-    // Show success message
-    alert('✅ تم حفظ بيانات الشركة بنجاح!\n\nسيتم إضافة الشركة إلى قاعدة البيانات قريباً.');
-    
-    // TODO: Send data to server
-    console.log('Company data:', data);
-    
-    // Redirect to companies list
-    setTimeout(() => {
+    // Show loading message
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    submitBtn.disabled = true;
+
+    // Send data to server
+    fetch(event.target.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else if (response.status === 422) {
+            return response.json().then(errorData => {
+                throw { response: { json: () => Promise.resolve(errorData) } };
+            });
+        }
+        throw new Error('Network response was not ok');
+    })
+    .then(data => {
+        // Show success message
+        alert('✅ تم حفظ بيانات الشركة بنجاح!');
+
+        // Redirect to companies list
         window.location.href = '{{ route("tenant.inventory.regulatory.companies.index") }}';
-    }, 2000);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+
+        // Try to parse error response
+        if (error.response) {
+            error.response.json().then(errorData => {
+                if (errorData.errors) {
+                    let errorMessage = 'أخطاء في البيانات:\n';
+                    Object.keys(errorData.errors).forEach(field => {
+                        errorMessage += `- ${errorData.errors[field][0]}\n`;
+                    });
+                    alert('❌ ' + errorMessage);
+                } else {
+                    alert('❌ ' + (errorData.message || 'حدث خطأ أثناء حفظ البيانات'));
+                }
+            }).catch(() => {
+                alert('❌ حدث خطأ أثناء حفظ البيانات. الرجاء المحاولة مرة أخرى.');
+            });
+        } else {
+            alert('❌ حدث خطأ أثناء حفظ البيانات. الرجاء المحاولة مرة أخرى.');
+        }
+
+        // Restore button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
 }
 
 function resetForm() {
