@@ -202,3 +202,5 @@ class ReceivablesController extends Controller
     }
 
 
+
+}
