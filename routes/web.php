@@ -1037,11 +1037,21 @@ Route::middleware('auth')->group(function () {
 
 
 
-    // Dashboard
+    // Dashboard (robust super-admin check to avoid 500 if method missing)
     Route::get('/dashboard', function () {
-        if (auth()->user()->isSuperAdmin()) {
-            return redirect()->route('admin.dashboard');
+        $user = auth()->user();
+        $isSuper = false;
+        if ($user) {
+            try {
+                if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) { $isSuper = true; }
+            } catch (\Throwable $e) { /* ignore */ }
+            $roleVal = $user->role ?? null;
+            if (in_array($roleVal, ['super_admin', 'super-admin'])) { $isSuper = true; }
+            if (method_exists($user, 'hasRole')) {
+                try { if ($user->hasRole('super-admin')) { $isSuper = true; } } catch (\Throwable $e) { /* ignore */ }
+            }
         }
+        if ($isSuper) { return redirect()->route('admin.dashboard'); }
 
         // Use modern dashboard for all users
         return view('modern-dashboard');
