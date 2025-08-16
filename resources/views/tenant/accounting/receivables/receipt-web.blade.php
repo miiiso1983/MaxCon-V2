@@ -83,21 +83,30 @@
   <!-- QR Code Section -->
   <div class="card qr">
     <div>
-      <div class="label">رمز QR</div>
-      <div class="val" style="font-weight:600; font-size:12px; color:#334155;">يحمل كافة بيانات سند الاستلام</div>
+      <div class="label">للتحقق من صحة السند</div>
+      <div class="val" style="font-weight:600; font-size:13px; color:#4a5568;">
+        يحتوي على معلومات السند<br>
+        والمبالغ والتفاصيل
+      </div>
     </div>
-    @if(!empty($qrUrl))
-      <img src="{{ $qrUrl }}" alt="QR Code" style="height:120px; width:120px; border:1px solid #e5e7eb; border-radius:8px;"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-      <div style="display:none; width:120px; height:120px; border:2px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#6b7280; text-align:center;">
-        QR غير متوفر
-      </div>
-    @else
-      <!-- Fallback: Generate QR using JavaScript -->
-      <div id="qr-fallback-{{ $payment->id }}" style="width:120px; height:120px; border:1px solid #e5e7eb; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#6b7280; text-align:center;">
-        جاري تحميل QR...
-      </div>
-    @endif
+    <div style="text-align: center;">
+      @if(!empty($qrUrl))
+        <img src="{{ $qrUrl }}" alt="QR Code" style="width: 120px; height: 120px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f7fafc;"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div style="display:none; width: 120px; height: 120px; border: 2px dashed #cbd5e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f7fafc; color: #a0aec0; font-size: 12px; text-align: center;">
+          لا يوجد رمز QR
+        </div>
+      @else
+        <!-- Fallback: Generate QR using JavaScript -->
+        <div id="qr-fallback-{{ $payment->id }}" style="width: 120px; height: 120px; border: 2px dashed #cbd5e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f7fafc; color: #a0aec0; font-size: 12px; text-align: center;">
+          جاري تحميل QR...
+        </div>
+      @endif
+      <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 11px; line-height: 1.4;">
+        امسح الكود للحصول على<br>
+        تفاصيل سند الاستلام
+      </p>
+    </div>
   </div>
 
   @if(empty($qrUrl))
@@ -125,13 +134,13 @@
 
       var img = document.createElement('img');
       img.src = qrApiUrl;
-      img.style.cssText = 'width:120px; height:120px; border-radius:8px;';
+      img.style.cssText = 'width: 120px; height: 120px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f7fafc;';
       img.onload = function() {
         fallbackContainer.innerHTML = '';
         fallbackContainer.appendChild(img);
       };
       img.onerror = function() {
-        fallbackContainer.innerHTML = '<div style="font-size:10px; color:#ef4444; text-align:center;">QR غير متوفر</div>';
+        fallbackContainer.innerHTML = '<div style="font-size: 12px; color: #a0aec0; text-align: center;">لا يوجد رمز QR</div>';
       };
     });
   </script>

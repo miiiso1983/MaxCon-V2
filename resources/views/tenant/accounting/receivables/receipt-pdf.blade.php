@@ -88,19 +88,28 @@
   <!-- QR Code Section -->
   <div class="card" style="display:flex; align-items:center; gap:14px;">
     <div>
-      <div class="label">رمز QR</div>
-      <div class="val" style="font-weight:600; font-size:12px; color:#334155;">يحمل كافة بيانات سند الاستلام</div>
-    </div>
-    @if(!empty($qrPng))
-      <img src="data:image/png;base64,{{ $qrPng }}" alt="QR Code" style="height:96px; width:96px; border:1px solid #e5e7eb; border-radius:8px;" />
-    @else
-      <!-- Fallback: Show receipt info as text -->
-      <div style="width:96px; height:96px; border:2px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:8px; color:#6b7280; text-align:center; padding:4px;">
-        سند رقم: {{ $payment->receipt_number }}<br>
-        المبلغ: {{ number_format((float)$payment->amount, 2) }} د.ع<br>
-        التاريخ: {{ optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d') }}
+      <div class="label">للتحقق من صحة السند</div>
+      <div class="val" style="font-weight:600; font-size:12px; color:#4a5568; line-height:1.4;">
+        يحتوي على معلومات السند<br>
+        والمبالغ والتفاصيل
       </div>
-    @endif
+    </div>
+    <div style="text-align: center;">
+      @if(!empty($qrPng))
+        <img src="data:image/png;base64,{{ $qrPng }}" alt="QR Code" style="width: 120px; height: 120px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f7fafc;" />
+      @else
+        <!-- Fallback: Show receipt info as text -->
+        <div style="width: 120px; height: 120px; border: 2px dashed #cbd5e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f7fafc; color: #a0aec0; font-size: 10px; text-align: center; padding: 4px;">
+          سند رقم: {{ $payment->receipt_number }}<br>
+          المبلغ: {{ number_format((float)$payment->amount, 2) }} د.ع<br>
+          التاريخ: {{ optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d') }}
+        </div>
+      @endif
+      <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 10px; line-height: 1.4;">
+        امسح الكود للحصول على<br>
+        تفاصيل سند الاستلام
+      </p>
+    </div>
   </div>
 
       <div class="col">
