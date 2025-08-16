@@ -151,3 +151,55 @@ class ReceivablesController extends Controller
     }
 }
 
+    /**
+     * Web receipt view (unified design with PDF)
+     */
+    public function showWebReceipt(InvoicePayment $payment): View
+    {
+        $invoice = $payment->invoice()->with(['customer','salesRep','tenant'])->firstOrFail();
+        $this->authorizeAccess($invoice);
+
+        $companyName = optional($invoice->tenant)->company_name ?? optional($invoice->tenant)->name ?? config('app.name','MaxCon');
+        $salesRepName = optional($invoice->salesRep)->name ?? '-';
+        $customerName = optional($invoice->customer)->name ?? '-';
+        $receiptNo = $payment->receipt_number ?? ('RC-' . str_pad((string)$payment->id, 6, '0', STR_PAD_LEFT));
+        $invNo = $invoice->invoice_number ?? ('INV-' . $invoice->id);
+        $dateStr = $payment->payment_date ? \Illuminate\Support\Carbon::parse($payment->payment_date)->format('Y-m-d') : now()->format('Y-m-d');
+        $paymentMethod = method_exists($payment,'getPaymentMethodLabel') ? $payment->getPaymentMethodLabel() : ($payment->payment_method ?? '-');
+
+        // QR (SVG data URL)
+        $qrUrl = null;
+        try {
+            if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
+                $qrData = [
+                    'receipt_number' => $payment->receipt_number,
+                    'payment_id' => $payment->id,
+                    'invoice_id' => $invoice->id,
+                    'invoice_number' => $invoice->invoice_number,
+                    'tenant' => $companyName,
+                    'customer' => $customerName,
+                    'sales_rep' => $salesRepName,
+                    'amount' => (float) $payment->amount,
+                    'payment_method' => $payment->payment_method,
+                    'payment_date' => $dateStr,
+                ];
+                $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(220)->margin(1)->generate(json_encode($qrData, JSON_UNESCAPED_UNICODE));
+                $qrUrl = 'data:image/svg+xml;base64,' . base64_encode($svg);
+            }
+        } catch (\Throwable $e) {}
+
+        // Logo URL
+        $logoUrl = null;
+        try {
+            $logoPath = $invoice->tenant->logo ?? null;
+            if ($logoPath && \Storage::disk('public')->exists($logoPath)) {
+                $logoUrl = \Storage::url($logoPath);
+            }
+        } catch (\Throwable $e) {}
+
+        return view('tenant.accounting.receivables.receipt-web', compact(
+            'invoice','payment','companyName','salesRepName','customerName','receiptNo','invNo','dateStr','paymentMethod','qrUrl','logoUrl'
+        ));
+    }
+
+

@@ -4595,6 +4595,10 @@ Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(f
 });
 
 
+// Web receipt preview route (unified design)
+Route::middleware(['auth','tenant'])->get('/tenant/receipts/payment/{payment}/web', [\App\Http\Controllers\Tenant\Accounting\ReceivablesController::class, 'showWebReceipt'])->name('tenant.receipts.payment.web');
+
+
 // Fallback explicit registration (outside group) to ensure availability in prod even if grouping is refactored
 Route::middleware(['auth','tenant'])->get('/tenant/receipts/payment/{payment}', function (\App\Models\InvoicePayment $payment) {
     $user = auth()->user();

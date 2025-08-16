@@ -32,8 +32,8 @@ class ReceiptService
         ];
         $qrPng = null;
         try {
-            if (class_exists('SimpleSoftwareIO\QrCode\Facade\QrCode')) {
-                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facade\QrCode::format('png')->size(220)->margin(1)->generate(json_encode($qrData, JSON_UNESCAPED_UNICODE)));
+            if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
+                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(220)->margin(1)->generate(json_encode($qrData, JSON_UNESCAPED_UNICODE)));
             }
         } catch (\Throwable $e) {
             $qrPng = null;
