@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('company_registrations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
+            $table->unsignedBigInteger('tenant_id');
             $table->string('company_name');
             $table->string('company_name_en')->nullable();
             $table->string('registration_number')->unique();

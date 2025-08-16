@@ -4464,7 +4464,7 @@ Route::post('/test-company-ultra-simple', function (Illuminate\Http\Request $req
     try {
         \Log::info('Ultra simple company store request', $request->all());
 
-        // Direct database insert
+        // Direct database insert using MySQL connection
         $id = \Illuminate\Support\Str::uuid();
         $result = \Illuminate\Support\Facades\DB::table('company_registrations')->insert([
             'id' => $id,

@@ -13,11 +13,16 @@ return new class extends Migration
     public function up(): void
     {
         // Create default categories from existing product categories
-        $existingCategories = DB::table('products')
-            ->whereNotNull('category')
-            ->where('category', '!=', '')
-            ->distinct()
-            ->pluck('category');
+        // Check if category column exists first
+        if (Schema::hasColumn('products', 'category')) {
+            $existingCategories = DB::table('products')
+                ->whereNotNull('category')
+                ->where('category', '!=', '')
+                ->distinct()
+                ->pluck('category');
+        } else {
+            $existingCategories = collect();
+        }
 
         foreach ($existingCategories as $categoryName) {
             // Check if category already exists

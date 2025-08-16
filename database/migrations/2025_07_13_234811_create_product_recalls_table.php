@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('product_recalls', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
+            $table->unsignedBigInteger('tenant_id');
             $table->uuid('product_id');
             $table->string('recall_number')->unique();
             $table->enum('recall_type', ['voluntary', 'mandatory', 'fda_requested', 'market_withdrawal', 'stock_recovery']);

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('inspections', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
+            $table->unsignedBigInteger('tenant_id');
             $table->string('inspection_title');
             $table->enum('inspection_type', ['routine', 'complaint', 'follow_up', 'pre_approval', 'post_market']);
             $table->string('inspector_name');

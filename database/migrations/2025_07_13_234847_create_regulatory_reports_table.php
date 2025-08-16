@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('regulatory_reports', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
+            $table->unsignedBigInteger('tenant_id');
             $table->uuid('company_id')->nullable();
             $table->uuid('inspection_id')->nullable();
             $table->uuid('test_id')->nullable();

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('laboratory_tests', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
+            $table->unsignedBigInteger('tenant_id');
             $table->uuid('product_id');
             $table->string('test_number')->unique();
             $table->enum('test_type', ['quality_control', 'stability', 'bioequivalence', 'dissolution', 'microbiological', 'chemical', 'physical', 'toxicological', 'sterility', 'endotoxin']);

@@ -50,7 +50,7 @@ return new class extends Migration
             // Foreign keys
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->foreign('parent_account_id')->references('id')->on('chart_of_accounts')->onDelete('set null');
-            $table->foreign('cost_center_id')->references('id')->on('cost_centers')->onDelete('set null');
+            // Note: cost_center_id foreign key will be added after cost_centers table is created
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         });

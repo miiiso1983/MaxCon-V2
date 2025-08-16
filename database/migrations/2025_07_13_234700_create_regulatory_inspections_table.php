@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('regulatory_inspections', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
+            $table->unsignedBigInteger('tenant_id');
             $table->uuid('company_id');
             $table->string('inspection_number')->unique();
             $table->enum('inspection_type', ['routine', 'pre_approval', 'post_market', 'complaint_based', 'follow_up', 'surveillance', 'special', 'gmp', 'gcp', 'gdp']);

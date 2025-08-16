@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('quality_certificates', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
+            $table->unsignedBigInteger('tenant_id');
             $table->uuid('product_id');
             $table->string('certificate_number')->unique();
             $table->enum('certificate_type', ['coa', 'gmp', 'iso', 'halal', 'organic', 'stability', 'bioequivalence', 'sterility', 'batch_release', 'import']);

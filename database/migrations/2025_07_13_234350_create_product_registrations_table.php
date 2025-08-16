@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('product_registrations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
+            $table->unsignedBigInteger('tenant_id');
             $table->uuid('company_id');
             $table->string('product_name');
             $table->string('product_name_en')->nullable();
