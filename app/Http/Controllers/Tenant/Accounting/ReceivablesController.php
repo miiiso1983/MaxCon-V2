@@ -97,7 +97,17 @@ class ReceivablesController extends Controller
 
         // Generate receipt number and PDF
         $payment->receipt_number = InvoicePayment::generateReceiptNumber($invoice->tenant_id);
-        $payment->pdf_path = app(ReceiptService::class)->generatePdf($payment);
+
+        try {
+            $payment->pdf_path = app(ReceiptService::class)->generatePdf($payment);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to generate receipt PDF: ' . $e->getMessage(), [
+                'payment_id' => $payment->id,
+                'invoice_id' => $invoice->id
+            ]);
+            // Continue without PDF - user can still access web receipt
+        }
+
         $payment->save();
 
         return redirect()->route('tenant.inventory.accounting.receivables.invoice', $invoice)
@@ -169,24 +179,56 @@ class ReceivablesController extends Controller
 
         // QR (SVG data URL)
         $qrUrl = null;
+        $qrData = [
+            'type' => 'payment_receipt',
+            'receipt_number' => $payment->receipt_number,
+            'payment_id' => $payment->id,
+            'invoice_id' => $invoice->id,
+            'invoice_number' => $invoice->invoice_number,
+            'tenant' => $companyName,
+            'customer' => $customerName,
+            'sales_rep' => $salesRepName,
+            'amount' => (float) $payment->amount,
+            'currency' => 'IQD',
+            'payment_method' => $payment->payment_method,
+            'payment_date' => $dateStr,
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'verification_url' => route('tenant.receipts.payment.web', ['payment' => $payment->id], true)
+        ];
+
+        $qrJsonData = json_encode($qrData, JSON_UNESCAPED_UNICODE);
+
+        // Try multiple methods to generate QR code
         try {
+            // Method 1: SimpleSoftwareIO QrCode (SVG)
             if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
-                $qrData = [
-                    'receipt_number' => $payment->receipt_number,
-                    'payment_id' => $payment->id,
-                    'invoice_id' => $invoice->id,
-                    'invoice_number' => $invoice->invoice_number,
-                    'tenant' => $companyName,
-                    'customer' => $customerName,
-                    'sales_rep' => $salesRepName,
-                    'amount' => (float) $payment->amount,
-                    'payment_method' => $payment->payment_method,
-                    'payment_date' => $dateStr,
-                ];
-                $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(220)->margin(1)->generate(json_encode($qrData, JSON_UNESCAPED_UNICODE));
+                $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(220)->margin(1)->generate($qrJsonData);
                 $qrUrl = 'data:image/svg+xml;base64,' . base64_encode($svg);
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Log::warning('QR Code SVG generation failed: ' . $e->getMessage());
+        }
+
+        // Method 2: Fallback to PNG via external API
+        if (!$qrUrl) {
+            try {
+                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($qrJsonData);
+                $qrUrl = $qrApiUrl; // Direct URL for img src
+            } catch (\Throwable $e) {
+                \Log::warning('QR Code API fallback failed: ' . $e->getMessage());
+            }
+        }
+
+        // Method 3: Simple text fallback
+        if (!$qrUrl) {
+            try {
+                $simpleData = "سند استلام رقم: {$payment->receipt_number}\nالمبلغ: " . number_format((float)$payment->amount, 2) . " د.ع\nالتاريخ: {$dateStr}";
+                $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($simpleData);
+                $qrUrl = $qrApiUrl;
+            } catch (\Throwable $e) {
+                \Log::error('All QR Code generation methods failed for web receipt: ' . $e->getMessage());
+            }
+        }
 
         // Logo URL
         $logoUrl = null;

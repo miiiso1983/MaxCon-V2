@@ -19,24 +19,67 @@ class ReceiptService
         $invoice = $payment->invoice()->with(['customer', 'salesRep', 'tenant'])->first();
         // Prepare QR data
         $qrData = [
+            'type' => 'payment_receipt',
             'receipt_number' => $payment->receipt_number,
             'payment_id' => $payment->id,
             'invoice_id' => $invoice->id,
             'invoice_number' => $invoice->invoice_number,
-            'tenant' => $invoice->tenant->name ?? null,
-            'customer' => optional($invoice->customer)->name,
-            'sales_rep' => optional($invoice->salesRep)->name,
+            'tenant' => $invoice->tenant->name ?? 'شركة ماكس كون',
+            'customer' => optional($invoice->customer)->name ?? 'عميل',
+            'sales_rep' => optional($invoice->salesRep)->name ?? '-',
             'amount' => (float) $payment->amount,
+            'currency' => 'IQD',
             'payment_method' => $payment->payment_method,
-            'payment_date' => optional($payment->payment_date)->format('Y-m-d'),
+            'payment_date' => optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d'),
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'verification_url' => route('tenant.receipts.payment.web', ['payment' => $payment->id], true)
         ];
+
         $qrPng = null;
+        $qrJsonData = json_encode($qrData, JSON_UNESCAPED_UNICODE);
+
+        // Try multiple methods to generate QR code
         try {
+            // Method 1: SimpleSoftwareIO QrCode
             if (class_exists('SimpleSoftwareIO\\QrCode\\Facades\\QrCode')) {
-                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(220)->margin(1)->generate(json_encode($qrData, JSON_UNESCAPED_UNICODE)));
+                $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(220)->margin(1)->generate($qrJsonData));
             }
         } catch (\Throwable $e) {
-            $qrPng = null;
+            \Log::warning('QR Code generation failed with SimpleSoftwareIO: ' . $e->getMessage());
+        }
+
+        // Method 2: Fallback to external API if first method failed
+        if (!$qrPng) {
+            try {
+                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($qrJsonData);
+                $context = stream_context_create([
+                    'http' => [
+                        'timeout' => 10,
+                        'user_agent' => 'MaxCon Receipt System'
+                    ]
+                ]);
+                $qrImageData = @file_get_contents($qrUrl, false, $context);
+                if ($qrImageData !== false) {
+                    $qrPng = base64_encode($qrImageData);
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('QR Code generation failed with external API: ' . $e->getMessage());
+            }
+        }
+
+        // Method 3: Generate simple text-based QR if all else fails
+        if (!$qrPng) {
+            try {
+                $simpleData = "سند استلام رقم: {$payment->receipt_number}\nالمبلغ: " . number_format($payment->amount, 2) . " د.ع\nالتاريخ: " . ($payment->payment_date ? $payment->payment_date->format('Y-m-d') : now()->format('Y-m-d'));
+                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data=' . urlencode($simpleData);
+                $qrImageData = @file_get_contents($qrUrl);
+                if ($qrImageData !== false) {
+                    $qrPng = base64_encode($qrImageData);
+                }
+            } catch (\Throwable $e) {
+                \Log::error('All QR Code generation methods failed: ' . $e->getMessage());
+                $qrPng = null;
+            }
         }
 
         // Prepare logo base64 if available

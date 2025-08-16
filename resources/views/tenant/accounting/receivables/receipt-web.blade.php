@@ -80,14 +80,61 @@
     </div>
   </div>
 
-  @if(!empty($qrUrl))
+  <!-- QR Code Section -->
   <div class="card qr">
     <div>
       <div class="label">رمز QR</div>
       <div class="val" style="font-weight:600; font-size:12px; color:#334155;">يحمل كافة بيانات سند الاستلام</div>
     </div>
-    <img src="{{ $qrUrl }}" alt="QR" style="height:120px; width:120px;" />
+    @if(!empty($qrUrl))
+      <img src="{{ $qrUrl }}" alt="QR Code" style="height:120px; width:120px; border:1px solid #e5e7eb; border-radius:8px;"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+      <div style="display:none; width:120px; height:120px; border:2px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#6b7280; text-align:center;">
+        QR غير متوفر
+      </div>
+    @else
+      <!-- Fallback: Generate QR using JavaScript -->
+      <div id="qr-fallback-{{ $payment->id }}" style="width:120px; height:120px; border:1px solid #e5e7eb; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#6b7280; text-align:center;">
+        جاري تحميل QR...
+      </div>
+    @endif
   </div>
+
+  @if(empty($qrUrl))
+  <!-- JavaScript fallback for QR generation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var qrData = {
+        type: 'payment_receipt',
+        receipt_number: '{{ $payment->receipt_number }}',
+        payment_id: {{ $payment->id }},
+        invoice_number: '{{ $invoice->invoice_number }}',
+        amount: {{ (float)$payment->amount }},
+        currency: 'IQD',
+        payment_method: '{{ $payment->payment_method }}',
+        payment_date: '{{ optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d') }}',
+        tenant: '{{ $companyName }}',
+        customer: '{{ $customerName }}'
+      };
+
+      var fallbackContainer = document.getElementById('qr-fallback-{{ $payment->id }}');
+      var qrDataString = JSON.stringify(qrData);
+
+      // Try to generate QR using external API
+      var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&format=png&data=' + encodeURIComponent(qrDataString);
+
+      var img = document.createElement('img');
+      img.src = qrApiUrl;
+      img.style.cssText = 'width:120px; height:120px; border-radius:8px;';
+      img.onload = function() {
+        fallbackContainer.innerHTML = '';
+        fallbackContainer.appendChild(img);
+      };
+      img.onerror = function() {
+        fallbackContainer.innerHTML = '<div style="font-size:10px; color:#ef4444; text-align:center;">QR غير متوفر</div>';
+      };
+    });
+  </script>
   @endif
 
   <div class="footer">تم عرض المستند بواسطة نظام {{ config('app.name', 'MaxCon') }} — {{ now()->format('Y-m-d H:i') }}</div>

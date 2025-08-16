@@ -85,15 +85,23 @@
         <div class="val">{{ number_format((float)$payment->amount, 2) }} د.ع</div>
       </div>
 
-  @if(!empty($qrPng))
-    <div class="card" style="display:flex; align-items:center; gap:14px;">
-      <div>
-        <div class="label">رمز QR</div>
-        <div class="val" style="font-weight:600; font-size:12px; color:#334155;">يحمل كافة بيانات سند الاستلام</div>
-      </div>
-      <img src="data:image/png;base64,{{ $qrPng }}" alt="QR" style="height:96px; width:96px;" />
+  <!-- QR Code Section -->
+  <div class="card" style="display:flex; align-items:center; gap:14px;">
+    <div>
+      <div class="label">رمز QR</div>
+      <div class="val" style="font-weight:600; font-size:12px; color:#334155;">يحمل كافة بيانات سند الاستلام</div>
     </div>
-  @endif
+    @if(!empty($qrPng))
+      <img src="data:image/png;base64,{{ $qrPng }}" alt="QR Code" style="height:96px; width:96px; border:1px solid #e5e7eb; border-radius:8px;" />
+    @else
+      <!-- Fallback: Show receipt info as text -->
+      <div style="width:96px; height:96px; border:2px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:8px; color:#6b7280; text-align:center; padding:4px;">
+        سند رقم: {{ $payment->receipt_number }}<br>
+        المبلغ: {{ number_format((float)$payment->amount, 2) }} د.ع<br>
+        التاريخ: {{ optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d') }}
+      </div>
+    @endif
+  </div>
 
       <div class="col">
         <div class="label">المرجع</div>
