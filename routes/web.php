@@ -4397,6 +4397,38 @@ Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(f
                     $table->date('payment_date');
                     $table->enum('payment_method', ['cash', 'bank_transfer', 'check', 'credit_card', 'other'])->default('cash');
                     $table->string('reference_number')->nullable();
+
+    // Secure streaming of receipt PDFs by payment id (works even if public/storage symlink broken)
+    Route::get('/receipts/payment/{payment}', function (\App\Models\InvoicePayment $payment) {
+        $user = auth()->user();
+        if (!$user || !$payment->invoice || $payment->invoice->tenant_id !== $user->tenant_id) {
+            abort(403);
+        }
+
+        $path = $payment->pdf_path;
+        try {
+            if (!$path || !\Storage::disk('public')->exists($path)) {
+                // Regenerate if missing
+                $newPath = app(\App\Services\Accounting\ReceiptService::class)->generatePdf($payment);
+                $payment->pdf_path = $newPath;
+                $payment->save();
+                $path = $newPath;
+            }
+        } catch (\Throwable $e) {
+            abort(404, 'Receipt PDF not available');
+        }
+
+        $absPath = storage_path('app/public/' . ltrim($path, '/'));
+        if (!file_exists($absPath)) {
+            abort(404, 'Receipt file not found');
+        }
+
+        return response()->file($absPath, [
+            'Content-Type' => 'application/pdf',
+            'Cache-Control' => 'private, max-age=3600'
+        ]);
+    })->name('tenant.receipts.payment.show');
+
                     $table->text('notes')->nullable();
                     $table->unsignedBigInteger('created_by');
                     // receipt fields (inline to avoid needing a follow-up migration)
@@ -4519,36 +4551,7 @@ Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(f
                 if (!$path || !\Storage::disk('public')->exists($path)) {
                     // Try regenerate
 
-    // Secure streaming of receipt PDFs by payment id (works even if public/storage symlink broken)
-    Route::get('/receipts/payment/{payment}', function (\App\Models\InvoicePayment $payment) {
-        $user = auth()->user();
-        if (!$user || !$payment->invoice || $payment->invoice->tenant_id !== $user->tenant_id) {
-            abort(403);
-        }
 
-        $path = $payment->pdf_path;
-        try {
-            if (!$path || !\Storage::disk('public')->exists($path)) {
-                // Regenerate if missing
-                $newPath = app(\App\Services\Accounting\ReceiptService::class)->generatePdf($payment);
-                $payment->pdf_path = $newPath;
-                $payment->save();
-                $path = $newPath;
-            }
-        } catch (\Throwable $e) {
-            abort(404, 'Receipt PDF not available');
-        }
-
-        $absPath = storage_path('app/public/' . ltrim($path, '/'));
-        if (!file_exists($absPath)) {
-            abort(404, 'Receipt file not found');
-        }
-
-        return response()->file($absPath, [
-            'Content-Type' => 'application/pdf',
-            'Cache-Control' => 'private, max-age=3600'
-        ]);
-    })->name('receipts.payment.show');
 
                     try {
                         $newPath = app(\App\Services\Accounting\ReceiptService::class)->generatePdf($p);
