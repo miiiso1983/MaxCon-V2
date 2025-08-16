@@ -4443,6 +4443,81 @@ Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(f
             if (!empty($report['missing'])) {
                 \Artisan::call('migrate', ['--force' => true]);
                 $report['ran_migrate'] = true;
+
+    // Maintenance: migrate old receipts to public disk and fix paths
+    Route::post('/maintenance/migrate-receipts', function () {
+        $user = auth()->user();
+        $allowed = false;
+        if ($user) {
+            try {
+                if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) { $allowed = true; }
+                if (method_exists($user, 'isTenantAdmin') && $user->isTenantAdmin()) { $allowed = true; }
+            } catch (\Throwable $e) { /* ignore */ }
+            $roleVal = $user->role ?? null;
+            if (in_array($roleVal, ['super_admin','tenant_admin'])) { $allowed = true; }
+            if (method_exists($user, 'hasRole')) {
+                if ($user->hasRole('super-admin') || $user->hasRole('tenant-admin')) { $allowed = true; }
+            }
+        }
+        if (!$allowed) { abort(403); }
+
+        $moved = 0; $updated = 0; $missing = 0; $errors = [];
+        try {
+            $payments = \App\Models\InvoicePayment::whereNotNull('pdf_path')->latest('id')->take(500)->get();
+            foreach ($payments as $p) {
+                $path = $p->pdf_path;
+                // If path already points under receipts/ with public disk, just ensure file exists
+                if (!\Illuminate\Support\Str::startsWith($path, 'receipts/')) {
+                    // Normalize old paths: remove leading storage/... etc.
+                    $path = ltrim(str_replace(['storage/', 'app/', 'public/'], '', $path), '/');
+                }
+
+                // If file exists on public, keep
+                if (\Storage::disk('public')->exists($path)) {
+                    if ($path !== $p->pdf_path) { $p->pdf_path = $path; $p->save(); $updated++; }
+                    continue;
+                }
+
+                // If exists on local/private, move to public
+                if (\Storage::exists($p->pdf_path)) {
+                    $contents = \Storage::get($p->pdf_path);
+                    \Storage::disk('public')->put($path, $contents);
+                    $p->pdf_path = $path; $p->save();
+                    $moved++;
+                    continue;
+                }
+
+                // Try alternative likely locations
+                $altCandidates = [
+                    $path,
+                    'receipts/' . basename($path),
+                    'app/receipts/' . basename($path),
+                    'public/receipts/' . basename($path),
+                ];
+                $found = false;
+                foreach ($altCandidates as $alt) {
+                    if (\Storage::exists($alt)) {
+                        $contents = \Storage::get($alt);
+                        \Storage::disk('public')->put('receipts/' . basename($alt), $contents);
+                        $p->pdf_path = 'receipts/' . basename($alt); $p->save();
+                        $moved++; $found = true; break;
+                    }
+                }
+                if (!$found) { $missing++; }
+            }
+        } catch (\Throwable $e) {
+            $errors[] = $e->getMessage();
+        }
+
+        return response()->json([
+            'timestamp' => now()->toDateTimeString(),
+            'moved' => $moved,
+            'updated' => $updated,
+            'missing' => $missing,
+            'errors' => $errors,
+        ]);
+    })->name('maintenance.migrate-receipts');
+
                 $report['artisan_output'] = \Artisan::output();
             }
         } catch (\Throwable $e) {
