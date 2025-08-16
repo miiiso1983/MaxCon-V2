@@ -11,6 +11,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Services\Accounting\ReceivablesService;
 use App\Services\Accounting\ReceiptService;
 
@@ -125,8 +126,8 @@ class ReceivablesController extends Controller
             }
         }
 
-        $companyName = auth()->user()->tenant->name ?? 'شركة ماكس كون';
-        $receiptUrl = $payment->pdf_path ? \Storage::url($payment->pdf_path) : '';
+        $companyName = Auth::user()->tenant->name ?? 'شركة ماكس كون';
+        $receiptUrl = $payment->pdf_path ? Storage::url($payment->pdf_path) : '';
         $amount = number_format((float)$payment->amount, 2);
         $message = "مرحباً،\n\nتم استلام دفعة مقابل فاتورتكم من {$companyName}.\n\nرقم الفاتورة: {$invoice->invoice_number}\nرقم السند: " . ($payment->receipt_number ?? '-') . "\nالمبلغ المستلم: {$amount} د.ع\n\nرابط سند الاستلام (PDF): {$receiptUrl}\n\nشكراً لتعاملكم معنا.";
 
@@ -191,8 +192,8 @@ class ReceivablesController extends Controller
         $logoUrl = null;
         try {
             $logoPath = $invoice->tenant->logo ?? null;
-            if ($logoPath && \Storage::disk('public')->exists($logoPath)) {
-                $logoUrl = \Storage::url($logoPath);
+            if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+                $logoUrl = Storage::url($logoPath);
             }
         } catch (\Throwable $e) {}
 
@@ -200,7 +201,4 @@ class ReceivablesController extends Controller
             'invoice','payment','companyName','salesRepName','customerName','receiptNo','invNo','dateStr','paymentMethod','qrUrl','logoUrl'
         ));
     }
-
-
-
 }

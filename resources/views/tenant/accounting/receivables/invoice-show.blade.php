@@ -82,7 +82,7 @@
           <div style="display:flex; gap:8px;">
             <a href="{{ route('tenant.receipts.payment.show', ['payment' => $p->id], false) }}" target="_blank" class="btn" style="background:#3b82f6; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none;">PDF</a>
             <a href="{{ route('tenant.receipts.payment.web', ['payment' => $p->id], false) }}" target="_blank" class="btn" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 60%, #1e40af 100%); color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none;">عرض ويب</a>
-            <button type="button" onclick="sendReceiptWhatsApp({{ $p->id }}, '{{ addslashes(optional($invoice->customer)->phone) }}')" class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
+            <button type="button" data-payment-id="{{ $p->id }}" data-phone="{{ optional($invoice->customer)->phone ?? '' }}" onclick="sendReceiptWhatsApp(this.dataset.paymentId, this.dataset.phone)" class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
           </div>
         </div>
       @empty
@@ -108,12 +108,20 @@
 
 
 @push('scripts')
+<script type="application/json" id="whatsapp-config">
+{!! json_encode([
+    'urlTemplate' => $whatsTpl,
+    'migrateReceiptsUrl' => $migrateReceiptsUrl ?? ''
+]) !!}
+</script>
 <script>
+
 function sendReceiptWhatsApp(paymentId, phone) {
   try {
     var meta = document.querySelector('meta[name="csrf-token"]');
     var token = meta ? meta.getAttribute('content') : '';
-    var baseUrlTemplate = @json($whatsTpl);
+    var config = JSON.parse(document.getElementById('whatsapp-config').textContent);
+    var baseUrlTemplate = config.urlTemplate;
 
     fetch(baseUrlTemplate.replace('PAYMENT_ID', paymentId), {
       method: 'POST',
@@ -129,27 +137,34 @@ function sendReceiptWhatsApp(paymentId, phone) {
   } catch (e) { console.error(e); alert('خطأ غير متوقع'); }
 }
 
-  function fixReceipts() {
-    try {
-      var meta = document.querySelector('meta[name="csrf-token"]');
-      var token = meta ? meta.getAttribute('content') : '';
-      var url = @json($migrateReceiptsUrl);
-      fetch(url, {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      }).then(function(r){ return r.json(); }).then(function(json){
-        alert(
-          'نتيجة الإصلاح:\n' +
-          'نُقلت: ' + (json.moved || 0) + '\n' +
-          'تحديث مسارات: ' + (json.updated || 0) + '\n' +
-          'أُعيد توليدها: ' + (json.regenerated || 0) + '\n' +
-          'مفقودة بعد المحاولة: ' + (json.still_missing_after_regen || 0) + '\n' +
-          ((json.errors && json.errors.length) ? ('أخطاء: ' + json.errors.join(', ')) : 'بدون أخطاء')
-        );
-      }).catch(function(err){ console.error(err); alert('فشل طلب الإصلاح'); });
-    } catch (e) { console.error(e); alert('خطأ غير متوقع'); }
-  }
+function fixReceipts() {
+  try {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    var token = meta ? meta.getAttribute('content') : '';
+    var config = JSON.parse(document.getElementById('whatsapp-config').textContent);
+    var url = config.migrateReceiptsUrl;
+
+    if (!url) {
+      alert('رابط الإصلاح غير متوفر');
+      return;
+    }
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    }).then(function(r){ return r.json(); }).then(function(json){
+      alert(
+        'نتيجة الإصلاح:\n' +
+        'نُقلت: ' + (json.moved || 0) + '\n' +
+        'تحديث مسارات: ' + (json.updated || 0) + '\n' +
+        'أُعيد توليدها: ' + (json.regenerated || 0) + '\n' +
+        'مفقودة بعد المحاولة: ' + (json.still_missing_after_regen || 0) + '\n' +
+        ((json.errors && json.errors.length) ? ('أخطاء: ' + json.errors.join(', ')) : 'بدون أخطاء')
+      );
+    }).catch(function(err){ console.error(err); alert('فشل طلب الإصلاح'); });
+  } catch (e) { console.error(e); alert('خطأ غير متوقع'); }
+}
 
 </script>
 @endpush
