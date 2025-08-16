@@ -18,6 +18,27 @@
       </div>
     </div>
 
+@php
+  $user = auth()->user();
+  $isAdminMaint = $user && (
+    (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) ||
+    (method_exists($user, 'isTenantAdmin') && $user->isTenantAdmin()) ||
+    (method_exists($user, 'hasRole') && ($user->hasRole('super-admin') || $user->hasRole('tenant-admin'))) ||
+    in_array($user->role ?? null, ['super_admin','tenant_admin'])
+  );
+  $migrateReceiptsUrl = url('/tenant/maintenance/migrate-receipts');
+  if (\Illuminate\Support\Facades\Route::has('tenant.maintenance.migrate-receipts')) {
+      $migrateReceiptsUrl = route('tenant.maintenance.migrate-receipts', [], false);
+  }
+@endphp
+
+@if($isAdminMaint)
+  <div style="margin-top:6px;">
+    <button type="button" onclick="fixReceipts()" class="btn" style="background:#2563eb; color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إصلاح الإيصالات</button>
+  </div>
+@endif
+
+
     @php
       $storeRouteNamePreferred = 'tenant.inventory.accounting.receivables.invoice.payments.store';
       $storeRouteNameFallback  = 'tenant.accounting.receivables.invoice.payments.store';
@@ -62,7 +83,7 @@
             @if($p->pdf_path)
               <a href="{{ Storage::disk('public')->url($p->pdf_path) }}" target="_blank" class="btn" style="background:#3b82f6; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none;">عرض السند</a>
             @endif
-            <button type="button" onclick="sendReceiptWhatsApp({{ $p->id }}, '{{ addslashes(optional($invoice->customer)->phone) }}')" class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
+            <button type="button" onclick='sendReceiptWhatsApp({{ $p->id }}, {{ json_encode(optional($invoice->customer)->phone) }})' class="btn" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer;">إرسال واتساب</button>
           </div>
         </div>
       @empty
@@ -108,5 +129,28 @@ function sendReceiptWhatsApp(paymentId, phone) {
     }).catch(function(err){ console.error(err); alert('خطأ أثناء الإرسال عبر واتساب'); });
   } catch (e) { console.error(e); alert('خطأ غير متوقع'); }
 }
+
+  function fixReceipts() {
+    try {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      var token = meta ? meta.getAttribute('content') : '';
+      var url = @json($migrateReceiptsUrl);
+      fetch(url, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      }).then(function(r){ return r.json(); }).then(function(json){
+        alert(
+          'نتيجة الإصلاح:\n' +
+          'نُقلت: ' + (json.moved || 0) + '\n' +
+          'تحديث مسارات: ' + (json.updated || 0) + '\n' +
+          'أُعيد توليدها: ' + (json.regenerated || 0) + '\n' +
+          'مفقودة بعد المحاولة: ' + (json.still_missing_after_regen || 0) + '\n' +
+          ((json.errors && json.errors.length) ? ('أخطاء: ' + json.errors.join(', ')) : 'بدون أخطاء')
+        );
+      }).catch(function(err){ console.error(err); alert('فشل طلب الإصلاح'); });
+    } catch (e) { console.error(e); alert('خطأ غير متوقع'); }
+  }
+
 </script>
 @endpush
