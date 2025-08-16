@@ -4463,7 +4463,7 @@ Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(f
 
         $moved = 0; $updated = 0; $missing = 0; $errors = [];
         try {
-            $payments = \App\Models\InvoicePayment::whereNotNull('pdf_path')->latest('id')->take(500)->get();
+            $payments = \App\Models\InvoicePayment::orderBy('id')->get();
             foreach ($payments as $p) {
                 $path = $p->pdf_path;
                 // If path already points under receipts/ with public disk, just ensure file exists
@@ -4509,11 +4509,35 @@ Route::middleware(['auth','tenant'])->prefix('tenant')->name('tenant.')->group(f
             $errors[] = $e->getMessage();
         }
 
+        // If some receipts are still missing, optionally regenerate PDFs for those payments
+        try {
+            $regenerated = 0;
+            $recheckedMissing = 0;
+            $all = \App\Models\InvoicePayment::orderBy('id')->get();
+            foreach ($all as $p) {
+                $path = $p->pdf_path;
+                if (!$path || !\Storage::disk('public')->exists($path)) {
+                    // Try regenerate
+                    try {
+                        $newPath = app(\App\Services\Accounting\ReceiptService::class)->generatePdf($p);
+                        $p->pdf_path = $newPath; $p->save();
+                        $regenerated++;
+                    } catch (\Throwable $re) {
+                        $recheckedMissing++;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            $errors[] = 'regenerate: ' . $e->getMessage();
+        }
+
         return response()->json([
             'timestamp' => now()->toDateTimeString(),
             'moved' => $moved,
             'updated' => $updated,
             'missing' => $missing,
+            'regenerated' => $regenerated ?? 0,
+            'still_missing_after_regen' => $recheckedMissing ?? 0,
             'errors' => $errors,
         ]);
     })->name('maintenance.migrate-receipts');
