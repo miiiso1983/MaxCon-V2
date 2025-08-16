@@ -18,7 +18,7 @@ class ReceiptService
     {
         $invoice = $payment->invoice()->with(['customer', 'salesRep', 'tenant'])->first();
         // Prepare QR data
-        // Create professional formatted text for QR code
+        // Create professional formatted text for QR code with invoice-like design
         $tenantName = $invoice->tenant->name ?? 'شركة ماكس كون';
         $customerName = optional($invoice->customer)->name ?? 'عميل';
         $salesRepName = optional($invoice->salesRep)->name ?? '-';
@@ -26,23 +26,30 @@ class ReceiptService
         $formattedAmount = number_format((float) $payment->amount, 2);
         $paymentDate = optional($payment->payment_date)->format('Y-m-d') ?? now()->format('Y-m-d');
 
-        $qrText = "🧾 سند استلام\n";
-        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-        $qrText .= "📋 رقم السند: {$payment->receipt_number}\n";
-        $qrText .= "📄 رقم الفاتورة: {$invoice->invoice_number}\n";
-        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-        $qrText .= "🏢 الشركة: {$tenantName}\n";
-        $qrText .= "👤 العميل: {$customerName}\n";
-        if ($salesRepName !== '-') {
-            $qrText .= "👨‍💼 المندوب: {$salesRepName}\n";
-        }
-        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-        $qrText .= "💰 المبلغ المستلم: {$formattedAmount} د.ع\n";
-        $qrText .= "💳 طريقة الدفع: {$paymentMethodLabel}\n";
-        $qrText .= "📅 التاريخ: {$paymentDate}\n";
-        $qrText .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-        $qrText .= "✅ تم الاستلام بنجاح\n";
-        $qrText .= "🔒 مصدق من نظام ماكس كون";
+        // Create invoice-style formatted text
+        $qrText = "┌─────────────────────────────────────┐\n";
+        $qrText .= "│        {$tenantName} • التحقق من السند        │\n";
+        $qrText .= "└─────────────────────────────────────┘\n\n";
+
+        $qrText .= "بيانات السند                    معلومات العميل\n";
+        $qrText .= "─────────────────────────────────────\n";
+        $qrText .= "رقم السند                           العميل\n";
+        $qrText .= "{$payment->receipt_number}                    {$customerName}\n\n";
+
+        $qrText .= "رقم الفاتورة                        المندوب\n";
+        $qrText .= "{$invoice->invoice_number}                      {$salesRepName}\n\n";
+
+        $qrText .= "تاريخ السند                         الحالة\n";
+        $qrText .= "{$paymentDate}                      مدفوع\n\n";
+
+        $qrText .= "─────────────────────────────────────\n";
+        $qrText .= "                المبالغ                \n";
+        $qrText .= "─────────────────────────────────────\n";
+        $qrText .= "المبلغ المستلم                {$formattedAmount} د.ع\n";
+        $qrText .= "طريقة الدفع                    {$paymentMethodLabel}\n\n";
+
+        $qrText .= "─────────────────────────────────────\n";
+        $qrText .= "سند صحيح ومعتمد من نظام ماكس كون للإدارة الصيدلانية";
 
         $qrPng = null;
 
