@@ -3,82 +3,119 @@
 @section('title', 'اختبار QR كود سند الاستلام')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">اختبار QR كود سند الاستلام</h4>
-                    <p class="text-muted">هذه الصفحة لاختبار كيفية عمل QR كود في سند الاستلام</p>
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 main-container">
+    <!-- Header Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 header-padding">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">اختبار QR كود سند الاستلام</h1>
+            <p class="text-gray-600">هذه الصفحة لاختبار كيفية عمل QR كود في سند الاستلام</p>
+        </div>
+
+        <!-- QR Code Test Section -->
+        <div class="p-6 card-padding">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 qr-grid">
+                <!-- JSON QR Code -->
+                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">QR كود بيانات JSON</h3>
+                    <div class="bg-white rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
+                        <div id="json-qr-container" class="min-h-[200px] flex items-center justify-center qr-container">
+                            <div class="text-gray-500">جاري تحميل QR كود...</div>
+                        </div>
+                        <button onclick="generateJSONQR()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            إنشاء QR كود JSON
+                        </button>
+                    </div>
                 </div>
-                <div class="card-body">
-                    
-                    <!-- QR Code Test Section -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>QR كود بيانات JSON</h5>
-                            <div class="border p-3 text-center" style="background: #f8f9fa;">
-                                <div id="json-qr-container" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
-                                    <div class="text-muted">جاري تحميل QR كود...</div>
-                                </div>
-                                <button onclick="generateJSONQR()" class="btn btn-primary btn-sm mt-2">إنشاء QR كود JSON</button>
-                            </div>
+
+                <!-- Text QR Code -->
+                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">QR كود نص بسيط</h3>
+                    <div class="bg-white rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
+                        <div id="text-qr-container" class="min-h-[200px] flex items-center justify-center qr-container">
+                            <div class="text-gray-500">جاري تحميل QR كود...</div>
                         </div>
-                        
-                        <div class="col-md-6">
-                            <h5>QR كود نص بسيط</h5>
-                            <div class="border p-3 text-center" style="background: #f8f9fa;">
-                                <div id="text-qr-container" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
-                                    <div class="text-muted">جاري تحميل QR كود...</div>
-                                </div>
-                                <button onclick="generateTextQR()" class="btn btn-success btn-sm mt-2">إنشاء QR كود نص</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Data Preview -->
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h5>بيانات QR كود</h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6>بيانات JSON:</h6>
-                                    <pre id="json-data" class="bg-light p-3" style="font-size: 12px; max-height: 300px; overflow-y: auto;"></pre>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6>نص بسيط:</h6>
-                                    <pre id="text-data" class="bg-light p-3" style="font-size: 12px; max-height: 300px; overflow-y: auto;"></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Instructions -->
-                    <div class="alert alert-info mt-4">
-                        <h6>كيفية الاختبار:</h6>
-                        <ol>
-                            <li>انقر على أزرار "إنشاء QR كود" أعلاه</li>
-                            <li>امسح QR كود باستخدام تطبيق قارئ QR على هاتفك</li>
-                            <li>تحقق من أن البيانات المعروضة تحتوي على معلومات سند الاستلام وليس رابط الموقع</li>
-                            <li>QR كود JSON يحتوي على بيانات مفصلة، بينما QR كود النص يحتوي على معلومات مبسطة</li>
-                        </ol>
-                    </div>
-                    
-                    <!-- Sample Receipt Link -->
-                    <div class="alert alert-warning">
-                        <h6>لاختبار سند استلام حقيقي:</h6>
-                        <p>تحتاج أولاً لإنشاء فاتورة ودفعة في النظام، ثم يمكنك الوصول لسند الاستلام عبر:</p>
-                        <code>/tenant/receipts/payment/{payment_id}/web</code>
+                        <button onclick="generateTextQR()" class="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            إنشاء QR كود نص
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Data Preview Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">بيانات QR كود</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">بيانات JSON:</h3>
+                    <pre id="json-data" class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-xs overflow-auto max-h-80 text-right"></pre>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">نص بسيط:</h3>
+                    <pre id="text-data" class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-xs overflow-auto max-h-80 text-right"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions Section -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-semibold text-blue-900 mb-4">كيفية الاختبار:</h3>
+        <ol class="list-decimal list-inside space-y-2 text-blue-800">
+            <li>انقر على أزرار "إنشاء QR كود" أعلاه</li>
+            <li>امسح QR كود باستخدام تطبيق قارئ QR على هاتفك</li>
+            <li>تحقق من أن البيانات المعروضة تحتوي على معلومات سند الاستلام وليس رابط الموقع</li>
+            <li>QR كود JSON يحتوي على بيانات مفصلة، بينما QR كود النص يحتوي على معلومات مبسطة</li>
+        </ol>
+    </div>
+
+    <!-- Sample Receipt Link -->
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-yellow-900 mb-3">لاختبار سند استلام حقيقي:</h3>
+        <p class="text-yellow-800 mb-2">تحتاج أولاً لإنشاء فاتورة ودفعة في النظام، ثم يمكنك الوصول لسند الاستلام عبر:</p>
+        <code class="bg-yellow-100 text-yellow-900 px-2 py-1 rounded text-sm">/tenant/receipts/payment/{payment_id}/web</code>
     </div>
 </div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+/* Additional responsive styles */
+@media (max-width: 768px) {
+    .qr-grid {
+        gap: 1rem;
+    }
+
+    .qr-container {
+        min-height: 150px;
+    }
+
+    pre {
+        font-size: 10px;
+        max-height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .card-padding {
+        padding: 1rem;
+    }
+
+    .header-padding {
+        padding: 1rem;
+    }
+}
+</style>
 <script>
 // Sample receipt data for testing
 var sampleReceiptData = {
@@ -137,10 +174,9 @@ function generateJSONQR() {
             
             container.innerHTML = '';
             container.appendChild(canvas);
-            
+
             var desc = document.createElement('div');
-            desc.className = 'text-muted mt-2';
-            desc.style.fontSize = '12px';
+            desc.className = 'text-gray-600 mt-3 text-sm';
             desc.textContent = 'QR كود يحتوي على بيانات JSON كاملة';
             container.appendChild(desc);
         });
@@ -176,10 +212,9 @@ function generateTextQR() {
             
             container.innerHTML = '';
             container.appendChild(canvas);
-            
+
             var desc = document.createElement('div');
-            desc.className = 'text-muted mt-2';
-            desc.style.fontSize = '12px';
+            desc.className = 'text-gray-600 mt-3 text-sm';
             desc.textContent = 'QR كود يحتوي على نص بسيط مقروء';
             container.appendChild(desc);
         });
@@ -195,15 +230,14 @@ function fallbackQR(container, data) {
     img.onload = function() {
         container.innerHTML = '';
         container.appendChild(img);
-        
+
         var desc = document.createElement('div');
-        desc.className = 'text-muted mt-2';
-        desc.style.fontSize = '12px';
+        desc.className = 'text-gray-600 mt-3 text-sm';
         desc.textContent = 'QR كود تم إنشاؤه عبر External API';
         container.appendChild(desc);
     };
     img.onerror = function() {
-        container.innerHTML = '<div class="text-danger">فشل في إنشاء QR كود</div>';
+        container.innerHTML = '<div class="text-red-600 text-sm">فشل في إنشاء QR كود</div>';
     };
 }
 
