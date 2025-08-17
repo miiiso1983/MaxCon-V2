@@ -198,6 +198,10 @@ class ProductRecallController extends Controller
             if (Schema::hasColumn('product_recalls', 'manufacturer_name') && (!isset($data['manufacturer_name']) || $data['manufacturer_name'] === null)) {
                 $data['manufacturer_name'] = (string)($canonical['manufacturer_name'] ?? '');
             }
+            // Ensure regulatory_authority if NOT NULL in DB
+            if (Schema::hasColumn('product_recalls', 'regulatory_authority') && (!isset($data['regulatory_authority']) || $data['regulatory_authority'] === null)) {
+                $data['regulatory_authority'] = (string)($canonical['regulatory_authority'] ?? '');
+            }
             // Ensure initiation date variants if required by DB
             if (Schema::hasColumn('product_recalls', 'recall_initiation_date') && empty($data['recall_initiation_date'])) {
                 $data['recall_initiation_date'] = date('Y-m-d', strtotime((string)$canonical['initiation_date']));
