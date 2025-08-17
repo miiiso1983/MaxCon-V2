@@ -379,11 +379,18 @@ class InspectionController extends Controller
      */
     public function showCalendar()
     {
-        // Get inspections for calendar view
-        $inspections = Inspection::where('tenant_id', Auth::user()->tenant_id)
-            ->whereNotNull('scheduled_date')
-            ->orderBy('scheduled_date', 'asc')
-            ->get();
+        // Get inspections for calendar view with fallback if scheduled_date column doesn't exist
+        try {
+            $inspections = Inspection::where('tenant_id', Auth::user()->tenant_id)
+                ->whereNotNull('scheduled_date')
+                ->orderBy('scheduled_date', 'asc')
+                ->get();
+        } catch (\Exception $e) {
+            // Fallback: use created_at if scheduled_date is not available in production schema
+            $inspections = Inspection::where('tenant_id', Auth::user()->tenant_id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
 
         // If no inspections exist, create some sample data for demonstration
         if ($inspections->isEmpty()) {
@@ -475,21 +482,25 @@ class InspectionController extends Controller
         } else {
             // Prepare calendar events from database
             $events = $inspections->map(function ($inspection) {
+                // Use scheduled_date if available, else created_at
+                $startDate = isset($inspection->scheduled_date) && $inspection->scheduled_date ? $inspection->scheduled_date : $inspection->created_at;
+                $endDate = (isset($inspection->completion_date) && $inspection->completion_date) ? $inspection->completion_date : null;
+
                 return [
                     'id' => $inspection->id,
-                    'title' => $inspection->inspection_title,
-                    'start' => $inspection->scheduled_date->format('Y-m-d'),
-                    'end' => $inspection->completion_date ? $inspection->completion_date->format('Y-m-d') : null,
-                    'backgroundColor' => $inspection->getInspectionStatusColor(),
-                    'borderColor' => $inspection->getInspectionStatusColor(),
+                    'title' => $inspection->inspection_title ?? 'تفتيش',
+                    'start' => $startDate->format('Y-m-d'),
+                    'end' => $endDate ? $endDate->format('Y-m-d') : null,
+                    'backgroundColor' => method_exists($inspection, 'getInspectionStatusColor') ? $inspection->getInspectionStatusColor() : '#4299e1',
+                    'borderColor' => method_exists($inspection, 'getInspectionStatusColor') ? $inspection->getInspectionStatusColor() : '#4299e1',
                     'textColor' => '#ffffff',
                     'extendedProps' => [
-                        'inspector' => $inspection->inspector_name,
-                        'authority' => $inspection->inspection_authority,
-                        'facility' => $inspection->facility_name,
-                        'type' => $inspection->getInspectionTypeLabel(),
-                        'status' => $inspection->getInspectionStatusLabel(),
-                        'compliance' => $inspection->compliance_rating ? $inspection->getComplianceRatingLabel() : null,
+                        'inspector' => $inspection->inspector_name ?? 'غير محدد',
+                        'authority' => $inspection->inspection_authority ?? 'غير محدد',
+                        'facility' => $inspection->facility_name ?? 'غير محدد',
+                        'type' => method_exists($inspection, 'getInspectionTypeLabel') ? $inspection->getInspectionTypeLabel() : ($inspection->inspection_type ?? 'غير محدد'),
+                        'status' => method_exists($inspection, 'getInspectionStatusLabel') ? $inspection->getInspectionStatusLabel() : ($inspection->inspection_status ?? 'غير محدد'),
+                        'compliance' => (isset($inspection->compliance_rating) && $inspection->compliance_rating && method_exists($inspection, 'getComplianceRatingLabel')) ? $inspection->getComplianceRatingLabel() : null,
                     ]
                 ];
             });
