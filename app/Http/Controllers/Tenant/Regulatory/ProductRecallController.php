@@ -95,20 +95,14 @@ class ProductRecallController extends Controller
      */
     public function index()
     {
-        // Get recalls for current tenant
-        $recalls = collect(); // Start with empty collection for now
+        // Get recalls for current tenant (prefer Auth tenant_id)
+        $tenantId = null;
+        try { $tenantId = Auth::user()->tenant_id ?? null; } catch (\Throwable $e) { $tenantId = null; }
+        if (!$tenantId && function_exists('tenant') && tenant()) { $tenantId = tenant()->id; }
 
-        // Try to get real recalls if tenant exists
-        try {
-            if (function_exists('tenant') && tenant()) {
-                $recalls = ProductRecall::where('tenant_id', tenant()->id)
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(10);
-            }
-        } catch (\Exception $e) {
-            // If there's any error, continue with empty collection
-            $recalls = collect();
-        }
+        $recalls = ProductRecall::query();
+        if ($tenantId) { $recalls->where('tenant_id', $tenantId); }
+        $recalls = $recalls->orderBy('created_at', 'desc')->paginate(10);
 
         return view('tenant.regulatory.product-recalls.index', compact('recalls'));
     }
