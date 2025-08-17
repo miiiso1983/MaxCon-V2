@@ -56,7 +56,6 @@ class CertificateController extends Controller
         return [$data, $skipped];
     }
 
-{
     /**
      * Display a listing of certificates
      */
