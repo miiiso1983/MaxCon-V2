@@ -299,7 +299,8 @@ class InspectionController extends Controller
                     }
 
                     try {
-                        Inspection::create([
+                        // Build canonical data for import row
+                        $canonical = [
                             'tenant_id' => Auth::user()->tenant_id,
                             'inspection_title' => $data[0] ?? '',
                             'inspection_type' => $this->mapInspectionType($data[1] ?? ''),
@@ -314,47 +315,25 @@ class InspectionController extends Controller
                             'findings' => $data[10] ?? '',
                             'recommendations' => $data[11] ?? '',
                             'compliance_rating' => $this->mapComplianceRating($data[12] ?? ''),
-                            'follow_up_required' => strtolower($data[13] ?? '') === 'نعم',
+                            'follow_up_required' => strtolower($data[13] ?? '') === 'نعم' ? 1 : 0,
                             'follow_up_date' => $this->parseDate($data[14] ?? ''),
-                            'notes' => $data[15] ?? ''
+                            'notes' => $data[15] ?? '',
+                        ];
 
-                            // Dynamic column mapping for import row
-                            $canonical = [
-                                'tenant_id' => Auth::user()->tenant_id,
-                                'inspection_title' => $data[0] ?? '',
-                                'inspection_type' => $this->mapInspectionType($data[1] ?? ''),
-                                'inspector_name' => $data[2] ?? '',
-                                'inspection_authority' => $data[3] ?? '',
-                                'scheduled_date' => $this->parseDate($data[4] ?? ''),
-                                'completion_date' => $this->parseDate($data[5] ?? ''),
-                                'inspection_status' => $this->mapInspectionStatus($data[6] ?? ''),
-                                'facility_name' => $data[7] ?? '',
-                                'facility_address' => $data[8] ?? '',
-                                'scope_of_inspection' => $data[9] ?? '',
-                                'findings' => $data[10] ?? '',
-                                'recommendations' => $data[11] ?? '',
-                                'compliance_rating' => $this->mapComplianceRating($data[12] ?? ''),
-                                'follow_up_required' => strtolower($data[13] ?? '') === 'نعم' ? 1 : 0,
-                                'follow_up_date' => $this->parseDate($data[14] ?? ''),
-                                'notes' => $data[15] ?? '',
-                            ];
+                        // Ensure inspection_date if required
+                        if (Schema::hasColumn('inspections', 'inspection_date') && empty($canonical['inspection_date'])) {
+                            $canonical['inspection_date'] = $canonical['scheduled_date'];
+                        }
 
-                            // Ensure inspection_date if required
-                            if (Schema::hasColumn('inspections', 'inspection_date') && empty($canonical['inspection_date'])) {
-                                $canonical['inspection_date'] = $canonical['scheduled_date'];
-                            }
+                        // Map to existing columns
+                        [$rowData, $rowSkipped] = $this->mapToExistingInspectionColumns($canonical);
 
-                            // Map to existing columns
-                            [$rowData, $rowSkipped] = $this->mapToExistingInspectionColumns($canonical);
+                        // Ensure inspection_number if required
+                        if (Schema::hasColumn('inspections', 'inspection_number') && empty($rowData['inspection_number'])) {
+                            $rowData['inspection_number'] = $this->generateInspectionNumber(Auth::user()->tenant_id);
+                        }
 
-                            // Ensure inspection_number if required
-                            if (Schema::hasColumn('inspections', 'inspection_number') && empty($rowData['inspection_number'])) {
-                                $rowData['inspection_number'] = $this->generateInspectionNumber(Auth::user()->tenant_id);
-                            }
-
-                            Inspection::create($rowData);
-
-                        ]);
+                        Inspection::create($rowData);
 
                         $imported++;
                     } catch (\Exception $e) {
