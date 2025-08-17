@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use App\Traits\HasTenant;
 
 /**
@@ -88,7 +89,14 @@ class ProductRecall extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            if (empty($model->id)) {
+            // Only assign UUID if DB column type is string/char; if integer, let DB auto-increment handle it
+            try {
+                $type = Schema::getColumnType('product_recalls', 'id');
+            } catch (\Throwable $e) {
+                $type = 'string';
+            }
+            $isInteger = in_array(strtolower((string) $type), ['int', 'integer', 'bigint', 'biginteger'], true);
+            if (!$isInteger && empty($model->id)) {
                 $model->id = (string) Str::uuid();
             }
         });
