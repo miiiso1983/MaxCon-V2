@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class Inspection extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
 
     protected $table = 'inspections';
 
