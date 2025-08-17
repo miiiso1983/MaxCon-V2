@@ -182,6 +182,10 @@ class ProductRecallController extends Controller
             if (Schema::hasColumn('product_recalls', 'recall_number') && empty($data['recall_number'])) {
                 $data['recall_number'] = $this->generateRecallNumber(Auth::user()->tenant_id);
             }
+            // Ensure batch_numbers if column exists and still empty
+            if (Schema::hasColumn('product_recalls', 'batch_numbers') && (!isset($data['batch_numbers']) || $data['batch_numbers'] === null || $data['batch_numbers'] === '')) {
+                $data['batch_numbers'] = (string)($canonical['batch_numbers'] ?? '');
+            }
 
             ProductRecall::create($data);
 
