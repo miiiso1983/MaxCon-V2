@@ -17,8 +17,8 @@ class LaboratoryTest extends Model
 {
     use HasFactory, SoftDeletes, HasTenant;
 
-    public $incrementing = false;
-    protected $keyType = 'string';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'tenant_id',
@@ -74,16 +74,7 @@ class LaboratoryTest extends Model
         'attachments' => 'array'
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
 
-        static::creating(function ($model) {
-            if (empty($model->id)) {
-                $model->id = (string) Str::uuid();
-            }
-        });
-    }
 
     // Test Types
     const TEST_TYPES = [
