@@ -153,7 +153,7 @@ class ProductRegistrationController extends Controller
                 foreach ($required as $key) { if (empty($data[$key])) { throw new \Exception("حقل مفقود: $key"); } }
 
                 $r = new ProductRegistration();
-                $r->id = Str::uuid();
+                // Use auto-increment ID in production schema
                 $r->tenant_id = $tenantId;
                 $r->company_id = $data['company_id'];
                 $r->product_name = $data['product_name'];
@@ -245,22 +245,7 @@ class ProductRegistrationController extends Controller
                     $r->dosage_form,
                     $r->strength,
 
-    private function normalizeStatus(string $status): string
-    {
-        // Production enum: pending, under_review, approved, rejected, suspended, cancelled, expired, withdrawn
-        $map = [
-            'registered' => 'approved',
-            'approved' => 'approved',
-            'pending' => 'pending',
-            'under_review' => 'under_review',
-            'rejected' => 'rejected',
-            'suspended' => 'suspended',
-            'cancelled' => 'cancelled',
-            'withdrawn' => 'withdrawn',
-            'expired' => 'expired',
-        ];
-        return $map[$status] ?? 'pending';
-    }
+
 
                     $r->pack_size,
                     $r->manufacturer,
@@ -278,6 +263,24 @@ class ProductRegistrationController extends Controller
         }, 'product_registrations.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+
+    private function normalizeStatus(string $status): string
+    {
+        // Production enum: pending, under_review, approved, rejected, suspended, cancelled, expired, withdrawn
+        $map = [
+            'registered' => 'approved',
+            'approved' => 'approved',
+            'pending' => 'pending',
+            'under_review' => 'under_review',
+            'rejected' => 'rejected',
+            'suspended' => 'suspended',
+            'cancelled' => 'cancelled',
+            'withdrawn' => 'withdrawn',
+            'expired' => 'expired',
+        ];
+        return $map[$status] ?? 'pending';
     }
 
     private function ensureAuthTenant(): void
