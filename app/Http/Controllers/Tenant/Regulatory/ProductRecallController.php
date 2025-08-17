@@ -8,7 +8,64 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+
+    private function mapToExistingRecallColumns(array $canonical): array
+    {
+        $columns = Schema::getColumnListing('product_recalls');
+        $candidates = [
+            'tenant_id' => ['tenant_id'],
+            'recall_title' => ['recall_title','title','name'],
+            'recall_type' => ['recall_type','type'],
+            'product_name' => ['product_name','product'],
+            'batch_numbers' => ['batch_numbers','affected_batches'],
+            'recall_reason' => ['recall_reason','reason'],
+            'risk_level' => ['risk_level','recall_class'],
+            'recall_status' => ['recall_status','status'],
+            'initiation_date' => ['initiation_date','initiated_date'],
+            'completion_date' => ['completion_date','closure_date'],
+            'affected_quantity' => ['affected_quantity','quantity_affected'],
+            'recovered_quantity' => ['recovered_quantity','quantity_recovered'],
+            'distribution_area' => ['distribution_area','distribution_level'],
+            'regulatory_authority' => ['regulatory_authority','authority'],
+            'notification_date' => ['notification_date'],
+            'public_notification' => ['public_notification','authority_notification'],
+            'recall_coordinator' => ['recall_coordinator'],
+            'corrective_actions' => ['corrective_actions'],
+            'preventive_actions' => ['preventive_actions'],
+            'notes' => ['notes'],
+        ];
+
+        $data = [];
+        $skipped = [];
+        foreach ($canonical as $key => $value) {
+            $found = null;
+            foreach ($candidates[$key] ?? [$key] as $col) {
+                if (in_array($col, $columns, true)) { $found = $col; break; }
+            }
+            if ($found) {
+                if (in_array($key, ['initiation_date','completion_date','notification_date'], true) && !empty($value)) {
+                    $value = date('Y-m-d', strtotime((string)$value));
+                }
+                $data[$found] = $value;
+            } else {
+                $skipped[] = $key;
+            }
+        }
+
+        // Bridge for completion date: if 'completion_date' missing but 'closure_date' exists, map to closure_date
+        if (!in_array('completion_date', $columns, true) && in_array('closure_date', $columns, true) && isset($canonical['completion_date'])) {
+            $data['closure_date'] = date('Y-m-d', strtotime((string)$canonical['completion_date']));
+        }
+
+        return [$data, $skipped];
+    }
+
+    private function generateRecallNumber($tenantId): string
+    {
+        return 'RCL-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
+    }
 
 class ProductRecallController extends Controller
 {
@@ -71,12 +128,11 @@ class ProductRecallController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+            return back()->withErrors($validator)->withInput()->with('error', 'فشل التحقق من صحة البيانات. يرجى مراجعة الحقول المطلوبة.');
         }
 
         try {
-            ProductRecall::create([
-                'id' => Str::uuid(),
+            $canonical = [
                 'tenant_id' => Auth::user()->tenant_id,
                 'recall_title' => $request->input('recall_title'),
                 'recall_type' => $request->input('recall_type'),
@@ -92,15 +148,29 @@ class ProductRecallController extends Controller
                 'distribution_area' => $request->input('distribution_area'),
                 'regulatory_authority' => $request->input('regulatory_authority'),
                 'notification_date' => $request->input('notification_date'),
-                'public_notification' => $request->has('public_notification'),
+                'public_notification' => $request->has('public_notification') ? 1 : 0,
                 'recall_coordinator' => $request->input('recall_coordinator'),
                 'corrective_actions' => $request->input('corrective_actions'),
                 'preventive_actions' => $request->input('preventive_actions'),
-                'notes' => $request->input('notes')
-            ]);
+                'notes' => $request->input('notes'),
+            ];
 
-            return redirect()->route('tenant.inventory.regulatory.product-recalls.index')
+            // Dynamic mapping to existing DB columns
+            [$data, $skipped] = $this->mapToExistingRecallColumns($canonical);
+
+            // Ensure required DB columns values
+            if (Schema::hasColumn('product_recalls', 'recall_number') && empty($data['recall_number'])) {
+                $data['recall_number'] = $this->generateRecallNumber(Auth::user()->tenant_id);
+            }
+
+            ProductRecall::create($data);
+
+            $response = redirect()->route('tenant.inventory.regulatory.product-recalls.index')
                 ->with('success', 'تم إضافة سحب المنتج بنجاح');
+            if (!empty($skipped)) {
+                $response->with('warning', 'تم الحفظ، لكن تم تخطي الحقول التالية لعدم وجود أعمدة مطابقة في قاعدة البيانات: ' . implode(', ', $skipped));
+            }
+            return $response;
 
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء حفظ سحب المنتج: ' . $e->getMessage())->withInput();
@@ -143,7 +213,7 @@ class ProductRecallController extends Controller
 
         $file = $request->file('import_file');
         $path = $file->getRealPath();
-        
+
         $imported = 0;
         $errors = [];
         $skipped = 0;
@@ -151,11 +221,11 @@ class ProductRecallController extends Controller
         try {
             if (($handle = fopen($path, 'r')) !== FALSE) {
                 $header = fgetcsv($handle);
-                
+
                 $rowNumber = 1;
                 while (($data = fgetcsv($handle)) !== FALSE) {
                     $rowNumber++;
-                    
+
                     if (empty(array_filter($data))) {
                         continue;
                     }
@@ -168,7 +238,6 @@ class ProductRecallController extends Controller
 
                     try {
                         ProductRecall::create([
-                            'id' => Str::uuid(),
                             'tenant_id' => Auth::user()->tenant_id,
                             'recall_title' => $data[0] ?? '',
                             'recall_type' => $this->mapRecallType($data[1] ?? ''),
@@ -190,14 +259,14 @@ class ProductRecallController extends Controller
                             'preventive_actions' => $data[17] ?? '',
                             'notes' => $data[18] ?? ''
                         ]);
-                        
+
                         $imported++;
                     } catch (\Exception $e) {
                         $errors[] = "الصف {$rowNumber}: خطأ في حفظ البيانات - " . $e->getMessage();
                         $skipped++;
                     }
                 }
-                
+
                 fclose($handle);
             }
         } catch (\Exception $e) {
@@ -230,9 +299,9 @@ class ProductRecallController extends Controller
 
         $response = new StreamedResponse(function() use ($recalls) {
             $handle = fopen('php://output', 'w');
-            
+
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             fputcsv($handle, [
                 'عنوان السحب',
                 'نوع السحب',
@@ -410,9 +479,9 @@ class ProductRecallController extends Controller
 
         $response = new StreamedResponse(function() {
             $handle = fopen('php://output', 'w');
-            
+
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             fputcsv($handle, [
                 'عنوان السحب',
                 'نوع السحب',
@@ -476,7 +545,7 @@ class ProductRecallController extends Controller
             'mandatory' => 'إجباري',
             'market_withdrawal' => 'سحب من السوق'
         ];
-        
+
         return $types[$type] ?? $type;
     }
 
@@ -487,7 +556,7 @@ class ProductRecallController extends Controller
             'class_2' => 'الفئة الثانية',
             'class_3' => 'الفئة الثالثة'
         ];
-        
+
         return $levels[$level] ?? $level;
     }
 
@@ -499,7 +568,7 @@ class ProductRecallController extends Controller
             'completed' => 'مكتمل',
             'terminated' => 'منتهي'
         ];
-        
+
         return $statuses[$status] ?? $status;
     }
 
@@ -510,7 +579,7 @@ class ProductRecallController extends Controller
             'إجباري' => 'mandatory',
             'سحب من السوق' => 'market_withdrawal'
         ];
-        
+
         return $types[$label] ?? 'voluntary';
     }
 
@@ -521,7 +590,7 @@ class ProductRecallController extends Controller
             'الفئة الثانية' => 'class_2',
             'الفئة الثالثة' => 'class_3'
         ];
-        
+
         return $levels[$label] ?? 'class_2';
     }
 
@@ -533,7 +602,7 @@ class ProductRecallController extends Controller
             'مكتمل' => 'completed',
             'منتهي' => 'terminated'
         ];
-        
+
         return $statuses[$label] ?? 'initiated';
     }
 
