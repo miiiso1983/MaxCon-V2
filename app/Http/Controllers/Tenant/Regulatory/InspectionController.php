@@ -380,7 +380,7 @@ class InspectionController extends Controller
     public function showCalendar()
     {
         // Get inspections for calendar view
-        $inspections = Inspection::where('tenant_id', tenant()->id)
+        $inspections = Inspection::where('tenant_id', Auth::user()->tenant_id)
             ->whereNotNull('scheduled_date')
             ->orderBy('scheduled_date', 'asc')
             ->get();
