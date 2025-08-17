@@ -17,11 +17,19 @@ class LaboratoryTestController extends Controller
      */
     public function index()
     {
-        $tests = LaboratoryTest::where('tenant_id', Auth::user()->tenant_id)
+        $tenantId = Auth::user()->tenant_id;
+        $tests = LaboratoryTest::where('tenant_id', $tenantId)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('tenant.regulatory.laboratory-tests.index', compact('tests'));
+        $counts = [
+            'total' => LaboratoryTest::where('tenant_id', $tenantId)->count(),
+            'in_progress' => LaboratoryTest::where('tenant_id', $tenantId)->where('status', 'in_progress')->count(),
+            'completed' => LaboratoryTest::where('tenant_id', $tenantId)->whereIn('status', ['completed','passed'])->count(),
+            'overdue' => LaboratoryTest::where('tenant_id', $tenantId)->overdue()->count(),
+        ];
+
+        return view('tenant.regulatory.laboratory-tests.index', compact('tests', 'counts'));
     }
 
     /**
@@ -62,22 +70,23 @@ class LaboratoryTestController extends Controller
 
         try {
             LaboratoryTest::create([
-                'id' => Str::uuid(),
                 'tenant_id' => Auth::user()->tenant_id,
                 'test_name' => $request->get('test_name'),
                 'test_type' => $request->get('test_type'),
                 'product_name' => $request->get('product_name'),
+                'drug_name' => $request->get('product_name'),
                 'batch_number' => $request->get('batch_number'),
                 'laboratory_name' => $request->get('laboratory_name'),
                 'test_date' => $request->get('test_date'),
-                'completion_date' => $request->get('completion_date'),
-                'test_status' => $request->get('test_status'),
+                'completion_date' => $request->get('completion_date') ?: null,
+                'status' => $this->mapDbStatus($request->get('test_status')),
                 'test_method' => $request->get('test_method'),
                 'specifications' => $request->get('specifications'),
                 'results' => $request->get('results'),
                 'conclusion' => $request->get('conclusion'),
                 'technician_name' => $request->get('technician_name'),
                 'supervisor_name' => $request->get('supervisor_name'),
+                'manufacturer' => $request->get('laboratory_name') ?: $request->get('product_name'),
                 'cost' => $request->get('cost'),
                 'notes' => $request->get('notes')
             ]);
@@ -154,24 +163,23 @@ class LaboratoryTestController extends Controller
 
                     try {
                         LaboratoryTest::create([
-                            'id' => Str::uuid(),
                             'tenant_id' => Auth::user()->tenant_id,
                             'test_name' => $data[0] ?? '',
                             'test_type' => $this->mapTestType($data[1] ?? ''),
                             'product_name' => $data[2] ?? '',
-                            // Map to legacy column if exists
                             'drug_name' => $data[2] ?? '',
                             'batch_number' => $data[3] ?? '',
                             'laboratory_name' => $data[4] ?? '',
                             'test_date' => $this->parseDate($data[5] ?? ''),
                             'completion_date' => $this->parseDate($data[6] ?? ''),
-                            'test_status' => $this->mapTestStatus($data[7] ?? ''),
+                            'status' => $this->mapDbStatus($this->mapTestStatus($data[7] ?? '')),
                             'test_method' => $data[8] ?? '',
                             'specifications' => $data[9] ?? '',
                             'results' => $data[10] ?? '',
                             'conclusion' => $data[11] ?? '',
                             'technician_name' => $data[12] ?? '',
                             'supervisor_name' => $data[13] ?? '',
+                            'manufacturer' => $data[4] ?? ($data[2] ?? null),
                             'cost' => is_numeric($data[14] ?? '') ? $data[14] : null,
                             'notes' => $data[15] ?? ''
                         ]);
@@ -228,7 +236,7 @@ class LaboratoryTestController extends Controller
                 'اسم المختبر',
                 'تاريخ الفحص',
                 'تاريخ الإنجاز',
-                'حالة الفحص',
+                'الحالة',
                 'طريقة الفحص',
                 'المواصفات',
                 'النتائج',

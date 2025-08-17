@@ -35,7 +35,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">إجمالي الفحوصات</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #2d3748;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #2d3748;">{{ $counts['total'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #ffecd2; opacity: 0.3;">
                     <i class="fas fa-flask"></i>
@@ -47,7 +47,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">قيد التنفيذ</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #ed8936;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #ed8936;">{{ $counts['in_progress'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #ed8936; opacity: 0.3;">
                     <i class="fas fa-clock"></i>
@@ -59,7 +59,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">مكتملة</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #48bb78;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #48bb78;">{{ $counts['completed'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #48bb78; opacity: 0.3;">
                     <i class="fas fa-check-circle"></i>
@@ -71,7 +71,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">متأخرة</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #f56565;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #f56565;">{{ $counts['overdue'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #f56565; opacity: 0.3;">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -88,10 +88,10 @@
             </div>
             <h2 style="color: #2d3748; margin: 0 0 15px 0; font-size: 28px; font-weight: 700;">مرحباً بك في وحدة الفحوصات المخبرية</h2>
             <p style="color: #718096; margin: 0 0 30px 0; font-size: 18px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
-                هذه الوحدة تتيح لك تتبع جميع الفحوصات المخبرية والتقارير الرقابية. 
+                هذه الوحدة تتيح لك تتبع جميع الفحوصات المخبرية والتقارير الرقابية.
                 يمكنك إدارة فحوصات الجودة، الثبات، التكافؤ الحيوي، والفحوصات الميكروبيولوجية.
             </p>
-            
+
             <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
                 <button onclick="showAddTestModal()" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #2d3748; padding: 15px 30px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 16px;">
                     <i class="fas fa-plus"></i>
@@ -154,6 +154,40 @@
                 </p>
             </div>
         </div>
+            <!-- Table of tests -->
+            @if(isset($tests) && method_exists($tests, 'total') && $tests->total() > 0)
+            <div class="table-responsive" style="margin-top: 20px;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>اسم الفحص</th>
+                            <th>نوع الفحص</th>
+                            <th>المنتج</th>
+                            <th>رقم الدفعة</th>
+                            <th>المختبر</th>
+                            <th>تاريخ الفحص</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($tests as $t)
+                        <tr>
+                            <td>{{ $t->test_name }}</td>
+                            <td>{{ $t->test_type }}</td>
+                            <td>{{ $t->product_name }}</td>
+                            <td>{{ $t->batch_number }}</td>
+                            <td>{{ $t->laboratory_name }}</td>
+                            <td>{{ optional($t->test_date)->format('Y-m-d') }}</td>
+                            <td>{{ $t->status }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <div>
+                    {{ $tests->links() }}
+                </div>
+            </div>
+            @endif
     </div>
 </div>
 
