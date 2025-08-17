@@ -61,8 +61,16 @@
                         </select>
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label">الشركة المصنعة *</label>
+                        <input type="text" name="manufacturer" class="form-control" value="{{ old('manufacturer') }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">بلد المنشأ *</label>
+                        <input type="text" name="country_of_origin" class="form-control" value="{{ old('country_of_origin') }}" required>
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label">الجهة الرقابية *</label>
-                        <input type="text" name="regulatory_authority" class="form-control" required>
+                        <input type="text" name="regulatory_authority" class="form-control" value="{{ old('regulatory_authority') }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">تاريخ التسجيل *</label>
