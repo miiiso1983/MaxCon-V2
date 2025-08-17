@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -84,7 +85,7 @@ class CertificateController extends Controller
         $validator = Validator::make($request->all(), [
             'certificate_name' => 'required|string|max:255',
             'certificate_type' => 'required|in:gmp,iso,haccp,halal,organic,fda,ce_marking,other',
-            'certificate_number' => 'required|string|max:100',
+            'certificate_number' => ['required','string','max:100', Rule::unique('certificates')->where(fn($q) => $q->where('tenant_id', Auth::user()->tenant_id))],
             'issuing_authority' => 'required|string|max:255',
             'issue_date' => 'required|date',
             'expiry_date' => 'required|date|after:issue_date',
@@ -135,10 +136,19 @@ class CertificateController extends Controller
 
             Certificate::create($data);
 
-            return redirect()->route('tenant.inventory.regulatory.certificates.index')
+            $response = redirect()->route('tenant.inventory.regulatory.certificates.index')
                 ->with('success', 'تم إضافة الشهادة بنجاح');
 
-        } catch (\Exception $e) {
+            if (!empty($skipped)) {
+                $response->with('warning', 'تم الحفظ، لكن تم تخطي الحقول التالية لعدم وجود أعمدة مطابقة في قاعدة البيانات: ' . implode(', ', $skipped));
+            }
+
+            return $response;
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ((int)($e->getCode()) === 23000 && str_contains($e->getMessage(), 'certificates_tenant_number_unique')) {
+                return back()->with('error', 'رقم الشهادة مستخدم سابقاً لهذا المستأجر. الرجاء اختيار رقم آخر.')->withInput();
+            }
             return back()->with('error', 'حدث خطأ أثناء حفظ الشهادة: ' . $e->getMessage())->withInput();
         }
     }
