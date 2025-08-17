@@ -37,6 +37,7 @@ class ProductRecallController extends Controller
             'corrective_actions' => ['corrective_actions'],
             'preventive_actions' => ['preventive_actions'],
             'notes' => ['notes'],
+            'manufacturer_name' => ['manufacturer_name','manufacturer','maker_name'],
         ];
 
         $data = [];
