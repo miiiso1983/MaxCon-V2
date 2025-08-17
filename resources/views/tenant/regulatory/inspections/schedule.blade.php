@@ -84,7 +84,9 @@
             جدولة تفتيش جديد
         </h3>
 
-        <form id="scheduleForm" onsubmit="scheduleInspection(event)">
+        <form id="scheduleForm" method="POST" action="{{ route('tenant.inventory.regulatory.inspections.store') }}">
+            @csrf
+            <input type="hidden" name="inspection_status" value="scheduled">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px;">
                 
                 <!-- Inspection Title -->
@@ -280,41 +282,13 @@ function showOverdueInspections() {
     window.location.href = '{{ route("tenant.inventory.regulatory.inspections.index") }}?filter=overdue';
 }
 
-function scheduleInspection(event) {
-    event.preventDefault();
+// scheduleInspection no longer used; form posts directly
+
     
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData);
+
+
     
-    // Validate required fields
-    if (!data.inspection_title || !data.inspection_type || !data.inspector_name || 
-        !data.inspection_authority || !data.scheduled_date || !data.facility_name || !data.facility_address) {
-        alert('يرجى ملء جميع الحقول المطلوبة');
-        return;
-    }
-    
-    // Show loading state
-    const submitBtn = event.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الجدولة...';
-    submitBtn.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        // Redirect to create page with pre-filled data
-        const params = new URLSearchParams();
-        Object.keys(data).forEach(key => {
-            if (data[key]) {
-                params.append(key, data[key]);
-            }
-        });
-        
-        // Set status to scheduled
-        params.append('inspection_status', 'scheduled');
-        
-        window.location.href = '{{ route("tenant.inventory.regulatory.inspections.create") }}?' + params.toString();
-    }, 1000);
-}
+/* end */
 
 function resetScheduleForm() {
     if (confirm('هل أنت متأكد من إعادة تعيين جميع البيانات؟')) {

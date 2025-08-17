@@ -62,7 +62,6 @@ class InspectionController extends Controller
 
         try {
             Inspection::create([
-                'id' => Str::uuid(),
                 'tenant_id' => Auth::user()->tenant_id,
                 'inspection_title' => $request->input('inspection_title'),
                 'inspection_type' => $request->input('inspection_type'),
