@@ -96,7 +96,7 @@ class ProductRegistrationController extends Controller
         ]);
 
         $registration = new ProductRegistration();
-        $registration->id = Str::uuid();
+        // Use auto-increment ID from DB (production uses bigint)
         $registration->tenant_id = $tenantId;
         foreach ($data as $k => $v) { $registration->$k = $v; }
         $registration->save();
