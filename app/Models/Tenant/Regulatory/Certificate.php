@@ -4,6 +4,7 @@ namespace App\Models\Tenant\Regulatory;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class Certificate extends Model
 {
@@ -163,7 +164,13 @@ class Certificate extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where(function($q){ $q->where('certificate_status','active')->orWhere('status','active'); });
+        $hasCertStatus = Schema::hasColumn('certificates', 'certificate_status');
+        $hasStatus = Schema::hasColumn('certificates', 'status');
+
+        return $query->where(function ($q) use ($hasCertStatus, $hasStatus) {
+            if ($hasCertStatus) { $q->orWhere('certificate_status', 'active'); }
+            if ($hasStatus) { $q->orWhere('status', 'active'); }
+        });
     }
 
     /**
@@ -171,8 +178,14 @@ class Certificate extends Model
      */
     public function scopeExpired($query)
     {
-        return $query->where(function($q){ $q->where('certificate_status','expired')->orWhere('status','expired'); })
-                    ->orWhere('expiry_date', '<', now());
+        $hasCertStatus = Schema::hasColumn('certificates', 'certificate_status');
+        $hasStatus = Schema::hasColumn('certificates', 'status');
+
+        return $query->where(function ($q) use ($hasCertStatus, $hasStatus) {
+                    if ($hasCertStatus) { $q->orWhere('certificate_status', 'expired'); }
+                    if ($hasStatus) { $q->orWhere('status', 'expired'); }
+                })
+                ->orWhere('expiry_date', '<', now());
     }
 
     /**
@@ -180,9 +193,17 @@ class Certificate extends Model
      */
     public function scopeExpiringSoon($query, $days = 30)
     {
+        $hasCertStatus = Schema::hasColumn('certificates', 'certificate_status');
+        $hasStatus = Schema::hasColumn('certificates', 'status');
+
         return $query->where('expiry_date', '>', now())
                     ->where('expiry_date', '<=', now()->addDays($days))
-                    ->where(function($q){ $q->where('certificate_status','active')->orWhere('status','active'); });
+                    ->when($hasCertStatus || $hasStatus, function ($q) use ($hasCertStatus, $hasStatus) {
+                        $q->where(function ($qq) use ($hasCertStatus, $hasStatus) {
+                            if ($hasCertStatus) { $qq->orWhere('certificate_status', 'active'); }
+                            if ($hasStatus) { $qq->orWhere('status', 'active'); }
+                        });
+                    });
     }
 
     /**
