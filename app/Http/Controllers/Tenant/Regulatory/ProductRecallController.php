@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+class ProductRecallController extends Controller
+{
     private function mapToExistingRecallColumns(array $canonical): array
     {
         $columns = Schema::getColumnListing('product_recalls');
@@ -67,9 +69,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
         return 'RCL-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
     }
 
-class ProductRecallController extends Controller
-{
-    /**
+/**
      * Display a listing of product recalls
      */
     public function index()
