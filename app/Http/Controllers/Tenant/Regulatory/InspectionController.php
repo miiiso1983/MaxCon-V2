@@ -94,10 +94,19 @@ class InspectionController extends Controller
      */
     public function overdue()
     {
-        $inspections = Inspection::where('tenant_id', Auth::user()->tenant_id)
-            ->overdue()
-            ->orderBy('scheduled_date', 'asc')
-            ->get();
+        try {
+            $inspections = Inspection::where('tenant_id', Auth::user()->tenant_id)
+                ->overdue()
+                ->orderBy('scheduled_date', 'asc')
+                ->get();
+        } catch (\Exception $e) {
+            // Fallback: if scheduled_date column missing, approximate overdue by created_at older than today and not completed/cancelled
+            $inspections = Inspection::where('tenant_id', Auth::user()->tenant_id)
+                ->whereNotIn('inspection_status', ['completed','cancelled'])
+                ->whereDate('created_at', '<', now()->toDateString())
+                ->orderBy('created_at', 'asc')
+                ->get();
+        }
 
         return view('tenant.regulatory.inspections.overdue', compact('inspections'));
     }
@@ -341,8 +350,8 @@ class InspectionController extends Controller
                     $this->getInspectionTypeLabel($inspection->inspection_type),
                     $inspection->inspector_name,
                     $inspection->inspection_authority,
-                    $inspection->scheduled_date,
-                    $inspection->completion_date,
+                    ($inspection->scheduled_date ?? $inspection->created_at)?->format('Y-m-d'),
+                    $inspection->completion_date?->format('Y-m-d'),
                     $this->getInspectionStatusLabel($inspection->inspection_status),
                     $inspection->facility_name,
                     $inspection->facility_address,

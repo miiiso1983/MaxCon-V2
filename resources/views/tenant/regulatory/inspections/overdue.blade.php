@@ -72,7 +72,7 @@
                                 متأخرة أكثر من 30 يوم
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $inspections->filter(function($inspection) { return $inspection->scheduled_date->diffInDays(now()) > 30; })->count() }}
+                                {{ $inspections->filter(function($inspection) { $date = $inspection->scheduled_date ?? $inspection->created_at; return $date ? $date->diffInDays(now()) > 30 : false; })->count() }}
                             </div>
                         </div>
                         <div class="col-auto">
@@ -112,7 +112,7 @@
                                 متوسط التأخير (أيام)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ round($inspections->avg(function($inspection) { return $inspection->scheduled_date->diffInDays(now()); })) }}
+                                {{ round($inspections->avg(function($inspection) { $date = $inspection->scheduled_date ?? $inspection->created_at; return $date ? $date->diffInDays(now()) : 0; })) }}
                             </div>
                         </div>
                         <div class="col-auto">
@@ -166,7 +166,8 @@
                     <tbody>
                         @foreach($inspections as $inspection)
                         @php
-                            $daysOverdue = $inspection->scheduled_date->diffInDays(now());
+                            $dateRef = $inspection->scheduled_date ?? $inspection->created_at;
+                            $daysOverdue = $dateRef ? $dateRef->diffInDays(now()) : 0;
                             $urgencyClass = $daysOverdue > 30 ? 'danger' : ($daysOverdue > 14 ? 'warning' : 'info');
                             $urgencyIcon = $daysOverdue > 30 ? 'exclamation-triangle' : ($daysOverdue > 14 ? 'clock' : 'calendar-alt');
                         @endphp
@@ -192,7 +193,7 @@
                             </td>
                             <td>
                                 <span class="text-{{ $urgencyClass }}">
-                                    {{ $inspection->scheduled_date->format('Y-m-d') }}
+                                    {{ ($inspection->scheduled_date ?? $inspection->created_at)?->format('Y-m-d') }}
                                 </span>
                             </td>
                             <td>
