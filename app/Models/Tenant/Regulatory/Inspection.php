@@ -21,6 +21,7 @@ class Inspection extends Model
         'inspection_type',
         'inspector_name',
         'inspection_authority',
+        'inspection_date',
         'scheduled_date',
         'completion_date',
         'inspection_status',
@@ -36,6 +37,7 @@ class Inspection extends Model
     ];
 
     protected $casts = [
+        'inspection_date' => 'date',
         'scheduled_date' => 'date',
         'completion_date' => 'date',
         'follow_up_date' => 'date',
