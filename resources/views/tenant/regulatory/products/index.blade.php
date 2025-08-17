@@ -155,18 +155,15 @@
 
 <script>
 function showAddProductModal() {
-    alert('سيتم فتح نموذج إضافة منتج جديد قريباً');
-    // TODO: إضافة modal لإضافة منتج جديد
+    window.location.href = '{{ route("tenant.inventory.regulatory.product-registrations.create") }}';
 }
 
 function showImportProductsModal() {
-    alert('سيتم فتح نموذج استيراد المنتجات من Excel قريباً');
-    // TODO: إضافة modal لاستيراد Excel
+    window.location.href = '{{ route("tenant.inventory.regulatory.product-registrations.import.form") }}';
 }
 
 function exportProductsToExcel() {
-    alert('سيتم تصدير بيانات المنتجات إلى Excel قريباً');
-    // TODO: إضافة وظيفة تصدير Excel
+    window.location.href = '{{ route("tenant.inventory.regulatory.product-registrations.export") }}';
 }
 </script>
 

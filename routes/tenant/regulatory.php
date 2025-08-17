@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Tenant\Regulatory\CompanyRegistrationController;
 use App\Http\Controllers\Tenant\Regulatory\RegulatoryDashboardController;
+use App\Http\Controllers\Tenant\Regulatory\ProductRegistrationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,16 @@ Route::get('companies/download-template', [App\Http\Controllers\Tenant\Regulator
 Route::get('products', function() {
     return view('tenant.regulatory.products.index');
 })->name('products.index');
+
+// Product Registrations
+Route::get('product-registrations', [ProductRegistrationController::class, 'index'])->name('product-registrations.index');
+Route::get('product-registrations/create', [ProductRegistrationController::class, 'create'])->name('product-registrations.create');
+Route::post('product-registrations', [ProductRegistrationController::class, 'store'])->name('product-registrations.store');
+Route::get('product-registrations/import', [ProductRegistrationController::class, 'showImportForm'])->name('product-registrations.import.form');
+Route::post('product-registrations/import', [ProductRegistrationController::class, 'import'])->name('product-registrations.import');
+Route::get('product-registrations/export', [ProductRegistrationController::class, 'export'])->name('product-registrations.export');
+Route::get('product-registrations/download-template', [ProductRegistrationController::class, 'downloadTemplate'])->name('product-registrations.download-template');
+
 
 // Laboratory Tests Routes
 Route::get('laboratory-tests', [App\Http\Controllers\Tenant\Regulatory\LaboratoryTestController::class, 'index'])->name('laboratory-tests.index');
