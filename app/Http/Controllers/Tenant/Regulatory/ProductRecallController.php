@@ -50,6 +50,10 @@ class ProductRecallController extends Controller
                 if (in_array($key, ['initiation_date','completion_date','notification_date'], true) && !empty($value)) {
                     $value = date('Y-m-d', strtotime((string)$value));
                 }
+                // Normalize when mapping to enum columns
+                if ($found === 'recall_class') {
+                    $value = $this->mapRiskLevelToClass($value);
+                }
                 $data[$found] = $value;
             } else {
                 $skipped[] = $key;
@@ -67,6 +71,22 @@ class ProductRecallController extends Controller
     private function generateRecallNumber($tenantId): string
     {
         return 'RCL-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
+    }
+
+    private function mapRiskLevelToClass($value): ?string
+    {
+        if ($value === null || $value === '') { return $value; }
+        $v = strtolower(str_replace([' ', '-'], ['_', '_'], (string)$value));
+        $map = [
+            'class_1' => 'class_i',
+            'class_i' => 'class_i',
+            'class_2' => 'class_ii',
+            'class_ii' => 'class_ii',
+            'class_3' => 'class_iii',
+            'class_iii' => 'class_iii',
+            'market_withdrawal' => 'market_withdrawal',
+        ];
+        return $map[$v] ?? $value;
     }
 
 /**
