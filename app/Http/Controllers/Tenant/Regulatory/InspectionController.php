@@ -181,11 +181,12 @@ class InspectionController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+            return back()->withErrors($validator)->withInput()->with('error', 'فشل التحقق من صحة البيانات. يرجى مراجعة الحقول المطلوبة.');
         }
 
         try {
-            $inspection->update([
+            // Canonical payload for update
+            $canonical = [
                 'inspection_title' => $request->input('inspection_title'),
                 'inspection_type' => $request->input('inspection_type'),
                 'inspector_name' => $request->input('inspector_name'),
@@ -199,10 +200,29 @@ class InspectionController extends Controller
                 'findings' => $request->input('findings'),
                 'recommendations' => $request->input('recommendations'),
                 'compliance_rating' => $request->input('compliance_rating'),
-                'follow_up_required' => $request->has('follow_up_required'),
+                'follow_up_required' => $request->has('follow_up_required') ? 1 : 0,
                 'follow_up_date' => $request->input('follow_up_date'),
-                'notes' => $request->input('notes')
-            ]);
+                'notes' => $request->input('notes'),
+            ];
+
+            // Ensure inspection_date if DB requires
+            if (Schema::hasColumn('inspections', 'inspection_date') && empty($canonical['inspection_date'])) {
+                $canonical['inspection_date'] = $request->input('scheduled_date');
+            }
+
+            // Map to existing DB columns
+            [$updateData, $skipped] = $this->mapToExistingInspectionColumns($canonical);
+
+            $inspection->update($updateData);
+
+            $response = redirect()->route('tenant.inventory.regulatory.inspections.index')
+                ->with('success', 'تم تحديث التفتيش بنجاح');
+
+            if (!empty($skipped)) {
+                $response->with('warning', 'تم التحديث، لكن تم تخطي الحقول التالية لعدم وجود أعمدة مطابقة في قاعدة البيانات: ' . implode(', ', $skipped));
+            }
+
+            return $response;
 
             return redirect()->route('tenant.inventory.regulatory.inspections.index')
                 ->with('success', 'تم تحديث التفتيش بنجاح');
@@ -255,7 +275,7 @@ class InspectionController extends Controller
 
         $file = $request->file('import_file');
         $path = $file->getRealPath();
-        
+
         $imported = 0;
         $errors = [];
         $skipped = 0;
@@ -263,11 +283,11 @@ class InspectionController extends Controller
         try {
             if (($handle = fopen($path, 'r')) !== FALSE) {
                 $header = fgetcsv($handle);
-                
+
                 $rowNumber = 1;
                 while (($data = fgetcsv($handle)) !== FALSE) {
                     $rowNumber++;
-                    
+
                     if (empty(array_filter($data))) {
                         continue;
                     }
@@ -280,7 +300,6 @@ class InspectionController extends Controller
 
                     try {
                         Inspection::create([
-                            'id' => Str::uuid(),
                             'tenant_id' => Auth::user()->tenant_id,
                             'inspection_title' => $data[0] ?? '',
                             'inspection_type' => $this->mapInspectionType($data[1] ?? ''),
@@ -298,15 +317,52 @@ class InspectionController extends Controller
                             'follow_up_required' => strtolower($data[13] ?? '') === 'نعم',
                             'follow_up_date' => $this->parseDate($data[14] ?? ''),
                             'notes' => $data[15] ?? ''
+
+                            // Dynamic column mapping for import row
+                            $canonical = [
+                                'tenant_id' => Auth::user()->tenant_id,
+                                'inspection_title' => $data[0] ?? '',
+                                'inspection_type' => $this->mapInspectionType($data[1] ?? ''),
+                                'inspector_name' => $data[2] ?? '',
+                                'inspection_authority' => $data[3] ?? '',
+                                'scheduled_date' => $this->parseDate($data[4] ?? ''),
+                                'completion_date' => $this->parseDate($data[5] ?? ''),
+                                'inspection_status' => $this->mapInspectionStatus($data[6] ?? ''),
+                                'facility_name' => $data[7] ?? '',
+                                'facility_address' => $data[8] ?? '',
+                                'scope_of_inspection' => $data[9] ?? '',
+                                'findings' => $data[10] ?? '',
+                                'recommendations' => $data[11] ?? '',
+                                'compliance_rating' => $this->mapComplianceRating($data[12] ?? ''),
+                                'follow_up_required' => strtolower($data[13] ?? '') === 'نعم' ? 1 : 0,
+                                'follow_up_date' => $this->parseDate($data[14] ?? ''),
+                                'notes' => $data[15] ?? '',
+                            ];
+
+                            // Ensure inspection_date if required
+                            if (Schema::hasColumn('inspections', 'inspection_date') && empty($canonical['inspection_date'])) {
+                                $canonical['inspection_date'] = $canonical['scheduled_date'];
+                            }
+
+                            // Map to existing columns
+                            [$rowData, $rowSkipped] = $this->mapToExistingInspectionColumns($canonical);
+
+                            // Ensure inspection_number if required
+                            if (Schema::hasColumn('inspections', 'inspection_number') && empty($rowData['inspection_number'])) {
+                                $rowData['inspection_number'] = $this->generateInspectionNumber(Auth::user()->tenant_id);
+                            }
+
+                            Inspection::create($rowData);
+
                         ]);
-                        
+
                         $imported++;
                     } catch (\Exception $e) {
                         $errors[] = "الصف {$rowNumber}: خطأ في حفظ البيانات - " . $e->getMessage();
                         $skipped++;
                     }
                 }
-                
+
                 fclose($handle);
             }
         } catch (\Exception $e) {
@@ -339,9 +395,9 @@ class InspectionController extends Controller
 
         $response = new StreamedResponse(function() use ($inspections) {
             $handle = fopen('php://output', 'w');
-            
+
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             fputcsv($handle, [
                 'عنوان التفتيش',
                 'نوع التفتيش',
@@ -603,9 +659,9 @@ class InspectionController extends Controller
 
         $response = new StreamedResponse(function() {
             $handle = fopen('php://output', 'w');
-            
+
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             fputcsv($handle, [
                 'عنوان التفتيش',
                 'نوع التفتيش',
@@ -665,7 +721,7 @@ class InspectionController extends Controller
             'pre_approval' => 'ما قبل الموافقة',
             'post_market' => 'ما بعد التسويق'
         ];
-        
+
         return $types[$type] ?? $type;
     }
 
@@ -678,7 +734,7 @@ class InspectionController extends Controller
             'cancelled' => 'ملغي',
             'postponed' => 'مؤجل'
         ];
-        
+
         return $statuses[$status] ?? $status;
     }
 
@@ -691,7 +747,7 @@ class InspectionController extends Controller
             'needs_improvement' => 'يحتاج تحسين',
             'non_compliant' => 'غير ملتزم'
         ];
-        
+
         return $ratings[$rating] ?? $rating;
     }
 
@@ -704,7 +760,7 @@ class InspectionController extends Controller
             'ما قبل الموافقة' => 'pre_approval',
             'ما بعد التسويق' => 'post_market'
         ];
-        
+
         return $types[$label] ?? 'routine';
     }
 
@@ -717,7 +773,7 @@ class InspectionController extends Controller
             'ملغي' => 'cancelled',
             'مؤجل' => 'postponed'
         ];
-        
+
         return $statuses[$label] ?? 'scheduled';
     }
 
@@ -730,7 +786,7 @@ class InspectionController extends Controller
             'يحتاج تحسين' => 'needs_improvement',
             'غير ملتزم' => 'non_compliant'
         ];
-        
+
         return $ratings[$label] ?? null;
     }
 
