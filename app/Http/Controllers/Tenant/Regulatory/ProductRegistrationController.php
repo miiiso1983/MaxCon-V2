@@ -99,6 +99,9 @@ class ProductRegistrationController extends Controller
         // Use auto-increment ID from DB (production uses bigint)
         $registration->tenant_id = $tenantId;
         foreach ($data as $k => $v) { $registration->$k = $v; }
+        // Map to legacy columns in production schema if present
+        $registration->manufacturer_name = $registration->manufacturer ?? null;
+        $registration->manufacturer_country = $registration->country_of_origin ?? null;
         $registration->save();
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -171,6 +174,9 @@ class ProductRegistrationController extends Controller
                 $r->approval_date = $data['approval_date'] ?? null;
                 $r->renewal_date = $data['renewal_date'] ?? null;
                 $r->notes = $data['notes'] ?? null;
+                // Map to legacy columns in production schema if present
+                $r->manufacturer_name = $r->manufacturer ?? null;
+                $r->manufacturer_country = $r->country_of_origin ?? null;
                 $r->save();
                 $created++;
             } catch (\Throwable $e) {
