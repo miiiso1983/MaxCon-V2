@@ -91,9 +91,12 @@ class ProductRegistrationController extends Controller
             'approval_date' => 'nullable|date',
             'expiry_date' => 'required|date|after:registration_date',
             'renewal_date' => 'nullable|date|after:registration_date',
-            'status' => 'required|in:registered,pending,approved,rejected,suspended,withdrawn,expired',
+            'status' => 'required|in:registered,pending,under_review,approved,rejected,suspended,cancelled,withdrawn,expired',
             'notes' => 'nullable|string',
         ]);
+
+        // Normalize status to production enum
+        $data['status'] = $this->normalizeStatus($data['status'] ?? 'pending');
 
         $registration = new ProductRegistration();
         // Use auto-increment ID from DB (production uses bigint)
@@ -174,6 +177,8 @@ class ProductRegistrationController extends Controller
                 $r->approval_date = $data['approval_date'] ?? null;
                 $r->renewal_date = $data['renewal_date'] ?? null;
                 $r->notes = $data['notes'] ?? null;
+                // Normalize status to production enum
+                $r->status = $this->normalizeStatus($data['status'] ?? 'pending');
                 // Map to legacy columns in production schema if present
                 $r->manufacturer_name = $r->manufacturer ?? null;
                 $r->manufacturer_country = $r->country_of_origin ?? null;
@@ -239,6 +244,24 @@ class ProductRegistrationController extends Controller
                     $r->therapeutic_class,
                     $r->dosage_form,
                     $r->strength,
+
+    private function normalizeStatus(string $status): string
+    {
+        // Production enum: pending, under_review, approved, rejected, suspended, cancelled, expired, withdrawn
+        $map = [
+            'registered' => 'approved',
+            'approved' => 'approved',
+            'pending' => 'pending',
+            'under_review' => 'under_review',
+            'rejected' => 'rejected',
+            'suspended' => 'suspended',
+            'cancelled' => 'cancelled',
+            'withdrawn' => 'withdrawn',
+            'expired' => 'expired',
+        ];
+        return $map[$status] ?? 'pending';
+    }
+
                     $r->pack_size,
                     $r->manufacturer,
                     $r->country_of_origin,
