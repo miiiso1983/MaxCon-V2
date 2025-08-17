@@ -86,6 +86,11 @@ class InspectionController extends Controller
             // Map to existing DB columns and collect skipped fields
             [$data, $skipped] = $this->mapToExistingInspectionColumns($canonical);
 
+            // Ensure required columns present in production schema
+            if (Schema::hasColumn('inspections', 'inspection_number') && empty($data['inspection_number'])) {
+                $data['inspection_number'] = $this->generateInspectionNumber(Auth::user()->tenant_id);
+            }
+
             Inspection::create($data);
 
             $response = redirect()->route('tenant.inventory.regulatory.inspections.index')
@@ -443,6 +448,15 @@ class InspectionController extends Controller
         }
 
         return [$data, $skipped];
+    }
+
+    /**
+     * Generate inspection_number when DB requires it
+     */
+    private function generateInspectionNumber($tenantId): string
+    {
+        // INSP-<tenant>-<YYYYMMDD>-<RANDOM>
+        return 'INSP-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(Str::random(5));
     }
 
     /**
