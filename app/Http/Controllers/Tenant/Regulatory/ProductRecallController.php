@@ -25,7 +25,7 @@ class ProductRecallController extends Controller
             'recall_reason' => ['recall_reason','reason'],
             'risk_level' => ['risk_level','recall_class'],
             'recall_status' => ['recall_status','status'],
-            'initiation_date' => ['initiation_date','initiated_date'],
+            'initiation_date' => ['initiation_date','initiated_date','recall_initiation_date','start_date'],
             'completion_date' => ['completion_date','closure_date'],
             'affected_quantity' => ['affected_quantity','quantity_affected'],
             'recovered_quantity' => ['recovered_quantity','quantity_recovered'],
@@ -197,6 +197,13 @@ class ProductRecallController extends Controller
             // Ensure manufacturer_name if column exists
             if (Schema::hasColumn('product_recalls', 'manufacturer_name') && (!isset($data['manufacturer_name']) || $data['manufacturer_name'] === null)) {
                 $data['manufacturer_name'] = (string)($canonical['manufacturer_name'] ?? '');
+            }
+            // Ensure initiation date variants if required by DB
+            if (Schema::hasColumn('product_recalls', 'recall_initiation_date') && empty($data['recall_initiation_date'])) {
+                $data['recall_initiation_date'] = date('Y-m-d', strtotime((string)$canonical['initiation_date']));
+            }
+            if (Schema::hasColumn('product_recalls', 'initiated_date') && empty($data['initiated_date'])) {
+                $data['initiated_date'] = date('Y-m-d', strtotime((string)$canonical['initiation_date']));
             }
 
             ProductRecall::create($data);
