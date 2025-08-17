@@ -4,7 +4,9 @@ namespace App\Models\Tenant\Regulatory;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Carbon\Carbon;
+
 
 class Inspection extends Model
 {
@@ -51,7 +53,7 @@ class Inspection extends Model
             'pre_approval' => 'ما قبل الموافقة',
             'post_market' => 'ما بعد التسويق'
         ];
-        
+
         return $types[$this->inspection_type] ?? $this->inspection_type;
     }
 
@@ -67,7 +69,7 @@ class Inspection extends Model
             'cancelled' => 'ملغي',
             'postponed' => 'مؤجل'
         ];
-        
+
         return $statuses[$this->inspection_status] ?? $this->inspection_status;
     }
 
@@ -83,7 +85,7 @@ class Inspection extends Model
             'needs_improvement' => 'يحتاج تحسين',
             'non_compliant' => 'غير ملتزم'
         ];
-        
+
         return $ratings[$this->compliance_rating] ?? $this->compliance_rating;
     }
 
@@ -99,7 +101,7 @@ class Inspection extends Model
             'cancelled' => '#718096',
             'postponed' => '#f56565'
         ];
-        
+
         return $colors[$this->inspection_status] ?? '#718096';
     }
 
@@ -115,7 +117,7 @@ class Inspection extends Model
             'needs_improvement' => '#f56565',
             'non_compliant' => '#e53e3e'
         ];
-        
+
         return $colors[$this->compliance_rating] ?? '#718096';
     }
 
@@ -127,7 +129,7 @@ class Inspection extends Model
         if (!$this->scheduled_date || $this->inspection_status === 'completed') {
             return false;
         }
-        
+
         return $this->scheduled_date->isPast();
     }
 
@@ -139,7 +141,7 @@ class Inspection extends Model
         if (!$this->scheduled_date || $this->inspection_status === 'completed') {
             return false;
         }
-        
+
         return $this->scheduled_date->diffInDays(now()) <= 7 && $this->scheduled_date->isFuture();
     }
 
