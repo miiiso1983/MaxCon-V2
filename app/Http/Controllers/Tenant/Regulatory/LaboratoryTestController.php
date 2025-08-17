@@ -159,6 +159,8 @@ class LaboratoryTestController extends Controller
                             'test_name' => $data[0] ?? '',
                             'test_type' => $this->mapTestType($data[1] ?? ''),
                             'product_name' => $data[2] ?? '',
+                            // Map to legacy column if exists
+                            'drug_name' => $data[2] ?? '',
                             'batch_number' => $data[3] ?? '',
                             'laboratory_name' => $data[4] ?? '',
                             'test_date' => $this->parseDate($data[5] ?? ''),
@@ -173,7 +175,7 @@ class LaboratoryTestController extends Controller
                             'cost' => is_numeric($data[14] ?? '') ? $data[14] : null,
                             'notes' => $data[15] ?? ''
                         ]);
-                        
+
                         $imported++;
                     } catch (\Exception $e) {
                         $errors[] = "الصف {$rowNumber}: خطأ في حفظ البيانات - " . $e->getMessage();
