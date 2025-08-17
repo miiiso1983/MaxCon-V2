@@ -16,6 +16,7 @@ class Inspection extends Model
 
     protected $fillable = [
         'tenant_id',
+        'inspection_number',
         'inspection_title',
         'inspection_type',
         'inspector_name',
