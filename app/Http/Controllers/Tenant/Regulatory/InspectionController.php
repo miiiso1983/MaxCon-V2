@@ -7,6 +7,7 @@ use App\Models\Tenant\Regulatory\Inspection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -61,7 +62,8 @@ class InspectionController extends Controller
         }
 
         try {
-            Inspection::create([
+            // Canonical payload
+            $canonical = [
                 'tenant_id' => Auth::user()->tenant_id,
                 'inspection_title' => $request->input('inspection_title'),
                 'inspection_type' => $request->input('inspection_type'),
@@ -76,13 +78,24 @@ class InspectionController extends Controller
                 'findings' => $request->input('findings'),
                 'recommendations' => $request->input('recommendations'),
                 'compliance_rating' => $request->input('compliance_rating'),
-                'follow_up_required' => $request->has('follow_up_required'),
+                'follow_up_required' => $request->has('follow_up_required') ? 1 : 0,
                 'follow_up_date' => $request->input('follow_up_date'),
-                'notes' => $request->input('notes')
-            ]);
+                'notes' => $request->input('notes'),
+            ];
 
-            return redirect()->route('tenant.inventory.regulatory.inspections.index')
+            // Map to existing DB columns and collect skipped fields
+            [$data, $skipped] = $this->mapToExistingInspectionColumns($canonical);
+
+            Inspection::create($data);
+
+            $response = redirect()->route('tenant.inventory.regulatory.inspections.index')
                 ->with('success', 'تم إضافة التفتيش بنجاح');
+
+            if (!empty($skipped)) {
+                $response->with('warning', 'تم الحفظ، لكن تم تخطي الحقول التالية لعدم وجود أعمدة مطابقة في قاعدة البيانات: ' . implode(', ', $skipped));
+            }
+
+            return $response;
 
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء حفظ التفتيش: ' . $e->getMessage())->withInput();
@@ -381,6 +394,55 @@ class InspectionController extends Controller
     public function showSchedule()
     {
         return view('tenant.regulatory.inspections.schedule');
+    }
+
+    /**
+     * Map canonical inspection fields to existing DB columns dynamically
+     */
+    private function mapToExistingInspectionColumns(array $canonical): array
+    {
+        $columns = Schema::getColumnListing('inspections');
+
+        $candidates = [
+            'tenant_id' => ['tenant_id'],
+            'inspection_title' => ['inspection_title','title','name','subject'],
+            'inspection_type' => ['inspection_type','type'],
+            'inspector_name' => ['inspector_name','inspector'],
+            'inspection_authority' => ['inspection_authority','authority'],
+            'scheduled_date' => ['scheduled_date','scheduled_at','inspection_date','date'],
+            'completion_date' => ['completion_date','completed_at','completion_at','finished_at'],
+            'inspection_status' => ['inspection_status','status'],
+            'facility_name' => ['facility_name','facility','company_name','organization'],
+            'facility_address' => ['facility_address','address','location'],
+            'scope_of_inspection' => ['scope_of_inspection','inspection_scope','scope'],
+            'findings' => ['findings','results','observations'],
+            'recommendations' => ['recommendations','actions','action_items'],
+            'compliance_rating' => ['compliance_rating','compliance','rating'],
+            'follow_up_required' => ['follow_up_required','follow_up','needs_follow_up','followup_required'],
+            'follow_up_date' => ['follow_up_date','followup_date'],
+            'notes' => ['notes','remarks'],
+        ];
+
+        $data = [];
+        $skipped = [];
+
+        foreach ($canonical as $key => $value) {
+            $foundColumn = null;
+            foreach ($candidates[$key] ?? [$key] as $col) {
+                if (in_array($col, $columns, true)) { $foundColumn = $col; break; }
+            }
+            if ($foundColumn !== null) {
+                // Format dates to Y-m-d if input is date string
+                if (in_array($key, ['scheduled_date','completion_date','follow_up_date'], true) && !empty($value)) {
+                    $value = date('Y-m-d', strtotime((string)$value));
+                }
+                $data[$foundColumn] = $value;
+            } else {
+                $skipped[] = $key;
+            }
+        }
+
+        return [$data, $skipped];
     }
 
     /**
