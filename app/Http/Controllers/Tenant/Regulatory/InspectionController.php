@@ -83,12 +83,20 @@ class InspectionController extends Controller
                 'notes' => $request->input('notes'),
             ];
 
+            // Ensure 'inspection_date' in canonical if DB requires it
+            if (Schema::hasColumn('inspections', 'inspection_date') && empty($canonical['inspection_date'])) {
+                $canonical['inspection_date'] = $request->input('scheduled_date');
+            }
+
             // Map to existing DB columns and collect skipped fields
             [$data, $skipped] = $this->mapToExistingInspectionColumns($canonical);
 
             // Ensure required columns present in production schema
             if (Schema::hasColumn('inspections', 'inspection_number') && empty($data['inspection_number'])) {
                 $data['inspection_number'] = $this->generateInspectionNumber(Auth::user()->tenant_id);
+            }
+            if (Schema::hasColumn('inspections', 'inspection_date') && empty($data['inspection_date'])) {
+                $data['inspection_date'] = $data['scheduled_date'] ?? $request->input('scheduled_date');
             }
 
             Inspection::create($data);
@@ -213,6 +221,11 @@ class InspectionController extends Controller
             // Map to existing DB columns
             [$updateData, $skipped] = $this->mapToExistingInspectionColumns($canonical);
 
+            // Ensure inspection_date after mapping if missing
+            if (Schema::hasColumn('inspections', 'inspection_date') && empty($updateData['inspection_date'])) {
+                $updateData['inspection_date'] = $updateData['scheduled_date'] ?? $request->input('scheduled_date');
+            }
+
             $inspection->update($updateData);
 
             $response = redirect()->route('tenant.inventory.regulatory.inspections.index')
@@ -328,9 +341,12 @@ class InspectionController extends Controller
                         // Map to existing columns
                         [$rowData, $rowSkipped] = $this->mapToExistingInspectionColumns($canonical);
 
-                        // Ensure inspection_number if required
+                        // Ensure required columns after mapping
                         if (Schema::hasColumn('inspections', 'inspection_number') && empty($rowData['inspection_number'])) {
                             $rowData['inspection_number'] = $this->generateInspectionNumber(Auth::user()->tenant_id);
+                        }
+                        if (Schema::hasColumn('inspections', 'inspection_date') && empty($rowData['inspection_date'])) {
+                            $rowData['inspection_date'] = $rowData['scheduled_date'] ?? $canonical['scheduled_date'];
                         }
 
                         Inspection::create($rowData);
