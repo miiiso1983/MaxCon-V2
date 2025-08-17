@@ -62,11 +62,21 @@ class CertificateController extends Controller
      */
     public function index()
     {
-        $certificates = Certificate::where('tenant_id', Auth::user()->tenant_id)
+        $tenantId = Auth::user()->tenant_id;
+
+        $certificates = Certificate::where('tenant_id', $tenantId)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('tenant.regulatory.certificates.index', compact('certificates'));
+        // Counts for stats
+        $counts = [
+            'total' => Certificate::where('tenant_id', $tenantId)->count(),
+            'active' => Certificate::where('tenant_id', $tenantId)->active()->count(),
+            'expiring_soon' => Certificate::where('tenant_id', $tenantId)->expiringSoon(30)->count(),
+            'expired' => Certificate::where('tenant_id', $tenantId)->expired()->count(),
+        ];
+
+        return view('tenant.regulatory.certificates.index', compact('certificates', 'counts'));
     }
 
     /**

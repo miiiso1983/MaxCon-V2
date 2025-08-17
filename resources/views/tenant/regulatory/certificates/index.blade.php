@@ -35,7 +35,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">إجمالي الشهادات</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #2d3748;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #2d3748;">{{ $counts['total'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #667eea; opacity: 0.3;">
                     <i class="fas fa-certificate"></i>
@@ -47,7 +47,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">صالحة</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #48bb78;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #48bb78;">{{ $counts['active'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #48bb78; opacity: 0.3;">
                     <i class="fas fa-check-circle"></i>
@@ -59,7 +59,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">تنتهي قريباً</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #ed8936;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #ed8936;">{{ $counts['expiring_soon'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #ed8936; opacity: 0.3;">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -71,7 +71,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">منتهية الصلاحية</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #f56565;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #f56565;">{{ $counts['expired'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #f56565; opacity: 0.3;">
                     <i class="fas fa-times-circle"></i>
