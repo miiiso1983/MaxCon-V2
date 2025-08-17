@@ -135,7 +135,7 @@ class LaboratoryTestController extends Controller
 
         $file = $request->file('import_file');
         $path = $file->getRealPath();
-        
+
         $imported = 0;
         $errors = [];
         $skipped = 0;
@@ -144,11 +144,11 @@ class LaboratoryTestController extends Controller
             if (($handle = fopen($path, 'r')) !== FALSE) {
                 // Skip header row
                 $header = fgetcsv($handle);
-                
+
                 $rowNumber = 1;
                 while (($data = fgetcsv($handle)) !== FALSE) {
                     $rowNumber++;
-                    
+
                     // Skip empty rows
                     if (empty(array_filter($data))) {
                         continue;
@@ -190,7 +190,7 @@ class LaboratoryTestController extends Controller
                         $skipped++;
                     }
                 }
-                
+
                 fclose($handle);
             }
         } catch (\Exception $e) {
@@ -223,10 +223,10 @@ class LaboratoryTestController extends Controller
 
         $response = new StreamedResponse(function() use ($tests) {
             $handle = fopen('php://output', 'w');
-            
+
             // Add BOM for UTF-8
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             // CSV Headers
             fputcsv($handle, [
                 'اسم الفحص',
@@ -258,7 +258,7 @@ class LaboratoryTestController extends Controller
                     $test->laboratory_name,
                     $test->test_date,
                     $test->completion_date,
-                    $this->getTestStatusLabel($test->test_status),
+                    $this->getTestStatusLabel($test->status),
                     $test->test_method,
                     $test->specifications,
                     $test->results,
@@ -289,10 +289,10 @@ class LaboratoryTestController extends Controller
 
         $response = new StreamedResponse(function() {
             $handle = fopen('php://output', 'w');
-            
+
             // Add BOM for UTF-8
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             // CSV Headers
             fputcsv($handle, [
                 'اسم الفحص',
@@ -363,7 +363,7 @@ class LaboratoryTestController extends Controller
             'physical' => 'فحص فيزيائي',
             'bioequivalence' => 'التكافؤ الحيوي'
         ];
-        
+
         return $types[$type] ?? $type;
     }
 
@@ -376,7 +376,7 @@ class LaboratoryTestController extends Controller
             'failed' => 'فاشل',
             'cancelled' => 'ملغي'
         ];
-        
+
         return $statuses[$status] ?? $status;
     }
 
@@ -390,7 +390,7 @@ class LaboratoryTestController extends Controller
             'فحص فيزيائي' => 'physical',
             'التكافؤ الحيوي' => 'bioequivalence'
         ];
-        
+
         return $types[$label] ?? 'quality_control';
     }
 
@@ -403,9 +403,25 @@ class LaboratoryTestController extends Controller
             'فاشل' => 'failed',
             'ملغي' => 'cancelled'
         ];
-        
+
         return $statuses[$label] ?? 'pending';
     }
+
+
+	    /**
+	     * Map UI status to DB enum used in production schema
+	     */
+	    private function mapDbStatus(?string $ui): string
+	    {
+	        $map = [
+	            'pending' => 'scheduled',
+	            'in_progress' => 'in_progress',
+	            'completed' => 'completed',
+	            'failed' => 'failed',
+	            'cancelled' => 'cancelled',
+	        ];
+	        return $map[$ui] ?? 'scheduled';
+	    }
 
     private function parseDate($dateString)
     {

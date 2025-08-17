@@ -155,7 +155,7 @@
             </div>
         </div>
             <!-- Table of tests -->
-            @if(isset($tests) && method_exists($tests, 'total') && $tests->total() > 0)
+            @if(isset($tests) && $tests instanceof Illuminate\Pagination\LengthAwarePaginator && $tests->total() > 0)
             <div class="table-responsive" style="margin-top: 20px;">
                 <table class="table table-striped">
                     <thead>
@@ -177,7 +177,7 @@
                             <td>{{ $t->product_name }}</td>
                             <td>{{ $t->batch_number }}</td>
                             <td>{{ $t->laboratory_name }}</td>
-                            <td>{{ optional($t->test_date)->format('Y-m-d') }}</td>
+                            <td>{{ $t->test_date ? \Carbon\Carbon::parse($t->test_date)->format('Y-m-d') : '' }}</td>
                             <td>{{ $t->status }}</td>
                         </tr>
                         @endforeach
