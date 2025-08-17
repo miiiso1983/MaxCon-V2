@@ -187,6 +187,17 @@ class ProductRecallController extends Controller
             if (Schema::hasColumn('product_recalls', 'batch_numbers') && (!isset($data['batch_numbers']) || $data['batch_numbers'] === null || $data['batch_numbers'] === '')) {
                 $data['batch_numbers'] = (string)($canonical['batch_numbers'] ?? '');
             }
+            // Ensure recall_reason / reason present
+            if (Schema::hasColumn('product_recalls', 'recall_reason') && (empty($data['recall_reason']) && isset($canonical['recall_reason']))) {
+                $data['recall_reason'] = (string)$canonical['recall_reason'];
+            }
+            if (Schema::hasColumn('product_recalls', 'reason') && (empty($data['reason']) && isset($canonical['recall_reason']))) {
+                $data['reason'] = (string)$canonical['recall_reason'];
+            }
+            // Ensure manufacturer_name if column exists
+            if (Schema::hasColumn('product_recalls', 'manufacturer_name') && (!isset($data['manufacturer_name']) || $data['manufacturer_name'] === null)) {
+                $data['manufacturer_name'] = (string)($canonical['manufacturer_name'] ?? '');
+            }
 
             ProductRecall::create($data);
 
