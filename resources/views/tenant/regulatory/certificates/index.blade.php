@@ -28,6 +28,36 @@
             </div>
         </div>
     </div>
+    {{-- Flash Messages --}}
+    @if(session('success'))
+        <div style="background: rgba(72, 187, 120, 0.1); border: 2px solid #48bb78; border-radius: 15px; padding: 14px 18px; margin: 15px 0; color: #2d3748;">
+            <i class="fas fa-check-circle" style="color:#48bb78; margin-left:8px;"></i>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('warning'))
+        <div style="background: rgba(237, 137, 54, 0.1); border: 2px solid #ed8936; border-radius: 15px; padding: 14px 18px; margin: 15px 0; color: #2d3748;">
+            <i class="fas fa-exclamation-triangle" style="color:#ed8936; margin-left:8px;"></i>
+            {{ session('warning') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div style="background: rgba(245, 101, 101, 0.1); border: 2px solid #f56565; border-radius: 15px; padding: 14px 18px; margin: 15px 0; color: #2d3748;">
+            <i class="fas fa-times-circle" style="color:#f56565; margin-left:8px;"></i>
+            {{ session('error') }}
+        </div>
+    @endif
+    @if($errors->any())
+        <div style="background: rgba(245, 101, 101, 0.1); border: 2px solid #f56565; border-radius: 15px; padding: 14px 18px; margin: 15px 0; color: #2d3748;">
+            <strong>يرجى تصحيح الأخطاء التالية:</strong>
+            <ul style="margin:8px 0 0 0; padding-right:20px;">
+                @foreach($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
 
     <!-- Stats Cards -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
@@ -88,10 +118,10 @@
             </div>
             <h2 style="color: #2d3748; margin: 0 0 15px 0; font-size: 28px; font-weight: 700;">مرحباً بك في وحدة شهادات الجودة</h2>
             <p style="color: #718096; margin: 0 0 30px 0; font-size: 18px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
-                هذه الوحدة تتيح لك دعم شهادات الجودة وتتبع الصلاحية. 
+                هذه الوحدة تتيح لك دعم شهادات الجودة وتتبع الصلاحية.
                 يمكنك إدارة شهادات التحليل، شهادات GMP، ISO، الحلال، والشهادات العضوية.
             </p>
-            
+
             <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
                 <button onclick="showAddCertificateModal()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 16px;">
                     <i class="fas fa-plus"></i>
@@ -150,6 +180,53 @@
                 </p>
             </div>
         </div>
+        <!-- Certificates Table -->
+        <div style="margin-top: 30px; background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                <h3 style="margin:0; color:#2d3748; font-size:20px; font-weight:700;">
+                    <i class="fas fa-table" style="margin-left:8px; color:#667eea;"></i>
+                    قائمة الشهادات
+                </h3>
+            </div>
+            @if(isset($certificates) && method_exists($certificates, 'count') && $certificates->count())
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f7fafc; color:#2d3748; text-align:right;">
+                                <th style="padding:10px; border-bottom:1px solid #e2e8f0;">الاسم</th>
+                                <th style="padding:10px; border-bottom:1px solid #e2e8f0;">النوع</th>
+                                <th style="padding:10px; border-bottom:1px solid #e2e8f0;">الرقم</th>
+                                <th style="padding:10px; border-bottom:1px solid #e2e8f0;">الحالة</th>
+                                <th style="padding:10px; border-bottom:1px solid #e2e8f0;">تاريخ الإصدار</th>
+                                <th style="padding:10px; border-bottom:1px solid #e2e8f0;">تاريخ الانتهاء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($certificates as $c)
+                                <tr>
+                                    <td style="padding:10px; border-bottom:1px solid #edf2f7;">{{ $c->certificate_name }}</td>
+                                    <td style="padding:10px; border-bottom:1px solid #edf2f7;">{{ $c->getCertificateTypeLabel() }}</td>
+                                    <td style="padding:10px; border-bottom:1px solid #edf2f7;">{{ $c->certificate_number }}</td>
+                                    <td style="padding:10px; border-bottom:1px solid #edf2f7;">
+                                        <span style="display:inline-block; padding:4px 10px; border-radius:999px; color:#fff; background: {{ $c->getCertificateStatusColor() }};">
+                                            {{ $c->getCertificateStatusLabel() }}
+                                        </span>
+                                    </td>
+                                    <td style="padding:10px; border-bottom:1px solid #edf2f7;">{{ $c->issue_date ? \Carbon\Carbon::parse($c->issue_date)->format('Y-m-d') : '' }}</td>
+                                    <td style="padding:10px; border-bottom:1px solid #edf2f7;">{{ $c->expiry_date ? \Carbon\Carbon::parse($c->expiry_date)->format('Y-m-d') : '' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px;">
+                    {{ $certificates->links() }}
+                </div>
+            @else
+                <div style="padding:12px; color:#718096;">لا توجد شهادات حتى الآن.</div>
+            @endif
+        </div>
+
     </div>
 </div>
 
