@@ -4,11 +4,10 @@ namespace App\Models\Tenant\Regulatory;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Certificate extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
 
     protected $table = 'certificates';
 
@@ -23,6 +22,7 @@ class Certificate extends Model
         'certificate_status',
         'product_name',
         'facility_name',
+        'status',
         'scope_of_certification',
         'audit_date',
         'next_audit_date',
@@ -71,7 +71,8 @@ class Certificate extends Model
             'revoked' => 'ملغي'
         ];
         
-        return $statuses[$this->certificate_status] ?? $this->certificate_status;
+        $statusValue = $this->certificate_status ?? $this->status;
+        return $statuses[$statusValue] ?? $statusValue;
     }
 
     /**
@@ -162,7 +163,7 @@ class Certificate extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('certificate_status', 'active');
+        return $query->where(function($q){ $q->where('certificate_status','active')->orWhere('status','active'); });
     }
 
     /**
@@ -170,7 +171,7 @@ class Certificate extends Model
      */
     public function scopeExpired($query)
     {
-        return $query->where('certificate_status', 'expired')
+        return $query->where(function($q){ $q->where('certificate_status','expired')->orWhere('status','expired'); })
                     ->orWhere('expiry_date', '<', now());
     }
 
@@ -181,7 +182,7 @@ class Certificate extends Model
     {
         return $query->where('expiry_date', '>', now())
                     ->where('expiry_date', '<=', now()->addDays($days))
-                    ->where('certificate_status', 'active');
+                    ->where(function($q){ $q->where('certificate_status','active')->orWhere('status','active'); });
     }
 
     /**

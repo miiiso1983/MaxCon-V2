@@ -8,9 +8,54 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CertificateController extends Controller
+{
+    private function mapToExistingCertificateColumns(array $canonical): array
+    {
+        $columns = Schema::getColumnListing('certificates');
+        $candidates = [
+            'tenant_id' => ['tenant_id'],
+            'certificate_name' => ['certificate_name','name','title'],
+            'certificate_type' => ['certificate_type','type'],
+            'certificate_number' => ['certificate_number','number','ref_no'],
+            'issuing_authority' => ['issuing_authority','authority','issuer'],
+            'issue_date' => ['issue_date','issued_at','date_issued'],
+            'expiry_date' => ['expiry_date','expires_at','date_expiry'],
+            'certificate_status' => ['certificate_status','status'],
+            'product_name' => ['product_name','product'],
+            'facility_name' => ['facility_name','facility','company','organization'],
+            'scope_of_certification' => ['scope_of_certification','scope'],
+            'audit_date' => ['audit_date','audit_at'],
+            'next_audit_date' => ['next_audit_date','next_audit_at'],
+            'certification_body' => ['certification_body','body'],
+            'accreditation_number' => ['accreditation_number','accreditation_no'],
+            'renewal_reminder_days' => ['renewal_reminder_days','reminder_days'],
+            'notes' => ['notes','remarks'],
+        ];
+
+        $data = [];
+        $skipped = [];
+        foreach ($canonical as $key => $value) {
+            $found = null;
+            foreach ($candidates[$key] ?? [$key] as $col) {
+                if (in_array($col, $columns, true)) { $found = $col; break; }
+            }
+            if ($found) {
+                if (in_array($key, ['issue_date','expiry_date','audit_date','next_audit_date'], true) && !empty($value)) {
+                    $value = date('Y-m-d', strtotime((string)$value));
+                }
+                $data[$found] = $value;
+            } else {
+                $skipped[] = $key;
+            }
+        }
+
+        return [$data, $skipped];
+    }
+
 {
     /**
      * Display a listing of certificates
@@ -61,8 +106,7 @@ class CertificateController extends Controller
         }
 
         try {
-            Certificate::create([
-                'id' => Str::uuid(),
+            $canonical = [
                 'tenant_id' => Auth::user()->tenant_id,
                 'certificate_name' => $request->certificate_name,
                 'certificate_type' => $request->certificate_type,
@@ -79,8 +123,18 @@ class CertificateController extends Controller
                 'certification_body' => $request->certification_body,
                 'accreditation_number' => $request->accreditation_number,
                 'renewal_reminder_days' => $request->renewal_reminder_days ?? 30,
-                'notes' => $request->notes
-            ]);
+                'notes' => $request->notes,
+            ];
+
+            // Dynamic mapping to production schema
+            [$data, $skipped] = $this->mapToExistingCertificateColumns($canonical);
+
+            // If DB uses 'status' instead of 'certificate_status'
+            if (Schema::hasColumn('certificates', 'status') && empty($data['status'])) {
+                $data['status'] = $canonical['certificate_status'] ?? 'active';
+            }
+
+            Certificate::create($data);
 
             return redirect()->route('tenant.inventory.regulatory.certificates.index')
                 ->with('success', 'تم إضافة الشهادة بنجاح');
@@ -113,7 +167,7 @@ class CertificateController extends Controller
 
         $file = $request->file('import_file');
         $path = $file->getRealPath();
-        
+
         $imported = 0;
         $errors = [];
         $skipped = 0;
@@ -121,11 +175,11 @@ class CertificateController extends Controller
         try {
             if (($handle = fopen($path, 'r')) !== FALSE) {
                 $header = fgetcsv($handle);
-                
+
                 $rowNumber = 1;
                 while (($data = fgetcsv($handle)) !== FALSE) {
                     $rowNumber++;
-                    
+
                     if (empty(array_filter($data))) {
                         continue;
                     }
@@ -157,14 +211,14 @@ class CertificateController extends Controller
                             'renewal_reminder_days' => is_numeric($data[14] ?? '') ? $data[14] : 30,
                             'notes' => $data[15] ?? ''
                         ]);
-                        
+
                         $imported++;
                     } catch (\Exception $e) {
                         $errors[] = "الصف {$rowNumber}: خطأ في حفظ البيانات - " . $e->getMessage();
                         $skipped++;
                     }
                 }
-                
+
                 fclose($handle);
             }
         } catch (\Exception $e) {
@@ -197,9 +251,9 @@ class CertificateController extends Controller
 
         $response = new StreamedResponse(function() use ($certificates) {
             $handle = fopen('php://output', 'w');
-            
+
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             fputcsv($handle, [
                 'اسم الشهادة',
                 'نوع الشهادة',
@@ -340,9 +394,9 @@ class CertificateController extends Controller
 
         $response = new StreamedResponse(function() {
             $handle = fopen('php://output', 'w');
-            
+
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             fputcsv($handle, [
                 'اسم الشهادة',
                 'نوع الشهادة',
@@ -405,7 +459,7 @@ class CertificateController extends Controller
             'ce_marking' => 'CE Marking',
             'other' => 'أخرى'
         ];
-        
+
         return $types[$type] ?? $type;
     }
 
@@ -417,7 +471,7 @@ class CertificateController extends Controller
             'suspended' => 'معلق',
             'revoked' => 'ملغي'
         ];
-        
+
         return $statuses[$status] ?? $status;
     }
 
@@ -433,7 +487,7 @@ class CertificateController extends Controller
             'CE Marking' => 'ce_marking',
             'أخرى' => 'other'
         ];
-        
+
         return $types[$label] ?? 'other';
     }
 
@@ -445,7 +499,7 @@ class CertificateController extends Controller
             'معلق' => 'suspended',
             'ملغي' => 'revoked'
         ];
-        
+
         return $statuses[$label] ?? 'active';
     }
 
