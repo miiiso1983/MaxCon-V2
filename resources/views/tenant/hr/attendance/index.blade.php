@@ -378,22 +378,7 @@ function addAttendanceRecord() {
 }
 
 function generateAttendanceReport() {
-    // Show loading state
-    const button = event.target;
-    const originalContent = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إنشاء التقرير...';
-    button.disabled = true;
-
-    // Simulate report generation
-    setTimeout(() => {
-        alert('تم إنشاء تقرير الحضور بنجاح!\n\nيتضمن التقرير:\n• إحصائيات شهرية ومفصلة\n• رسوم بيانية للحضور\n• مقارنة الأداء\n• تحليل أنماط الحضور');
-
-        // Reset button
-        button.innerHTML = originalContent;
-        button.disabled = false;
-
-        showNotification('تم إنشاء التقرير بنجاح!', 'success');
-    }, 2000);
+    window.location.href = "{{ route('tenant.hr.attendance.reports', request()->query()) }}";
 }
 
 function exportAttendanceData() {
