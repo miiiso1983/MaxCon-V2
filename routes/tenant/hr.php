@@ -26,6 +26,7 @@ Route::prefix('employees')->name('employees.')->group(function () {
     Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('destroy');
     Route::get('/export/excel', [EmployeeController::class, 'export'])->name('export');
     Route::get('/import/form', [EmployeeController::class, 'showImportForm'])->name('import.form');
+    Route::get('/import/template', [EmployeeController::class, 'downloadTemplate'])->name('import.template');
     Route::post('/import', [EmployeeController::class, 'import'])->name('import');
     Route::get('/{employee}/attendance', [EmployeeController::class, 'attendance'])->name('attendance');
 });

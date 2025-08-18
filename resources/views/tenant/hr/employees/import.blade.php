@@ -199,7 +199,7 @@
 
 <script>
 function downloadTemplate() {
-    alert('ميزة تحميل القالب قيد التطوير');
+    window.location.href = "{{ route('tenant.hr.employees.import.template') }}";
 }
 
 function handleDragOver(event) {

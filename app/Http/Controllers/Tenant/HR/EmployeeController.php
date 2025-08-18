@@ -310,6 +310,15 @@ class EmployeeController extends Controller
     {
         return view('tenant.hr.employees.import');
     }
+    /**
+     * Download employees import Excel template
+     */
+    public function downloadTemplate()
+    {
+        $fileName = 'employees_import_template_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\EmployeesTemplateExport(), $fileName);
+    }
+
 
     /**
      * Import employees from Excel
