@@ -49,6 +49,9 @@ class RegulatoryReportController extends Controller
                 if (in_array($key, ['due_date','submission_date'], true) && !empty($value)) {
                     $value = date('Y-m-d', strtotime((string)$value));
                 }
+                if ($found === 'report_type') {
+                    $value = $this->normalizeReportType($value);
+                }
                 $data[$found] = $value;
             } else {
                 $skipped[] = $key;
@@ -64,6 +67,25 @@ class RegulatoryReportController extends Controller
         return 'RPT-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
     }
 
+    private function normalizeReportType($value): ?string
+    {
+        if ($value === null || $value === '') return $value;
+        $v = strtolower(str_replace([' ', '-'], ['_', '_'], (string)$value));
+        $map = [
+            'periodic' => 'periodic_safety',
+            'periodic_safety' => 'periodic_safety',
+            'psur' => 'periodic_safety',
+            'pbrer' => 'periodic_safety',
+            'incident' => 'incident',
+            'compliance' => 'compliance',
+            'audit' => 'audit',
+            'inspection' => 'inspection',
+            'adverse_event' => 'adverse_event',
+            'ae' => 'adverse_event',
+            'recall' => 'recall',
+        ];
+        return $map[$v] ?? $v;
+    }
 
     /**
      * Display a listing of reports
@@ -92,7 +114,7 @@ class RegulatoryReportController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'report_title' => 'required|string|max:255',
-            'report_type' => 'required|in:periodic,incident,compliance,audit,inspection,adverse_event',
+            'report_type' => 'required|in:periodic,periodic_safety,incident,compliance,audit,inspection,adverse_event,recall',
             'report_period' => 'nullable|in:monthly,quarterly,semi_annual,annual',
             'submission_authority' => 'required|string|max:255',
             'due_date' => 'required|date',
@@ -118,7 +140,7 @@ class RegulatoryReportController extends Controller
             $canonical = [
                 'tenant_id' => Auth::user()->tenant_id,
                 'report_title' => $request->report_title ?? $request->title ?? 'تقرير بدون عنوان',
-                'report_type' => $request->report_type,
+                'report_type' => $this->normalizeReportType($request->report_type),
                 'report_period' => $request->report_period,
                 'submission_authority' => $request->submission_authority,
                 'due_date' => $request->due_date,
