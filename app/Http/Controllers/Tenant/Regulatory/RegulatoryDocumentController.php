@@ -79,7 +79,10 @@ class RegulatoryDocumentController extends Controller
 
             // Type & numbers
             if (in_array('document_type', $columns, true)) $data['document_type'] = $request->document_type;
-            if (in_array('document_number', $columns, true)) $data['document_number'] = $request->document_number;
+            if (in_array('document_number', $columns, true)) {
+                $docNo = $request->document_number ?: ('DOC-' . date('Ymd-His') . '-' . strtoupper(Str::random(4)));
+                $data['document_number'] = $docNo;
+            }
 
             // Authority mapping
             if (in_array('issuing_authority', $columns, true)) {
@@ -194,6 +197,9 @@ class RegulatoryDocumentController extends Controller
                 }
 
                 if (in_array('document_type', $columns, true)) $data['document_type'] = $request->document_type;
+                if (in_array('document_number', $columns, true)) {
+                    $data['document_number'] = 'DOC-' . date('Ymd-His') . '-' . strtoupper(Str::random(4));
+                }
                 if (in_array('issuing_authority', $columns, true)) {
                     $data['issuing_authority'] = $request->issuing_authority;
                 } elseif (in_array('regulatory_authority', $columns, true)) {
