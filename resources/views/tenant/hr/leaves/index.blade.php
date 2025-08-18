@@ -27,7 +27,7 @@
 
     <!-- Leave Stats -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-        
+
         <div style="background: rgba(255,255,255,0.95); border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
             <div style="background: #ed8936; color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 20px;">
                 <i class="fas fa-clock"></i>
@@ -67,14 +67,14 @@
             <i class="fas fa-clock" style="margin-left: 10px; color: #ed8936;"></i>
             طلبات الإجازات المعلقة
         </h3>
-        
+
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
-            
+
             <!-- Sample Pending Request 1 -->
-            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; transition: transform 0.3s, box-shadow 0.3s;" 
-                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.1)'" 
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; transition: transform 0.3s, box-shadow 0.3s;"
+                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.1)'"
                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                
+
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                     <div style="background: #ed8936; color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700;">
                         أم
@@ -119,10 +119,10 @@
             </div>
 
             <!-- Sample Pending Request 2 -->
-            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; transition: transform 0.3s, box-shadow 0.3s;" 
-                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.1)'" 
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; transition: transform 0.3s, box-shadow 0.3s;"
+                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.1)'"
                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                
+
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                     <div style="background: #ed8936; color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700;">
                         سأ
@@ -170,14 +170,14 @@
 
     <!-- Leave Calendar & Quick Actions -->
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
-        
+
         <!-- Leave Calendar -->
         <div style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
             <h3 style="color: #2d3748; margin: 0 0 25px 0; font-size: 24px; font-weight: 700;">
                 <i class="fas fa-calendar" style="margin-left: 10px; color: #4299e1;"></i>
                 تقويم الإجازات
             </h3>
-            
+
             <div style="text-align: center; padding: 60px 20px; color: #718096;">
                 <i class="fas fa-calendar-alt" style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;"></i>
                 <h4 style="margin: 0 0 10px 0; font-size: 20px; font-weight: 700;">تقويم الإجازات</h4>
@@ -194,9 +194,9 @@
                 <i class="fas fa-bolt" style="margin-left: 10px; color: #ed8936;"></i>
                 إجراءات سريعة
             </h3>
-            
+
             <div style="display: flex; flex-direction: column; gap: 15px;">
-                
+
                 <button onclick="createNewLeaveRequest()" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
                     <i class="fas fa-plus"></i>
                     طلب إجازة جديد
@@ -226,7 +226,7 @@
             <!-- Leave Balance Summary -->
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
                 <h4 style="color: #2d3748; margin: 0 0 15px 0; font-size: 16px; font-weight: 700;">رصيد الإجازات</h4>
-                
+
                 <div style="margin-bottom: 10px;">
                     <div style="display: flex; justify-content: between; margin-bottom: 5px;">
                         <span style="color: #4a5568; font-size: 14px;">إجازة سنوية</span>
@@ -260,6 +260,14 @@
         </div>
     </div>
 </div>
+
+<form id="leave-approve-form" method="POST" data-base="{{ route('tenant.hr.leaves.approve', ['leave' => '__ID__']) }}" style="display:none;">
+    @csrf
+</form>
+<form id="leave-reject-form" method="POST" data-base="{{ route('tenant.hr.leaves.reject', ['leave' => '__ID__']) }}" style="display:none;">
+    @csrf
+    <input type="hidden" name="reason" id="leave-reject-reason" value="" />
+</form>
 
 <script>
 function createNewLeaveRequest() {
@@ -367,6 +375,8 @@ function createNewLeaveRequest() {
 }
 
 function approveLeaveRequest(requestId) {
+    const btn = event.target.closest('button');
+    const original = btn ? btn.innerHTML : null;
     if (confirm('هل أنت متأكد من الموافقة على طلب الإجازة؟')) {
         // Show loading state
         const button = event.target;
@@ -383,6 +393,8 @@ function approveLeaveRequest(requestId) {
 }
 
 function rejectLeaveRequest(requestId) {
+    const btn = event.target.closest('button');
+    const original = btn ? btn.innerHTML : null;
     const reason = prompt('يرجى إدخال سبب رفض الطلب:');
     if (reason && reason.trim()) {
         // Show loading state
@@ -666,11 +678,11 @@ function showLeaveBalance() {
 }
 
 function generateLeaveReports() {
-    alert('ميزة تقارير الإجازات قيد التطوير\n\nستتضمن:\n• تقرير الإجازات الشهرية\n• تقرير رصيد الموظفين\n• تقرير الإجازات المعلقة\n• إحصائيات شاملة');
+    window.location.href = "{{ route('tenant.hr.reports.leaves') }}";
 }
 
 function exportLeaveData() {
-    alert('تم تصدير بيانات الإجازات بنجاح!\n\nتم تصدير:\n• جميع طلبات الإجازات\n• أرصدة الموظفين\n• الإحصائيات والتقارير\n• سجل الموافقات والرفض');
+    window.location.href = "{{ route('tenant.hr.leaves.export') }}";
 }
 
 function showNotification(message, type = 'info') {

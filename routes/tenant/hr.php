@@ -148,6 +148,7 @@ Route::prefix('leaves')->name('leaves.')->group(function () {
     Route::post('/{leave}/reject', [LeaveController::class, 'reject'])->name('reject');
     Route::get('/calendar/view', [LeaveController::class, 'calendar'])->name('calendar');
     Route::get('/balance/{employee}', [LeaveController::class, 'balance'])->name('balance');
+    Route::get('/export', [LeaveController::class, 'export'])->name('export');
 });
 
 
