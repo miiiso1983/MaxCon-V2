@@ -32,14 +32,14 @@ class LeaveTypeController extends Controller
             'days_per_year' => 'required|integer|min:0|max:365',
             'max_consecutive_days' => 'nullable|integer|min:0|max:365',
             'min_notice_days' => 'nullable|integer|min:0|max:60',
-            'is_paid' => 'nullable|boolean',
-            'requires_approval' => 'nullable|boolean',
-            'requires_attachment' => 'nullable|boolean',
-            'carry_forward' => 'nullable|boolean',
+            'is_paid' => 'sometimes|boolean',
+            'requires_approval' => 'sometimes|boolean',
+            'requires_attachment' => 'sometimes|boolean',
+            'carry_forward' => 'sometimes|boolean',
             'gender_specific' => 'required|in:all,male,female',
             'applicable_after_months' => 'nullable|integer|min:0|max:60',
             'color' => 'nullable|string|max:7',
-            'is_active' => 'nullable|boolean',
+            'is_active' => 'sometimes|boolean',
         ]);
 
         $code = $data['code'] ?? LeaveType::generateLeaveTypeCode($tenantId);
@@ -47,11 +47,11 @@ class LeaveTypeController extends Controller
         LeaveType::create(array_merge($data, [
             'tenant_id' => $tenantId,
             'code' => $code,
-            'is_paid' => (bool)($data['is_paid'] ?? true),
-            'requires_approval' => (bool)($data['requires_approval'] ?? true),
-            'requires_attachment' => (bool)($data['requires_attachment'] ?? false),
-            'carry_forward' => (bool)($data['carry_forward'] ?? false),
-            'is_active' => (bool)($data['is_active'] ?? true),
+            'is_paid' => (bool)($request->boolean('is_paid')),
+            'requires_approval' => (bool)($request->boolean('requires_approval', true)),
+            'requires_attachment' => (bool)($request->boolean('requires_attachment')),
+            'carry_forward' => (bool)($request->boolean('carry_forward')),
+            'is_active' => (bool)($request->boolean('is_active', true)),
         ]));
 
         return redirect()->route('tenant.hr.leave-types.index')->with('success', 'تم إنشاء نوع الإجازة بنجاح');
@@ -76,22 +76,22 @@ class LeaveTypeController extends Controller
             'days_per_year' => 'required|integer|min:0|max:365',
             'max_consecutive_days' => 'nullable|integer|min:0|max:365',
             'min_notice_days' => 'nullable|integer|min:0|max:60',
-            'is_paid' => 'nullable|boolean',
-            'requires_approval' => 'nullable|boolean',
-            'requires_attachment' => 'nullable|boolean',
-            'carry_forward' => 'nullable|boolean',
+            'is_paid' => 'sometimes|boolean',
+            'requires_approval' => 'sometimes|boolean',
+            'requires_attachment' => 'sometimes|boolean',
+            'carry_forward' => 'sometimes|boolean',
             'gender_specific' => 'required|in:all,male,female',
             'applicable_after_months' => 'nullable|integer|min:0|max:60',
             'color' => 'nullable|string|max:7',
-            'is_active' => 'nullable|boolean',
+            'is_active' => 'sometimes|boolean',
         ]);
 
         $leaveType->update(array_merge($data, [
-            'is_paid' => (bool)($data['is_paid'] ?? $leaveType->is_paid),
-            'requires_approval' => (bool)($data['requires_approval'] ?? $leaveType->requires_approval),
-            'requires_attachment' => (bool)($data['requires_attachment'] ?? $leaveType->requires_attachment),
-            'carry_forward' => (bool)($data['carry_forward'] ?? $leaveType->carry_forward),
-            'is_active' => (bool)($data['is_active'] ?? $leaveType->is_active),
+            'is_paid' => (bool)($request->boolean('is_paid')),
+            'requires_approval' => (bool)($request->boolean('requires_approval', $leaveType->requires_approval)),
+            'requires_attachment' => (bool)($request->boolean('requires_attachment')),
+            'carry_forward' => (bool)($request->boolean('carry_forward')),
+            'is_active' => (bool)($request->boolean('is_active', $leaveType->is_active)),
         ]));
 
         return redirect()->route('tenant.hr.leave-types.index')->with('success', 'تم تحديث نوع الإجازة بنجاح');

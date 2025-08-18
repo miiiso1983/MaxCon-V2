@@ -50,11 +50,11 @@
             </div>
         </div>
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:14px;">
-            <label><input type="checkbox" name="is_paid" {{ $leaveType->is_paid ? 'checked' : '' }}> مدفوعة</label>
-            <label><input type="checkbox" name="requires_approval" {{ $leaveType->requires_approval ? 'checked' : '' }}> تتطلب موافقة</label>
-            <label><input type="checkbox" name="requires_attachment" {{ $leaveType->requires_attachment ? 'checked' : '' }}> تتطلب مرفق</label>
-            <label><input type="checkbox" name="carry_forward" {{ $leaveType->carry_forward ? 'checked' : '' }}> ترحيل الرصيد</label>
-            <label><input type="checkbox" name="is_active" {{ $leaveType->is_active ? 'checked' : '' }}> مفعلة</label>
+            <label><input type="checkbox" name="is_paid" value="1" {{ $leaveType->is_paid ? 'checked' : '' }}> مدفوعة</label>
+            <label><input type="checkbox" name="requires_approval" value="1" {{ $leaveType->requires_approval ? 'checked' : '' }}> تتطلب موافقة</label>
+            <label><input type="checkbox" name="requires_attachment" value="1" {{ $leaveType->requires_attachment ? 'checked' : '' }}> تتطلب مرفق</label>
+            <label><input type="checkbox" name="carry_forward" value="1" {{ $leaveType->carry_forward ? 'checked' : '' }}> ترحيل الرصيد</label>
+            <label><input type="checkbox" name="is_active" value="1" {{ $leaveType->is_active ? 'checked' : '' }}> مفعلة</label>
         </div>
 
         <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end;">

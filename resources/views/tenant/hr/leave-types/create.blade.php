@@ -53,11 +53,11 @@
             </div>
         </div>
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:14px;">
-            <label><input type="checkbox" name="is_paid" checked> مدفوعة</label>
-            <label><input type="checkbox" name="requires_approval" checked> تتطلب موافقة</label>
-            <label><input type="checkbox" name="requires_attachment"> تتطلب مرفق</label>
-            <label><input type="checkbox" name="carry_forward"> ترحيل الرصيد</label>
-            <label><input type="checkbox" name="is_active" checked> مفعلة</label>
+            <label><input type="checkbox" name="is_paid" value="1" checked> مدفوعة</label>
+            <label><input type="checkbox" name="requires_approval" value="1" checked> تتطلب موافقة</label>
+            <label><input type="checkbox" name="requires_attachment" value="1"> تتطلب مرفق</label>
+            <label><input type="checkbox" name="carry_forward" value="1"> ترحيل الرصيد</label>
+            <label><input type="checkbox" name="is_active" value="1" checked> مفعلة</label>
         </div>
 
         <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end;">
