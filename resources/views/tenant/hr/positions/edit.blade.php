@@ -1,4 +1,6 @@
-@extends('layouts.tenant')
+@extends('layouts.modern')
+
+@section('title', 'تعديل المنصب')
 
 @section('content')
 <style>
