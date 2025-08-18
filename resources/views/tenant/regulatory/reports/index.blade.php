@@ -28,6 +28,30 @@
             </div>
         </div>
     </div>
+        @if(session('success'))
+            <div style="background:#ecfdf5; color:#065f46; border:1px solid #10b981; padding:12px 16px; border-radius:10px; margin: 0 0 20px 0;">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('warning'))
+            <div style="background:#fffbeb; color:#92400e; border:1px solid #f59e0b; padding:12px 16px; border-radius:10px; margin: 0 0 20px 0;">
+                {{ session('warning') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div style="background:#fef2f2; color:#991b1b; border:1px solid #ef4444; padding:12px 16px; border-radius:10px; margin: 0 0 20px 0;">
+                {{ session('error') }}
+            </div>
+        @endif
+        @if ($errors->any())
+            <div style="background:#fff7ed; color:#9a3412; border:1px solid #fb923c; padding:12px 16px; border-radius:10px; margin: 0 0 20px 0;">
+                <ul style="margin:0; padding-left:20px;">
+                    @foreach ($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
     <!-- Stats Cards -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
@@ -35,7 +59,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">إجمالي التقارير</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #2d3748;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #2d3748;">{{ $counts['total'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #fa709a; opacity: 0.3;">
                     <i class="fas fa-file-alt"></i>
@@ -47,7 +71,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">قيد المراجعة</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #ed8936;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #ed8936;">{{ $counts['pending'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #ed8936; opacity: 0.3;">
                     <i class="fas fa-clock"></i>
@@ -59,7 +83,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">معتمدة</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #48bb78;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #48bb78;">{{ $counts['approved'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #48bb78; opacity: 0.3;">
                     <i class="fas fa-check-circle"></i>
@@ -71,7 +95,7 @@
             <div style="display: flex; align-items: center; justify-content: between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #718096;">متأخرة</h3>
-                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #f56565;">0</p>
+                    <p style="margin: 0; font-size: 32px; font-weight: 700; color: #f56565;">{{ $counts['overdue'] ?? 0 }}</p>
                 </div>
                 <div style="font-size: 40px; color: #f56565; opacity: 0.3;">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -80,6 +104,33 @@
         </div>
     </div>
 
+            <form method="GET" action="{{ route('tenant.inventory.regulatory.reports.index') }}" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="بحث بالعنوان/الرقم" style="padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; min-width:220px;">
+                <select name="type" style="padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px;">
+                    <option value="">كل الأنواع</option>
+                    @foreach(\App\Models\Tenant\Regulatory\RegulatoryReport::REPORT_TYPES as $key => $label)
+                        <option value="{{ $key }}" {{ request('type')===$key ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <select name="status" style="padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px;">
+                    <option value="">كل الحالات</option>
+                    @foreach(\App\Models\Tenant\Regulatory\RegulatoryReport::STATUS_TYPES as $key => $label)
+                        <option value="{{ $key }}" {{ request('status')===$key ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <select name="priority" style="padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px;">
+                    <option value="">كل الأولويات</option>
+                    @foreach(\App\Models\Tenant\Regulatory\RegulatoryReport::PRIORITY_LEVELS as $key => $label)
+                        <option value="{{ $key }}" {{ request('priority')===$key ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <input type="text" name="authority" value="{{ request('authority') }}" placeholder="الجهة" style="padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; min-width:160px;">
+                <input type="date" name="date_from" value="{{ request('date_from') }}" style="padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px;">
+                <input type="date" name="date_to" value="{{ request('date_to') }}" style="padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px;">
+                <button type="submit" style="background:#2563eb; color:#fff; padding:10px 16px; border:none; border-radius:10px;">بحث</button>
+                <a href="{{ route('tenant.inventory.regulatory.reports.index') }}" style="background:#e5e7eb; color:#111827; padding:10px 16px; border:none; border-radius:10px; text-decoration:none;">تفريغ</a>
+                <a href="{{ route('tenant.inventory.regulatory.reports.export') }}" style="background:#10b981; color:#fff; padding:10px 16px; border:none; border-radius:10px; text-decoration:none;">تصدير CSV</a>
+            </form>
     <!-- Main Content -->
     <div style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
         <div style="text-align: center; padding: 60px 20px;">
@@ -88,10 +139,10 @@
             </div>
             <h2 style="color: #2d3748; margin: 0 0 15px 0; font-size: 28px; font-weight: 700;">مرحباً بك في وحدة التقارير التنظيمية</h2>
             <p style="color: #718096; margin: 0 0 30px 0; font-size: 18px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
-                هذه الوحدة تتيح لك إنشاء وإدارة التقارير التنظيمية المطلوبة. 
+                هذه الوحدة تتيح لك إنشاء وإدارة التقارير التنظيمية المطلوبة.
                 يمكنك إعداد تقارير التفتيش، التقارير المخبرية، تقارير الأحداث الضارة، والتقارير الدورية.
             </p>
-            
+
             <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
                 <button onclick="showCreateReportModal()" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #2d3748; padding: 15px 30px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 16px;">
                     <i class="fas fa-plus"></i>
@@ -125,6 +176,50 @@
                     <i class="fas fa-flask" style="font-size: 24px; margin-left: 15px;"></i>
                     <h3 style="margin: 0; font-size: 20px; font-weight: 700;">تقرير مخبري</h3>
                 </div>
+            @if(($reports ?? null) && count($reports))
+                <div style="margin-top:30px;">
+                    <h3 style="color:#2d3748; margin-bottom:12px;">التقارير المحفوظة</h3>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden;">
+                            <thead>
+                                <tr style="background:#f7fafc; color:#4a5568;">
+                                    <th style="text-align:right; padding:12px;">#</th>
+                                    <th style="text-align:right; padding:12px;">الرقم</th>
+                                    <th style="text-align:right; padding:12px;">العنوان</th>
+                                    <th style="text-align:right; padding:12px;">النوع</th>
+                                    <th style="text-align:right; padding:12px;">الحالة</th>
+                                    <th style="text-align:right; padding:12px;">الجهة</th>
+                                    <th style="text-align:right; padding:12px;">الاستحقاق</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($reports as $i => $r)
+                                    <tr style="border-top:1px solid #e2e8f0;">
+                                        <td style="padding:10px; color:#4a5568;">{{ $i + 1 }}</td>
+                                        <td style="padding:10px; color:#1f2937; font-weight:600;">{{ $r->report_number ?? '-' }}</td>
+                                        <td style="padding:10px;">{{ $r->report_title ?? $r->title ?? '-' }}</td>
+                                        <td style="padding:10px;">
+                                            <span style="padding:4px 8px; border-radius:9999px; background:#eef2ff; color:#3730a3; font-size:12px;">
+                                                {{ $r->report_type ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <td style="padding:10px;">
+                                            <span style="padding:4px 8px; border-radius:9999px; background:#ecfeff; color:#155e75; font-size:12px;">
+                                                {{ $r->status ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <td style="padding:10px;">{{ $r->regulatory_authority ?? '-' }}</td>
+                                        <td style="padding:10px;">{{ optional($r->due_date)->format('Y-m-d') ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top:12px;">
+                        {{ method_exists($reports, 'links') ? $reports->links() : '' }}
+                    </div>
+                </div>
+            @endif
                 <p style="margin: 0; opacity: 0.9; line-height: 1.6;">
                     تقارير نتائج الفحوصات المخبرية والتحاليل والمطابقة للمواصفات
                 </p>

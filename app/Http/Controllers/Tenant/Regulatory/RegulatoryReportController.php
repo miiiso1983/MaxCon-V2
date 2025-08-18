@@ -90,13 +90,42 @@ class RegulatoryReportController extends Controller
     /**
      * Display a listing of reports
      */
-    public function index()
+    public function index(Request $request)
     {
         $tenantId = Auth::user()->tenant_id;
 
-        $reports = RegulatoryReport::where('tenant_id', $tenantId)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = RegulatoryReport::where('tenant_id', $tenantId);
+
+        // Filters
+        if ($request->filled('type')) {
+            $query->where('report_type', $request->input('type'));
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->input('priority'));
+        }
+        if ($request->filled('authority')) {
+            $query->where('regulatory_authority', 'like', '%' . $request->input('authority') . '%');
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('due_date', '>=', $request->input('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('due_date', '<=', $request->input('date_to'));
+        }
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function($sub) use ($q) {
+                $sub->where('report_title', 'like', "%$q%")
+                    ->orWhere('title', 'like', "%$q%")
+                    ->orWhere('report_number', 'like', "%$q%")
+                    ->orWhere('recommendations', 'like', "%$q%");
+            });
+        }
+
+        $reports = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->query());
 
         $counts = [
             'total' => RegulatoryReport::where('tenant_id', $tenantId)->count(),
