@@ -33,6 +33,7 @@ Route::prefix('employees')->name('employees.')->group(function () {
 // Departments Management
 Route::prefix('departments')->name('departments.')->group(function () {
     Route::get('/', [DepartmentController::class, 'index'])->name('index');
+    Route::get('/export/full', [DepartmentController::class, 'exportFull'])->name('export.full');
     Route::get('/create', [DepartmentController::class, 'create'])->name('create');
     Route::post('/', [DepartmentController::class, 'store'])->name('store');
     Route::get('/chart', [DepartmentController::class, 'chart'])->name('chart');

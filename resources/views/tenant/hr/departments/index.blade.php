@@ -161,10 +161,10 @@
                     إدارة المناصب
                 </a>
 
-                <button onclick="exportToExcel()" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                <a href="{{ route('tenant.hr.departments.export.full') }}" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 10px; justify-content: center; text-decoration:none;">
                     <i class="fas fa-download"></i>
                     تصدير إلى Excel
-                </button>
+                </a>
 
                 <button onclick="importFromExcel()" style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; justify-content: center;">
                     <i class="fas fa-upload"></i>
@@ -207,20 +207,7 @@ function deleteDepartment(departmentId) {
 }
 
 function exportToExcel() {
-    // Show loading state
-    const button = event.target.closest('button');
-    const originalContent = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التصدير...';
-    button.disabled = true;
-
-    // Simulate export process
-    setTimeout(() => {
-        alert('تم تصدير بيانات الأقسام بنجاح!\n\nتم تصدير:\n• قائمة جميع الأقسام\n• معلومات الاتصال\n• البيانات المالية\n• إحصائيات الأداء');
-
-        // Reset button
-        button.innerHTML = originalContent;
-        button.disabled = false;
-    }, 2000);
+    window.location.href = '{{ route('tenant.hr.departments.export.full') }}';
 }
 
 function importFromExcel() {

@@ -60,6 +60,17 @@ class DepartmentController extends Controller
     }
 
     /**
+     * Export full departments workbook (list, contacts, finance, performance)
+     */
+    public function exportFull()
+    {
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $export = new \App\Exports\DepartmentsFullExport($tenantId);
+        $filename = 'Departments-' . now()->format('Y-m-d_H-i') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download($export, $filename);
+    }
+
+    /**
      * Show organizational chart
      */
     public function chart()
