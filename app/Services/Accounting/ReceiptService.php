@@ -5,6 +5,8 @@ namespace App\Services\Accounting;
 use App\Models\InvoicePayment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
 use Mpdf\Config\FontVariables;
 use Mpdf\Config\ConfigVariables;
@@ -19,7 +21,7 @@ class ReceiptService
         $invoice = $payment->invoice()->with(['customer', 'salesRep', 'tenant'])->first();
         // Prepare QR data
         // Create signed public URL for receipt verification (like invoice verification)
-        $qrText = \URL::signedRoute('public.receipt.verify', ['payment' => $payment->id]);
+        $qrText = URL::signedRoute('public.receipt.verify', ['payment' => $payment->id]);
 
         $qrPng = null;
 
@@ -30,7 +32,7 @@ class ReceiptService
                 $qrPng = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(300)->margin(2)->generate($qrText));
             }
         } catch (\Throwable $e) {
-            \Log::warning('QR Code generation failed with SimpleSoftwareIO: ' . $e->getMessage());
+            Log::warning('QR Code generation failed with SimpleSoftwareIO: ' . $e->getMessage());
         }
 
         // Method 2: Fallback to external API if first method failed
@@ -48,7 +50,7 @@ class ReceiptService
                     $qrPng = base64_encode($qrImageData);
                 }
             } catch (\Throwable $e) {
-                \Log::warning('QR Code generation failed with external API: ' . $e->getMessage());
+                Log::warning('QR Code generation failed with external API: ' . $e->getMessage());
             }
         }
 
@@ -62,7 +64,7 @@ class ReceiptService
                     $qrPng = base64_encode($qrImageData);
                 }
             } catch (\Throwable $e) {
-                \Log::error('All QR Code generation methods failed: ' . $e->getMessage());
+                Log::error('All QR Code generation methods failed: ' . $e->getMessage());
                 $qrPng = null;
             }
         }
