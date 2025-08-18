@@ -4,20 +4,20 @@ namespace App\Http\Controllers\Tenant\HR;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\HR\Department;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
     public function index()
     {
-        $departments = collect([
-            (object) ['id' => 1, 'name' => 'الإدارة العامة', 'code' => 'DEPT001', 'manager' => 'أحمد محمد', 'employees_count' => 5],
-            (object) ['id' => 2, 'name' => 'الموارد البشرية', 'code' => 'DEPT002', 'manager' => 'سارة أحمد', 'employees_count' => 3],
-            (object) ['id' => 3, 'name' => 'المالية والمحاسبة', 'code' => 'DEPT003', 'manager' => 'محمد علي', 'employees_count' => 4],
-            (object) ['id' => 4, 'name' => 'المبيعات والتسويق', 'code' => 'DEPT004', 'manager' => 'فاطمة حسن', 'employees_count' => 8],
-            (object) ['id' => 5, 'name' => 'تقنية المعلومات', 'code' => 'DEPT005', 'manager' => 'عمر خالد', 'employees_count' => 6],
-        ]);
-        
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $departments = Department::where('tenant_id', $tenantId)
+            ->withCount('employees')
+            ->with('manager')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('tenant.hr.departments.index', compact('departments'));
     }
 
@@ -28,7 +28,35 @@ class DepartmentController extends Controller
 
     public function store(Request $request)
     {
-        return redirect()->route('tenant.hr.departments.index')->with('success', 'تم إنشاء القسم بنجاح');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:hr_departments,code',
+            'parent_id' => 'nullable|integer|exists:hr_departments,id',
+            'manager_id' => 'nullable|integer',
+            'budget' => 'nullable|numeric',
+            'location' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+            'description' => 'nullable|string',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        try {
+            $data = $validated;
+            $data['tenant_id'] = $tenantId;
+            $data['is_active'] = isset($validated['is_active']) ? (bool)$validated['is_active'] : true;
+            $data['created_by'] = Auth::id();
+
+            // If code empty, model boot() will generate one based on tenant
+            Department::create($data);
+
+            return redirect()->route('tenant.hr.departments.index')
+                ->with('success', 'تم إنشاء القسم بنجاح');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'تعذر حفظ القسم: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**
