@@ -103,7 +103,20 @@ class RegulatoryDocumentController extends Controller
             if (in_array('tags', $columns, true)) $data['tags'] = $request->tags;
             if (in_array('status', $columns, true)) $data['status'] = 'active';
 
-            RegulatoryDocument::create($data);
+            // Always try to include document_title (fallback to title if column doesn't exist)
+            $data['document_title'] = $request->document_title;
+
+            try {
+                RegulatoryDocument::create($data);
+            } catch (\Exception $ex) {
+                if (str_contains($ex->getMessage(), "Unknown column 'document_title'")) {
+                    unset($data['document_title']);
+                    $data['title'] = $request->document_title;
+                    RegulatoryDocument::create($data);
+                } else {
+                    throw $ex;
+                }
+            }
 
             return redirect()->route('tenant.inventory.regulatory.documents.index')
                 ->with('success', 'تم إضافة الوثيقة بنجاح');
@@ -189,7 +202,19 @@ class RegulatoryDocumentController extends Controller
                 if (in_array('file_type', $columns, true)) $data['file_type'] = $file->getClientOriginalExtension();
                 if (in_array('status', $columns, true)) $data['status'] = 'active';
 
-                RegulatoryDocument::create($data);
+                // Always try to include document_title; fallback to title
+                $data['document_title'] = $titleValue;
+                try {
+                    RegulatoryDocument::create($data);
+                } catch (\Exception $ex) {
+                    if (str_contains($ex->getMessage(), "Unknown column 'document_title'")) {
+                        unset($data['document_title']);
+                        $data['title'] = $titleValue;
+                        RegulatoryDocument::create($data);
+                    } else {
+                        throw $ex;
+                    }
+                }
 
                 $uploaded++;
             } catch (\Exception $e) {
