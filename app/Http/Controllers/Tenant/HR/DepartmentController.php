@@ -158,6 +158,4 @@ class DepartmentController extends Controller
         return response($html)->header('Content-Type', 'text/html')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
-
-    }
 }
