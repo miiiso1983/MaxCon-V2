@@ -28,6 +28,76 @@
             </div>
         </div>
     </div>
+    @if(($documents ?? null) && count($documents))
+    <div class="mx-auto" style="background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:18px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin-bottom:20px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
+            <h2 style="margin:0; font-size:20px; color:#111827;">سجل الوثائق</h2>
+            <div style="display:flex; gap:8px;">
+                <a href="{{ route('tenant.inventory.regulatory.documents.create') }}" style="background:#10b981; color:#fff; padding:8px 12px; border-radius:10px; text-decoration:none;">إضافة وثيقة</a>
+                <a href="{{ route('tenant.inventory.regulatory.documents.bulk-upload') }}" style="background:#f3f4f6; color:#111827; padding:8px 12px; border-radius:10px; text-decoration:none;">رفع متعدد</a>
+                <a href="{{ route('tenant.inventory.regulatory.documents.export') }}" style="background:#2563eb; color:#fff; padding:8px 12px; border-radius:10px; text-decoration:none;">تصدير CSV</a>
+            </div>
+        </div>
+        <form method="GET" action="{{ route('tenant.inventory.regulatory.documents.index') }}" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="بحث بالعنوان/الرقم/الجهة" style="padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px; min-width:240px;">
+            <select name="type" style="padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px;">
+                <option value="">النوع</option>
+                @foreach(\App\Models\Tenant\Regulatory\RegulatoryDocument::DOCUMENT_TYPES as $key => $label)
+                    <option value="{{ $key }}" {{ request('type')===$key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+            <select name="status" style="padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px;">
+                <option value="">الحالة</option>
+                @foreach(\App\Models\Tenant\Regulatory\RegulatoryDocument::STATUS_TYPES as $key => $label)
+                    <option value="{{ $key }}" {{ request('status')===$key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+            <input type="date" name="issue_from" value="{{ request('issue_from') }}" style="padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px;">
+            <input type="date" name="issue_to" value="{{ request('issue_to') }}" style="padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px;">
+            <button type="submit" style="background:#111827; color:#fff; padding:8px 12px; border:none; border-radius:10px;">تصفية</button>
+            <a href="{{ route('tenant.inventory.regulatory.documents.index') }}" style="background:#f3f4f6; color:#111827; padding:8px 12px; border-radius:10px; text-decoration:none;">تفريغ</a>
+        </form>
+        <div style="overflow:auto; border:1px solid #e5e7eb; border-radius:12px;">
+            <table style="width:100%; border-collapse:separate; border-spacing:0;">
+                <thead>
+                    <tr style="background:#f9fafb; color:#374151;">
+                        <th style="padding:10px 12px; text-align:right;">#</th>
+                        <th style="padding:10px 12px; text-align:right;">العنوان</th>
+                        <th style="padding:10px 12px; text-align:right;">نوع الوثيقة</th>
+                        <th style="padding:10px 12px; text-align:right;">رقم الوثيقة</th>
+                        <th style="padding:10px 12px; text-align:right;">الجهة</th>
+                        <th style="padding:10px 12px; text-align:right;">تاريخ الإصدار</th>
+                        <th style="padding:10px 12px; text-align:right;">الانتهاء</th>
+                        <th style="padding:10px 12px; text-align:right;">الملف</th>
+                        <th style="padding:10px 12px; text-align:right;">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($documents as $d)
+                        <tr style="border-top:1px solid #e5e7eb;">
+                            <td style="padding:10px 12px; color:#6b7280;">{{ $loop->iteration }}</td>
+                            <td style="padding:10px 12px; font-weight:600; color:#111827;">{{ $d->document_title ?? $d->title ?? '-' }}</td>
+                            <td style="padding:10px 12px;">{{ $d->document_type_name ?? $d->document_type }}</td>
+                            <td style="padding:10px 12px;">{{ $d->document_number ?? '-' }}</td>
+                            <td style="padding:10px 12px;">{{ $d->issuing_authority ?? $d->regulatory_authority ?? '-' }}</td>
+                            <td style="padding:10px 12px;">{{ $d->issue_date ? $d->issue_date->format('Y-m-d') : ($d->submission_date ? $d->submission_date->format('Y-m-d') : '-') }}</td>
+                            <td style="padding:10px 12px;">{{ $d->expiry_date ? $d->expiry_date->format('Y-m-d') : '-' }}</td>
+                            <td style="padding:10px 12px;">
+                                @if(!empty($d->file_path))
+                                    <a href="{{ route('tenant.inventory.regulatory.documents.download', $d->id) }}" style="color:#2563eb; text-decoration:none;">تحميل</a>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td style="padding:10px 12px;">{{ $d->status ?? '-' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:10px;">{{ method_exists($documents, 'links') ? $documents->links() : '' }}</div>
+    </div>
+    @endif
 
     <!-- Stats Cards -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
@@ -88,10 +158,10 @@
             </div>
             <h2 style="color: #2d3748; margin: 0 0 15px 0; font-size: 28px; font-weight: 700;">مرحباً بك في وحدة الوثائق التنظيمية</h2>
             <p style="color: #718096; margin: 0 0 30px 0; font-size: 18px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
-                هذه الوحدة تتيح لك حفظ الوثائق القانونية والتنظيمية بطريقة آمنة ومنظمة. 
+                هذه الوحدة تتيح لك حفظ الوثائق القانونية والتنظيمية بطريقة آمنة ومنظمة.
                 يمكنك إدارة التراخيص، الشهادات، السياسات، والإجراءات مع تتبع تواريخ المراجعة والانتهاء.
             </p>
-            
+
             <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
                 <button onclick="showAddDocumentModal()" style="background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); color: white; padding: 15px 30px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 16px;">
                     <i class="fas fa-plus"></i>
