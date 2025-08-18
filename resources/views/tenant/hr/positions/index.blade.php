@@ -152,9 +152,9 @@
                         <button onclick="alert('ميزة العرض قيد التطوير')" style="background: #4299e1; color: white; padding: 8px 12px; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
                             <i class="fas fa-eye"></i> عرض
                         </button>
-                        <button onclick="alert('ميزة التعديل قيد التطوير')" style="background: #ed8936; color: white; padding: 8px 12px; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <a href="{{ route('tenant.hr.positions.edit', $position->id) }}" style="background: #ed8936; color: white; padding: 8px 12px; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; text-decoration:none;">
                             <i class="fas fa-edit"></i> تعديل
-                        </button>
+                        </a>
                         <button onclick="alert('ميزة الحذف قيد التطوير')" style="background: #f56565; color: white; padding: 8px 12px; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
                             <i class="fas fa-trash"></i> حذف
                         </button>

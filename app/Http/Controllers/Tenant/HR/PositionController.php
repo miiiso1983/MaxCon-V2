@@ -94,19 +94,69 @@ class PositionController extends Controller
 
     public function show($id)
     {
-        $position = (object) ['id' => $id, 'title' => 'منصب تجريبي'];
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $position = Position::where('tenant_id', $tenantId)->with('department')->findOrFail($id);
         return view('tenant.hr.positions.show', compact('position'));
     }
 
     public function edit($id)
     {
-        $position = (object) ['id' => $id, 'title' => 'منصب تجريبي'];
-        return view('tenant.hr.positions.edit', compact('position'));
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $position = Position::where('tenant_id', $tenantId)->findOrFail($id);
+        $departments = Department::where('tenant_id', $tenantId)->active()->orderBy('name')->get();
+        $positions = Position::where('tenant_id', $tenantId)->active()->where('id', '<>', $id)->orderBy('title')->get();
+        return view('tenant.hr.positions.edit', compact('position', 'departments', 'positions'));
     }
 
     public function update(Request $request, $id)
     {
-        return redirect()->route('tenant.hr.positions.index')->with('success', 'تم تحديث المنصب بنجاح');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $position = Position::where('tenant_id', $tenantId)->findOrFail($id);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:hr_positions,code,' . $position->id,
+            'department_id' => 'required|integer|exists:hr_departments,id',
+            'description' => 'nullable|string',
+            'level' => 'required|in:entry,junior,mid,senior,lead,manager,director,executive',
+            'min_salary' => 'nullable|numeric',
+            'max_salary' => 'nullable|numeric',
+            'reports_to_position_id' => 'nullable|integer|exists:hr_positions,id',
+            'is_active' => 'nullable|boolean',
+            'requirements_text' => 'nullable|string',
+            'responsibilities_text' => 'nullable|string',
+        ]);
+
+        if (!is_null($validated['min_salary'] ?? null) && !is_null($validated['max_salary'] ?? null)) {
+            if ($validated['min_salary'] > $validated['max_salary']) {
+                return back()->with('error', 'الحد الأدنى للراتب لا يجب أن يتجاوز الحد الأقصى')->withInput();
+            }
+        }
+
+        try {
+            $data = $validated;
+            $data['is_active'] = isset($validated['is_active']) ? (bool)$validated['is_active'] : $position->is_active;
+            $data['updated_by'] = Auth::id();
+
+            $reqText = $request->input('requirements_text') ?? $request->input('required_skills');
+            if (!is_null($reqText)) {
+                $lines = array_values(array_filter(array_map('trim', preg_split("/\r\n|\r|\n/", $reqText))));
+                $data['requirements'] = $lines;
+            }
+            $respText = $request->input('responsibilities_text');
+            if (!is_null($respText)) {
+                $lines = array_values(array_filter(array_map('trim', preg_split("/\r\n|\r|\n/", $respText))));
+                $data['responsibilities'] = $lines;
+            }
+
+            unset($data['requirements_text'], $data['responsibilities_text']);
+
+            $position->update($data);
+
+            return redirect()->route('tenant.hr.positions.index')->with('success', 'تم تحديث المنصب بنجاح');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'تعذر تحديث المنصب: ' . $e->getMessage())->withInput();
+        }
     }
 
     public function destroy($id)
