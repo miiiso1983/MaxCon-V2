@@ -13,54 +13,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RegulatoryReportController extends Controller
 {
-    private function mapToExistingReportColumns(array $canonical): array
-    {
-        $columns = Schema::getColumnListing('regulatory_reports');
-        $candidates = [
-            'tenant_id' => ['tenant_id'],
-            'report_title' => ['report_title','title'],
-            'report_type' => ['report_type','type'],
-            'report_period' => ['report_period','period'],
-            'submission_authority' => ['submission_authority','authority','regulatory_authority'],
-            'due_date' => ['due_date','due_on'],
-            'submission_date' => ['submission_date','submitted_on'],
-            'report_status' => ['report_status','status'],
-            'prepared_by' => ['prepared_by'],
-            'reviewed_by' => ['reviewed_by'],
-            'approved_by' => ['approved_by'],
-            'report_summary' => ['report_summary','summary'],
-            'key_findings' => ['key_findings','findings'],
-            'recommendations' => ['recommendations'],
-            'follow_up_actions' => ['follow_up_actions','action_items'],
-            'regulatory_reference' => ['regulatory_reference','reference'],
-            'priority_level' => ['priority_level','priority'],
-            'notes' => ['notes','remarks'],
-        ];
 
-        $data = [];
-        $skipped = [];
-        foreach ($canonical as $key => $value) {
-            $found = null;
-            foreach ($candidates[$key] ?? [$key] as $col) {
-                if (in_array($col, $columns, true)) { $found = $col; break; }
-            }
-            if ($found) {
-                if (in_array($key, ['due_date','submission_date'], true) && !empty($value)) {
-                    $value = date('Y-m-d', strtotime((string)$value));
-                }
-                $data[$found] = $value;
-            } else {
-                $skipped[] = $key;
-            }
-        }
-
-        return [$data, $skipped];
-    }
-
-    private function generateReportNumber($tenantId): string
-    {
-        return 'RPT-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
-    }
     private function mapToExistingReportColumns(array $canonical): array
     {
         $columns = Schema::getColumnListing('regulatory_reports');
@@ -105,10 +58,7 @@ class RegulatoryReportController extends Controller
         return [$data, $skipped];
     }
 
-    private function generateReportNumber($tenantId): string
-    {
-        return 'RPT-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
-    }
+
     /**
      * Display a listing of reports
      */
