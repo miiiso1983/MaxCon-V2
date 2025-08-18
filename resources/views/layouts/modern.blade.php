@@ -1427,6 +1427,38 @@
         </div>
 
         <!-- Content -->
+        <!-- Global Flash Messages -->
+        @if(session('success') || session('error') || session('warning') || session('info'))
+            <div style="position: sticky; top: 0; z-index: 1100; padding: 12px 16px; margin: 0 0 12px 0;">
+                @if(session('success'))
+                    <div style="background:#dcfce7; color:#065f46; border:1px solid #86efac; border-radius:12px; padding:12px 16px; margin-bottom:8px; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-check-circle"></i>
+                        <div>{{ session('success') }}</div>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div style="background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca; border-radius:12px; padding:12px 16px; margin-bottom:8px; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-times-circle"></i>
+                        <div>{{ session('error') }}</div>
+                    </div>
+                @endif
+                @if(session('warning'))
+                    <div style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; border-radius:12px; padding:12px 16px; margin-bottom:8px; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>{{ session('warning') }}</div>
+                    </div>
+                @endif
+                @if(session('info'))
+                    <div style="background:#e0f2fe; color:#075985; border:1px solid #bae6fd; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-info-circle"></i>
+                        <div>{{ session('info') }}</div>
+                    </div>
+                @endif
+            </div>
+        @endif
+        <!-- End Global Flash Messages -->
+
+
         <main>
             @yield('content')
         </main>
