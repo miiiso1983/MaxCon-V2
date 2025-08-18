@@ -3,6 +3,8 @@
 namespace App\Imports;
 
 use App\Models\Tenant\HR\Employee;
+use App\Models\Tenant\HR\Department;
+use App\Models\Tenant\HR\Position;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -55,10 +57,82 @@ class EmployeesImport implements ToCollection, WithHeadingRow
             }
 
             // Basic mapping and normalization
-            $data['gender'] = isset($data['gender']) ? strtolower($data['gender']) : null;
-            $data['employment_type'] = isset($data['employment_type']) ? strtolower($data['employment_type']) : null;
+            $data['gender'] = isset($data['gender']) ? strtolower(trim((string)$data['gender'])) : null;
+            $data['employment_type'] = isset($data['employment_type']) ? strtolower(trim((string)$data['employment_type'])) : null;
             if (isset($data['marital_status'])) {
-                $data['marital_status'] = strtolower($data['marital_status']);
+                $data['marital_status'] = strtolower(trim((string)$data['marital_status']));
+            }
+
+            // Normalize synonyms and Arabic values
+            $genderMap = [
+                'm' => 'male', 'male' => 'male', 'ذكر' => 'male', 'ذكر ' => 'male',
+                'f' => 'female', 'female' => 'female', 'أنثى' => 'female', 'انثى' => 'female',
+            ];
+            if (!empty($data['gender']) && isset($genderMap[$data['gender']])) {
+                $data['gender'] = $genderMap[$data['gender']];
+            }
+
+            $maritalMap = [
+                'single' => 'single', 'أعزب' => 'single', 'اعزب' => 'single',
+                'married' => 'married', 'متزوج' => 'married',
+                'divorced' => 'divorced', 'مطلق' => 'divorced',
+                'widowed' => 'widowed', 'أرمل' => 'widowed', 'ارمل' => 'widowed',
+            ];
+            if (!empty($data['marital_status']) && isset($maritalMap[$data['marital_status']])) {
+                $data['marital_status'] = $maritalMap[$data['marital_status']];
+            }
+
+            // Normalize employment type: remove spaces, unify
+            if (!empty($data['employment_type'])) {
+                $et = str_replace(' ', '_', $data['employment_type']);
+                $et = str_replace('-', '_', $et);
+                $et = strtolower($et);
+                $etMap = [
+                    'full_time' => 'full_time', 'دوام_كامل' => 'full_time',
+                    'part_time' => 'part_time', 'دوام_جزئي' => 'part_time',
+                    'contract' => 'contract', 'عقد' => 'contract', 'عقد_مؤقت' => 'contract',
+                    'internship' => 'internship', 'تدريب' => 'internship',
+                    'consultant' => 'consultant', 'استشاري' => 'consultant',
+                ];
+                $data['employment_type'] = $etMap[$et] ?? $et;
+            }
+
+            // Ensure national_id is string
+            if (isset($data['national_id']) && !is_string($data['national_id'])) {
+                $data['national_id'] = (string)$data['national_id'];
+            }
+
+            // Resolve Department and Position by ID/Name/Code (tenant scoped)
+            $depValue = $data['department_id'] ?? ($data['department'] ?? ($data['department_name'] ?? ($data['department_code'] ?? null)));
+            if (!empty($depValue)) {
+                if (is_numeric($depValue)) {
+                    $data['department_id'] = (int)$depValue;
+                } else {
+                    $dep = Department::where('tenant_id', $this->tenantId)
+                        ->where(function($q) use ($depValue){
+                            $q->where('name', $depValue)
+                              ->orWhere('code', $depValue);
+                        })->first();
+                    if ($dep) {
+                        $data['department_id'] = $dep->id;
+                    }
+                }
+            }
+
+            $posValue = $data['position_id'] ?? ($data['position'] ?? ($data['position_title'] ?? ($data['position_code'] ?? null)));
+            if (!empty($posValue)) {
+                if (is_numeric($posValue)) {
+                    $data['position_id'] = (int)$posValue;
+                } else {
+                    $pos = Position::where('tenant_id', $this->tenantId)
+                        ->where(function($q) use ($posValue){
+                            $q->where('title', $posValue)
+                              ->orWhere('code', $posValue);
+                        })->first();
+                    if ($pos) {
+                        $data['position_id'] = $pos->id;
+                    }
+                }
             }
 
             // Coerce dates
