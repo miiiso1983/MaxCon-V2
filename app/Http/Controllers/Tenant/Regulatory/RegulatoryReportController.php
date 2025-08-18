@@ -117,7 +117,7 @@ class RegulatoryReportController extends Controller
         try {
             $canonical = [
                 'tenant_id' => Auth::user()->tenant_id,
-                'report_title' => $request->report_title,
+                'report_title' => $request->report_title ?? $request->title ?? 'تقرير بدون عنوان',
                 'report_type' => $request->report_type,
                 'report_period' => $request->report_period,
                 'submission_authority' => $request->submission_authority,
@@ -144,11 +144,26 @@ class RegulatoryReportController extends Controller
                 $tenantId = Auth::user()->tenant_id;
                 $data['report_number'] = 'RPT-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
             }
+            // Title/report_title fallbacks
+            if (Schema::hasColumn('regulatory_reports', 'title') && empty($data['title']) && isset($canonical['report_title'])) {
+                $data['title'] = $canonical['report_title'];
+            }
+            if (Schema::hasColumn('regulatory_reports', 'report_title') && empty($data['report_title']) && isset($canonical['report_title'])) {
+                $data['report_title'] = $canonical['report_title'];
+            }
+            // Period fallback
+            if (Schema::hasColumn('regulatory_reports', 'report_period') && empty($data['report_period']) && isset($canonical['report_period'])) {
+                $data['report_period'] = $canonical['report_period'];
+            }
+            // Status/priority/authority fallbacks
             if (Schema::hasColumn('regulatory_reports', 'status') && empty($data['status']) && isset($canonical['report_status'])) {
                 $data['status'] = $canonical['report_status'];
             }
             if (Schema::hasColumn('regulatory_reports', 'priority') && empty($data['priority']) && isset($canonical['priority_level'])) {
                 $data['priority'] = $canonical['priority_level'];
+            }
+            if (Schema::hasColumn('regulatory_reports', 'regulatory_authority') && empty($data['regulatory_authority']) && isset($canonical['submission_authority'])) {
+                $data['regulatory_authority'] = $canonical['submission_authority'];
             }
 
             // Create
