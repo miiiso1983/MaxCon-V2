@@ -36,6 +36,9 @@ Route::prefix('departments')->name('departments.')->group(function () {
     Route::get('/create', [DepartmentController::class, 'create'])->name('create');
     Route::post('/', [DepartmentController::class, 'store'])->name('store');
     Route::get('/chart', [DepartmentController::class, 'chart'])->name('chart');
+    Route::get('/chart/export/pdf', [DepartmentController::class, 'exportChartPdf'])->name('export.pdf');
+    Route::get('/chart/export/excel', [DepartmentController::class, 'exportChartExcel'])->name('export.excel');
+    Route::get('/chart/export/html', [DepartmentController::class, 'exportChartHtml'])->name('export.html');
     Route::get('/reports', [DepartmentController::class, 'reports'])->name('reports');
     Route::get('/{department}', [DepartmentController::class, 'show'])->name('show');
     Route::get('/{department}/edit', [DepartmentController::class, 'edit'])->name('edit');

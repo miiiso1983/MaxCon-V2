@@ -115,4 +115,49 @@ class DepartmentController extends Controller
     {
         return view('tenant.hr.departments.hierarchy');
     }
+
+    /**
+     * Export org chart to PDF
+     */
+    public function exportChartPdf()
+    {
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $departments = Department::where('tenant_id', $tenantId)->active()->orderBy('name')->get();
+        $root = $departments->firstWhere('parent_id', null);
+        $companyName = config('app.name', 'MaxCon');
+
+        $html = view('tenant.hr.departments.chart-pdf', compact('departments', 'root', 'companyName'))->render();
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadHTML($html)->setPaper('a4', 'portrait');
+
+        $filename = 'OrgChart-' . now()->format('Y-m-d_H-i') . '.pdf';
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Export org chart to Excel
+     */
+    public function exportChartExcel()
+    {
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $export = new \App\Exports\DepartmentsHierarchyExport($tenantId);
+        $filename = 'OrgChart-' . now()->format('Y-m-d_H-i') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download($export, $filename);
+    }
+
+    /**
+     * Export interactive HTML
+     */
+    public function exportChartHtml()
+    {
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $departments = Department::where('tenant_id', $tenantId)->active()->orderBy('name')->get();
+        $html = view('tenant.hr.departments.chart')->with(compact('departments'))->render();
+        $filename = 'OrgChart-' . now()->format('Y-m-d_H-i') . '.html';
+        return response($html)->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    }
 }
