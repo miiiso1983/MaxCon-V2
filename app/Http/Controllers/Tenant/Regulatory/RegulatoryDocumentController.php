@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -109,10 +110,16 @@ class RegulatoryDocumentController extends Controller
             try {
                 RegulatoryDocument::create($data);
             } catch (\Exception $ex) {
-                if (str_contains($ex->getMessage(), "Unknown column 'document_title'")) {
+                $msg = $ex->getMessage();
+                if (str_contains($msg, "Unknown column 'document_title'")) {
                     unset($data['document_title']);
                     $data['title'] = $request->document_title;
                     RegulatoryDocument::create($data);
+                } elseif (str_contains($msg, "doesn't have a default value") && str_contains($msg, "document_title")) {
+                    // Force insert with DB to bypass mass-assignment or casting issues
+                    $data['created_at'] = now();
+                    $data['updated_at'] = now();
+                    DB::table('regulatory_documents')->insert($data);
                 } else {
                     throw $ex;
                 }
@@ -207,10 +214,15 @@ class RegulatoryDocumentController extends Controller
                 try {
                     RegulatoryDocument::create($data);
                 } catch (\Exception $ex) {
-                    if (str_contains($ex->getMessage(), "Unknown column 'document_title'")) {
+                    $msg = $ex->getMessage();
+                    if (str_contains($msg, "Unknown column 'document_title'")) {
                         unset($data['document_title']);
                         $data['title'] = $titleValue;
                         RegulatoryDocument::create($data);
+                    } elseif (str_contains($msg, "doesn't have a default value") && str_contains($msg, "document_title")) {
+                        $data['created_at'] = now();
+                        $data['updated_at'] = now();
+                        DB::table('regulatory_documents')->insert($data);
                     } else {
                         throw $ex;
                     }

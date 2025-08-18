@@ -19,10 +19,13 @@ class RegulatoryDocument extends Model
         'document_type',
         'document_category',
         'title',
+        'document_title',
         'description',
         'version',
         'language',
         'regulatory_authority',
+        'issuing_authority',
+        'issue_date',
         'submission_date',
         'approval_date',
         'effective_date',
@@ -51,6 +54,7 @@ class RegulatoryDocument extends Model
     ];
 
     protected $casts = [
+        'issue_date' => 'date',
         'submission_date' => 'date',
         'approval_date' => 'date',
         'effective_date' => 'date',
