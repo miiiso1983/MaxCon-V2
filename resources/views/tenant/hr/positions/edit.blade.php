@@ -1,11 +1,24 @@
 @extends('layouts.tenant')
 
 @section('content')
-<div style="direction: rtl; padding: 20px;">
-    <div style="max-width: 980px; margin: 0 auto;">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-            <h1 style="font-size: 22px; font-weight: 800; color: #1a202c;">تعديل المنصب</h1>
-            <a href="{{ route('tenant.hr.positions.index') }}" style="color:#3182ce; text-decoration:none;">رجوع إلى القائمة</a>
+<style>
+    /* Positions Edit: consistent spacing and responsive grid */
+    #pos-edit .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
+    #pos-edit .card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+    #pos-edit .grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    @media (max-width: 1024px) { #pos-edit .grid { grid-template-columns: 1fr; } }
+    #pos-edit input, #pos-edit select, #pos-edit textarea { width:100%; padding:12px 14px; border:1px solid #e2e8f0; border-radius:10px; font-size:15px; }
+    #pos-edit label { display:block; font-weight:600; color:#2d3748; margin-bottom:6px; }
+    #pos-edit .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; flex-wrap:wrap; }
+    #pos-edit .btn-primary { background:#ed8936; color:#fff; padding:10px 14px; border:none; border-radius:10px; }
+    #pos-edit .btn-secondary { background:#e2e8f0; color:#2d3748; padding:10px 14px; border-radius:10px; text-decoration:none; }
+</style>
+
+<div id="pos-edit" dir="rtl">
+    <div class="container">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-extrabold text-gray-900">تعديل المنصب</h1>
+            <a href="{{ route('tenant.hr.positions.index') }}" class="text-blue-600 hover:underline">رجوع إلى القائمة</a>
         </div>
 
         @if(session('error'))
@@ -25,8 +38,8 @@
             @csrf
             @method('PUT')
 
-            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:18px; box-shadow: 0 6px 16px rgba(0,0,0,0.06);">
-                <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+            <div class="card">
+                <div class="grid">
                     <div>
                         <label style="display:block; font-weight:600; color:#2d3748; margin-bottom:6px;">المسمى الوظيفي</label>
                         <input type="text" name="title" value="{{ old('title', $position->title) }}" required style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:10px;">
@@ -94,9 +107,9 @@
                     </div>
                 </div>
 
-                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
-                    <button type="submit" style="background:#ed8936; color:#fff; padding:10px 14px; border:none; border-radius:10px;">حفظ التعديلات</button>
-                    <a href="{{ route('tenant.hr.positions.index') }}" style="background:#e2e8f0; color:#2d3748; padding:10px 14px; border-radius:10px; text-decoration:none;">إلغاء</a>
+                <div class="actions">
+                    <button type="submit" class="btn-primary">حفظ التعديلات</button>
+                    <a href="{{ route('tenant.hr.positions.index') }}" class="btn-secondary">إلغاء</a>
                 </div>
             </div>
         </form>
