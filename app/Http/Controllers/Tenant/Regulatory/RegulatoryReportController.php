@@ -92,11 +92,20 @@ class RegulatoryReportController extends Controller
      */
     public function index()
     {
-        $reports = RegulatoryReport::where('tenant_id', Auth::user()->tenant_id)
+        $tenantId = Auth::user()->tenant_id;
+
+        $reports = RegulatoryReport::where('tenant_id', $tenantId)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('tenant.regulatory.reports.index', compact('reports'));
+        $counts = [
+            'total' => RegulatoryReport::where('tenant_id', $tenantId)->count(),
+            'pending' => RegulatoryReport::where('tenant_id', $tenantId)->whereIn('status', ['draft','pending_review','under_review'])->count(),
+            'approved' => RegulatoryReport::where('tenant_id', $tenantId)->where('status', 'approved')->count(),
+            'overdue' => RegulatoryReport::where('tenant_id', $tenantId)->overdue()->count(),
+        ];
+
+        return view('tenant.regulatory.reports.index', compact('reports','counts'));
     }
 
     /**
