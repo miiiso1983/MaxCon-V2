@@ -325,8 +325,37 @@ class EmployeeController extends Controller
      */
     public function import(Request $request)
     {
-        // TODO: Implement Excel import
-        return redirect()->back()->with('info', 'ميزة الاستيراد قيد التطوير');
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls|max:10240',
+            'skip_duplicates' => 'nullable|boolean',
+            'validate_emails' => 'nullable|boolean',
+            'send_welcome_email' => 'nullable|boolean',
+        ]);
+
+        try {
+            $tenantId = auth()->user()->tenant_id ?? (tenant()->id ?? null);
+            $options = [
+                'skip_duplicates' => (bool)$request->boolean('skip_duplicates', true),
+                'validate_emails' => (bool)$request->boolean('validate_emails', true),
+                'send_welcome_email' => (bool)$request->boolean('send_welcome_email', false),
+            ];
+
+            $import = new \App\Imports\EmployeesImport($tenantId, $options);
+            \Maatwebsite\Excel\Facades\Excel::import($import, $request->file('file'));
+
+            $summary = $import->getSummary();
+            $message = "تم الاستيراد: {$summary['created']} مضافة، {$summary['skipped']} متخطية، {$summary['failed']} فاشلة.";
+            if (!empty($summary['errors'])) {
+                $message .= "\n\nالأخطاء:\n- " . implode("\n- ", array_slice($summary['errors'], 0, 10));
+                if (count($summary['errors']) > 10) {
+                    $message .= "\n...";
+                }
+            }
+
+            return redirect()->route('tenant.hr.employees.index')->with('success', $message);
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'تعذر استيراد الملف: ' . $e->getMessage());
+        }
     }
 
     /**
