@@ -8,10 +8,108 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Schema;
 
 class RegulatoryReportController extends Controller
 {
+    private function mapToExistingReportColumns(array $canonical): array
+    {
+        $columns = Schema::getColumnListing('regulatory_reports');
+        $candidates = [
+            'tenant_id' => ['tenant_id'],
+            'report_title' => ['report_title','title'],
+            'report_type' => ['report_type','type'],
+            'report_period' => ['report_period','period'],
+            'submission_authority' => ['submission_authority','authority','regulatory_authority'],
+            'due_date' => ['due_date','due_on'],
+            'submission_date' => ['submission_date','submitted_on'],
+            'report_status' => ['report_status','status'],
+            'prepared_by' => ['prepared_by'],
+            'reviewed_by' => ['reviewed_by'],
+            'approved_by' => ['approved_by'],
+            'report_summary' => ['report_summary','summary'],
+            'key_findings' => ['key_findings','findings'],
+            'recommendations' => ['recommendations'],
+            'follow_up_actions' => ['follow_up_actions','action_items'],
+            'regulatory_reference' => ['regulatory_reference','reference'],
+            'priority_level' => ['priority_level','priority'],
+            'notes' => ['notes','remarks'],
+        ];
+
+        $data = [];
+        $skipped = [];
+        foreach ($canonical as $key => $value) {
+            $found = null;
+            foreach ($candidates[$key] ?? [$key] as $col) {
+                if (in_array($col, $columns, true)) { $found = $col; break; }
+            }
+            if ($found) {
+                if (in_array($key, ['due_date','submission_date'], true) && !empty($value)) {
+                    $value = date('Y-m-d', strtotime((string)$value));
+                }
+                $data[$found] = $value;
+            } else {
+                $skipped[] = $key;
+            }
+        }
+
+        return [$data, $skipped];
+    }
+
+    private function generateReportNumber($tenantId): string
+    {
+        return 'RPT-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
+    }
+    private function mapToExistingReportColumns(array $canonical): array
+    {
+        $columns = Schema::getColumnListing('regulatory_reports');
+        $candidates = [
+            'tenant_id' => ['tenant_id'],
+            'report_title' => ['report_title','title'],
+            'report_type' => ['report_type','type'],
+            'report_period' => ['report_period','period'],
+            'submission_authority' => ['submission_authority','authority','regulatory_authority'],
+            'due_date' => ['due_date','deadline','due_on'],
+            'submission_date' => ['submission_date','submitted_at'],
+            'report_status' => ['report_status','status'],
+            'prepared_by' => ['prepared_by'],
+            'reviewed_by' => ['reviewed_by'],
+            'approved_by' => ['approved_by'],
+            'report_summary' => ['report_summary','summary','description'],
+            'key_findings' => ['key_findings','findings'],
+            'recommendations' => ['recommendations'],
+            'follow_up_actions' => ['follow_up_actions','action_items'],
+            'regulatory_reference' => ['regulatory_reference','reference'],
+            'priority_level' => ['priority_level','priority'],
+            'notes' => ['notes','remarks'],
+        ];
+
+        $data = [];
+        $skipped = [];
+        foreach ($canonical as $key => $value) {
+            $found = null;
+            foreach ($candidates[$key] ?? [$key] as $col) {
+                if (in_array($col, $columns, true)) { $found = $col; break; }
+            }
+            if ($found) {
+                if (in_array($key, ['due_date','submission_date'], true) && !empty($value)) {
+                    $value = date('Y-m-d', strtotime((string)$value));
+                }
+                $data[$found] = $value;
+            } else {
+                $skipped[] = $key;
+            }
+        }
+
+        return [$data, $skipped];
+    }
+
+    private function generateReportNumber($tenantId): string
+    {
+        return 'RPT-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
+    }
     /**
      * Display a listing of reports
      */
@@ -58,12 +156,11 @@ class RegulatoryReportController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+            return back()->withErrors($validator)->withInput()->with('error', 'فشل التحقق من صحة البيانات. يرجى مراجعة الحقول المطلوبة.');
         }
 
         try {
-            RegulatoryReport::create([
-                'id' => Str::uuid(),
+            $canonical = [
                 'tenant_id' => Auth::user()->tenant_id,
                 'report_title' => $request->report_title,
                 'report_type' => $request->report_type,
@@ -81,11 +178,32 @@ class RegulatoryReportController extends Controller
                 'follow_up_actions' => $request->follow_up_actions,
                 'regulatory_reference' => $request->regulatory_reference,
                 'priority_level' => $request->priority_level,
-                'notes' => $request->notes
-            ]);
+                'notes' => $request->notes,
+            ];
 
-            return redirect()->route('tenant.inventory.regulatory.reports.index')
+            // Map to existing DB columns
+            [$data, $skipped] = $this->mapToExistingReportColumns($canonical);
+
+            // Ensure DB-required fields
+            if (Schema::hasColumn('regulatory_reports', 'report_number') && empty($data['report_number'])) {
+                $data['report_number'] = $this->generateReportNumber(Auth::user()->tenant_id);
+            }
+            if (Schema::hasColumn('regulatory_reports', 'status') && empty($data['status']) && isset($canonical['report_status'])) {
+                $data['status'] = $canonical['report_status'];
+            }
+            if (Schema::hasColumn('regulatory_reports', 'priority') && empty($data['priority']) && isset($canonical['priority_level'])) {
+                $data['priority'] = $canonical['priority_level'];
+            }
+
+            // Create
+            RegulatoryReport::create($data);
+
+            $response = redirect()->route('tenant.inventory.regulatory.reports.index')
                 ->with('success', 'تم إضافة التقرير بنجاح');
+            if (!empty($skipped)) {
+                $response->with('warning', 'تم الحفظ، لكن تم تخطي الحقول التالية لعدم وجود أعمدة مطابقة في قاعدة البيانات: ' . implode(', ', $skipped));
+            }
+            return $response;
 
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء حفظ التقرير: ' . $e->getMessage())->withInput();
