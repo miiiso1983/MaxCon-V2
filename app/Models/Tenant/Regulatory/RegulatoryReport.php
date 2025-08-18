@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use App\Traits\HasTenant;
 
 /**
@@ -85,7 +86,14 @@ class RegulatoryReport extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            if (empty($model->id)) {
+            // Assign UUID only if DB id column is string/char; if integer, let DB auto-increment
+            try {
+                $type = Schema::getColumnType('regulatory_reports', 'id');
+            } catch (\Throwable $e) {
+                $type = 'string';
+            }
+            $isInteger = in_array(strtolower((string)$type), ['int','integer','bigint','biginteger'], true);
+            if (!$isInteger && empty($model->id)) {
                 $model->id = (string) Str::uuid();
             }
         });
