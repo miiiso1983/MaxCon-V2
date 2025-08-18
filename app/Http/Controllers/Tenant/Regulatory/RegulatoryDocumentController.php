@@ -7,6 +7,7 @@ use App\Models\Tenant\Regulatory\RegulatoryDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -61,24 +62,48 @@ class RegulatoryDocumentController extends Controller
             $filename = time() . '_' . Str::slug($request->document_title) . '.' . $file->getClientOriginalExtension();
             $filePath = $file->storeAs('regulatory-documents', $filename, 'public');
 
-            // Create document record
-            RegulatoryDocument::create([
-                'id' => Str::uuid(),
+            // Build data only with existing columns to avoid SQL errors on missing columns
+            $columns = Schema::getColumnListing('regulatory_documents');
+            $data = [
+                'id' => (string) Str::uuid(),
                 'tenant_id' => Auth::user()->tenant_id,
-                'document_title' => $request->document_title,
-                'document_type' => $request->document_type,
-                'document_number' => $request->document_number,
-                'issuing_authority' => $request->issuing_authority,
-                'issue_date' => $request->issue_date,
-                'expiry_date' => $request->expiry_date,
-                'file_path' => $filePath,
-                'file_name' => $file->getClientOriginalName(),
-                'file_size' => $file->getSize(),
-                'file_type' => $file->getClientOriginalExtension(),
-                'description' => $request->description,
-                'tags' => $request->tags,
-                'status' => 'active'
-            ]);
+            ];
+
+            // Title mapping
+            if (in_array('document_title', $columns, true)) {
+                $data['document_title'] = $request->document_title;
+            } elseif (in_array('title', $columns, true)) {
+                $data['title'] = $request->document_title;
+            }
+
+            // Type & numbers
+            if (in_array('document_type', $columns, true)) $data['document_type'] = $request->document_type;
+            if (in_array('document_number', $columns, true)) $data['document_number'] = $request->document_number;
+
+            // Authority mapping
+            if (in_array('issuing_authority', $columns, true)) {
+                $data['issuing_authority'] = $request->issuing_authority;
+            } elseif (in_array('regulatory_authority', $columns, true)) {
+                $data['regulatory_authority'] = $request->issuing_authority;
+            }
+
+            // Dates mapping
+            if (in_array('issue_date', $columns, true)) $data['issue_date'] = $request->issue_date;
+            if (in_array('submission_date', $columns, true) && !in_array('issue_date', $columns, true)) $data['submission_date'] = $request->issue_date;
+            if (in_array('expiry_date', $columns, true)) $data['expiry_date'] = $request->expiry_date;
+
+            // File fields
+            if (in_array('file_path', $columns, true)) $data['file_path'] = $filePath;
+            if (in_array('file_name', $columns, true)) $data['file_name'] = $file->getClientOriginalName();
+            if (in_array('file_size', $columns, true)) $data['file_size'] = $file->getSize();
+            if (in_array('file_type', $columns, true)) $data['file_type'] = $file->getClientOriginalExtension();
+
+            // Optional fields
+            if (in_array('description', $columns, true)) $data['description'] = $request->description;
+            if (in_array('tags', $columns, true)) $data['tags'] = $request->tags;
+            if (in_array('status', $columns, true)) $data['status'] = 'active';
+
+            RegulatoryDocument::create($data);
 
             return redirect()->route('tenant.inventory.regulatory.documents.index')
                 ->with('success', 'تم إضافة الوثيقة بنجاح');
@@ -134,19 +159,37 @@ class RegulatoryDocumentController extends Controller
                 $filename = time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('regulatory-documents', $filename, 'public');
 
-                RegulatoryDocument::create([
-                    'id' => Str::uuid(),
+                $columns = Schema::getColumnListing('regulatory_documents');
+                $data = [
+                    'id' => (string) Str::uuid(),
                     'tenant_id' => Auth::user()->tenant_id,
-                    'document_title' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-                    'document_type' => $request->document_type,
-                    'issuing_authority' => $request->issuing_authority,
-                    'issue_date' => now(),
-                    'file_path' => $filePath,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_size' => $file->getSize(),
-                    'file_type' => $file->getClientOriginalExtension(),
-                    'status' => 'active'
-                ]);
+                ];
+
+                // Title mapping from filename
+                $titleValue = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                if (in_array('document_title', $columns, true)) {
+                    $data['document_title'] = $titleValue;
+                } elseif (in_array('title', $columns, true)) {
+                    $data['title'] = $titleValue;
+                }
+
+                if (in_array('document_type', $columns, true)) $data['document_type'] = $request->document_type;
+                if (in_array('issuing_authority', $columns, true)) {
+                    $data['issuing_authority'] = $request->issuing_authority;
+                } elseif (in_array('regulatory_authority', $columns, true)) {
+                    $data['regulatory_authority'] = $request->issuing_authority;
+                }
+
+                if (in_array('issue_date', $columns, true)) $data['issue_date'] = now();
+                if (in_array('submission_date', $columns, true) && !in_array('issue_date', $columns, true)) $data['submission_date'] = now();
+
+                if (in_array('file_path', $columns, true)) $data['file_path'] = $filePath;
+                if (in_array('file_name', $columns, true)) $data['file_name'] = $file->getClientOriginalName();
+                if (in_array('file_size', $columns, true)) $data['file_size'] = $file->getSize();
+                if (in_array('file_type', $columns, true)) $data['file_type'] = $file->getClientOriginalExtension();
+                if (in_array('status', $columns, true)) $data['status'] = 'active';
+
+                RegulatoryDocument::create($data);
 
                 $uploaded++;
             } catch (\Exception $e) {
