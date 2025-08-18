@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div style="display: flex; gap: 15px;">
-                <button onclick="createNewLeaveRequest()" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <button onclick="openLeaveRequestModal()" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fas fa-plus"></i>
                     طلب إجازة جديد
                 </button>
@@ -168,6 +168,25 @@
         </div>
     </div>
 
+    @if(isset($leaves) && $leaves->count())
+    <div style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 24px;">
+        <h3 style="color:#2d3748; margin:0 0 16px 0; font-size:20px; font-weight:700;">أحدث طلبات الإجازة</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+            @foreach($leaves as $lv)
+                <div style="background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-weight:700; color:#111827;">{{ $lv->leaveType->name ?? '—' }}</div>
+                        <span style="font-size:12px; background:#edf2f7; color:#2d3748; padding:3px 8px; border-radius:8px;">{{ $lv->status_label }}</span>
+                    </div>
+                    <div style="color:#4a5568; font-size:12px; margin-top:6px;">{{ $lv->start_date?->format('Y-m-d') }} → {{ $lv->end_date?->format('Y-m-d') }}</div>
+                    <div style="color:#1f2937; font-size:12px; margin-top:6px;">أيام: {{ $lv->days_requested }}</div>
+                </div>
+            @endforeach
+        </div>
+        <div style="margin-top:12px;">{{ $leaves->links() }}</div>
+    </div>
+    @endif
+
     <!-- Leave Calendar & Quick Actions -->
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
 
@@ -197,7 +216,7 @@
 
             <div style="display: flex; flex-direction: column; gap: 15px;">
 
-                <button onclick="createNewLeaveRequest()" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <button onclick="openLeaveRequestModal()" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
                     <i class="fas fa-plus"></i>
                     طلب إجازة جديد
                 </button>
@@ -261,16 +280,18 @@
     </div>
 </div>
 
-<form id="leave-approve-form" method="POST" data-base="{{ route('tenant.hr.leaves.approve', ['leave' => '__ID__']) }}" style="display:none;">
-    @csrf
-</form>
-<form id="leave-reject-form" method="POST" data-base="{{ route('tenant.hr.leaves.reject', ['leave' => '__ID__']) }}" style="display:none;">
-    @csrf
-    <input type="hidden" name="reason" id="leave-reject-reason" value="" />
+<form id="leave-approve-form" method="POST" data-base="{{ route('tenant.hr.leaves.approve', ['leave' => '__ID__']) }}" style="display:none;">@csrf</form>
+<form id="leave-reject-form" method="POST" data-base="{{ route('tenant.hr.leaves.reject', ['leave' => '__ID__']) }}" style="display:none;">@csrf<input type="hidden" name="reason" id="leave-reject-reason" value="" /></form>
+<form id="leave-create-form" method="POST" action="{{ route('tenant.hr.leaves.store') }}" enctype="multipart/form-data" style="display:none;">@csrf
+    <input type="hidden" name="leave_type_id" id="leave_type_id" />
+    <input type="hidden" name="days_requested" id="days_requested" />
+    <input type="hidden" name="start_date" id="start_date" />
+    <input type="hidden" name="end_date" id="end_date" />
+    <input type="hidden" name="reason" id="leave_reason" />
 </form>
 
 <script>
-function createNewLeaveRequest() {
+function openLeaveRequestModal() {
     // Create modal for new leave request
     const modal = document.createElement('div');
     modal.style.cssText = `
@@ -293,44 +314,44 @@ function createNewLeaveRequest() {
                 طلب إجازة جديد
             </h3>
 
-            <form id="leaveRequestForm">
+            <form id="leaveRequestForm" enctype="multipart/form-data">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">نوع الإجازة</label>
-                        <select required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <select id="ui_leave_type_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                             <option value="">اختر نوع الإجازة</option>
-                            <option value="annual">إجازة سنوية</option>
-                            <option value="sick">إجازة مرضية</option>
-                            <option value="emergency">إجازة طارئة</option>
-                            <option value="maternity">إجازة أمومة</option>
-                            <option value="paternity">إجازة أبوة</option>
+                            @if(isset($leaveTypes))
+                                @foreach($leaveTypes as $lt)
+                                    <option value="{{ $lt->id }}">{{ $lt->name }}</option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">عدد الأيام</label>
-                        <input type="number" min="1" max="30" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="عدد أيام الإجازة">
+                        <input id="ui_days_requested" type="number" min="1" max="365" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="عدد أيام الإجازة (اختياري)">
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">تاريخ البداية</label>
-                        <input type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <input id="ui_start_date" type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     </div>
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">تاريخ النهاية</label>
-                        <input type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <input id="ui_end_date" type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">سبب الإجازة</label>
-                    <textarea rows="4" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; resize: vertical;" placeholder="أدخل سبب طلب الإجازة"></textarea>
+                    <textarea id="ui_reason" rows="4" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; resize: vertical;" placeholder="أدخل سبب طلب الإجازة"></textarea>
                 </div>
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">المرفقات (اختياري)</label>
-                    <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    <input id="ui_attachments" type="file" name="attachments[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     <small style="color: #718096; font-size: 12px;">يمكن إرفاق ملفات PDF، صور، أو مستندات Word</small>
                 </div>
 
@@ -352,18 +373,44 @@ function createNewLeaveRequest() {
     // Handle form submission
     modal.querySelector('#leaveRequestForm').addEventListener('submit', function(e) {
         e.preventDefault();
-
-        // Show loading
         const submitBtn = this.querySelector('button[type="submit"]');
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
         submitBtn.disabled = true;
 
-        setTimeout(() => {
-            alert('تم إرسال طلب الإجازة بنجاح!\n\nسيتم مراجعة الطلب من قبل المدير المباشر.');
+        // Copy values into hidden form and submit
+        document.getElementById('leave_type_id').value = document.getElementById('ui_leave_type_id').value;
+        document.getElementById('days_requested').value = document.getElementById('ui_days_requested').value;
+        document.getElementById('start_date').value = document.getElementById('ui_start_date').value;
+        document.getElementById('end_date').value = document.getElementById('ui_end_date').value;
+        document.getElementById('leave_reason').value = document.getElementById('ui_reason').value;
+
+        const hiddenForm = document.getElementById('leave-create-form');
+
+        // If attachments exist, build a FormData and submit via fetch to preserve files
+        const filesInput = document.getElementById('ui_attachments');
+        const formData = new FormData(hiddenForm);
+        if (filesInput && filesInput.files && filesInput.files.length > 0) {
+            for (const f of filesInput.files) {
+                formData.append('attachments[]', f);
+            }
+        }
+
+        fetch(hiddenForm.action, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': hiddenForm.querySelector('input[name="_token"]').value },
+            body: formData
+        }).then(async (res) => {
+            if (!res.ok) throw new Error('failed');
+            return res.text();
+        }).then(() => {
             modal.remove();
             showNotification('تم إرسال طلب الإجازة بنجاح!', 'success');
-            location.reload();
-        }, 1500);
+            window.location.reload();
+        }).catch(() => {
+            submitBtn.innerHTML = 'إرسال الطلب';
+            submitBtn.disabled = false;
+            alert('تعذر إرسال الطلب. يرجى المحاولة لاحقاً.');
+        });
     });
 
     // Close modal when clicking outside

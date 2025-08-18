@@ -12,7 +12,13 @@ class LeaveController extends Controller
 {
     public function index()
     {
-        return view('tenant.hr.leaves.index');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $leaves = Leave::with('leaveType')
+            ->where('tenant_id', $tenantId)
+            ->orderByDesc('created_at')
+            ->paginate(10);
+        $leaveTypes = \App\Models\Tenant\HR\LeaveType::where('tenant_id', $tenantId)->where('is_active', true)->orderBy('name')->get(['id','name']);
+        return view('tenant.hr.leaves.index', compact('leaves','leaveTypes'));
     }
 
     public function create()
@@ -22,7 +28,96 @@ class LeaveController extends Controller
 
     public function store(Request $request)
     {
-        return redirect()->route('tenant.hr.leaves.index')->with('success', 'تم تقديم طلب الإجازة بنجاح');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'leave_type_id' => 'required|exists:hr_leave_types,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'days_requested' => 'nullable|integer|min:1|max:365',
+            'reason' => 'required|string|max:2000',
+            'attachments.*' => 'nullable|file|max:5120',
+        ]);
+
+        // Resolve employee by current user email within the same tenant
+        $employee = \App\Models\Tenant\HR\Employee::where('tenant_id', $tenantId)
+            ->where('email', $user->email)
+            ->first();
+        if (!$employee) {
+            return redirect()->back()->with('error', 'لا يوجد موظف مرتبط بحساب المستخدم الحالي. يرجى ربط المستخدم بسجل موظف.');
+        }
+
+        // Compute working days if not provided
+        $start = \Carbon\Carbon::parse($data['start_date']);
+        $end = \Carbon\Carbon::parse($data['end_date']);
+        $daysRequested = $data['days_requested'] ?? $this->calculateWorkingDays($start, $end);
+        if ($daysRequested < 1) {
+            return redirect()->back()->with('error', 'عدد الأيام غير صالح');
+        }
+
+        // Prevent overlap
+        $overlap = Leave::where('tenant_id', $tenantId)
+            ->where('employee_id', $employee->id)
+            ->where('status', '!=', 'rejected')
+            ->where('status', '!=', 'cancelled')
+            ->where(function ($q) use ($start, $end) {
+                $q->whereBetween('start_date', [$start->toDateString(), $end->toDateString()])
+                  ->orWhereBetween('end_date', [$start->toDateString(), $end->toDateString()])
+                  ->orWhere(function ($qq) use ($start, $end) {
+                      $qq->where('start_date', '<=', $start->toDateString())
+                         ->where('end_date', '>=', $end->toDateString());
+                  });
+            })->exists();
+        if ($overlap) {
+            return redirect()->back()->with('error', 'الفترة المحددة تتداخل مع طلب إجازة آخر.');
+        }
+
+        $leaveType = \App\Models\Tenant\HR\LeaveType::findOrFail($data['leave_type_id']);
+
+        // Handle attachments
+        $attachments = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                if ($file) {
+                    $path = $file->store('leaves/attachments', 'public');
+                    $attachments[] = $path;
+                }
+            }
+        }
+
+        $leave = Leave::create([
+            'tenant_id' => $tenantId,
+            'employee_id' => $employee->id,
+            'leave_type_id' => $data['leave_type_id'],
+            'start_date' => $start->toDateString(),
+            'end_date' => $end->toDateString(),
+            'days_requested' => $daysRequested,
+            'reason' => $data['reason'],
+            'status' => 'pending',
+            'applied_date' => now()->toDateString(),
+            'is_paid' => (bool)$leaveType->is_paid,
+            'attachments' => $attachments,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json(['message' => 'تم إرسال طلب الإجازة بنجاح', 'leave_id' => $leave->id]);
+        }
+
+        return redirect()->route('tenant.hr.leaves.index')->with('success', 'تم إرسال طلب الإجازة بنجاح');
+    }
+
+    private function calculateWorkingDays(\Carbon\Carbon $start, \Carbon\Carbon $end): int
+    {
+        $workingDays = 0;
+        $date = $start->copy();
+        while ($date->lte($end)) {
+            if (!$date->isFriday() && !$date->isSaturday()) {
+                $workingDays++;
+            }
+            $date->addDay();
+        }
+        return $workingDays;
     }
 
     public function show($id)
