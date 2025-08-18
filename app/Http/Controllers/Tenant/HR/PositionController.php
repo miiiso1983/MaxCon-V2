@@ -4,29 +4,59 @@ namespace App\Http\Controllers\Tenant\HR;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Tenant\HR\Position;
+use App\Models\Tenant\HR\Department;
 
 class PositionController extends Controller
 {
     public function index()
     {
-        $positions = collect([
-            (object) ['id' => 1, 'title' => 'مدير عام', 'department' => 'الإدارة العامة', 'level' => 'executive'],
-            (object) ['id' => 2, 'title' => 'مدير الموارد البشرية', 'department' => 'الموارد البشرية', 'level' => 'manager'],
-            (object) ['id' => 3, 'title' => 'محاسب', 'department' => 'المالية والمحاسبة', 'level' => 'mid'],
-            (object) ['id' => 4, 'title' => 'مطور برمجيات', 'department' => 'تقنية المعلومات', 'level' => 'senior'],
-        ]);
-        
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $positions = Position::where('tenant_id', $tenantId)
+            ->with('department')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('tenant.hr.positions.index', compact('positions'));
     }
 
     public function create()
     {
-        return view('tenant.hr.positions.create');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $departments = Department::where('tenant_id', $tenantId)->active()->orderBy('name')->get();
+        return view('tenant.hr.positions.create', compact('departments'));
     }
 
     public function store(Request $request)
     {
-        return redirect()->route('tenant.hr.positions.index')->with('success', 'تم إنشاء المنصب بنجاح');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:hr_positions,code',
+            'department_id' => 'required|integer|exists:hr_departments,id',
+            'description' => 'nullable|string',
+            'level' => 'required|in:entry,junior,mid,senior,lead,manager,director,executive',
+            'min_salary' => 'nullable|numeric',
+            'max_salary' => 'nullable|numeric',
+            'reports_to_position_id' => 'nullable|integer|exists:hr_positions,id',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        try {
+            $data = $validated;
+            $data['tenant_id'] = $tenantId;
+            $data['is_active'] = isset($validated['is_active']) ? (bool)$validated['is_active'] : true;
+            $data['created_by'] = Auth::id();
+
+            Position::create($data);
+
+            return redirect()->route('tenant.hr.positions.index')
+                ->with('success', 'تم إنشاء المنصب بنجاح');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'تعذر حفظ المنصب: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**

@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div style="display: flex; gap: 15px;">
-                <a href="#" onclick="alert('ميزة إضافة منصب جديد قيد التطوير')" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <a href="{{ route('tenant.hr.positions.create') }}" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; text-decoration: none;">
                     <i class="fas fa-plus"></i>
                     إضافة منصب جديد
                 </a>
@@ -73,6 +73,7 @@
         <!-- Positions Grid -->
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
             @foreach($positions as $position)
+        @php($deptName = is_object($position->department ?? null) ? ($position->department->name ?? '') : ($position->department ?? ''))
                 <div style="background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 25px; transition: transform 0.3s, box-shadow 0.3s;" 
                      onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.1)'" 
                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
@@ -99,7 +100,7 @@
                         </div>
                         <div style="flex: 1;">
                             <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 18px; font-weight: 700;">{{ $position->title }}</h4>
-                            <p style="color: #718096; margin: 0; font-size: 14px;">{{ $position->department }}</p>
+                            <p style="color: #718096; margin: 0; font-size: 14px;">{{ $deptName }}</p>
                         </div>
                         <div style="text-align: center;">
                             <span style="
@@ -124,7 +125,7 @@
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                             <i class="fas fa-building" style="color: #4299e1; width: 16px;"></i>
                             <span style="color: #4a5568; font-size: 14px; font-weight: 600;">القسم:</span>
-                            <span style="color: #2d3748; font-size: 14px;">{{ $position->department }}</span>
+                            <span style="color: #2d3748; font-size: 14px;">{{ $deptName }}</span>
                         </div>
                         
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
