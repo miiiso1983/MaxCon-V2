@@ -59,6 +59,12 @@ class RegulatoryReportController extends Controller
     }
 
 
+    private function generateReportNumber($tenantId): string
+    {
+        return 'RPT-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
+    }
+
+
     /**
      * Display a listing of reports
      */
@@ -135,7 +141,8 @@ class RegulatoryReportController extends Controller
 
             // Ensure DB-required fields
             if (Schema::hasColumn('regulatory_reports', 'report_number') && empty($data['report_number'])) {
-                $data['report_number'] = $this->generateReportNumber(Auth::user()->tenant_id);
+                $tenantId = Auth::user()->tenant_id;
+                $data['report_number'] = 'RPT-' . $tenantId . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 5));
             }
             if (Schema::hasColumn('regulatory_reports', 'status') && empty($data['status']) && isset($canonical['report_status'])) {
                 $data['status'] = $canonical['report_status'];
@@ -195,7 +202,7 @@ class RegulatoryReportController extends Controller
 
         $file = $request->file('import_file');
         $path = $file->getRealPath();
-        
+
         $imported = 0;
         $errors = [];
         $skipped = 0;
@@ -203,11 +210,11 @@ class RegulatoryReportController extends Controller
         try {
             if (($handle = fopen($path, 'r')) !== FALSE) {
                 $header = fgetcsv($handle);
-                
+
                 $rowNumber = 1;
                 while (($data = fgetcsv($handle)) !== FALSE) {
                     $rowNumber++;
-                    
+
                     if (empty(array_filter($data))) {
                         continue;
                     }
@@ -240,14 +247,14 @@ class RegulatoryReportController extends Controller
                             'priority_level' => $this->mapPriorityLevel($data[15] ?? ''),
                             'notes' => $data[16] ?? ''
                         ]);
-                        
+
                         $imported++;
                     } catch (\Exception $e) {
                         $errors[] = "الصف {$rowNumber}: خطأ في حفظ البيانات - " . $e->getMessage();
                         $skipped++;
                     }
                 }
-                
+
                 fclose($handle);
             }
         } catch (\Exception $e) {
@@ -280,9 +287,9 @@ class RegulatoryReportController extends Controller
 
         $response = new StreamedResponse(function() use ($reports) {
             $handle = fopen('php://output', 'w');
-            
+
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             fputcsv($handle, [
                 'عنوان التقرير',
                 'نوع التقرير',
@@ -536,9 +543,9 @@ class RegulatoryReportController extends Controller
 
         $response = new StreamedResponse(function() {
             $handle = fopen('php://output', 'w');
-            
+
             fwrite($handle, "\xEF\xBB\xBF");
-            
+
             fputcsv($handle, [
                 'عنوان التقرير',
                 'نوع التقرير',
@@ -601,7 +608,7 @@ class RegulatoryReportController extends Controller
             'inspection' => 'تفتيش',
             'adverse_event' => 'حدث سلبي'
         ];
-        
+
         return $types[$type] ?? $type;
     }
 
@@ -613,7 +620,7 @@ class RegulatoryReportController extends Controller
             'semi_annual' => 'نصف سنوي',
             'annual' => 'سنوي'
         ];
-        
+
         return $periods[$period] ?? $period;
     }
 
@@ -626,7 +633,7 @@ class RegulatoryReportController extends Controller
             'approved' => 'معتمد',
             'rejected' => 'مرفوض'
         ];
-        
+
         return $statuses[$status] ?? $status;
     }
 
@@ -638,7 +645,7 @@ class RegulatoryReportController extends Controller
             'high' => 'عالي',
             'critical' => 'حرج'
         ];
-        
+
         return $levels[$level] ?? $level;
     }
 
@@ -652,7 +659,7 @@ class RegulatoryReportController extends Controller
             'تفتيش' => 'inspection',
             'حدث سلبي' => 'adverse_event'
         ];
-        
+
         return $types[$label] ?? 'periodic';
     }
 
@@ -664,7 +671,7 @@ class RegulatoryReportController extends Controller
             'نصف سنوي' => 'semi_annual',
             'سنوي' => 'annual'
         ];
-        
+
         return $periods[$label] ?? null;
     }
 
@@ -677,7 +684,7 @@ class RegulatoryReportController extends Controller
             'معتمد' => 'approved',
             'مرفوض' => 'rejected'
         ];
-        
+
         return $statuses[$label] ?? 'draft';
     }
 
@@ -689,7 +696,7 @@ class RegulatoryReportController extends Controller
             'عالي' => 'high',
             'حرج' => 'critical'
         ];
-        
+
         return $levels[$label] ?? null;
     }
 
