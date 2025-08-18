@@ -160,8 +160,11 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        // For now, return a view with sample data since we don't have real employees yet
-        return view('tenant.hr.employees.show');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $employee = Employee::where('tenant_id', $tenantId)
+            ->with(['department', 'position'])
+            ->findOrFail($id);
+        return view('tenant.hr.employees.show', compact('employee'));
     }
 
     /**
@@ -169,10 +172,12 @@ class EmployeeController extends Controller
      */
     public function edit($id)
     {
-        $departments = Department::where('tenant_id', tenant()->id ?? 1)->active()->get();
-        $positions = Position::where('tenant_id', tenant()->id ?? 1)->active()->get();
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $employee = Employee::where('tenant_id', $tenantId)->findOrFail($id);
+        $departments = Department::where('tenant_id', $tenantId)->active()->orderBy('name')->get();
+        $positions = Position::where('tenant_id', $tenantId)->active()->orderBy('title')->get();
 
-        return view('tenant.hr.employees.edit', compact('departments', 'positions'));
+        return view('tenant.hr.employees.edit', compact('employee','departments', 'positions'));
     }
 
     /**

@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div style="display: flex; gap: 15px;">
-                <a href="{{ route('tenant.hr.employees.show', 1) }}" style="background: #4299e1; color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <a href="{{ route('tenant.hr.employees.show', $employee->id) }}" style="background: #4299e1; color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; text-decoration: none;">
                     <i class="fas fa-eye"></i>
                     عرض البيانات
                 </a>
@@ -31,7 +31,7 @@
 
     <!-- Employee Form -->
     <div style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
-        <form action="{{ route('tenant.hr.employees.update', 1) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('tenant.hr.employees.update', $employee->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -47,7 +47,7 @@
                     <!-- First Name -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الاسم الأول <span style="color: #f56565;">*</span></label>
-                        <input type="text" name="first_name" value="أحمد" required 
+                        <input type="text" name="first_name" value="{{ old('first_name', $employee->first_name) }}" required
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='#48bb78'" 
                                onblur="this.style.borderColor='#e2e8f0'">
@@ -56,7 +56,7 @@
                     <!-- Last Name -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الاسم الأخير <span style="color: #f56565;">*</span></label>
-                        <input type="text" name="last_name" value="محمد" required 
+                        <input type="text" name="last_name" value="{{ old('last_name', $employee->last_name) }}" required
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='#48bb78'" 
                                onblur="this.style.borderColor='#e2e8f0'">
@@ -65,7 +65,7 @@
                     <!-- National ID -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">رقم الهوية <span style="color: #f56565;">*</span></label>
-                        <input type="text" name="national_id" value="12345678901" required 
+                        <input type="text" name="national_id" value="{{ old('national_id', $employee->national_id) }}" required
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='#48bb78'" 
                                onblur="this.style.borderColor='#e2e8f0'">
@@ -74,7 +74,7 @@
                     <!-- Date of Birth -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">تاريخ الميلاد <span style="color: #f56565;">*</span></label>
-                        <input type="date" name="date_of_birth" value="1990-01-15" required 
+                        <input type="date" name="date_of_birth" value="{{ old('date_of_birth', ($employee->date_of_birth ? $employee->date_of_birth->format('Y-m-d') : null)) }}" required
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='#48bb78'" 
                                onblur="this.style.borderColor='#e2e8f0'">
@@ -87,22 +87,22 @@
                                 style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                 onfocus="this.style.borderColor='#48bb78'" 
                                 onblur="this.style.borderColor='#e2e8f0'">
-                            <option value="male" selected>ذكر</option>
-                            <option value="female">أنثى</option>
+                            <option value="male" {{ old('gender', $employee->gender) == 'male' ? 'selected' : '' }}>ذكر</option>
+                            <option value="female" {{ old('gender', $employee->gender) == 'female' ? 'selected' : '' }}>أنثى</option>
                         </select>
                     </div>
 
                     <!-- Marital Status -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الحالة الاجتماعية</label>
-                        <select name="marital_status" 
+                        <select name="marital_status"
                                 style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='#48bb78'" 
+                                onfocus="this.style.borderColor='#48bb78'"
                                 onblur="this.style.borderColor='#e2e8f0'">
-                            <option value="single">أعزب</option>
-                            <option value="married" selected>متزوج</option>
-                            <option value="divorced">مطلق</option>
-                            <option value="widowed">أرمل</option>
+                            <option value="single" {{ old('marital_status', $employee->marital_status) == 'single' ? 'selected' : '' }}>أعزب</option>
+                            <option value="married" {{ old('marital_status', $employee->marital_status) == 'married' ? 'selected' : '' }}>متزوج</option>
+                            <option value="divorced" {{ old('marital_status', $employee->marital_status) == 'divorced' ? 'selected' : '' }}>مطلق</option>
+                            <option value="widowed" {{ old('marital_status', $employee->marital_status) == 'widowed' ? 'selected' : '' }}>أرمل</option>
                         </select>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                     <!-- Email -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">البريد الإلكتروني <span style="color: #f56565;">*</span></label>
-                        <input type="email" name="email" value="ahmed.mohamed@company.com" required 
+                        <input type="email" name="email" value="{{ old('email', $employee->email) }}" required
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='#4299e1'" 
                                onblur="this.style.borderColor='#e2e8f0'">
@@ -129,7 +129,7 @@
                     <!-- Mobile -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">رقم الهاتف <span style="color: #f56565;">*</span></label>
-                        <input type="tel" name="mobile" value="07901234567" required 
+                        <input type="tel" name="mobile" value="{{ old('mobile', $employee->mobile) }}" required
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='#4299e1'" 
                                onblur="this.style.borderColor='#e2e8f0'">
@@ -138,10 +138,10 @@
                     <!-- Address -->
                     <div style="grid-column: 1 / -1;">
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">العنوان</label>
-                        <textarea name="address" rows="3" 
+                        <textarea name="address" rows="3"
                                   style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s; resize: vertical;"
-                                  onfocus="this.style.borderColor='#4299e1'" 
-                                  onblur="this.style.borderColor='#e2e8f0'">بغداد - الكرادة - شارع الرئيسي</textarea>
+                                  onfocus="this.style.borderColor='#4299e1'"
+                                  onblur="this.style.borderColor='#e2e8f0'">{{ old('address', $employee->current_address) }}</textarea>
                     </div>
                 </div>
             </div>
@@ -158,7 +158,7 @@
                     <!-- Employee Code -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">كود الموظف</label>
-                        <input type="text" name="employee_code" value="EMP0001" readonly
+                        <input type="text" name="employee_code" value="{{ old('employee_code', $employee->employee_code) }}" readonly
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; background: #f7fafc; color: #4a5568;">
                     </div>
 
@@ -170,7 +170,7 @@
                                 onfocus="this.style.borderColor='#9f7aea'" 
                                 onblur="this.style.borderColor='#e2e8f0'">
                             @foreach($departments as $department)
-                                <option value="{{ $department->id }}" {{ $department->id == 1 ? 'selected' : '' }}>{{ $department->name }}</option>
+                                <option value="{{ $department->id }}" {{ old('department_id', $employee->department_id) == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -183,7 +183,7 @@
                                 onfocus="this.style.borderColor='#9f7aea'" 
                                 onblur="this.style.borderColor='#e2e8f0'">
                             @foreach($positions as $position)
-                                <option value="{{ $position->id }}" {{ $position->id == 1 ? 'selected' : '' }}>{{ $position->title }}</option>
+                                <option value="{{ $position->id }}" {{ old('position_id', $employee->position_id) == $position->id ? 'selected' : '' }}>{{ $position->title }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -191,7 +191,7 @@
                     <!-- Hire Date -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">تاريخ التوظيف <span style="color: #f56565;">*</span></label>
-                        <input type="date" name="hire_date" value="2023-01-01" required 
+                        <input type="date" name="hire_date" value="{{ old('hire_date', ($employee->hire_date ? $employee->hire_date->format('Y-m-d') : null)) }}" required
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='#9f7aea'" 
                                onblur="this.style.borderColor='#e2e8f0'">
@@ -200,7 +200,7 @@
                     <!-- Basic Salary -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الراتب الأساسي <span style="color: #f56565;">*</span></label>
-                        <input type="number" name="basic_salary" value="2500000" required min="0" step="0.01"
+                        <input type="number" name="basic_salary" value="{{ old('basic_salary', $employee->basic_salary) }}" required min="0" step="0.01"
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='#9f7aea'" 
                                onblur="this.style.borderColor='#e2e8f0'">

@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div style="display: flex; gap: 15px;">
-                <a href="{{ route('tenant.hr.employees.edit', 1) }}" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <a href="{{ route('tenant.hr.employees.edit', $employee->id) }}" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; text-decoration: none;">
                     <i class="fas fa-edit"></i>
                     تعديل البيانات
                 </a>
@@ -38,7 +38,7 @@
                 أم
             </div>
             <div style="flex: 1;">
-                <h2 style="color: #2d3748; margin: 0 0 10px 0; font-size: 36px; font-weight: 700;">أحمد محمد</h2>
+                <h2 style="color: #2d3748; margin: 0 0 10px 0; font-size: 36px; font-weight: 700;">{{ $employee->full_name ?? ($employee->first_name . ' ' . $employee->last_name) }}</h2>
                 <p style="color: #4299e1; margin: 0 0 10px 0; font-size: 20px; font-weight: 600;">مدير عام - الإدارة العامة</p>
                 <div style="display: flex; gap: 15px; margin-top: 15px;">
                     <span style="background: #48bb78; color: white; padding: 8px 15px; border-radius: 10px; font-size: 14px; font-weight: 600;">
@@ -130,7 +130,7 @@
                 <div style="space-y: 15px;">
                     <div style="margin-bottom: 15px;">
                         <label style="color: #4a5568; font-size: 14px; font-weight: 600; display: block; margin-bottom: 5px;">كود الموظف</label>
-                        <div style="color: #2d3748; font-size: 16px; font-weight: 600;">EMP0001</div>
+                        <div style="color: #2d3748; font-size: 16px; font-weight: 600;">{{ $employee->employee_code }}</div>
                     </div>
                     
                     <div style="margin-bottom: 15px;">
