@@ -52,10 +52,10 @@
                     <!-- Position Code -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">كود المنصب <span style="color: #f56565;">*</span></label>
-                        <input type="text" name="code" required 
+                        <input type="text" name="code"
                                style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
-                               placeholder="مثال: POS001"
-                               onfocus="this.style.borderColor='#4299e1'" 
+                               placeholder="مثال: POS001 (اتركه فارغاً للتوليد التلقائي)"
+                               onfocus="this.style.borderColor='#4299e1'"
                                onblur="this.style.borderColor='#e2e8f0'">
                     </div>
 
@@ -67,11 +67,9 @@
                                 onfocus="this.style.borderColor='#4299e1'" 
                                 onblur="this.style.borderColor='#e2e8f0'">
                             <option value="">اختر القسم</option>
-                            <option value="1">الإدارة العامة</option>
-                            <option value="2">الموارد البشرية</option>
-                            <option value="3">المالية والمحاسبة</option>
-                            <option value="4">المبيعات والتسويق</option>
-                            <option value="5">تقنية المعلومات</option>
+                            @foreach(($departments ?? []) as $dept)
+                                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -94,16 +92,14 @@
                     <!-- Reports To -->
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">يرفع تقارير إلى</label>
-                        <select name="reports_to" 
+                        <select name="reports_to_position_id"
                                 style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='#4299e1'" 
+                                onfocus="this.style.borderColor='#4299e1'"
                                 onblur="this.style.borderColor='#e2e8f0'">
                             <option value="">لا يوجد (منصب أعلى)</option>
-                            <option value="1">مدير عام</option>
-                            <option value="2">مدير الموارد البشرية</option>
-                            <option value="3">مدير المالية</option>
-                            <option value="4">مدير المبيعات</option>
-                            <option value="5">مدير تقنية المعلومات</option>
+                            @foreach(($positions ?? []) as $pos)
+                                <option value="{{ $pos->id }}">{{ $pos->title }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -215,11 +211,11 @@
 
                     <!-- Required Skills -->
                     <div style="grid-column: 1 / -1;">
-                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">المهارات المطلوبة</label>
-                        <textarea name="required_skills" rows="3" 
+                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">المهام والمسؤوليات</label>
+                        <textarea name="responsibilities_text" rows="3"
                                   style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s; resize: vertical;"
-                                  placeholder="أدخل المهارات والكفاءات المطلوبة للمنصب"
-                                  onfocus="this.style.borderColor='#9f7aea'" 
+                                  placeholder="أدخل المهام والمسؤوليات، كل سطر عنصر"
+                                  onfocus="this.style.borderColor='#9f7aea'"
                                   onblur="this.style.borderColor='#e2e8f0'"></textarea>
                     </div>
                 </div>

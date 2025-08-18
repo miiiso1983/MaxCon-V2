@@ -25,7 +25,8 @@ class PositionController extends Controller
     {
         $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
         $departments = Department::where('tenant_id', $tenantId)->active()->orderBy('name')->get();
-        return view('tenant.hr.positions.create', compact('departments'));
+        $positions = Position::where('tenant_id', $tenantId)->active()->orderBy('title')->get();
+        return view('tenant.hr.positions.create', compact('departments', 'positions'));
     }
 
     public function store(Request $request)
@@ -42,13 +43,37 @@ class PositionController extends Controller
             'max_salary' => 'nullable|numeric',
             'reports_to_position_id' => 'nullable|integer|exists:hr_positions,id',
             'is_active' => 'nullable|boolean',
+            'requirements_text' => 'nullable|string',
+            'responsibilities_text' => 'nullable|string',
         ]);
+
+        // Validate salary range
+        if (!is_null($validated['min_salary'] ?? null) && !is_null($validated['max_salary'] ?? null)) {
+            if ($validated['min_salary'] > $validated['max_salary']) {
+                return back()->with('error', 'الحد الأدنى للراتب لا يجب أن يتجاوز الحد الأقصى')->withInput();
+            }
+        }
 
         try {
             $data = $validated;
             $data['tenant_id'] = $tenantId;
             $data['is_active'] = isset($validated['is_active']) ? (bool)$validated['is_active'] : true;
             $data['created_by'] = Auth::id();
+
+            // Parse requirements/responsibilities textareas into arrays
+            $reqText = $request->input('requirements_text') ?? $request->input('required_skills');
+            if ($reqText) {
+                $lines = array_values(array_filter(array_map('trim', preg_split("/\r\n|\r|\n/", $reqText))));
+                $data['requirements'] = $lines;
+            }
+            $respText = $request->input('responsibilities_text');
+            if ($respText) {
+                $lines = array_values(array_filter(array_map('trim', preg_split("/\r\n|\r|\n/", $respText))));
+                $data['responsibilities'] = $lines;
+            }
+
+            // Remove non-column helper fields
+            unset($data['requirements_text'], $data['responsibilities_text']);
 
             Position::create($data);
 
