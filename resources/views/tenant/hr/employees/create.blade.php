@@ -93,12 +93,12 @@
 
                     <!-- Marital Status -->
                     <div>
-                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الحالة الاجتماعية</label>
+                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الحالة الاجتماعية <span style="color:#f56565;">*</span></label>
                         <select name="marital_status" 
                                 style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s;"
                                 onfocus="this.style.borderColor='#48bb78'" 
                                 onblur="this.style.borderColor='#e2e8f0'">
-                            <option value="">اختر الحالة الاجتماعية</option>
+                            <option value="" disabled selected>اختر الحالة الاجتماعية</option>
                             <option value="single">أعزب</option>
                             <option value="married">متزوج</option>
                             <option value="divorced">مطلق</option>

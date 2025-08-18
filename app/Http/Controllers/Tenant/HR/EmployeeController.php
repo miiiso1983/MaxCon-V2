@@ -82,6 +82,8 @@ class EmployeeController extends Controller
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female',
             'department_id' => 'required|exists:hr_departments,id',
+            'marital_status' => 'required|in:single,married,divorced,widowed',
+
             'position_id' => 'required|exists:hr_positions,id',
             'hire_date' => 'required|date',
             'basic_salary' => 'required|numeric|min:0',
@@ -106,6 +108,9 @@ class EmployeeController extends Controller
             if (empty($employeeData['employment_status'])) {
                 $employeeData['employment_status'] = 'active';
             }
+            if (empty($employeeData['marital_status'])) {
+                $employeeData['marital_status'] = 'single';
+            }
             if (empty($employeeData['employee_code'])) {
                 $last = Employee::where('tenant_id', $employeeData['tenant_id'])->orderBy('id', 'desc')->first();
                 if ($last && !empty($last->employee_code) && preg_match('/(\d+)/', $last->employee_code, $m)) {
@@ -120,29 +125,29 @@ class EmployeeController extends Controller
             if ($request->hasFile('profile_photo')) {
                 $employeeData['profile_photo'] = $request->file('profile_photo')->store('hr/employees/photos', 'public');
             }
-            
+
             if ($request->hasFile('cv_file')) {
                 $employeeData['cv_file'] = $request->file('cv_file')->store('hr/employees/cvs', 'public');
             }
-            
+
             if ($request->hasFile('id_copy')) {
                 $employeeData['id_copy'] = $request->file('id_copy')->store('hr/employees/documents', 'public');
             }
-            
+
             // Handle arrays
             if ($request->filled('skills')) {
                 $employeeData['skills'] = explode(',', $request->skills);
             }
-            
+
             if ($request->filled('languages')) {
                 $employeeData['languages'] = explode(',', $request->languages);
             }
-            
+
             $employee = Employee::create($employeeData);
-            
+
             return redirect()->route('tenant.hr.employees.index')
                            ->with('success', 'تم إنشاء ملف الموظف بنجاح');
-                           
+
         } catch (\Exception $e) {
             return redirect()->back()
                            ->with('error', 'حدث خطأ أثناء إنشاء ملف الموظف: ' . $e->getMessage())
@@ -206,7 +211,7 @@ class EmployeeController extends Controller
         try {
             $employeeData = $request->all();
             $employeeData['updated_by'] = auth()->id();
-            
+
             // Handle file uploads
             if ($request->hasFile('profile_photo')) {
                 // Delete old photo
@@ -215,7 +220,7 @@ class EmployeeController extends Controller
                 }
                 $employeeData['profile_photo'] = $request->file('profile_photo')->store('hr/employees/photos', 'public');
             }
-            
+
             if ($request->hasFile('cv_file')) {
                 // Delete old CV
                 if ($employee->cv_file) {
@@ -223,7 +228,7 @@ class EmployeeController extends Controller
                 }
                 $employeeData['cv_file'] = $request->file('cv_file')->store('hr/employees/cvs', 'public');
             }
-            
+
             if ($request->hasFile('id_copy')) {
                 // Delete old ID copy
                 if ($employee->id_copy) {
@@ -231,21 +236,21 @@ class EmployeeController extends Controller
                 }
                 $employeeData['id_copy'] = $request->file('id_copy')->store('hr/employees/documents', 'public');
             }
-            
+
             // Handle arrays
             if ($request->filled('skills')) {
                 $employeeData['skills'] = explode(',', $request->skills);
             }
-            
+
             if ($request->filled('languages')) {
                 $employeeData['languages'] = explode(',', $request->languages);
             }
-            
+
             $employee->update($employeeData);
-            
+
             return redirect()->route('tenant.hr.employees.show', $employee)
                            ->with('success', 'تم تحديث بيانات الموظف بنجاح');
-                           
+
         } catch (\Exception $e) {
             return redirect()->back()
                            ->with('error', 'حدث خطأ أثناء تحديث بيانات الموظف: ' . $e->getMessage())
