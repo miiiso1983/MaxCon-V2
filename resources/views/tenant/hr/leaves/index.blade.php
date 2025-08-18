@@ -202,10 +202,10 @@
                     طلب إجازة جديد
                 </button>
 
-                <button onclick="manageLeaveTypes()" style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <a href="{{ route('tenant.hr.leave-types.index') }}" style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; text-decoration:none;">
                     <i class="fas fa-tags"></i>
                     أنواع الإجازات
-                </button>
+                </a>
 
                 <button onclick="showLeaveBalance()" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; padding: 15px 20px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
                     <i class="fas fa-wallet"></i>
@@ -588,9 +588,8 @@ function showLeaveCalendar() {
     });
 }
 
-function manageLeaveTypes() {
-    alert('ميزة إدارة أنواع الإجازات قيد التطوير\n\nستتيح:\n• إضافة أنواع إجازات جديدة\n• تعديل أنواع الإجازات الموجودة\n• تحديد عدد الأيام المسموحة\n• إعداد قواعد الموافقة');
-}
+function manageLeaveTypes() {}
+
 
 function showLeaveBalance() {
     // Create modal for leave balance
