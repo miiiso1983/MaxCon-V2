@@ -58,7 +58,7 @@
         </div>
 
         <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end;">
-            <a href="{{ route('tenant.hr.leave-types.index) }}" style="background:#e5e7eb; color:#111827; padding:10px 14px; border-radius:10px; text-decoration:none;">إلغاء</a>
+            <a href="{{ route('tenant.hr.leave-types.index') }}" style="background:#e5e7eb; color:#111827; padding:10px 14px; border-radius:10px; text-decoration:none;">إلغاء</a>
             <button type="submit" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color:white; padding:10px 14px; border-radius:10px; border:none; font-weight:700;">حفظ</button>
         </div>
     </form>
