@@ -9,6 +9,7 @@ use App\Models\Tenant\HR\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeeController extends Controller
 {
@@ -17,142 +18,39 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        // Create sample employees data for demonstration
-        $employees = collect([
-            (object) [
-                'id' => 1,
-                'employee_code' => 'EMP0001',
-                'first_name' => 'أحمد',
-                'last_name' => 'محمد',
-                'full_name' => 'أحمد محمد',
-                'email' => 'ahmed.mohamed@company.com',
-                'mobile' => '07901234567',
-                'employment_status' => 'active',
-                'employment_type' => 'full_time',
-                'hire_date' => now()->subMonths(6),
-                'department' => (object) ['name' => 'الإدارة العامة'],
-                'position' => (object) ['title' => 'مدير عام'],
-                'basic_salary' => 2500000
-            ],
-            (object) [
-                'id' => 2,
-                'employee_code' => 'EMP0002',
-                'first_name' => 'سارة',
-                'last_name' => 'أحمد',
-                'full_name' => 'سارة أحمد',
-                'email' => 'sara.ahmed@company.com',
-                'mobile' => '07901234568',
-                'employment_status' => 'active',
-                'employment_type' => 'full_time',
-                'hire_date' => now()->subMonths(4),
-                'department' => (object) ['name' => 'الموارد البشرية'],
-                'position' => (object) ['title' => 'مدير الموارد البشرية'],
-                'basic_salary' => 2000000
-            ],
-            (object) [
-                'id' => 3,
-                'employee_code' => 'EMP0003',
-                'first_name' => 'محمد',
-                'last_name' => 'علي',
-                'full_name' => 'محمد علي',
-                'email' => 'mohamed.ali@company.com',
-                'mobile' => '07901234569',
-                'employment_status' => 'probation',
-                'employment_type' => 'full_time',
-                'hire_date' => now()->subMonths(1),
-                'department' => (object) ['name' => 'المالية والمحاسبة'],
-                'position' => (object) ['title' => 'محاسب'],
-                'basic_salary' => 1500000
-            ],
-            (object) [
-                'id' => 4,
-                'employee_code' => 'EMP0004',
-                'first_name' => 'فاطمة',
-                'last_name' => 'حسن',
-                'full_name' => 'فاطمة حسن',
-                'email' => 'fatima.hassan@company.com',
-                'mobile' => '07901234570',
-                'employment_status' => 'active',
-                'employment_type' => 'full_time',
-                'hire_date' => now()->subMonths(8),
-                'department' => (object) ['name' => 'المبيعات والتسويق'],
-                'position' => (object) ['title' => 'مدير المبيعات'],
-                'basic_salary' => 1800000
-            ],
-            (object) [
-                'id' => 5,
-                'employee_code' => 'EMP0005',
-                'first_name' => 'عمر',
-                'last_name' => 'خالد',
-                'full_name' => 'عمر خالد',
-                'email' => 'omar.khaled@company.com',
-                'mobile' => '07901234571',
-                'employment_status' => 'active',
-                'employment_type' => 'full_time',
-                'hire_date' => now()->subMonths(12),
-                'department' => (object) ['name' => 'تقنية المعلومات'],
-                'position' => (object) ['title' => 'مطور برمجيات'],
-                'basic_salary' => 2200000
-            ]
-        ]);
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
 
-        // Apply search filter
+        $query = Employee::where('tenant_id', $tenantId)
+            ->with(['department', 'position'])
+            ->orderBy('created_at', 'desc');
+
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $employees = $employees->filter(function ($employee) use ($search) {
-                return str_contains(strtolower($employee->full_name), $search) ||
-                       str_contains(strtolower($employee->employee_code), $search) ||
-                       str_contains(strtolower($employee->email), $search);
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('employee_code', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
-        // Apply department filter
         if ($request->filled('department_id')) {
-            $departmentNames = [
-                1 => 'الإدارة العامة',
-                2 => 'الموارد البشرية',
-                3 => 'المالية والمحاسبة',
-                4 => 'المبيعات والتسويق',
-                5 => 'تقنية المعلومات'
-            ];
-            $targetDepartment = $departmentNames[$request->department_id] ?? '';
-            $employees = $employees->filter(function ($employee) use ($targetDepartment) {
-                return $employee->department->name === $targetDepartment;
-            });
+            $query->where('department_id', $request->department_id);
         }
 
-        // Apply employment status filter
+        if ($request->filled('position_id')) {
+            $query->where('position_id', $request->position_id);
+        }
+
         if ($request->filled('employment_status')) {
-            $employees = $employees->filter(function ($employee) use ($request) {
-                return $employee->employment_status === $request->employment_status;
-            });
+            $query->where('employment_status', $request->employment_status);
         }
 
-        // Create pagination-like object
-        $employees = new \Illuminate\Pagination\LengthAwarePaginator(
-            $employees->forPage(1, 15),
-            $employees->count(),
-            15,
-            1,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+        $employees = $query->paginate(15)->appends($request->query());
 
-        // Get filter options
-        $departments = collect([
-            (object) ['id' => 1, 'name' => 'الإدارة العامة'],
-            (object) ['id' => 2, 'name' => 'الموارد البشرية'],
-            (object) ['id' => 3, 'name' => 'المالية والمحاسبة'],
-            (object) ['id' => 4, 'name' => 'المبيعات والتسويق'],
-            (object) ['id' => 5, 'name' => 'تقنية المعلومات']
-        ]);
-
-        $positions = collect([
-            (object) ['id' => 1, 'title' => 'مدير عام'],
-            (object) ['id' => 2, 'title' => 'مدير الموارد البشرية'],
-            (object) ['id' => 3, 'title' => 'محاسب'],
-            (object) ['id' => 4, 'title' => 'مدير المبيعات'],
-            (object) ['id' => 5, 'title' => 'مطور برمجيات']
-        ]);
+        // Filter options from DB
+        $departments = Department::where('tenant_id', $tenantId)->active()->orderBy('name')->get(['id','name']);
+        $positions = Position::where('tenant_id', $tenantId)->active()->orderBy('title')->get(['id','title']);
 
         return view('tenant.hr.employees.index', compact('employees', 'departments', 'positions'));
     }
@@ -162,10 +60,11 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        $departments = Department::where('tenant_id', tenant()->id ?? 1)->active()->get();
-        $positions = Position::where('tenant_id', tenant()->id ?? 1)->active()->get();
-        $managers = Employee::where('tenant_id', tenant()->id ?? 1)->active()->get();
-        
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $departments = Department::where('tenant_id', $tenantId)->active()->orderBy('name')->get();
+        $positions = Position::where('tenant_id', $tenantId)->active()->orderBy('title')->get();
+        $managers = Employee::where('tenant_id', $tenantId)->active()->orderBy('first_name')->get();
+
         return view('tenant.hr.employees.create', compact('departments', 'positions', 'managers'));
     }
 
@@ -200,9 +99,23 @@ class EmployeeController extends Controller
 
         try {
             $employeeData = $request->all();
-            $employeeData['tenant_id'] = tenant()->id ?? 1;
+            $employeeData['tenant_id'] = Auth::user()->tenant_id ?? (tenant()->id ?? null);
             $employeeData['created_by'] = auth()->id();
-            
+
+            // Defaults
+            if (empty($employeeData['employment_status'])) {
+                $employeeData['employment_status'] = 'active';
+            }
+            if (empty($employeeData['employee_code'])) {
+                $last = Employee::where('tenant_id', $employeeData['tenant_id'])->orderBy('id', 'desc')->first();
+                if ($last && !empty($last->employee_code) && preg_match('/(\d+)/', $last->employee_code, $m)) {
+                    $num = (int)$m[1] + 1;
+                } else {
+                    $num = 1;
+                }
+                $employeeData['employee_code'] = 'EMP' . str_pad((string)$num, 4, '0', STR_PAD_LEFT);
+            }
+
             // Handle file uploads
             if ($request->hasFile('profile_photo')) {
                 $employeeData['profile_photo'] = $request->file('profile_photo')->store('hr/employees/photos', 'public');
