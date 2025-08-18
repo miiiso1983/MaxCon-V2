@@ -53,11 +53,29 @@ class AttendanceController extends Controller
     public function reports(Request $request)
     {
         $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
-        $from = Carbon::parse($request->get('from_date', now()->startOfMonth()->toDateString()))->startOfDay();
-        $to = Carbon::parse($request->get('to_date', now()->toDateString()))->endOfDay();
+
+        // Period A
+        $fromA = Carbon::parse($request->get('from_date', now()->startOfMonth()->toDateString()))->startOfDay();
+        $toA = Carbon::parse($request->get('to_date', now()->toDateString()))->endOfDay();
         $statusFilter = $request->get('status');
         $employeeId = $request->get('employee_id');
+        $stats = $this->buildStats($tenantId, $fromA, $toA, $statusFilter, $employeeId);
 
+        // Optional Comparison Period B
+        $fromBParam = $request->get('from_date_b');
+        $toBParam = $request->get('to_date_b');
+        $statsB = null;
+        if ($fromBParam || $toBParam) {
+            $fromB = Carbon::parse($fromBParam ?? $fromA->copy()->subMonth()->startOfMonth()->toDateString())->startOfDay();
+            $toB = Carbon::parse($toBParam ?? $toA->copy()->subMonth()->endOfMonth()->toDateString())->endOfDay();
+            $statsB = $this->buildStats($tenantId, $fromB, $toB, $statusFilter, $employeeId);
+        }
+
+        return view('tenant.hr.attendance.reports', compact('stats','statsB'));
+    }
+
+    private function buildStats($tenantId, Carbon $from, Carbon $to, ?string $statusFilter, $employeeId): array
+    {
         $query = Attendance::where('tenant_id', $tenantId)
             ->whereBetween('date', [$from->toDateString(), $to->toDateString()]);
         if ($statusFilter) {
@@ -141,7 +159,7 @@ class AttendanceController extends Controller
         }
         $topEmployees = array_slice($topEmployees, 0, 10);
 
-        $stats = [
+        return [
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),
             'status_counts' => $statusCounts,
@@ -153,13 +171,18 @@ class AttendanceController extends Controller
             'dow' => $dow,
             'top_employees' => $topEmployees,
         ];
-
-        return view('tenant.hr.attendance.reports', compact('stats'));
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        return redirect()->back()->with('info', 'ميزة التصدير قيد التطوير');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $from = $request->get('from_date', now()->startOfMonth()->toDateString());
+        $to = $request->get('to_date', now()->toDateString());
+        $status = $request->get('status');
+        $employeeId = $request->get('employee_id');
+
+        $fileName = 'attendance_report_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\AttendanceReportExport($tenantId, $from, $to, $status, $employeeId), $fileName);
     }
 
     public function attendanceReport()

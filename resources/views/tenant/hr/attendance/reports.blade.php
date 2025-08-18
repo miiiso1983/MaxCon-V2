@@ -30,6 +30,14 @@
                     @endforeach
                 </select>
             </div>
+            <div>
+                <label style="display:block; color:#374151; font-weight:600; margin-bottom:6px;">المقارنة - من</label>
+                <input type="date" name="from_date_b" value="{{ request('from_date_b') }}" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:10px;" placeholder="افتراضي: الشهر السابق">
+            </div>
+            <div>
+                <label style="display:block; color:#374151; font-weight:600; margin-bottom:6px;">المقارنة - إلى</label>
+                <input type="date" name="to_date_b" value="{{ request('to_date_b') }}" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:10px;" placeholder="افتراضي: الشهر السابق">
+            </div>
             <div style="display:flex; gap:8px;">
                 <button type="submit" style="background: #48bb78; color: white; padding: 10px 14px; border: none; border-radius: 10px; font-weight: 700;">تحديث</button>
                 <a href="{{ route('tenant.hr.attendance.export', request()->query()) }}" style="background: #4299e1; color: white; padding: 10px 14px; border-radius: 10px; text-decoration:none;">تصدير Excel</a>
@@ -67,6 +75,16 @@
             <div style="font-weight:700; color:#374151; margin-bottom:8px;">التوزيع حسب الحالة</div>
             <canvas id="statusChart" height="140"></canvas>
         </div>
+        @if(isset($statsB))
+        <div style="background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px;">
+            <div style="font-weight:700; color:#374151; margin-bottom:8px;">التوزيع (فترة المقارنة)</div>
+            <canvas id="statusChartB" height="140"></canvas>
+        </div>
+        <div style="background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px; grid-column: 1 / -1;">
+            <div style="font-weight:700; color:#374151; margin-bottom:8px;">مقارنة التوزيع (A مقابل B)</div>
+            <canvas id="statusCompareChart" height="120"></canvas>
+        </div>
+        @endif
         <div style="background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px;">
             <div style="font-weight:700; color:#374151; margin-bottom:8px;">اتجاه الساعات اليومية</div>
             <canvas id="dailyChart" height="140"></canvas>
@@ -84,40 +102,71 @@
     const statusData = @json($stats['status_counts']);
     const dailyData = @json($stats['daily']);
     const dowData = @json($stats['dow']);
+    const hasB = {{ isset($statsB) ? 'true' : 'false' }};
+    const statusDataB = hasB ? @json($statsB['status_counts'] ?? []) : null;
 
-    // Status Pie
+    const statusLabelsMap = {present:'حاضر',absent:'غائب',late:'متأخر',early_leave:'انصراف مبكر',half_day:'نصف يوم',holiday:'عطلة',leave:'إجازة'};
+    const statusKeys = Object.keys(statusData);
+
+    // Status Pie (Period A)
     new Chart(document.getElementById('statusChart'), {
         type: 'doughnut',
         data: {
-            labels: Object.keys(statusData).map(k => ({present:'حاضر',absent:'غائب',late:'متأخر',early_leave:'انصراف مبكر',half_day:'نصف يوم',holiday:'عطلة',leave:'إجازة'}[k] || k)),
-            datasets: [{
-                data: Object.values(statusData),
-                backgroundColor: ['#48bb78','#f56565','#ed8936','#4299e1','#9f7aea','#a0aec0','#f6ad55']
-            }]
+            labels: statusKeys.map(k => statusLabelsMap[k] || k),
+            datasets: [{ data: statusKeys.map(k => statusData[k] || 0), backgroundColor: ['#48bb78','#f56565','#ed8936','#4299e1','#9f7aea','#a0aec0','#f6ad55'] }]
         },
         options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
     });
 
-    // Daily Line
+    // Status Pie (Period B) and Comparison (A vs B)
+    if (hasB && statusDataB) {
+        const keysB = Object.keys(statusDataB);
+        const allKeys = Array.from(new Set([...statusKeys, ...keysB]));
+
+        // Period B pie
+        const elB = document.getElementById('statusChartB');
+        if (elB) {
+            new Chart(elB, {
+                type: 'doughnut',
+                data: {
+                    labels: allKeys.map(k => statusLabelsMap[k] || k),
+                    datasets: [{ data: allKeys.map(k => (statusDataB[k] || 0)), backgroundColor: ['#48bb78','#f56565','#ed8936','#4299e1','#9f7aea','#a0aec0','#f6ad55'] }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // Compare bar chart
+        const cmpEl = document.getElementById('statusCompareChart');
+        if (cmpEl) {
+            new Chart(cmpEl, {
+                type: 'bar',
+                data: {
+                    labels: allKeys.map(k => statusLabelsMap[k] || k),
+                    datasets: [
+                        { label: 'الفترة A', data: allKeys.map(k => (statusData[k] || 0)), backgroundColor: 'rgba(66,153,225,0.6)' },
+                        { label: 'الفترة B', data: allKeys.map(k => (statusDataB[k] || 0)), backgroundColor: 'rgba(237,137,54,0.6)' }
+                    ]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+        }
+    }
+
+    // Daily Line (Period A)
     const labels = Object.keys(dailyData);
     const hours = labels.map(k => dailyData[k].hours);
     new Chart(document.getElementById('dailyChart'), {
         type: 'line',
-        data: {
-            labels,
-            datasets: [{ label: 'ساعات العمل', data: hours, fill: false, borderColor: '#4299e1', tension: 0.3 }]
-        },
+        data: { labels, datasets: [{ label: 'ساعات العمل', data: hours, fill: false, borderColor: '#4299e1', tension: 0.3 }] },
         options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 
-    // Day of Week Bar
+    // Day of Week Bar (Period A)
     const dowLabels = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
     new Chart(document.getElementById('dowChart'), {
         type: 'bar',
-        data: {
-            labels: dowLabels,
-            datasets: [{ label: 'أيام الحضور', data: Object.values(dowData), backgroundColor: '#48bb78' }]
-        },
+        data: { labels: dowLabels, datasets: [{ label: 'أيام الحضور', data: Object.values(dowData), backgroundColor: '#48bb78' }] },
         options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 </script>
