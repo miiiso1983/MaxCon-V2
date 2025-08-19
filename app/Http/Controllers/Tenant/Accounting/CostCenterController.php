@@ -101,7 +101,7 @@ class CostCenterController extends Controller
         $user = Auth::user();
         $tenantId = $user->tenant_id;
 
-        $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'name_en' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -109,22 +109,28 @@ class CostCenterController extends Controller
             'manager_name' => 'nullable|string|max:255',
             'manager_email' => 'nullable|email|max:255',
             'budget_amount' => 'nullable|numeric|min:0',
-            'currency_code' => 'required|string|size:3',
             'is_active' => 'boolean'
-        ]);
+        ];
+        if (Schema::hasColumn('cost_centers','currency_code')) {
+            $rules['currency_code'] = 'required|string|size:3';
+        }
+        $request->validate($rules);
 
         try {
-            CostCenter::create([
+            $data = [
                 'tenant_id' => $tenantId,
                 'name' => $request->get('name'),
                 'name_en' => $request->get('name_en'),
                 'description' => $request->get('description'),
                 'parent_id' => $request->get('parent_id', $request->get('parent_cost_center_id')),
                 'budget_amount' => $request->get('budget_amount', 0),
-                'currency_code' => Schema::hasColumn('cost_centers','currency_code') ? $request->get('currency_code', 'IQD') : null,
                 'is_active' => $request->boolean('is_active', true),
                 'created_by' => $user->id
-            ]);
+            ];
+            if (Schema::hasColumn('cost_centers','currency_code')) {
+                $data['currency_code'] = $request->get('currency_code', 'IQD');
+            }
+            CostCenter::create($data);
 
             foreach (['tenant.accounting.cost-centers.index', 'tenant.inventory.accounting.cost-centers.index', 'accounting.cost-centers.index'] as $routeName) {
                 if (Route::has($routeName)) {
