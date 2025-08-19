@@ -275,7 +275,7 @@
 
 <script>
 async function processPayroll() {
-    if (!confirm('هل أنت متأكد من معالجة رواتب جميع الموظفين؟\n\نسيتم حساب الرواتب بناءً على:\n• الراتب الأساسي\n• البدلات والمكافآت\n• الساعات الإضافية\n• الخصومات والضرائب')) return;
+    if (!confirm('هل أنت متأكد من معالجة رواتب جميع الموظفين؟\n\nسيتم حساب الرواتب بناءً على:\n• الراتب الأساسي\n• البدلات والمكافآت\n• الساعات الإضافية\n• الخصومات والضرائب')) return;
 
     const periodSelect = document.querySelector('select[name="payroll_period"]');
     const period = periodSelect ? periodSelect.value : new Date().toISOString().slice(0,7);
