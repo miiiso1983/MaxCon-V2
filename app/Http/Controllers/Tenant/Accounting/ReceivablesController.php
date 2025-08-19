@@ -110,6 +110,19 @@ class ReceivablesController extends Controller
 
         $payment->save();
 
+        // Post accounting entry (Debit: Cash/Bank, Credit: AR)
+        try {
+            $entry = $service->postPaymentEntry($invoice, $payment);
+            // Reduce customer balance immediately
+            $service->applyPaymentToCustomer($invoice->customer, (float)$payment->amount);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to post accounting entry for payment', [
+                'payment_id' => $payment->id,
+                'invoice_id' => $invoice->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+
         return redirect()->route('tenant.inventory.accounting.receivables.invoice', $invoice)
             ->with('success', 'تم تسجيل الدفعة وإنشاء سند الاستلام');
     }

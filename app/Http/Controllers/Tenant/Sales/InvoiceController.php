@@ -411,6 +411,18 @@ class InvoiceController extends Controller
 
             DB::commit();
 
+            // If finalized (sent), post accounting entry (Debit AR, Credit Revenue)
+            if ($invoice->status === 'sent') {
+                try {
+                    app(\App\Services\Accounting\SalesAccountingService::class)->postInvoiceEntry($invoice->load(['customer']));
+                } catch (\Throwable $e) {
+                    \Log::error('Failed to post accounting entry for invoice', [
+                        'invoice_id' => $invoice->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
             $message = $invoice->status === 'sent' ?
                 'تم إنشاء الفاتورة وإنهاؤها بنجاح! رقم الفاتورة: ' . $invoice->invoice_number :
                 'تم حفظ الفاتورة كمسودة بنجاح! رقم الفاتورة: ' . $invoice->invoice_number;
