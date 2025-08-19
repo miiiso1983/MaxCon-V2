@@ -18,9 +18,6 @@ use App\Http\Controllers\Tenant\Accounting\FinancialReportController;
 */
 
 Route::prefix('accounting')->name('accounting.')->group(function () {
-    // Backward-compatibility: also mount old inventory/accounting routes pointing to same controllers
-    require __DIR__ . '/inventory-accounting-alias.php';
-
 
     // Chart of Accounts Routes
     Route::prefix('chart-of-accounts')->name('chart-of-accounts.')->group(function () {
