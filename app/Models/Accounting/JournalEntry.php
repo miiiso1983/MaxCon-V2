@@ -266,6 +266,15 @@ class JournalEntry extends Model
                 $entry->entry_type = self::TYPE_MANUAL;
             }
 
+            // Legacy DB compatibility: set fiscal year if column exists and value missing
+            if (Schema::hasColumn('journal_entries', 'fiscal_year') && empty($entry->fiscal_year)) {
+                $entry->fiscal_year = (int) $entry->entry_date->format('Y');
+            }
+            // Optionally set fiscal_period/month if the column exists (best‑effort)
+            if (Schema::hasColumn('journal_entries', 'fiscal_period') && empty($entry->fiscal_period)) {
+                $entry->fiscal_period = (int) $entry->entry_date->format('m');
+            }
+
             if (!$entry->currency_code) {
                 $entry->currency_code = 'IQD';
             }
