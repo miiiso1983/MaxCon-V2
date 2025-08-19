@@ -335,7 +335,7 @@ class OvertimeController extends Controller
             return Excel::download($export, $fileName . '.xlsx');
         }
 
-        // PDF export
+        // PDF export (Arabic-friendly)
         $query = Overtime::with('employee')->where('tenant_id', $tenantId);
         if ($period === 'current_month') {
             $query->whereMonth('date', now()->month)->whereYear('date', now()->year);
@@ -347,8 +347,11 @@ class OvertimeController extends Controller
         }
         $overtimes = $query->orderBy('date','desc')->get();
 
-        $pdf = Pdf::loadView('tenant.hr.overtime.export-table', compact('overtimes'))
+        // Use a dedicated PDF view with RTL + Arabic fonts
+        $pdf = Pdf::loadView('tenant.hr.overtime.export-pdf', compact('overtimes'))
             ->setPaper('a4', 'portrait');
+
+        // For any advanced Arabic shaping needs, we can switch to mPDF if required.
         return $pdf->download('overtimes_' . now()->format('Ymd_His') . '.pdf');
     }
 
