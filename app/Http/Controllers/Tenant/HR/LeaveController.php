@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tenant\HR\Leave;
+use App\Models\Tenant\HR\Employee;
 use Carbon\Carbon;
 
 class LeaveController extends Controller
@@ -40,12 +41,26 @@ class LeaveController extends Controller
             'attachments.*' => 'nullable|file|max:5120',
         ]);
 
-        // Resolve employee by current user email within the same tenant
-        $employee = \App\Models\Tenant\HR\Employee::where('tenant_id', $tenantId)
+        // Resolve employee by user email; fallback to name/phone if not found
+        $employee = Employee::where('tenant_id', $tenantId)
             ->where('email', $user->email)
             ->first();
         if (!$employee) {
-            return redirect()->back()->with('error', 'لا يوجد موظف مرتبط بحساب المستخدم الحالي. يرجى ربط المستخدم بسجل موظف.');
+            $candidates = Employee::where('tenant_id', $tenantId)
+                ->where(function($q) use ($user) {
+                    $q->whereRaw("CONCAT(first_name, ' ', last_name) = ?", [$user->name])
+                      ->orWhere('full_name_english', $user->name)
+                      ->orWhere('full_name_arabic', $user->name);
+                    if (!empty($user->phone)) {
+                        $q->orWhere('mobile', $user->phone)
+                          ->orWhere('phone', $user->phone);
+                    }
+                })->get();
+            if ($candidates->count() === 1) {
+                $employee = $candidates->first();
+            } else {
+                return redirect()->back()->with('error', 'تعذر ربط المستخدم بموظف تلقائياً. يرجى تحديث بريد الموظف ليطابق بريد المستخدم الحالي أو تزويدنا باسم الموظف الدقيق لنقوم بالربط.');
+            }
         }
 
         // Compute working days if not provided
