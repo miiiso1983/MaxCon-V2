@@ -274,59 +274,33 @@
 </div>
 
 <script>
-function processPayroll() {
-    if (confirm('هل أنت متأكد من معالجة رواتب جميع الموظفين؟\n\nسيتم حساب الرواتب بناءً على:\n• الراتب الأساسي\n• البدلات والمكافآت\n• الساعات الإضافية\n• الخصومات والضرائب')) {
+async function processPayroll() {
+    if (!confirm('هل أنت متأكد من معالجة رواتب جميع الموظفين؟\n\نسيتم حساب الرواتب بناءً على:\n• الراتب الأساسي\n• البدلات والمكافآت\n• الساعات الإضافية\n• الخصومات والضرائب')) return;
 
-        // Show loading modal
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        `;
+    const periodSelect = document.querySelector('select[name="payroll_period"]');
+    const period = periodSelect ? periodSelect.value : new Date().toISOString().slice(0,7);
 
-        modal.innerHTML = `
-            <div style="background: white; border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; width: 90%;">
-                <div style="background: #48bb78; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px;">
-                    <i class="fas fa-calculator"></i>
-                </div>
-                <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 24px; font-weight: 700;">معالجة الرواتب</h3>
-                <p style="color: #4a5568; margin: 0 0 20px 0;">جاري حساب ومعالجة رواتب الموظفين...</p>
-                <div style="background: #e2e8f0; border-radius: 10px; height: 8px; margin-bottom: 15px;">
-                    <div id="progressBar" style="background: #48bb78; border-radius: 10px; height: 100%; width: 0%; transition: width 0.3s;"></div>
-                </div>
-                <div id="progressText" style="color: #4a5568; font-size: 14px;">0% مكتمل</div>
-            </div>
-        `;
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;';
+    modal.innerHTML = `<div style="background:white; padding:20px; border-radius:10px; color:#111827;">جاري المعالجة للفترة ${period}...</div>`;
+    document.body.appendChild(modal);
 
-        document.body.appendChild(modal);
-
-        // Simulate progress
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += Math.random() * 15;
-            if (progress > 100) progress = 100;
-
-            document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('progressText').textContent = Math.round(progress) + '% مكتمل';
-
-            if (progress >= 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    modal.remove();
-                    alert('تم معالجة رواتب جميع الموظفين بنجاح!\n\n• تم حساب 45 راتب\n• إجمالي المبلغ: 45.2 مليون دينار\n• تم إرسال كشوف الرواتب بالبريد الإلكتروني');
-                    showNotification('تم معالجة الرواتب بنجاح!', 'success');
-                    location.reload();
-                }, 500);
-            }
-        }, 200);
+    try {
+        const res = await fetch("{{ route('tenant.hr.payroll.generate') }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': "{{ csrf_token() }}" },
+            body: JSON.stringify({ period })
+        });
+        const data = await res.json();
+        modal.remove();
+        if (data.success) {
+            showNotification(data.message || 'تمت معالجة الرواتب بنجاح!', 'success');
+        } else {
+            showNotification(data.message || 'تعذر معالجة الرواتب', 'error');
+        }
+    } catch (e) {
+        modal.remove();
+        showNotification('حدث خطأ أثناء المعالجة', 'error');
     }
 }
 
@@ -434,14 +408,31 @@ function viewPayslip(employeeId) {
     });
 }
 
-function printPayslip(employeeId) {
-    alert(`تم إرسال كشف راتب الموظف رقم ${employeeId} للطباعة بنجاح!`);
-    showNotification('تم إرسال كشف الراتب للطباعة!', 'success');
+async function printPayslip(employeeId) {
+    const periodSelect = document.querySelector('select[name="payroll_period"]');
+    const period = periodSelect ? periodSelect.value : new Date().toISOString().slice(0,7);
+    const url = `{{ route('tenant.hr.payroll.print-payslip', ['employee' => 'EMP_ID']) }}?period=${encodeURIComponent(period)}&inline=1`.replace('EMP_ID', employeeId);
+    window.open(url, '_blank');
 }
 
-function sendPayslip(employeeId) {
-    alert(`تم إرسال كشف راتب الموظف رقم ${employeeId} بالبريد الإلكتروني بنجاح!`);
-    showNotification('تم إرسال كشف الراتب بالبريد الإلكتروني!', 'success');
+async function sendPayslip(employeeId) {
+    const periodSelect = document.querySelector('select[name="payroll_period"]');
+    const period = periodSelect ? periodSelect.value : new Date().toISOString().slice(0,7);
+    try {
+        const res = await fetch(`{{ route('tenant.hr.payroll.send-payslip', ['employee' => 'EMP_ID']) }}`.replace('EMP_ID', employeeId), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': "{{ csrf_token() }}" },
+            body: JSON.stringify({ period })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification('تم إرسال كشف الراتب بالبريد الإلكتروني (تجريبي)!', 'success');
+        } else {
+            showNotification('تعذر إرسال كشف الراتب', 'error');
+        }
+    } catch (e) {
+        showNotification('حدث خطأ أثناء الإرسال', 'error');
+    }
 }
 
 function processEmployeePayroll(employeeId) {

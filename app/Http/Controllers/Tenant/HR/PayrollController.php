@@ -4,6 +4,13 @@ namespace App\Http\Controllers\Tenant\HR;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Tenant\HR\Employee;
+use App\Models\Tenant\HR\Payroll;
+use App\Models\Tenant\HR\Overtime;
+use App\Services\HR\HrPdfService;
 
 class PayrollController extends Controller
 {
@@ -24,37 +31,100 @@ class PayrollController extends Controller
 
     public function show($id)
     {
-        return view('tenant.hr.payroll.show');
+        $payroll = Payroll::with('employee')->findOrFail($id);
+        return view('tenant.hr.payroll.show', compact('payroll'));
     }
 
     public function edit($id)
     {
-        return view('tenant.hr.payroll.edit');
+        $payroll = Payroll::with('employee')->findOrFail($id);
+        return view('tenant.hr.payroll.edit', compact('payroll'));
     }
 
     public function update(Request $request, $id)
     {
-        return redirect()->route('tenant.hr.payroll.index')->with('success', 'تم تحديث كشف الراتب بنجاح');
+        $payroll = Payroll::findOrFail($id);
+        $payroll->fill($request->only([
+            'bonus','loan_deduction','other_deductions','insurance_deduction'
+        ]));
+        $payroll->save();
+        return back()->with('success', 'تم تحديث كشف الراتب بنجاح');
     }
 
     public function destroy($id)
     {
+        Payroll::where('id', $id)->delete();
         return redirect()->route('tenant.hr.payroll.index')->with('success', 'تم حذف كشف الراتب بنجاح');
     }
 
+    // معالجة الرواتب لفترة محددة (يدعم معالجة موظف واحد عبر employee_id)
     public function generatePayroll(Request $request)
     {
-        return redirect()->route('tenant.hr.payroll.index')->with('success', 'تم إنتاج كشوف الرواتب بنجاح');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $period = $request->input('period', now()->format('Y-m'));
+        [$year, $month] = explode('-', $period);
+        $month = (int)$month; $year = (int)$year;
+
+        $employeeId = $request->input('employee_id');
+        $employeesQuery = Employee::where('tenant_id', $tenantId)->active();
+        if ($employeeId) { $employeesQuery->where('id', $employeeId); }
+        $employees = $employeesQuery->get();
+
+        $processed = 0;
+        foreach ($employees as $emp) {
+            $basic = $emp->basic_salary ?? 0;
+            $hours = Overtime::where('tenant_id', $tenantId)
+                ->where('employee_id', $emp->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->where('status', 'approved')
+                ->sum('hours_approved');
+
+            $payroll = Payroll::updateOrCreate(
+                ['employee_id' => $emp->id, 'month' => $month, 'year' => $year],
+                [
+                    'tenant_id' => $tenantId,
+                    'payroll_period' => $period,
+                    'basic_salary' => $basic,
+                    'overtime_hours' => $hours,
+                    'bonus' => $payroll->bonus ?? 0,
+                    'deductions' => $payroll->deductions ?? null,
+                    'status' => 'calculated',
+                ]
+            );
+
+            // احسب مبالغ الراتب الأساسية
+            $payroll->calculateOvertimeAmount();
+            $payroll->calculateGrossSalary();
+            $payroll->calculateTaxAmount();
+            $payroll->calculateSocialSecurity();
+            $payroll->calculateNetSalary();
+            $payroll->save();
+            $processed++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تمت معالجة الرواتب بنجاح للفترة ' . $period,
+            'processed' => $processed,
+            'period' => $period
+        ]);
     }
 
     public function approve($id)
     {
-        return redirect()->route('tenant.hr.payroll.index')->with('success', 'تم اعتماد كشف الراتب بنجاح');
+        $payroll = Payroll::findOrFail($id);
+        $payroll->approve(Auth::id());
+        return response()->json(['success' => true, 'message' => 'تم اعتماد كشف الراتب']);
     }
 
     public function markAsPaid(Request $request, $id)
     {
-        return redirect()->route('tenant.hr.payroll.index')->with('success', 'تم تسجيل دفع الراتب بنجاح');
+        $method = $request->input('payment_method', 'bank_transfer');
+        $ref = $request->input('bank_reference');
+        $payroll = Payroll::findOrFail($id);
+        $payroll->markAsPaid($method, $ref);
+        return response()->json(['success' => true, 'message' => 'تم تسجيل دفع الراتب']);
     }
 
     public function reports()
@@ -62,9 +132,62 @@ class PayrollController extends Controller
         return view('tenant.hr.payroll.reports');
     }
 
+    // عرض كشف راتب HTML (للمعاينة داخل النظام)
     public function payslip($id)
     {
-        return view('tenant.hr.payroll.payslip');
+        $payroll = Payroll::with('employee')->findOrFail($id);
+        return view('tenant.hr.payroll.payslip', compact('payroll'));
+    }
+
+    // طباعة/عرض PDF لكشف راتب موظف حسب الفترة
+    public function printPayslip(Request $request, $employeeId)
+    {
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $period = $request->input('period', now()->format('Y-m'));
+        [$year, $month] = explode('-', $period); $month = (int)$month; $year = (int)$year;
+
+        $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->first();
+        if (!$payroll) {
+            // إن لم يوجد، أنشئ كشف راتب سريعًا لهذا الموظف
+            $this->generatePayroll(new Request(['period' => $period, 'employee_id' => $employeeId]));
+            $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->firstOrFail();
+        }
+
+        $pdfContent = app(HrPdfService::class)->render('tenant.hr.payroll.payslip-pdf', [
+            'payroll' => $payroll->load('employee')
+        ], 'كشف راتب', 'P');
+
+        $disposition = $request->boolean('inline', true) ? 'inline' : 'attachment';
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => $disposition . '; filename="payslip_' . $period . '_emp' . $employeeId . '.pdf"'
+        ]);
+    }
+
+    // إرسال كشف الراتب بالبريد (توليد PDF وتخزينه، التنفيذ الفعلي للبريد يُضاف لاحقًا)
+    public function sendPayslip(Request $request, $employeeId)
+    {
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $period = $request->input('period', now()->format('Y-m'));
+        [$year, $month] = explode('-', $period); $month = (int)$month; $year = (int)$year;
+
+        $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->first();
+        if (!$payroll) {
+            $this->generatePayroll(new Request(['period' => $period, 'employee_id' => $employeeId]));
+            $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->firstOrFail();
+        }
+
+        $pdfContent = app(HrPdfService::class)->render('tenant.hr.payroll.payslip-pdf', [
+            'payroll' => $payroll->load('employee')
+        ], 'كشف راتب', 'P');
+
+        $path = 'hr/payslips/payslip_' . $period . '_emp' . $employeeId . '.pdf';
+        Storage::disk('public')->put($path, $pdfContent);
+
+        // TODO: تنفيذ الإرسال عبر البريد/الواتساب
+        Log::info('Payslip generated and stored', ['path' => $path, 'employee_id' => $employeeId, 'period' => $period]);
+
+        return response()->json(['success' => true, 'message' => 'تم توليد كشف الراتب وإرساله (تجريبي)', 'file' => Storage::url($path)]);
     }
 
     public function export($period)

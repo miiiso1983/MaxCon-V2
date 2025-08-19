@@ -126,7 +126,7 @@ Route::prefix('payroll')->name('payroll.')->group(function () {
     Route::get('/{employee}/payslip/print', [PayrollController::class, 'printPayslip'])->name('print-payslip');
     Route::post('/{employee}/payslip/send', [PayrollController::class, 'sendPayslip'])->name('send-payslip');
     Route::get('/reports', [PayrollController::class, 'reports'])->name('reports');
-    Route::get('/export', [PayrollController::class, 'export'])->name('export');
+    Route::match(['GET','POST'], '/export', [PayrollController::class, 'export'])->name('export');
     Route::get('/export/{period}', [PayrollController::class, 'exportPeriod'])->name('export-period');
     Route::get('/report', [PayrollController::class, 'report'])->name('report');
 });
