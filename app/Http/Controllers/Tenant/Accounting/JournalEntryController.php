@@ -54,9 +54,13 @@ class JournalEntryController extends Controller
             });
         }
 
-        $entries = $query->orderBy('entry_date', 'desc')
-                        ->orderBy('journal_number', 'desc')
-                        ->paginate(50);
+        $query->orderBy('entry_date', 'desc');
+        if (\Schema::hasColumn('journal_entries','journal_number')) {
+            $query->orderBy('journal_number', 'desc');
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+        $entries = $query->paginate(50);
 
         $statuses = JournalEntry::getStatuses();
         $types = JournalEntry::getTypes();

@@ -4,6 +4,7 @@ namespace App\Models\Accounting;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\BelongsToTenant;
@@ -244,7 +245,9 @@ class JournalEntry extends Model
         parent::boot();
 
         static::creating(function ($entry) {
-            if (!$entry->journal_number) {
+            // Guard: ensure journal_number is generated only if column exists
+            $hasJournalNumberColumn = Schema::hasColumn('journal_entries', 'journal_number');
+            if ($hasJournalNumberColumn && !$entry->journal_number) {
                 $entry->journal_number = static::generateJournalNumber($entry);
             }
             
@@ -279,11 +282,15 @@ class JournalEntry extends Model
         $year = $entry->entry_date->format('Y');
         $month = $entry->entry_date->format('m');
         
-        $lastEntry = static::where('tenant_id', $entry->tenant_id)
-                          ->whereYear('entry_date', $year)
-                          ->whereMonth('entry_date', $month)
-                          ->orderBy('journal_number', 'desc')
-                          ->first();
+        $query = static::where('tenant_id', $entry->tenant_id)
+                        ->whereYear('entry_date', $year)
+                        ->whereMonth('entry_date', $month);
+        if (Schema::hasColumn('journal_entries', 'journal_number')) {
+            $query->orderBy('journal_number', 'desc');
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+        $lastEntry = $query->first();
         
         if ($lastEntry && preg_match('/JE-(\d{4})(\d{2})-(\d+)/', $lastEntry->journal_number, $matches)) {
             $sequence = intval($matches[3]) + 1;
