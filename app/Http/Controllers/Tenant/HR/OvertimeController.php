@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Tenant\HR\OvertimesExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OvertimeController extends Controller
 {
@@ -313,6 +316,40 @@ class OvertimeController extends Controller
             ->get();
 
         return view('tenant.hr.overtime.reports', compact('monthlyStats', 'employeeStats'));
+    }
+
+
+    public function export(Request $request)
+    {
+        $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
+        $format = $request->get('format', 'excel'); // excel|csv|pdf
+        $period = $request->get('export_type', 'all'); // all|current_month|last_month|by_employee
+        $employeeId = $request->get('employee_id');
+
+        if (in_array($format, ['excel','csv'])) {
+            $export = new OvertimesExport($tenantId, $period, $employeeId, $format);
+            $fileName = 'overtimes_' . now()->format('Ymd_His');
+            if ($format === 'csv') {
+                return Excel::download($export, $fileName . '.csv', \Maatwebsite\Excel\Excel::CSV);
+            }
+            return Excel::download($export, $fileName . '.xlsx');
+        }
+
+        // PDF export
+        $query = Overtime::with('employee')->where('tenant_id', $tenantId);
+        if ($period === 'current_month') {
+            $query->whereMonth('date', now()->month)->whereYear('date', now()->year);
+        } elseif ($period === 'last_month') {
+            $query->whereMonth('date', now()->subMonth()->month)->whereYear('date', now()->subMonth()->year);
+        }
+        if ($employeeId) {
+            $query->where('employee_id', $employeeId);
+        }
+        $overtimes = $query->orderBy('date','desc')->get();
+
+        $pdf = Pdf::loadView('tenant.hr.overtime.export-table', compact('overtimes'))
+            ->setPaper('a4', 'portrait');
+        return $pdf->download('overtimes_' . now()->format('Ymd_His') . '.pdf');
     }
 
     public function overtimeReport()

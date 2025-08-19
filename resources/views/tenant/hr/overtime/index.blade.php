@@ -31,7 +31,7 @@
 
     <!-- Statistics Cards -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-        
+
         <div style="background: rgba(255,255,255,0.95); border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
             <div style="background: #48bb78; color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
                 <i class="fas fa-clock"></i>
@@ -79,6 +79,28 @@
                 <a href="{{ route('tenant.hr.overtime.reports') }}" style="background: #48bb78; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-download"></i> تصدير
                 </a>
+                <form method="GET" action="{{ route('tenant.hr.overtime.export') }}" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <input type="hidden" name="export_type" value="current_month">
+                    <input type="hidden" name="format" value="excel">
+                    <button type="submit" style="background: #48bb78; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-file-excel"></i> تصدير (Excel)
+                    </button>
+                </form>
+                <form method="GET" action="{{ route('tenant.hr.overtime.export') }}" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <input type="hidden" name="export_type" value="current_month">
+                    <input type="hidden" name="format" value="csv">
+                    <button type="submit" style="background: #4299e1; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-file-csv"></i> تصدير (CSV)
+                    </button>
+                </form>
+                <form method="GET" action="{{ route('tenant.hr.overtime.export') }}" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <input type="hidden" name="export_type" value="current_month">
+                    <input type="hidden" name="format" value="pdf">
+                    <button type="submit" style="background: #f56565; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-file-pdf"></i> تصدير (PDF)
+                    </button>
+                </form>
+
             </div>
         </div>
 
@@ -203,11 +225,11 @@
             <i class="fas fa-bolt" style="margin-left: 10px; color: #667eea;"></i>
             الإجراءات السريعة
         </h3>
-        
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            
+
             <button onclick="addOvertimeRecord()" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 20px; border: none; border-radius: 15px; cursor: pointer; text-align: center; transition: transform 0.3s;"
-                    onmouseover="this.style.transform='translateY(-5px)'" 
+                    onmouseover="this.style.transform='translateY(-5px)'"
                     onmouseout="this.style.transform='translateY(0)'">
                 <i class="fas fa-plus" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
                 <div style="font-weight: 700; font-size: 16px;">تسجيل ساعات إضافية</div>
@@ -228,7 +250,7 @@
             </a>
 
             <button onclick="manageOvertimeSettings()" style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); color: white; padding: 20px; border: none; border-radius: 15px; cursor: pointer; text-align: center; transition: transform 0.3s;"
-                    onmouseover="this.style.transform='translateY(-5px)'" 
+                    onmouseover="this.style.transform='translateY(-5px)'"
                     onmouseout="this.style.transform='translateY(0)'">
                 <i class="fas fa-cog" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
                 <div style="font-weight: 700; font-size: 16px;">إعدادات الساعات الإضافية</div>
@@ -396,12 +418,12 @@ function approveOvertimeRecord(recordId) {
     }
 }
 
-function rejectOvertimeRecord(recordId) {
+function askRejectReason(recordId) {
     const reason = prompt('يرجى إدخال سبب رفض السجل:');
     if (reason && reason.trim()) {
-        alert(`تم رفض سجل الساعات الإضافية رقم ${recordId}\nالسبب: ${reason}`);
-        showNotification('تم رفض السجل!', 'error');
-        location.reload();
+        const form = document.getElementById(`reject-form-${recordId}`);
+        form.querySelector('input[name="rejected_reason"]').value = reason.trim();
+        form.submit();
     }
 }
 

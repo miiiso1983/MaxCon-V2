@@ -101,6 +101,8 @@ Route::prefix('overtime')->name('overtime.')->group(function () {
     Route::post('/{overtime}/approve', [OvertimeController::class, 'approve'])->name('approve');
     Route::post('/{overtime}/reject', [OvertimeController::class, 'reject'])->name('reject');
     Route::get('/reports', [OvertimeController::class, 'reports'])->name('reports');
+    Route::get('/export', [OvertimeController::class, 'export'])->name('export');
+
 });
 
 // Payroll Management
