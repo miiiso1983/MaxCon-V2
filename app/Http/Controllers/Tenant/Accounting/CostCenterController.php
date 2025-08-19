@@ -11,6 +11,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
 class CostCenterController extends Controller
@@ -124,8 +125,12 @@ class CostCenterController extends Controller
                 'created_by' => $user->id
             ]);
 
-            return redirect()->route('tenant.accounting.cost-centers.index')
-                ->with('success', 'تم إنشاء مركز التكلفة بنجاح');
+            foreach (['tenant.accounting.cost-centers.index', 'tenant.inventory.accounting.cost-centers.index', 'accounting.cost-centers.index'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName)->with('success', 'تم إنشاء مركز التكلفة بنجاح');
+                }
+            }
+            return redirect('/tenant/accounting/cost-centers')->with('success', 'تم إنشاء مركز التكلفة بنجاح');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -231,8 +236,12 @@ class CostCenterController extends Controller
                 'is_active' => $request->boolean('is_active', true)
             ]);
 
-            return redirect()->route('tenant.accounting.cost-centers.index')
-                ->with('success', 'تم تحديث مركز التكلفة بنجاح');
+            foreach (['tenant.accounting.cost-centers.index', 'tenant.inventory.accounting.cost-centers.index', 'accounting.cost-centers.index'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName)->with('success', 'تم تحديث مركز التكلفة بنجاح');
+                }
+            }
+            return redirect('/tenant/accounting/cost-centers')->with('success', 'تم تحديث مركز التكلفة بنجاح');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -271,8 +280,12 @@ class CostCenterController extends Controller
         try {
             $costCenter->delete();
 
-            return redirect()->route('tenant.accounting.cost-centers.index')
-                ->with('success', 'تم حذف مركز التكلفة بنجاح');
+            foreach (['tenant.accounting.cost-centers.index', 'tenant.inventory.accounting.cost-centers.index', 'accounting.cost-centers.index'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName)->with('success', 'تم حذف مركز التكلفة بنجاح');
+                }
+            }
+            return redirect('/tenant/accounting/cost-centers')->with('success', 'تم حذف مركز التكلفة بنجاح');
 
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء حذف مركز التكلفة: ' . $e->getMessage());

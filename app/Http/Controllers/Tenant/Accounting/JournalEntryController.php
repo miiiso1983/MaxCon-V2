@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
 class JournalEntryController extends Controller
@@ -170,8 +171,12 @@ class JournalEntryController extends Controller
                 }
             });
 
-            return redirect()->route('tenant.accounting.journal-entries.index')
-                ->with('success', 'تم إنشاء القيد المحاسبي بنجاح');
+            foreach (['tenant.accounting.journal-entries.index', 'tenant.inventory.accounting.journal-entries.index', 'accounting.journal-entries.index'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName)->with('success', 'تم إنشاء القيد المحاسبي بنجاح');
+                }
+            }
+            return redirect('/tenant/accounting/journal-entries')->with('success', 'تم إنشاء القيد المحاسبي بنجاح');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -317,8 +322,12 @@ class JournalEntryController extends Controller
                 }
             });
 
-            return redirect()->route('tenant.accounting.journal-entries.show', $journalEntry)
-                ->with('success', 'تم تحديث القيد المحاسبي بنجاح');
+            foreach (['tenant.accounting.journal-entries.show', 'tenant.inventory.accounting.journal-entries.show', 'accounting.journal-entries.show'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName, $journalEntry)->with('success', 'تم تحديث القيد المحاسبي بنجاح');
+                }
+            }
+            return redirect('/tenant/accounting/journal-entries')->with('success', 'تم تحديث القيد المحاسبي بنجاح');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -344,8 +353,12 @@ class JournalEntryController extends Controller
         try {
             $journalEntry->delete();
 
-            return redirect()->route('tenant.accounting.journal-entries.index')
-                ->with('success', 'تم حذف القيد المحاسبي بنجاح');
+            foreach (['tenant.accounting.journal-entries.index', 'tenant.inventory.accounting.journal-entries.index', 'accounting.journal-entries.index'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName)->with('success', 'تم حذف القيد المحاسبي بنجاح');
+                }
+            }
+            return redirect('/tenant/accounting/journal-entries')->with('success', 'تم حذف القيد المحاسبي بنجاح');
 
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء حذف القيد المحاسبي: ' . $e->getMessage());

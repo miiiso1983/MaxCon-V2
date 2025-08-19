@@ -2417,6 +2417,8 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
                 Route::get('balance-sheet', [\App\Http\Controllers\Tenant\Accounting\FinancialReportController::class, 'balanceSheet'])->name('balance-sheet');
                 Route::get('cash-flow', [\App\Http\Controllers\Tenant\Accounting\FinancialReportController::class, 'cashFlow'])->name('cash-flow');
                 Route::get('account-ledger', [\App\Http\Controllers\Tenant\Accounting\FinancialReportController::class, 'accountLedger'])->name('account-ledger');
+        */
+
             });
         });
 
