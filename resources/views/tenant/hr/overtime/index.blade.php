@@ -36,7 +36,7 @@
             <div style="background: #48bb78; color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
                 <i class="fas fa-clock"></i>
             </div>
-            <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">156</h4>
+            <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">{{ number_format($stats['total_hours_month'], 1) }}</h4>
             <p style="color: #718096; margin: 0; font-size: 14px; font-weight: 600;">إجمالي الساعات الشهرية</p>
         </div>
 
@@ -44,15 +44,15 @@
             <div style="background: #4299e1; color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
                 <i class="fas fa-users"></i>
             </div>
-            <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">23</h4>
-            <p style="color: #718096; margin: 0; font-size: 14px; font-weight: 600;">الموظفين المشاركين</p>
+            <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">{{ $stats['pending_requests'] }}</h4>
+            <p style="color: #718096; margin: 0; font-size: 14px; font-weight: 600;">طلبات في الانتظار</p>
         </div>
 
         <div style="background: rgba(255,255,255,0.95); border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
             <div style="background: #ed8936; color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
                 <i class="fas fa-money-bill-wave"></i>
             </div>
-            <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">2.8M</h4>
+            <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">{{ number_format($stats['total_amount_month']) }}</h4>
             <p style="color: #718096; margin: 0; font-size: 14px; font-weight: 600;">إجمالي المبلغ (دينار)</p>
         </div>
 
@@ -60,8 +60,8 @@
             <div style="background: #9f7aea; color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
                 <i class="fas fa-chart-line"></i>
             </div>
-            <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">6.8</h4>
-            <p style="color: #718096; margin: 0; font-size: 14px; font-weight: 600;">متوسط الساعات/موظف</p>
+            <h4 style="color: #2d3748; margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">{{ $stats['approved_requests'] }}</h4>
+            <p style="color: #718096; margin: 0; font-size: 14px; font-weight: 600;">طلبات موافق عليها</p>
         </div>
     </div>
 
@@ -97,104 +97,95 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse($overtimes as $overtime)
                     <tr style="border-bottom: 1px solid #e2e8f0;">
                         <td style="padding: 15px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="background: #48bb78; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700;">أ</div>
+                                <div style="background: #48bb78; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                                    {{ substr($overtime->employee->full_name, 0, 1) }}
+                                </div>
                                 <div>
-                                    <div style="font-weight: 700; color: #2d3748;">أحمد محمد</div>
-                                    <div style="font-size: 12px; color: #718096;">مطور برمجيات</div>
+                                    <div style="font-weight: 700; color: #2d3748;">{{ $overtime->employee->full_name }}</div>
+                                    <div style="font-size: 12px; color: #718096;">
+                                        {{ $overtime->employee->position->title ?? 'غير محدد' }}
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td style="padding: 15px; text-align: center; color: #4a5568;">2024-01-15</td>
-                        <td style="padding: 15px; text-align: center; color: #2d3748; font-weight: 700;">4 ساعات</td>
-                        <td style="padding: 15px; text-align: center; color: #4a5568;">150%</td>
-                        <td style="padding: 15px; text-align: center; color: #48bb78; font-weight: 700;">120,000 د.ع</td>
+                        <td style="padding: 15px; text-align: center; color: #4a5568;">
+                            {{ $overtime->date->format('Y-m-d') }}
+                        </td>
+                        <td style="padding: 15px; text-align: center; color: #2d3748; font-weight: 700;">
+                            {{ $overtime->hours_approved ?? $overtime->hours_requested }} ساعة
+                        </td>
+                        <td style="padding: 15px; text-align: center; color: #4a5568;">
+                            {{ number_format($overtime->overtime_rate * 100) }}%
+                        </td>
+                        <td style="padding: 15px; text-align: center; color: #48bb78; font-weight: 700;">
+                            {{ number_format($overtime->total_amount) }} د.ع
+                        </td>
                         <td style="padding: 15px; text-align: center;">
-                            <span style="background: #48bb78; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">مُوافق عليه</span>
+                            @php
+                                $statusColors = [
+                                    'pending' => '#ed8936',
+                                    'approved' => '#48bb78',
+                                    'rejected' => '#f56565',
+                                    'cancelled' => '#a0aec0',
+                                    'completed' => '#4299e1'
+                                ];
+                                $statusColor = $statusColors[$overtime->status] ?? '#a0aec0';
+                            @endphp
+                            <span style="background: {{ $statusColor }}; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                {{ $overtime->status_label }}
+                            </span>
                         </td>
                         <td style="padding: 15px; text-align: center;">
                             <div style="display: flex; gap: 5px; justify-content: center;">
-                                <button onclick="viewOvertimeRecord(1)" style="background: #4299e1; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                                <a href="{{ route('tenant.hr.overtime.show', $overtime->id) }}" style="background: #4299e1; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; text-decoration: none; display: inline-block;">
                                     <i class="fas fa-eye"></i>
-                                </button>
-                                <button onclick="editOvertimeRecord(1)" style="background: #ed8936; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                                </a>
+                                @if($overtime->status === 'pending')
+                                <a href="{{ route('tenant.hr.overtime.edit', $overtime->id) }}" style="background: #ed8936; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; text-decoration: none; display: inline-block;">
                                     <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteOvertimeRecord(1)" style="background: #f56565; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                </a>
+                                <form method="POST" action="{{ route('tenant.hr.overtime.destroy', $overtime->id) }}" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا السجل؟')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background: #f56565; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                @endif
+                                @if($overtime->status === 'pending')
+                                <form method="POST" action="{{ route('tenant.hr.overtime.approve', $overtime->id) }}" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" style="background: #48bb78; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;" onclick="return confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
-
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="background: #4299e1; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700;">س</div>
-                                <div>
-                                    <div style="font-weight: 700; color: #2d3748;">سارة أحمد</div>
-                                    <div style="font-size: 12px; color: #718096;">مصممة جرافيك</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td style="padding: 15px; text-align: center; color: #4a5568;">2024-01-14</td>
-                        <td style="padding: 15px; text-align: center; color: #2d3748; font-weight: 700;">3 ساعات</td>
-                        <td style="padding: 15px; text-align: center; color: #4a5568;">150%</td>
-                        <td style="padding: 15px; text-align: center; color: #ed8936; font-weight: 700;">75,000 د.ع</td>
-                        <td style="padding: 15px; text-align: center;">
-                            <span style="background: #ed8936; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">في الانتظار</span>
-                        </td>
-                        <td style="padding: 15px; text-align: center;">
-                            <div style="display: flex; gap: 5px; justify-content: center;">
-                                <button onclick="approveOvertimeRecord(2)" style="background: #48bb78; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button onclick="rejectOvertimeRecord(2)" style="background: #f56565; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                                <button onclick="viewOvertimeRecord(2)" style="background: #4299e1; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
+                    @empty
+                    <tr>
+                        <td colspan="7" style="padding: 40px; text-align: center; color: #718096;">
+                            <i class="fas fa-clock" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">لا توجد سجلات ساعات إضافية</div>
+                            <div style="font-size: 14px;">قم بإضافة أول سجل ساعات إضافية</div>
                         </td>
                     </tr>
-
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="background: #9f7aea; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700;">م</div>
-                                <div>
-                                    <div style="font-weight: 700; color: #2d3748;">محمد علي</div>
-                                    <div style="font-size: 12px; color: #718096;">محاسب</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td style="padding: 15px; text-align: center; color: #4a5568;">2024-01-13</td>
-                        <td style="padding: 15px; text-align: center; color: #2d3748; font-weight: 700;">2 ساعة</td>
-                        <td style="padding: 15px; text-align: center; color: #4a5568;">150%</td>
-                        <td style="padding: 15px; text-align: center; color: #48bb78; font-weight: 700;">50,000 د.ع</td>
-                        <td style="padding: 15px; text-align: center;">
-                            <span style="background: #48bb78; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">مُوافق عليه</span>
-                        </td>
-                        <td style="padding: 15px; text-align: center;">
-                            <div style="display: flex; gap: 5px; justify-content: center;">
-                                <button onclick="viewOvertimeRecord(3)" style="background: #4299e1; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button onclick="editOvertimeRecord(3)" style="background: #ed8936; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteOvertimeRecord(3)" style="background: #f56565; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        @if($overtimes->hasPages())
+        <div style="margin-top: 20px; display: flex; justify-content: center;">
+            {{ $overtimes->links() }}
+        </div>
+        @endif
     </div>
 
     <!-- Quick Actions -->
@@ -261,58 +252,75 @@ function addOvertimeRecord() {
                 تسجيل ساعات إضافية
             </h3>
 
-            <form id="overtimeForm">
+            <form id="overtimeForm" method="POST" action="{{ route('tenant.hr.overtime.store') }}">
+                @csrf
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الموظف</label>
-                        <select required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <select name="employee_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                             <option value="">اختر الموظف</option>
-                            <option value="1">أحمد محمد - مطور برمجيات</option>
-                            <option value="2">سارة أحمد - مصممة جرافيك</option>
-                            <option value="3">محمد علي - محاسب</option>
-                            <option value="4">فاطمة حسن - مديرة مشاريع</option>
+                            @foreach($employees as $employee)
+                            <option value="{{ $employee->id }}">
+                                {{ $employee->full_name }} - {{ $employee->position->title ?? 'غير محدد' }}
+                            </option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">التاريخ</label>
-                        <input type="date" required value="${new Date().toISOString().split('T')[0]}" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <input type="date" name="date" required value="{{ date('Y-m-d') }}" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">وقت البداية</label>
-                        <input type="time" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <input type="time" name="start_time" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     </div>
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">وقت النهاية</label>
-                        <input type="time" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <input type="time" name="end_time" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
-                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">عدد الساعات</label>
-                        <input type="number" min="0.5" max="12" step="0.5" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="عدد الساعات الإضافية">
+                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">معدل الساعة الأساسي (د.ع)</label>
+                        <input type="number" name="hourly_rate" min="1000" step="500" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="معدل الساعة الأساسي">
                     </div>
                     <div>
-                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">معدل الساعة الإضافية (%)</label>
-                        <select required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                            <option value="150">150% - عادي</option>
-                            <option value="200">200% - عطلة نهاية الأسبوع</option>
-                            <option value="250">250% - العطل الرسمية</option>
+                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">معدل الساعة الإضافية</label>
+                        <select name="overtime_rate" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                            <option value="1.5">1.5x - عادي</option>
+                            <option value="2.0">2.0x - عطلة نهاية الأسبوع</option>
+                            <option value="2.5">2.5x - العطل الرسمية</option>
                         </select>
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">سبب العمل الإضافي</label>
-                    <textarea rows="3" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; resize: vertical;" placeholder="أدخل سبب العمل الإضافي"></textarea>
+                    <textarea name="reason" rows="3" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; resize: vertical;" placeholder="أدخل سبب العمل الإضافي"></textarea>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">المشروع/المهمة</label>
-                    <input type="text" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="اسم المشروع أو المهمة (اختياري)">
+                    <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">ملاحظات إضافية</label>
+                    <textarea name="notes" rows="2" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; resize: vertical;" placeholder="ملاحظات إضافية (اختياري)"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 8px; color: #2d3748; font-weight: 600;">
+                            <input type="checkbox" name="is_holiday_overtime" value="1" style="width: 18px; height: 18px;">
+                            ساعات إضافية في عطلة رسمية
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 8px; color: #2d3748; font-weight: 600;">
+                            <input type="checkbox" name="is_night_overtime" value="1" style="width: 18px; height: 18px;">
+                            ساعات إضافية ليلية
+                        </label>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 15px; justify-content: center;">
