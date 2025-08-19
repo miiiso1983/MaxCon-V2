@@ -338,21 +338,13 @@ function addOvertimeRecord() {
     modal.className = 'modal';
     document.body.appendChild(modal);
 
-    // Handle form submission
+    // Handle form submission: allow normal POST to backend (no preventDefault)
     modal.querySelector('#overtimeForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Show loading
+        // Do not preventDefault; let the form submit to Laravel route
         const submitBtn = this.querySelector('button[type="submit"]');
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
         submitBtn.disabled = true;
-
-        setTimeout(() => {
-            alert('تم تسجيل الساعات الإضافية بنجاح!');
-            modal.remove();
-            showNotification('تم تسجيل الساعات الإضافية بنجاح!', 'success');
-            location.reload();
-        }, 1500);
+        // Native submission will navigate back with flash message and show the new record
     });
 
     // Close modal when clicking outside
