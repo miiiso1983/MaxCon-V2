@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
@@ -159,6 +160,9 @@ class JournalEntryController extends Controller
                 ]);
 
                 // Create journal entry details
+                if (!Schema::hasTable('journal_entry_details')) {
+                    throw new \RuntimeException('جدول journal_entry_details غير موجود - يرجى تشغيل المايجريشن أولاً');
+                }
                 foreach ($request->details as $index => $detail) {
                     JournalEntryDetail::create([
                         'tenant_id' => $tenantId,
