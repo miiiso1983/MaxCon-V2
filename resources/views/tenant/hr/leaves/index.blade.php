@@ -389,6 +389,32 @@ function openLeaveRequestModal() {
     modal.className = 'modal';
     document.body.appendChild(modal);
 
+    // Auto-calculate days when dates change (Fri/Sat are weekends)
+    const startInput = modal.querySelector('#ui_start_date');
+    const endInput = modal.querySelector('#ui_end_date');
+    const daysInput = modal.querySelector('#ui_days_requested');
+    function calcWorkingDays(startStr, endStr) {
+        if (!startStr) return '';
+        const s = new Date(startStr);
+        if (!endStr) return 1;
+        const e = new Date(endStr);
+        if (isNaN(s.getTime()) || isNaN(e.getTime())) return '';
+        let count = 0;
+        const cur = new Date(s);
+        while (cur <= e) {
+            const d = cur.getDay(); // 0=Sun ... 5=Fri, 6=Sat
+            if (d !== 5 && d !== 6) count++;
+            cur.setDate(cur.getDate() + 1);
+        }
+        return Math.max(1, count);
+    }
+    function recalcDays(){
+        const val = calcWorkingDays(startInput?.value, endInput?.value);
+        if (val !== '') { daysInput.value = val; }
+    }
+    startInput?.addEventListener('change', recalcDays);
+    endInput?.addEventListener('change', recalcDays);
+
     // Handle form submission
     modal.querySelector('#leaveRequestForm').addEventListener('submit', function(e) {
         e.preventDefault();
