@@ -132,11 +132,14 @@ class ChartOfAccountController extends Controller
                 }
             });
 
-            // Use resolved prefix: if current route is within 'tenant.' group then prefix with 'tenant.'
-            $name = Route::currentRouteName();
-            $prefix = str_starts_with($name, 'tenant.') ? 'tenant.' : '';
-            return redirect()->route($prefix . 'accounting.chart-of-accounts.index')
-                ->with('success', 'تم إنشاء الحساب بنجاح');
+            // Robust redirect: try multiple possible route names depending on where routes are mounted
+            foreach (['tenant.accounting.chart-of-accounts.index', 'tenant.inventory.accounting.chart-of-accounts.index', 'accounting.chart-of-accounts.index'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName)->with('success', 'تم إنشاء الحساب بنجاح');
+                }
+            }
+            // Fallback
+            return redirect('/tenant/accounting/chart-of-accounts')->with('success', 'تم إنشاء الحساب بنجاح');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -239,10 +242,12 @@ class ChartOfAccountController extends Controller
                 'updated_by' => $user->id
             ]);
 
-            $name = Route::currentRouteName();
-            $prefix = str_starts_with($name, 'tenant.') ? 'tenant.' : '';
-            return redirect()->route($prefix . 'accounting.chart-of-accounts.index')
-                ->with('success', 'تم تحديث الحساب بنجاح');
+            foreach (['tenant.accounting.chart-of-accounts.index', 'tenant.inventory.accounting.chart-of-accounts.index', 'accounting.chart-of-accounts.index'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName)->with('success', 'تم تحديث الحساب بنجاح');
+                }
+            }
+            return redirect('/tenant/accounting/chart-of-accounts')->with('success', 'تم تحديث الحساب بنجاح');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -268,10 +273,12 @@ class ChartOfAccountController extends Controller
         try {
             $chartOfAccount->delete();
 
-            $name = Route::currentRouteName();
-            $prefix = str_starts_with($name, 'tenant.') ? 'tenant.' : '';
-            return redirect()->route($prefix . 'accounting.chart-of-accounts.index')
-                ->with('success', 'تم حذف الحساب بنجاح');
+            foreach (['tenant.accounting.chart-of-accounts.index', 'tenant.inventory.accounting.chart-of-accounts.index', 'accounting.chart-of-accounts.index'] as $routeName) {
+                if (Route::has($routeName)) {
+                    return redirect()->route($routeName)->with('success', 'تم حذف الحساب بنجاح');
+                }
+            }
+            return redirect('/tenant/accounting/chart-of-accounts')->with('success', 'تم حذف الحساب بنجاح');
 
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء حذف الحساب: ' . $e->getMessage());
