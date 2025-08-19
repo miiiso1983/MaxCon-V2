@@ -2419,8 +2419,7 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
                 Route::get('account-ledger', [\App\Http\Controllers\Tenant\Accounting\FinancialReportController::class, 'accountLedger'])->name('account-ledger');
         */
 
-            });
-        });
+
 
         // Regulatory Affairs Module
         Route::prefix('regulatory')->name('regulatory.')->group(function () {
