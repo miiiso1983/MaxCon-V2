@@ -250,6 +250,92 @@ class LeaveController extends Controller
         return view('tenant.hr.reports.leaves');
     }
 
+    public function calendarFeed(Request $request)
+    {
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $start = $request->get('start');
+        $end = $request->get('end');
+        $employeeId = $request->get('employee_id');
+        $status = $request->get('status');
+        $type = $request->get('leave_type_id');
+
+        $q = Leave::with(['leaveType','employee'])->where('tenant_id', $tenantId);
+        if ($start && $end) {
+            $q->where(function($qq) use ($start,$end) {
+                $qq->whereBetween('start_date', [$start, $end])
+                   ->orWhereBetween('end_date', [$start, $end])
+                   ->orWhere(function($q3) use ($start,$end) {
+                       $q3->where('start_date','<=',$start)->where('end_date','>=',$end);
+                   });
+            });
+        }
+        if ($employeeId) $q->where('employee_id', $employeeId);
+        if ($status) $q->where('status', $status);
+        if ($type) $q->where('leave_type_id', $type);
+
+        $events = $q->get()->map(function($lv){
+            $titleEmp = $lv->employee?->full_name_arabic ?? ($lv->employee?->full_name_english ?? trim(($lv->employee?->first_name.' '.$lv->employee?->last_name)));
+            $title = ($lv->leaveType?->name ?? 'إجازة').' - '.($titleEmp ?: '');
+            $color = match($lv->status) {
+                'approved' => '#48bb78',
+                'rejected' => '#f56565',
+                default => '#ed8936'
+            };
+            // FullCalendar expects end to be exclusive; add +1 day
+            $end = \Carbon\Carbon::parse($lv->end_date)->addDay()->format('Y-m-d');
+            return [
+                'id' => $lv->id,
+                'title' => $title,
+                'start' => optional($lv->start_date)->format('Y-m-d'),
+                'end' => $end,
+                'color' => $color,
+                'allDay' => true,
+            ];
+        });
+        return response()->json($events);
+    }
+
+    public function updateDates(Request $request, Leave $leave)
+    {
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        abort_if($leave->tenant_id !== $tenantId, 403);
+        // Require permission to manage
+        if (!Auth::user()->can('manage hr leaves')) {
+            return response()->json(['message' => 'غير مصرح'], 403);
+        }
+        $data = $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+        $start = \Carbon\Carbon::parse($data['start_date']);
+        $end = \Carbon\Carbon::parse($data['end_date']);
+
+        // Prevent overlap for same employee (excluding this leave)
+        $overlap = Leave::where('tenant_id', $tenantId)
+            ->where('employee_id', $leave->employee_id)
+            ->where('id', '!=', $leave->id)
+            ->where('status', '!=', 'rejected')
+            ->where('status', '!=', 'cancelled')
+            ->where(function ($q) use ($start, $end) {
+                $q->whereBetween('start_date', [$start->toDateString(), $end->toDateString()])
+                  ->orWhereBetween('end_date', [$start->toDateString(), $end->toDateString()])
+                  ->orWhere(function ($qq) use ($start, $end) {
+                      $qq->where('start_date', '<=', $start->toDateString())
+                         ->where('end_date', '>=', $end->toDateString());
+                  });
+            })->exists();
+        if ($overlap) {
+            return response()->json(['message' => 'الفترة المحددة تتداخل مع طلب آخر لنفس الموظف.'], 422);
+        }
+
+        $leave->start_date = $start->toDateString();
+        $leave->end_date = $end->toDateString();
+        $leave->days_requested = $this->calculateWorkingDays($start, $end);
+        $leave->save();
+
+        return response()->json(['message' => 'تم تحديث التواريخ بنجاح']);
+    }
+
     public function export(Request $request)
     {
         $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);

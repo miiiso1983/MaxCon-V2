@@ -186,6 +186,8 @@
         <div style="margin-top:12px;">{{ $leaves->links() }}</div>
     </div>
     @endif
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css">
+            <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
     <!-- Leave Calendar & Quick Actions -->
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
@@ -197,13 +199,8 @@
                 تقويم الإجازات
             </h3>
 
-            <div style="text-align: center; padding: 60px 20px; color: #718096;">
-                <i class="fas fa-calendar-alt" style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;"></i>
-                <h4 style="margin: 0 0 10px 0; font-size: 20px; font-weight: 700;">تقويم الإجازات</h4>
-                <p style="margin: 0; font-size: 16px;">ميزة التقويم التفاعلي قيد التطوير</p>
-                <button onclick="showLeaveCalendar()" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; padding: 15px 25px; border: none; border-radius: 15px; font-weight: 600; margin-top: 20px; cursor: pointer;">
-                    عرض التقويم
-                </button>
+            <div>
+                <div id="leaves-calendar" style="height: 650px;"></div>
             </div>
         </div>
 
@@ -651,13 +648,67 @@ function viewLeaveRequest(requestId) {
     });
 }
 
-function showLeaveCalendar() {
-    // Create modal for leave calendar
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
+document.addEventListener('DOMContentLoaded', function initLeavesCalendar() {
+    // Initialize FullCalendar
+    const el = document.getElementById('leaves-calendar');
+    if (!el) return;
+    const calendar = new FullCalendar.Calendar(el, {
+        initialView: 'dayGridMonth',
+        locale: 'ar',
+        direction: 'rtl',
+        selectable: true,
+        editable: @can('manage hr leaves') true @else false @endcan,
+        headerToolbar: { start: 'title', center: 'dayGridMonth,timeGridWeek,listWeek', end: 'prev,next today' },
+        events: {
+            url: '{{ route('tenant.hr.leaves.calendar-feed') }}',
+            failure: () => alert('تعذر تحميل أحداث التقويم')
+        },
+        select: (info) => {
+            // prefill dates in modal and open
+            openLeaveRequestModal();
+            setTimeout(() => {
+                const s = document.querySelector('#ui_start_date');
+                const e = document.querySelector('#ui_end_date');
+                if (s) s.value = info.startStr;
+                if (e) e.value = info.endStr ? new Date(new Date(info.endStr).getTime()-86400000).toISOString().slice(0,10) : info.startStr;
+                const ev = new Event('change'); s?.dispatchEvent(ev); e?.dispatchEvent(ev);
+            }, 0);
+        },
+        eventDrop: (info) => {
+            updateLeaveDates(info);
+        },
+        eventResize: (info) => {
+            updateLeaveDates(info);
+        }
+    });
+    calendar.render();
+});
+
+    function updateLeaveDates(info) {
+        const id = info.event.id;
+        const newStart = info.event.startStr;
+        const newEndExcl = info.event.endStr || info.event.startStr; // end exclusive
+        const newEnd = new Date(new Date(newEndExcl).getTime()-86400000).toISOString().slice(0,10);
+        fetch(`{{ url('/tenant/hr/leaves') }}/${id}/dates`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ start_date: newStart, end_date: newEnd })
+        }).then(async (res) => {
+            const raw = await res.text();
+            if (!res.ok) {
+                try { const j = JSON.parse(raw); alert(j?.message || 'تعذر تحديث التواريخ'); } catch(e) { alert('تعذر تحديث التواريخ'); }
+                info.revert();
+            } else {
+                try { const j = JSON.parse(raw); showNotification(j?.message || 'تم تحديث التواريخ', 'success'); } catch(e) { showNotification('تم تحديث التواريخ', 'success'); }
+            }
+        }).catch(() => { alert('تعذر تحديث التواريخ'); info.revert(); });
+    }
+
         width: 100%;
         height: 100%;
         background: rgba(0,0,0,0.5);

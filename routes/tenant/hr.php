@@ -147,6 +147,8 @@ Route::prefix('leaves')->name('leaves.')->group(function () {
     Route::post('/{leave}/approve', [LeaveController::class, 'approve'])->whereNumber('leave')->name('approve');
     Route::post('/{leave}/reject', [LeaveController::class, 'reject'])->whereNumber('leave')->name('reject');
     Route::get('/calendar/view', [LeaveController::class, 'calendar'])->name('calendar');
+    Route::get('/calendar-feed', [LeaveController::class, 'calendarFeed'])->name('calendar-feed');
+    Route::patch('/{leave}/dates', [LeaveController::class, 'updateDates'])->whereNumber('leave')->name('update-dates');
     Route::get('/balance/{employee}', [LeaveController::class, 'balance'])->name('balance');
     Route::get('/export', [LeaveController::class, 'export'])->name('export');
 });
