@@ -14,6 +14,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\Tenant\Accounting\TrialBalanceExport;
+use App\Exports\Tenant\Accounting\IncomeStatementExport;
+use App\Exports\Tenant\Accounting\BalanceSheetExport;
+use App\Exports\Tenant\Accounting\CashFlowExport;
+use App\Models\Warehouse;
+use App\Models\Invoice;
+use App\Models\InvoicePayment;
+use App\Models\Accounting\CostCenter;
+use Illuminate\Support\Str;
+
 
 class FinancialReportController extends Controller
 {
@@ -73,7 +82,7 @@ class FinancialReportController extends Controller
 
         foreach ($accounts as $account) {
             $balance = $account->getBalance($dateFrom, $dateTo);
-            
+
             if ($balance != 0) {
                 $debitBalance = 0;
                 $creditBalance = 0;
@@ -595,6 +604,128 @@ class FinancialReportController extends Controller
     }
 
     /**
+
+    /**
+     * Custom Reports index: shows filters and report type selector
+     */
+    public function customReports(Request $request): View
+    {
+        $tenantId = Auth::user()->tenant_id;
+        $dateFrom = $request->date_from ?? now()->startOfYear()->format('Y-m-d');
+        $dateTo = $request->date_to ?? now()->format('Y-m-d');
+
+        $costCenters = CostCenter::where('tenant_id', $tenantId)->where('is_active', true)->orderBy('code')->get();
+        $warehouses = Warehouse::where('tenant_id', $tenantId)->where('is_active', true)->orderBy('code')->get();
+
+        $reportTypes = [
+            'revenue_by_cc_branch' => 'إيرادات حسب مركز تكلفة/فرع',
+            'expense_by_cc_branch' => 'مصروفات حسب مركز تكلفة/فرع',
+            'profitability' => 'الربحية (إيراد - مصروف)',
+            'monthly_series' => 'تحليل شهري لإيرادات/مصروفات'
+        ];
+
+        return view('tenant.accounting.reports.custom.index', compact(
+            'dateFrom','dateTo','costCenters','warehouses','reportTypes'
+        ));
+    }
+
+    /**
+     * Generate Custom Report (and optionally export to Excel)
+     */
+    public function generateCustomReport(Request $request)
+    {
+        $tenantId = Auth::user()->tenant_id;
+        $type = $request->input('report_type');
+        $dateFrom = $request->input('date_from') ?? now()->startOfYear()->format('Y-m-d');
+        $dateTo = $request->input('date_to') ?? now()->format('Y-m-d');
+        $costCenterId = $request->input('cost_center_id');
+        $warehouseId = $request->input('warehouse_id');
+        $export = $request->input('export') === 'excel';
+
+        // Build base query on journal details joined to entries and accounts
+        $details = \DB::table('journal_entry_details as d')
+            ->join('journal_entries as e', 'd.journal_entry_id', '=', 'e.id')
+            ->join('chart_of_accounts as a', 'd.account_id', '=', 'a.id')
+            ->where('d.tenant_id', $tenantId)
+            ->where('e.status', 'posted')
+            ->whereBetween('e.entry_date', [$dateFrom, $dateTo]);
+
+        if ($costCenterId) {
+            $details->where('d.cost_center_id', $costCenterId);
+        }
+        if ($warehouseId && \Schema::hasColumn('journal_entries','warehouse_id')) {
+            $details->where('e.warehouse_id', $warehouseId);
+        }
+
+        $data = [];
+        $meta = compact('dateFrom','dateTo','costCenterId','warehouseId','type');
+
+        if ($type === 'revenue_by_cc_branch') {
+            $rows = (clone $details)
+                ->where('a.account_type', 'revenue')
+                ->selectRaw('d.cost_center_id, e.warehouse_id, SUM(d.credit_amount - d.debit_amount) as amount')
+                ->groupBy('d.cost_center_id', 'e.warehouse_id')
+                ->get();
+            $data = ['rows' => $rows, 'label' => 'الإيرادات'];
+        } elseif ($type === 'expense_by_cc_branch') {
+            $rows = (clone $details)
+                ->where('a.account_type', 'expense')
+                ->selectRaw('d.cost_center_id, e.warehouse_id, SUM(d.debit_amount - d.credit_amount) as amount')
+                ->groupBy('d.cost_center_id', 'e.warehouse_id')
+                ->get();
+            $data = ['rows' => $rows, 'label' => 'المصروفات'];
+        } elseif ($type === 'profitability') {
+            $revenue = (clone $details)
+                ->where('a.account_type', 'revenue')
+                ->selectRaw('SUM(d.credit_amount - d.debit_amount) as amount')
+                ->value('amount') ?? 0;
+            $expense = (clone $details)
+                ->where('a.account_type', 'expense')
+                ->selectRaw('SUM(d.debit_amount - d.credit_amount) as amount')
+                ->value('amount') ?? 0;
+            $data = ['revenue' => (float)$revenue, 'expense' => (float)$expense, 'profit' => (float)$revenue - (float)$expense];
+        } elseif ($type === 'monthly_series') {
+            $series = (clone $details)
+                ->selectRaw("DATE_FORMAT(e.entry_date, '%Y-%m') as ym, SUM(CASE WHEN a.account_type='revenue' THEN (d.credit_amount - d.debit_amount) ELSE 0 END) as revenue, SUM(CASE WHEN a.account_type='expense' THEN (d.debit_amount - d.credit_amount) ELSE 0 END) as expense")
+                ->groupBy('ym')
+                ->orderBy('ym')
+                ->get();
+            $data = ['series' => $series];
+        } else {
+            return back()->with('error', 'نوع التقرير غير مدعوم');
+        }
+
+        if ($export) {
+            // Simple view-based export for now per type
+            $view = 'tenant.accounting.reports.exports.custom-generic';
+            return \Maatwebsite\Excel\Facades\Excel::download(new class($type, $data, $meta) implements \Maatwebsite\Excel\Concerns\FromView {
+                public function __construct(public $type, public $data, public $meta) {}
+                public function view(): \Illuminate\Contracts\View\View {
+                    return view('tenant.accounting.reports.exports.custom-generic', [
+                        'type' => $this->type,
+                        'data' => $this->data,
+                        'meta' => $this->meta,
+                    ]);
+                }
+            }, 'custom_report_' . now()->format('Ymd_His') . '.xlsx');
+        }
+
+        // Render HTML view
+        $costCenters = CostCenter::where('tenant_id', $tenantId)->where('is_active', true)->orderBy('code')->get();
+        $warehouses = Warehouse::where('tenant_id', $tenantId)->where('is_active', true)->orderBy('code')->get();
+        $reportTypes = [
+            'revenue_by_cc_branch' => 'إيرادات حسب مركز تكلفة/فرع',
+            'expense_by_cc_branch' => 'مصروفات حسب مركز تكلفة/فرع',
+            'profitability' => 'الربحية (إيراد - مصروف)',
+            'monthly_series' => 'تحليل شهري لإيرادات/مصروفات'
+        ];
+
+        return view('tenant.accounting.reports.custom.index', array_merge(
+            compact('dateFrom','dateTo','costCenters','warehouses','reportTypes','type'),
+            ['result' => $data, 'filters' => compact('costCenterId','warehouseId')]
+        ));
+    }
+
      * Export Account Ledger to Excel
      */
     public function accountLedgerExcel(Request $request)
