@@ -320,7 +320,11 @@ function printReport() {
 }
 
 function exportToExcel() {
-    alert('سيتم تصدير التقرير إلى Excel قريباً...');
+    const params = new URLSearchParams({
+        as_of_date: document.querySelector('input[name="as_of_date"]').value,
+        cost_center_id: document.querySelector('select[name=\'cost_center_id\']').value,
+    });
+    window.location.href = '{{ route('tenant.inventory.accounting.reports.balance-sheet.excel') }}' + '?' + params.toString();
 }
 </script>
 @endsection

@@ -510,7 +510,44 @@ class FinancialReportController extends Controller
      */
     public function balanceSheetExcel(Request $request)
     {
-        return redirect()->back()->with('info', 'تصدير Excel قيد التطوير - سيتم إضافته قريباً');
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        $asOfDate = $request->as_of_date ?? now()->format('Y-m-d');
+
+        $currentAssets = \App\Models\Accounting\ChartOfAccount::where('tenant_id', $tenantId)
+            ->where('account_type', 'asset')->where('account_category', 'current_asset')
+            ->where('is_active', true)->orderBy('account_code')->get()
+            ->map(function ($acc) use ($asOfDate) { $acc->balance = $acc->getBalance(null, $asOfDate); return $acc; })
+            ->filter(function ($acc) { return $acc->balance != 0; });
+
+        $nonCurrentAssets = \App\Models\Accounting\ChartOfAccount::where('tenant_id', $tenantId)
+            ->where('account_type', 'asset')->where('account_category', 'non_current_asset')
+            ->where('is_active', true)->orderBy('account_code')->get()
+            ->map(function ($acc) use ($asOfDate) { $acc->balance = $acc->getBalance(null, $asOfDate); return $acc; })
+            ->filter(function ($acc) { return $acc->balance != 0; });
+
+        $currentLiabilities = \App\Models\Accounting\ChartOfAccount::where('tenant_id', $tenantId)
+            ->where('account_type', 'liability')->where('account_category', 'current_liability')
+            ->where('is_active', true)->orderBy('account_code')->get()
+            ->map(function ($acc) use ($asOfDate) { $acc->balance = $acc->getBalance(null, $asOfDate); return $acc; })
+            ->filter(function ($acc) { return $acc->balance != 0; });
+
+        $nonCurrentLiabilities = \App\Models\Accounting\ChartOfAccount::where('tenant_id', $tenantId)
+            ->where('account_type', 'liability')->where('account_category', 'non_current_liability')
+            ->where('is_active', true)->orderBy('account_code')->get()
+            ->map(function ($acc) use ($asOfDate) { $acc->balance = $acc->getBalance(null, $asOfDate); return $acc; })
+            ->filter(function ($acc) { return $acc->balance != 0; });
+
+        $equityAccounts = \App\Models\Accounting\ChartOfAccount::where('tenant_id', $tenantId)
+            ->where('account_type', 'equity')->where('is_active', true)
+            ->orderBy('account_code')->get()
+            ->map(function ($acc) use ($asOfDate) { $acc->balance = $acc->getBalance(null, $asOfDate); return $acc; })
+            ->filter(function ($acc) { return $acc->balance != 0; });
+
+        $export = new \App\Exports\Tenant\Accounting\BalanceSheetExport($asOfDate, $currentAssets, $nonCurrentAssets, $currentLiabilities, $nonCurrentLiabilities, $equityAccounts);
+        $fileName = 'balance_sheet_' . now()->format('Ymd_His') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download($export, $fileName);
     }
 
     /**
