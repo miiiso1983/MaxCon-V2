@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Tenant\Accounting\TrialBalanceExport;
 
 class FinancialReportController extends Controller
 {
@@ -405,8 +407,60 @@ class FinancialReportController extends Controller
      */
     public function trialBalanceExcel(Request $request)
     {
-        // For now, redirect back with a message
-        return redirect()->back()->with('info', 'تصدير Excel قيد التطوير - سيتم إضافته قريباً');
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        $dateFrom = $request->date_from ?? now()->startOfYear()->format('Y-m-d');
+        $dateTo = $request->date_to ?? now()->format('Y-m-d');
+        $costCenterId = $request->cost_center_id;
+        $accountType = $request->account_type;
+
+        $query = ChartOfAccount::where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->where('is_parent', false);
+
+        if ($costCenterId) {
+            $query->where('cost_center_id', $costCenterId);
+        }
+        if ($accountType) {
+            $query->where('account_type', $accountType);
+        }
+
+        $accounts = $query->orderBy('account_code')->get();
+
+        $trialBalanceData = [];
+        $totalDebits = 0;
+        $totalCredits = 0;
+
+        foreach ($accounts as $account) {
+            $balance = $account->getBalance($dateFrom, $dateTo);
+            if ($balance != 0) {
+                $debitBalance = 0; $creditBalance = 0;
+                if (in_array($account->account_type, ['asset','expense'])) {
+                    $debitBalance = $balance > 0 ? $balance : 0;
+                    $creditBalance = $balance < 0 ? abs($balance) : 0;
+                } else {
+                    $creditBalance = $balance > 0 ? $balance : 0;
+                    $debitBalance = $balance < 0 ? abs($balance) : 0;
+                }
+                $trialBalanceData[] = [
+                    'account' => $account,
+                    'debit_balance' => $debitBalance,
+                    'credit_balance' => $creditBalance,
+                ];
+                $totalDebits += $debitBalance; $totalCredits += $creditBalance;
+            }
+        }
+
+        $costCenterName = null;
+        if ($costCenterId) {
+            $cc = CostCenter::where('tenant_id', $tenantId)->find($costCenterId);
+            $costCenterName = $cc?->name;
+        }
+
+        $export = new TrialBalanceExport($trialBalanceData, $totalDebits, $totalCredits, $dateFrom, $dateTo, $costCenterName);
+        $fileName = 'trial_balance_' . now()->format('Ymd_His') . '.xlsx';
+        return Excel::download($export, $fileName);
     }
 
     /**
