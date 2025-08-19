@@ -424,14 +424,18 @@ function openLeaveRequestModal() {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: formData
+            body: formData,
+            credentials: 'same-origin'
         }).then(async (res) => {
+            const raw = await res.text();
             if (!res.ok) {
                 let msg = 'تعذر إرسال الطلب. يرجى التحقق من المدخلات.';
-                try { const data = await res.json(); if (data?.message) msg = data.message; } catch (e) {}
+                try { const data = JSON.parse(raw); if (data?.message) msg = data.message; } catch (e) { if (raw) msg = raw; }
                 throw new Error(msg);
             }
-            return res.json();
+            let data;
+            try { data = JSON.parse(raw); } catch (e) { data = { message: 'تم إرسال طلب الإجازة بنجاح!' }; }
+            return data;
         }).then((data) => {
             modal.remove();
             showNotification(data?.message || 'تم إرسال طلب الإجازة بنجاح!', 'success');
