@@ -12,7 +12,7 @@
     <tbody>
         @foreach($overtimes as $ot)
         <tr>
-            <td>{{ $ot->employee->full_name ?? '-' }}</td>
+            <td>{{ $ot->employee?->full_name ?? '-' }}</td>
             <td>{{ optional($ot->date)->format('Y-m-d') }}</td>
             <td>{{ $ot->hours_approved ?? $ot->hours_requested }}</td>
             <td>{{ $ot->overtime_rate }}</td>
