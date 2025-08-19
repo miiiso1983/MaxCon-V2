@@ -14,7 +14,7 @@ class OvertimeController extends Controller
 {
     public function index(Request $request)
     {
-        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
 
         $query = Overtime::where('tenant_id', $tenantId)
             ->with(['employee', 'requester', 'approver'])
@@ -43,7 +43,7 @@ class OvertimeController extends Controller
         $employees = Employee::where('tenant_id', $tenantId)
             ->active()
             ->orderBy('full_name_arabic')
-            ->get(['id', 'full_name_arabic', 'employee_code']);
+            ->get();
 
         // Calculate statistics
         $stats = [
@@ -71,7 +71,7 @@ class OvertimeController extends Controller
 
     public function create()
     {
-        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
 
         $employees = Employee::where('tenant_id', $tenantId)
             ->active()
@@ -98,7 +98,7 @@ class OvertimeController extends Controller
         ]);
 
         try {
-            $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+            $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
             $userId = Auth::id();
 
             // Create overtime record
@@ -131,7 +131,7 @@ class OvertimeController extends Controller
 
     public function show($id)
     {
-        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
 
         $overtime = Overtime::where('tenant_id', $tenantId)
             ->with(['employee.department', 'employee.position', 'requester', 'approver'])
@@ -142,7 +142,7 @@ class OvertimeController extends Controller
 
     public function edit($id)
     {
-        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
 
         $overtime = Overtime::where('tenant_id', $tenantId)->findOrFail($id);
 
@@ -177,7 +177,7 @@ class OvertimeController extends Controller
         ]);
 
         try {
-            $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+            $tenantId = tenant_id() ?? Auth::user()->tenant_id ?? 1;
             $overtime = Overtime::where('tenant_id', $tenantId)->findOrFail($id);
 
             // Only allow updating if status is pending
@@ -213,7 +213,7 @@ class OvertimeController extends Controller
     public function destroy($id)
     {
         try {
-            $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+            $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
             $overtime = Overtime::where('tenant_id', $tenantId)->findOrFail($id);
 
             // Only allow deletion if status is pending
@@ -236,7 +236,7 @@ class OvertimeController extends Controller
     public function approve($id)
     {
         try {
-            $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+            $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
             $overtime = Overtime::where('tenant_id', $tenantId)->findOrFail($id);
 
             if ($overtime->status !== 'pending') {
@@ -262,7 +262,7 @@ class OvertimeController extends Controller
         ]);
 
         try {
-            $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+            $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
             $overtime = Overtime::where('tenant_id', $tenantId)->findOrFail($id);
 
             if ($overtime->status !== 'pending') {
@@ -283,7 +283,7 @@ class OvertimeController extends Controller
 
     public function reports()
     {
-        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $tenantId = Auth::user()->tenant_id ?? tenant_id() ?? 1;
 
         // Get monthly overtime statistics
         $monthlyStats = Overtime::where('tenant_id', $tenantId)
