@@ -41,6 +41,8 @@ class LeaveController extends Controller
             'reason' => 'required|string|max:2000',
             'attachments.*' => 'nullable|file|max:5120',
             'employee_id' => 'nullable|integer|exists:hr_employees,id',
+            'is_half_day' => 'nullable|boolean',
+            'half_day_session' => 'nullable|in:morning,afternoon',
         ]);
 
         // Resolve employee (allow HR to submit on behalf of another employee)
@@ -132,6 +134,8 @@ class LeaveController extends Controller
             'start_date' => $start->toDateString(),
             'end_date' => $end->toDateString(),
             'days_requested' => $daysRequested,
+            'is_half_day' => (bool)($data['is_half_day'] ?? false),
+            'half_day_session' => $data['half_day_session'] ?? null,
             'reason' => $data['reason'],
             'status' => 'pending',
             'applied_date' => now()->toDateString(),
@@ -260,6 +264,9 @@ class LeaveController extends Controller
         $type = $request->get('leave_type_id');
 
         $q = Leave::with(['leaveType','employee'])->where('tenant_id', $tenantId);
+        // Support alternative param names from calendar filter
+        if (!$start && $request->get('from')) $start = $request->get('from');
+        if (!$end && $request->get('to')) $end = $request->get('to');
         if ($start && $end) {
             $q->where(function($qq) use ($start,$end) {
                 $qq->whereBetween('start_date', [$start, $end])

@@ -20,6 +20,8 @@ class Leave extends Model
         'start_date',
         'end_date',
         'days_requested',
+        'is_half_day',
+        'half_day_session',
         'days_approved',
         'reason',
         'status',
@@ -41,7 +43,8 @@ class Leave extends Model
         'end_date' => 'date',
         'applied_date' => 'date',
         'approved_date' => 'date',
-        'days_requested' => 'integer',
+        'days_requested' => 'decimal:2',
+        'is_half_day' => 'boolean',
         'days_approved' => 'integer',
         'is_paid' => 'boolean',
         'attachments' => 'array'
@@ -107,10 +110,10 @@ class Leave extends Model
 
         $startDate = Carbon::parse($this->start_date);
         $endDate = Carbon::parse($this->end_date);
-        
+
         $workingDays = 0;
         $currentDate = $startDate->copy();
-        
+
         while ($currentDate->lte($endDate)) {
             // Skip weekends (Friday and Saturday in Iraq)
             if (!$currentDate->isFriday() && !$currentDate->isSaturday()) {
@@ -118,7 +121,12 @@ class Leave extends Model
             }
             $currentDate->addDay();
         }
-        
+
+        // Adjust for half-day
+        if ($this->is_half_day) {
+            $workingDays = max(0.5, 0.5); // minimum 0.5 day
+        }
+
         return $workingDays;
     }
 

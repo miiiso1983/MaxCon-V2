@@ -199,6 +199,55 @@
                 تقويم الإجازات
             </h3>
 
+            <!-- Filters -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px; align-items:end;">
+                <div>
+                    <label style="display:block; font-weight:600; color:#2d3748; margin-bottom:6px;">الموظف</label>
+                    <select id="cal_employee" style="min-width:180px; padding:8px 10px; border:1px solid #e2e8f0; border-radius:8px;">
+                        <option value="">الكل</option>
+                        @if(isset($employees))
+                            @foreach($employees as $emp)
+                                <option value="{{ $emp->id }}">{{ $emp->full_name_arabic ?? ($emp->full_name_english ?? ($emp->first_name.' '.$emp->last_name)) }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block; font-weight:600; color:#2d3748; margin-bottom:6px;">النوع</label>
+                    <select id="cal_leave_type" style="min-width:160px; padding:8px 10px; border:1px solid #e2e8f0; border-radius:8px;">
+                        <option value="">الكل</option>
+                        @if(isset($leaveTypes))
+                            @foreach($leaveTypes as $lt)
+                                <option value="{{ $lt->id }}">{{ $lt->name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block; font-weight:600; color:#2d3748; margin-bottom:6px;">الحالة</label>
+                    <select id="cal_status" style="min-width:140px; padding:8px 10px; border:1px solid #e2e8f0; border-radius:8px;">
+                        <option value="">الكل</option>
+                        <option value="pending">قيد الانتظار</option>
+                        <option value="approved">موافق عليها</option>
+                        <option value="rejected">مرفوضة</option>
+                        <option value="cancelled">ملغاة</option>
+                        <option value="completed">مكتملة</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block; font-weight:600; color:#2d3748; margin-bottom:6px;">من</label>
+                    <input id="cal_from" type="date" style="padding:8px 10px; border:1px solid #e2e8f0; border-radius:8px;" />
+                </div>
+                <div>
+                    <label style="display:block; font-weight:600; color:#2d3748; margin-bottom:6px;">إلى</label>
+                    <input id="cal_to" type="date" style="padding:8px 10px; border:1px solid #e2e8f0; border-radius:8px;" />
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button id="cal_apply" style="background:#4299e1; color:#fff; border:none; padding:10px 14px; border-radius:8px; font-weight:600; cursor:pointer;">تطبيق</button>
+                    <button id="cal_clear" style="background:#e2e8f0; color:#2d3748; border:none; padding:10px 14px; border-radius:8px; font-weight:600; cursor:pointer;">مسح</button>
+                </div>
+            </div>
+
             <div>
                 <div id="leaves-calendar" style="height: 650px;"></div>
             </div>
@@ -330,6 +379,15 @@ function openLeaveRequestModal() {
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">عدد الأيام</label>
                         <input id="ui_days_requested" name="days_requested" type="number" min="1" max="365" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="عدد أيام الإجازة (اختياري)">
                         <div id="err_days_requested" style="color:#e53e3e; font-size:12px; margin-top:6px;"></div>
+                        <div style="margin-top:6px; display:flex; gap:8px; align-items:center;">
+                            <label style="display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                                <input type="checkbox" id="ui_is_half_day" style="width:18px; height:18px;"> نصف يوم
+                            </label>
+                            <select id="ui_half_day_session" style="display:none; padding:8px 10px; border:1px solid #e2e8f0; border-radius:8px;">
+                                <option value="morning">صباحاً</option>
+                                <option value="afternoon">مساءً</option>
+                            </select>
+                        </div>
                     </div>
                     @can('manage hr leaves')
                     <div>
@@ -421,6 +479,9 @@ function openLeaveRequestModal() {
         return true;
     }
 
+    const halfDayChk = modal.querySelector('#ui_is_half_day');
+    const halfDaySess = modal.querySelector('#ui_half_day_session');
+
     function recalcDays(){
         // If end is empty, set it to start on first selection for convenience
         if (startInput && startInput.value) {
@@ -430,9 +491,17 @@ function openLeaveRequestModal() {
             }
         }
         if (!validateDates()) return;
-        const val = calcWorkingDays(startInput?.value, endInput?.value);
+        let val = calcWorkingDays(startInput?.value, endInput?.value);
+        if (halfDayChk?.checked) {
+            val = 0.5;
+            halfDaySess.style.display = '';
+        } else {
+            halfDaySess.style.display = 'none';
+        }
         if (val !== '') { daysInput.value = val; }
     }
+
+    halfDayChk?.addEventListener('change', recalcDays);
 
     startInput?.addEventListener('change', recalcDays);
     endInput?.addEventListener('change', () => { validateDates(); recalcDays(); });
@@ -468,6 +537,13 @@ function openLeaveRequestModal() {
             for (const f of filesInput.files) {
                 formData.append('attachments[]', f);
             }
+        }
+        // Half-day fields
+        const isHalf = modal.querySelector('#ui_is_half_day')?.checked;
+        const sess = modal.querySelector('#ui_half_day_session')?.value;
+        if (isHalf) {
+            formData.append('is_half_day', '1');
+            if (sess) formData.append('half_day_session', sess);
         }
 
         fetch(hiddenForm.action, {
@@ -661,8 +737,20 @@ document.addEventListener('DOMContentLoaded', function initLeavesCalendar() {
         headerToolbar: { start: 'title', center: 'dayGridMonth,timeGridWeek,listWeek', end: 'prev,next today' },
         events: {
             url: '{{ route('tenant.hr.leaves.calendar-feed') }}',
+            extraParams: () => ({
+                employee_id: document.getElementById('cal_employee')?.value || '',
+                leave_type_id: document.getElementById('cal_leave_type')?.value || '',
+                status: document.getElementById('cal_status')?.value || '',
+                from: document.getElementById('cal_from')?.value || '',
+                to: document.getElementById('cal_to')?.value || ''
+            }),
             failure: () => alert('تعذر تحميل أحداث التقويم')
         },
+    document.getElementById('cal_apply')?.addEventListener('click', () => calendar.refetchEvents());
+    document.getElementById('cal_clear')?.addEventListener('click', () => {
+        ['cal_employee','cal_leave_type','cal_status','cal_from','cal_to'].forEach(id => { const el = document.getElementById(id); if (el) el.value=''; });
+        calendar.refetchEvents();
+    });
         select: (info) => {
             // prefill dates in modal and open
             openLeaveRequestModal();
