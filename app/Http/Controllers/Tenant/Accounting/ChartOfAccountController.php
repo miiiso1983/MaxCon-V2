@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Accounting\ChartOfAccount;
 use App\Models\Accounting\CostCenter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -131,7 +132,10 @@ class ChartOfAccountController extends Controller
                 }
             });
 
-            return redirect()->route('tenant.accounting.chart-of-accounts.index')
+            // Use resolved prefix: if current route is within 'tenant.' group then prefix with 'tenant.'
+            $name = Route::currentRouteName();
+            $prefix = str_starts_with($name, 'tenant.') ? 'tenant.' : '';
+            return redirect()->route($prefix . 'accounting.chart-of-accounts.index')
                 ->with('success', 'تم إنشاء الحساب بنجاح');
 
         } catch (\Exception $e) {
@@ -235,7 +239,9 @@ class ChartOfAccountController extends Controller
                 'updated_by' => $user->id
             ]);
 
-            return redirect()->route('tenant.accounting.chart-of-accounts.index')
+            $name = Route::currentRouteName();
+            $prefix = str_starts_with($name, 'tenant.') ? 'tenant.' : '';
+            return redirect()->route($prefix . 'accounting.chart-of-accounts.index')
                 ->with('success', 'تم تحديث الحساب بنجاح');
 
         } catch (\Exception $e) {
@@ -262,7 +268,9 @@ class ChartOfAccountController extends Controller
         try {
             $chartOfAccount->delete();
 
-            return redirect()->route('tenant.accounting.chart-of-accounts.index')
+            $name = Route::currentRouteName();
+            $prefix = str_starts_with($name, 'tenant.') ? 'tenant.' : '';
+            return redirect()->route($prefix . 'accounting.chart-of-accounts.index')
                 ->with('success', 'تم حذف الحساب بنجاح');
 
         } catch (\Exception $e) {
