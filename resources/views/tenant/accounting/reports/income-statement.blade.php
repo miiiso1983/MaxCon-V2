@@ -221,7 +221,12 @@ function printReport() {
 }
 
 function exportToExcel() {
-    alert('سيتم تصدير التقرير إلى Excel قريباً...');
+    const params = new URLSearchParams({
+        date_from: document.querySelector('input[name="date_from"]').value,
+        date_to: document.querySelector('input[name="date_to"]').value,
+        cost_center_id: document.querySelector('select[name=\'cost_center_id\']').value,
+    });
+    window.location.href = '{{ route('tenant.inventory.accounting.reports.income-statement.excel') }}' + '?' + params.toString();
 }
 </script>
 @endsection
