@@ -136,7 +136,7 @@ class JournalEntryController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($request, $tenantId, $user) {
+            DB::transaction(function () use ($request, $tenantId, $user, $totalDebits, $totalCredits) {
                 // Create journal entry
                 $entry = JournalEntry::create([
                     'tenant_id' => $tenantId,
