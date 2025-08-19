@@ -468,7 +468,41 @@ class FinancialReportController extends Controller
      */
     public function incomeStatementExcel(Request $request)
     {
-        return redirect()->back()->with('info', 'تصدير Excel قيد التطوير - سيتم إضافته قريباً');
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        $dateFrom = $request->date_from ?? now()->startOfYear()->format('Y-m-d');
+        $dateTo = $request->date_to ?? now()->format('Y-m-d');
+
+        $revenueAccounts = \App\Models\Accounting\ChartOfAccount::where('tenant_id', $tenantId)
+            ->where('account_type', 'revenue')
+            ->where('is_active', true)
+            ->orderBy('account_code')
+            ->get()
+            ->map(function ($account) use ($dateFrom, $dateTo) {
+                $account->balance = abs($account->getBalance($dateFrom, $dateTo));
+                return $account;
+            })
+            ->filter(function ($account) {
+                return $account->balance > 0;
+            });
+
+        $expenseAccounts = \App\Models\Accounting\ChartOfAccount::where('tenant_id', $tenantId)
+            ->where('account_type', 'expense')
+            ->where('is_active', true)
+            ->orderBy('account_code')
+            ->get()
+            ->map(function ($account) use ($dateFrom, $dateTo) {
+                $account->balance = abs($account->getBalance($dateFrom, $dateTo));
+                return $account;
+            })
+            ->filter(function ($account) {
+                return $account->balance > 0;
+            });
+
+        $export = new \App\Exports\Tenant\Accounting\IncomeStatementExport($revenueAccounts, $expenseAccounts, $dateFrom, $dateTo);
+        $fileName = 'income_statement_' . now()->format('Ymd_His') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download($export, $fileName);
     }
 
     /**
