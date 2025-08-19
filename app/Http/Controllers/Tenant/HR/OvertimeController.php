@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\Tenant\HR\OvertimesExport;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Mpdf\Mpdf;
+
 
 class OvertimeController extends Controller
 {
@@ -347,12 +349,14 @@ class OvertimeController extends Controller
         }
         $overtimes = $query->orderBy('date','desc')->get();
 
-        // Use a dedicated PDF view with RTL + Arabic fonts
-        $pdf = Pdf::loadView('tenant.hr.overtime.export-pdf', compact('overtimes'))
-            ->setPaper('a4', 'portrait');
-
-        // For any advanced Arabic shaping needs, we can switch to mPDF if required.
-        return $pdf->download('overtimes_' . now()->format('Ymd_His') . '.pdf');
+        // Use unified mPDF for Arabic (HR standard)
+        $html = view('tenant.hr.overtime.export-pdf', compact('overtimes'))->render();
+        $pdfContent = app(\App\Services\HR\HrPdfService::class)
+            ->render('tenant.hr.overtime.export-pdf', compact('overtimes'), 'تقرير الساعات الإضافية', 'P');
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="overtimes_' . now()->format('Ymd_His') . '.pdf"'
+        ]);
     }
 
     public function overtimeReport()
