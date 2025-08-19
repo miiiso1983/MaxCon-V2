@@ -39,7 +39,7 @@
             </div>
             
             <div style="display: flex; gap: 15px;">
-                <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.create') }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                <a href="{{ Route::has('tenant.accounting.chart-of-accounts.create') ? route('tenant.accounting.chart-of-accounts.create') : (Route::has('tenant.inventory.accounting.chart-of-accounts.create') ? route('tenant.inventory.accounting.chart-of-accounts.create') : route('accounting.chart-of-accounts.create')) }}" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 25px; border-radius: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-plus"></i>
                     إضافة حساب جديد
                 </a>
@@ -50,7 +50,7 @@
 
 <!-- Filters -->
 <div class="content-card" style="margin-bottom: 30px;">
-    <form method="GET" action="{{ route('tenant.inventory.accounting.chart-of-accounts.index') }}">
+    <form method="GET" action="{{ Route::has('tenant.accounting.chart-of-accounts.index') ? route('tenant.accounting.chart-of-accounts.index') : (Route::has('tenant.inventory.accounting.chart-of-accounts.index') ? route('tenant.inventory.accounting.chart-of-accounts.index') : route('accounting.chart-of-accounts.index')) }}">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">نوع الحساب:</label>
@@ -93,7 +93,7 @@
                 <i class="fas fa-search" style="margin-left: 8px;"></i>
                 بحث
             </button>
-            <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.index') }}" style="background: #6b7280; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            <a href="{{ Route::has('tenant.accounting.chart-of-accounts.index') ? route('tenant.accounting.chart-of-accounts.index') : (Route::has('tenant.inventory.accounting.chart-of-accounts.index') ? route('tenant.inventory.accounting.chart-of-accounts.index') : route('accounting.chart-of-accounts.index')) }}" style="background: #6b7280; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
                 <i class="fas fa-times" style="margin-left: 8px;"></i>
                 إلغاء
             </a>
@@ -157,16 +157,16 @@
                         </td>
                         <td style="padding: 15px; text-align: center;">
                             <div style="display: flex; gap: 8px; justify-content: center;">
-                                <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.show', $account) }}" 
+                                <a href="{{ Route::has('tenant.accounting.chart-of-accounts.show') ? route('tenant.accounting.chart-of-accounts.show', $account) : (Route::has('tenant.inventory.accounting.chart-of-accounts.show') ? route('tenant.inventory.accounting.chart-of-accounts.show', $account) : route('accounting.chart-of-accounts.show', $account)) }}"
                                    style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('tenant.inventory.accounting.chart-of-accounts.edit', $account) }}" 
+                                <a href="{{ Route::has('tenant.accounting.chart-of-accounts.edit') ? route('tenant.accounting.chart-of-accounts.edit', $account) : (Route::has('tenant.inventory.accounting.chart-of-accounts.edit') ? route('tenant.inventory.accounting.chart-of-accounts.edit', $account) : route('accounting.chart-of-accounts.edit', $account)) }}"
                                    style="background: #f59e0b; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 @if($account->canBeDeleted())
-                                    <form method="POST" action="{{ route('tenant.inventory.accounting.chart-of-accounts.destroy', $account) }}" 
+                                    <form method="POST" action="{{ Route::has('tenant.accounting.chart-of-accounts.destroy') ? route('tenant.accounting.chart-of-accounts.destroy', $account) : (Route::has('tenant.inventory.accounting.chart-of-accounts.destroy') ? route('tenant.inventory.accounting.chart-of-accounts.destroy', $account) : route('accounting.chart-of-accounts.destroy', $account)) }}"
                                           style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الحساب؟')">
                                         @csrf
                                         @method('DELETE')

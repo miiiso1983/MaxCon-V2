@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Traits\BelongsToTenant;
 use App\Models\Accounting\JournalEntry;
 use App\Models\Accounting\JournalEntryDetail;
@@ -163,6 +164,11 @@ class ChartOfAccount extends Model
         $balance = $startDate ? 0 : ($this->opening_balance ?? 0);
 
         // Get journal entry details with explicit table prefixes
+        // Guard: if tables don't exist (e.g., fresh tenant), return opening balance
+        if (!Schema::hasTable('journal_entry_details') || !Schema::hasTable('journal_entries')) {
+            return (float)($this->opening_balance ?? 0);
+        }
+
         $details = \DB::table('journal_entry_details as jed')
             ->join('journal_entries as je', 'jed.journal_entry_id', '=', 'je.id')
             ->where('jed.account_id', $this->id)
