@@ -2360,7 +2360,10 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
             return view('tenant.sales.invoices.qr-guide');
         })->name('qr.guide');
 
-        // Accounting Module
+        // Accounting Module (loaded from routes/tenant/accounting.php for consistency)
+        require __DIR__ . '/tenant/accounting.php';
+
+        /*
         Route::prefix('accounting')->name('accounting.')->group(function () {
             // Chart of Accounts
             Route::resource('chart-of-accounts', \App\Http\Controllers\Tenant\Accounting\ChartOfAccountController::class);
