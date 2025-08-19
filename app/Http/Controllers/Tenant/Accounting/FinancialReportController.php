@@ -555,7 +555,43 @@ class FinancialReportController extends Controller
      */
     public function cashFlowExcel(Request $request)
     {
-        return redirect()->back()->with('info', 'تصدير Excel قيد التطوير - سيتم إضافته قريباً');
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        $dateFrom = $request->date_from ?? now()->startOfYear()->format('Y-m-d');
+        $dateTo = $request->date_to ?? now()->format('Y-m-d');
+        $method = $request->method ?? 'direct';
+
+        // NOTE: current implementation uses sample figures already prepared in cashFlow()
+        // For export, we replicate the same structure. In the next iteration, we'll compute from posted journal entries.
+        $operating = [
+            'customer_receipts' => (float) ($request->customer_receipts ?? 500000),
+            'supplier_payments' => (float) ($request->supplier_payments ?? 300000),
+            'employee_payments' => (float) ($request->employee_payments ?? 100000),
+            'other_operating_payments' => (float) ($request->other_operating_payments ?? 50000),
+        ];
+        $investing = [
+            'asset_purchases' => (float) ($request->asset_purchases ?? 200000),
+            'asset_sales' => (float) ($request->asset_sales ?? 50000),
+            'investments' => (float) ($request->investments ?? 100000),
+        ];
+        $financing = [
+            'loans_received' => (float) ($request->loans_received ?? 300000),
+            'loan_payments' => (float) ($request->loan_payments ?? 150000),
+            'capital_contributions' => (float) ($request->capital_contributions ?? 200000),
+            'dividends_paid' => (float) ($request->dividends_paid ?? 75000),
+        ];
+
+        $netOperating = $operating['customer_receipts'] - $operating['supplier_payments'] - $operating['employee_payments'] - $operating['other_operating_payments'];
+        $netInvesting = $investing['asset_sales'] - $investing['asset_purchases'] - $investing['investments'];
+        $netFinancing = $financing['loans_received'] + $financing['capital_contributions'] - $financing['loan_payments'] - $financing['dividends_paid'];
+
+        $beginningCash = (float) ($request->beginning_cash ?? 100000);
+        $endingCash = $beginningCash + $netOperating + $netInvesting + $netFinancing;
+
+        $export = new \App\Exports\Tenant\Accounting\CashFlowExport($dateFrom, $dateTo, $method, $operating, $investing, $financing, $netOperating, $netInvesting, $netFinancing, $beginningCash, $endingCash);
+        $fileName = 'cash_flow_' . now()->format('Ymd_His') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download($export, $fileName);
     }
 
     /**

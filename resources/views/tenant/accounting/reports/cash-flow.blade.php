@@ -348,7 +348,12 @@ function printReport() {
 }
 
 function exportToExcel() {
-    alert('سيتم تصدير التقرير إلى Excel قريباً...');
+    const params = new URLSearchParams({
+        date_from: document.querySelector('input[name="date_from"]').value,
+        date_to: document.querySelector('input[name="date_to"]').value,
+        method: document.querySelector('select[name=\'method\']').value,
+    });
+    window.location.href = '{{ route('tenant.inventory.accounting.reports.cash-flow.excel') }}' + '?' + params.toString();
 }
 </script>
 @endsection
