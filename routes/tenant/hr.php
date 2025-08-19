@@ -94,14 +94,18 @@ Route::prefix('overtime')->name('overtime.')->group(function () {
     Route::get('/', [OvertimeController::class, 'index'])->name('index');
     Route::get('/create', [OvertimeController::class, 'create'])->name('create');
     Route::post('/', [OvertimeController::class, 'store'])->name('store');
-    Route::get('/{overtime}', [OvertimeController::class, 'show'])->name('show');
-    Route::get('/{overtime}/edit', [OvertimeController::class, 'edit'])->name('edit');
-    Route::put('/{overtime}', [OvertimeController::class, 'update'])->name('update');
-    Route::delete('/{overtime}', [OvertimeController::class, 'destroy'])->name('destroy');
-    Route::post('/{overtime}/approve', [OvertimeController::class, 'approve'])->name('approve');
-    Route::post('/{overtime}/reject', [OvertimeController::class, 'reject'])->name('reject');
+
+    // Place static routes before parameterized to avoid conflicts
     Route::get('/reports', [OvertimeController::class, 'reports'])->name('reports');
     Route::get('/export', [OvertimeController::class, 'export'])->name('export');
+
+    // Parameterized routes with numeric constraint to prevent catching static paths
+    Route::get('/{overtime}', [OvertimeController::class, 'show'])->whereNumber('overtime')->name('show');
+    Route::get('/{overtime}/edit', [OvertimeController::class, 'edit'])->whereNumber('overtime')->name('edit');
+    Route::put('/{overtime}', [OvertimeController::class, 'update'])->whereNumber('overtime')->name('update');
+    Route::delete('/{overtime}', [OvertimeController::class, 'destroy'])->whereNumber('overtime')->name('destroy');
+    Route::post('/{overtime}/approve', [OvertimeController::class, 'approve'])->whereNumber('overtime')->name('approve');
+    Route::post('/{overtime}/reject', [OvertimeController::class, 'reject'])->whereNumber('overtime')->name('reject');
 
 });
 
