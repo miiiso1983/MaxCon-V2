@@ -73,6 +73,8 @@ class PayrollController extends Controller
         $processed = 0;
         foreach ($employees as $emp) {
             $basic = $emp->basic_salary ?? 0;
+
+            // اجمع ساعات الإضافي المعتمدة
             $hours = Overtime::where('tenant_id', $tenantId)
                 ->where('employee_id', $emp->id)
                 ->whereMonth('date', $month)
@@ -80,25 +82,49 @@ class PayrollController extends Controller
                 ->where('status', 'approved')
                 ->sum('hours_approved');
 
-            $payroll = Payroll::updateOrCreate(
-                ['employee_id' => $emp->id, 'month' => $month, 'year' => $year],
-                [
-                    'tenant_id' => $tenantId,
-                    'payroll_period' => $period,
-                    'basic_salary' => $basic,
-                    'overtime_hours' => $hours,
-                    'bonus' => $payroll->bonus ?? 0,
-                    'deductions' => $payroll->deductions ?? null,
-                    'status' => 'calculated',
-                ]
-            );
+            // أنشئ أو حدّث سجل الراتب بدون حفظ فوري لضبط الحقول المطلوبة
+            $payroll = Payroll::firstOrNew([
+                'employee_id' => $emp->id,
+                'month' => $month,
+                'year' => $year,
+            ]);
 
-            // احسب مبالغ الراتب الأساسية
+            $payroll->tenant_id = $tenantId;
+            $payroll->payroll_period = $period;
+            $payroll->basic_salary = $basic;
+            $payroll->overtime_hours = $hours ?: 0;
+
+            // تأكد من تهيئة الحقول العددية المطلوبة لتفادي null
+            $payroll->bonus = $payroll->bonus ?? 0;
+            $payroll->overtime_amount = $payroll->overtime_amount ?? 0;
+            $payroll->gross_salary = $payroll->gross_salary ?? 0;
+            $payroll->tax_amount = $payroll->tax_amount ?? 0;
+            $payroll->social_security = $payroll->social_security ?? 0;
+            $payroll->insurance_deduction = $payroll->insurance_deduction ?? 0;
+            $payroll->loan_deduction = $payroll->loan_deduction ?? 0;
+            $payroll->other_deductions = $payroll->other_deductions ?? 0;
+            $payroll->total_deductions = $payroll->total_deductions ?? 0;
+            $payroll->net_salary = $payroll->net_salary ?? 0;
+            $payroll->late_hours = $payroll->late_hours ?? 0;
+            $payroll->present_days = $payroll->present_days ?? 0;
+            $payroll->absent_days = $payroll->absent_days ?? 0;
+            $payroll->leave_days = $payroll->leave_days ?? 0;
+
+            // JSON الحقول
+            $payroll->allowances = $payroll->allowances ?? [];
+            $payroll->deductions = $payroll->deductions ?? [];
+
+            // احسب بيانات الحضور وأيام العمل قبل الحفظ لضمان ملء working_days
+            $payroll->calculateAttendanceData();
+
+            // احسب مبالغ الراتب
             $payroll->calculateOvertimeAmount();
             $payroll->calculateGrossSalary();
             $payroll->calculateTaxAmount();
             $payroll->calculateSocialSecurity();
             $payroll->calculateNetSalary();
+
+            $payroll->status = 'calculated';
             $payroll->save();
             $processed++;
         }
@@ -150,7 +176,19 @@ class PayrollController extends Controller
         if (!$payroll) {
             // إن لم يوجد، أنشئ كشف راتب سريعًا لهذا الموظف
             $this->generatePayroll(new Request(['period' => $period, 'employee_id' => $employeeId]));
-            $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->firstOrFail();
+            $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->first();
+        }
+        // تأكد من اكتمال الحقول المطلوبة (خاصة working_days) قبل الطباعة
+        if ($payroll) {
+            $payroll->calculateAttendanceData();
+            $payroll->calculateOvertimeAmount();
+            $payroll->calculateGrossSalary();
+            $payroll->calculateTaxAmount();
+            $payroll->calculateSocialSecurity();
+            $payroll->calculateNetSalary();
+            $payroll->save();
+        } else {
+            abort(404);
         }
 
         $pdfContent = app(HrPdfService::class)->render('tenant.hr.payroll.payslip-pdf', [
@@ -174,7 +212,18 @@ class PayrollController extends Controller
         $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->first();
         if (!$payroll) {
             $this->generatePayroll(new Request(['period' => $period, 'employee_id' => $employeeId]));
-            $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->firstOrFail();
+            $payroll = Payroll::where('employee_id', $employeeId)->where('month', $month)->where('year', $year)->first();
+        }
+        if ($payroll) {
+            $payroll->calculateAttendanceData();
+            $payroll->calculateOvertimeAmount();
+            $payroll->calculateGrossSalary();
+            $payroll->calculateTaxAmount();
+            $payroll->calculateSocialSecurity();
+            $payroll->calculateNetSalary();
+            $payroll->save();
+        } else {
+            return response()->json(['success' => false, 'message' => 'تعذر العثور على كشف راتب للفترة المحددة'], 404);
         }
 
         $pdfContent = app(HrPdfService::class)->render('tenant.hr.payroll.payslip-pdf', [
