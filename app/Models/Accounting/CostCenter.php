@@ -162,7 +162,7 @@ class CostCenter extends Model
      */
     public function scopeParents($query)
     {
-        return $query->whereNotNull('parent_cost_center_id');
+        return $query->whereNotNull('parent_id');
     }
 
     /**
@@ -170,7 +170,7 @@ class CostCenter extends Model
      */
     public function scopeRoots($query)
     {
-        return $query->whereNull('parent_cost_center_id');
+        return $query->whereNull('parent_id');
     }
 
     /**
@@ -186,8 +186,8 @@ class CostCenter extends Model
             }
             
             // Set level based on parent
-            if ($costCenter->parent_cost_center_id) {
-                $parent = static::find($costCenter->parent_cost_center_id);
+            if ($costCenter->parent_id) {
+                $parent = static::find($costCenter->parent_id);
                 $costCenter->level = $parent ? $parent->level + 1 : 1;
             } else {
                 $costCenter->level = 1;
@@ -205,14 +205,14 @@ class CostCenter extends Model
      */
     private static function generateCode($costCenter): string
     {
-        if ($costCenter->parent_cost_center_id) {
-            $parent = static::find($costCenter->parent_cost_center_id);
+        if ($costCenter->parent_id) {
+            $parent = static::find($costCenter->parent_id);
             $parentCode = $parent->code;
-            $childCount = static::where('parent_cost_center_id', $costCenter->parent_cost_center_id)->count();
+            $childCount = static::where('parent_id', $costCenter->parent_id)->count();
             return $parentCode . '.' . str_pad($childCount + 1, 2, '0', STR_PAD_LEFT);
         }
-        
-        $rootCount = static::whereNull('parent_cost_center_id')->count();
+
+        $rootCount = static::whereNull('parent_id')->count();
         return 'CC' . str_pad($rootCount + 1, 3, '0', STR_PAD_LEFT);
     }
 }

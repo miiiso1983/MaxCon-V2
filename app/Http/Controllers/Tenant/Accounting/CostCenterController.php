@@ -104,7 +104,7 @@ class CostCenterController extends Controller
             'name' => 'required|string|max:255',
             'name_en' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'parent_cost_center_id' => 'nullable|exists:cost_centers,id',
+            'parent_id' => 'nullable|exists:cost_centers,id',
             'manager_name' => 'nullable|string|max:255',
             'manager_email' => 'nullable|email|max:255',
             'budget_amount' => 'nullable|numeric|min:0',
@@ -118,7 +118,7 @@ class CostCenterController extends Controller
                 'name' => $request->get('name'),
                 'name_en' => $request->get('name_en'),
                 'description' => $request->get('description'),
-                'parent_id' => $request->get('parent_cost_center_id'),
+                'parent_id' => $request->get('parent_id', $request->get('parent_cost_center_id')),
                 'budget_amount' => $request->get('budget_amount', 0),
                 'currency_code' => $request->get('currency_code', 'IQD'),
                 'is_active' => $request->boolean('is_active', true),
@@ -217,7 +217,7 @@ class CostCenterController extends Controller
             'name' => 'required|string|max:255',
             'name_en' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'parent_cost_center_id' => 'nullable|exists:cost_centers,id',
+            'parent_id' => 'nullable|exists:cost_centers,id',
             'manager_name' => 'nullable|string|max:255',
             'manager_email' => 'nullable|email|max:255',
             'budget_amount' => 'nullable|numeric|min:0',
@@ -230,7 +230,7 @@ class CostCenterController extends Controller
                 'name' => $request->get('name'),
                 'name_en' => $request->get('name_en'),
                 'description' => $request->get('description'),
-                'parent_id' => $request->get('parent_cost_center_id'),
+                'parent_id' => $request->get('parent_id', $request->get('parent_cost_center_id')),
                 'budget_amount' => $request->get('budget_amount', 0),
                 'currency_code' => $request->get('currency_code', 'IQD'),
                 'is_active' => $request->boolean('is_active', true)
@@ -273,7 +273,7 @@ class CostCenterController extends Controller
         }
 
         // Check if cost center has child cost centers
-        if ($costCenter->childCostCenters()->count() > 0) {
+        if (method_exists($costCenter, 'childCostCenters') && $costCenter->childCostCenters()->count() > 0) {
             return back()->with('error', 'لا يمكن حذف مركز التكلفة لأنه يحتوي على مراكز تكلفة فرعية');
         }
 
