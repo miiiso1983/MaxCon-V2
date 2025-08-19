@@ -73,12 +73,12 @@
                 سجل الساعات الإضافية
             </h3>
             <div style="display: flex; gap: 10px;">
-                <button onclick="generateOvertimeReport()" style="background: #ed8936; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                <a href="{{ route('tenant.hr.overtime.reports') }}" style="background: #ed8936; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-chart-bar"></i> التقارير
-                </button>
-                <button onclick="exportOvertimeData()" style="background: #48bb78; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                </a>
+                <a href="{{ route('tenant.hr.overtime.reports') }}" style="background: #48bb78; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-download"></i> تصدير
-                </button>
+                </a>
             </div>
         </div>
 
@@ -159,9 +159,18 @@
                                 @if($overtime->status === 'pending')
                                 <form method="POST" action="{{ route('tenant.hr.overtime.approve', $overtime->id) }}" style="display: inline;">
                                     @csrf
-                                    <button type="submit" style="background: #48bb78; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;" onclick="return confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')">
+                                    <button type="submit" title="موافقة" style="background: #48bb78; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;" onclick="return confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')">
                                         <i class="fas fa-check"></i>
                                     </button>
+                                </form>
+
+                                <!-- Reject action: button + hidden form -->
+                                <button type="button" title="رفض" onclick="askRejectReason({{ $overtime->id }})" style="background: #f56565; color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <form id="reject-form-{{ $overtime->id }}" method="POST" action="{{ route('tenant.hr.overtime.reject', $overtime->id) }}" style="display: none;">
+                                    @csrf
+                                    <input type="hidden" name="rejected_reason" value="">
                                 </form>
                                 @endif
                             </div>
@@ -204,19 +213,19 @@
                 <div style="font-weight: 700; font-size: 16px;">تسجيل ساعات إضافية</div>
             </button>
 
-            <button onclick="generateOvertimeReport()" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; padding: 20px; border: none; border-radius: 15px; cursor: pointer; text-align: center; transition: transform 0.3s;"
-                    onmouseover="this.style.transform='translateY(-5px)'" 
-                    onmouseout="this.style.transform='translateY(0)'">
+            <a href="{{ route('tenant.hr.overtime.reports') }}" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; padding: 20px; border: none; border-radius: 15px; cursor: pointer; text-align: center; transition: transform 0.3s; text-decoration: none; display: block;"
+               onmouseover="this.style.transform='translateY(-5px)'"
+               onmouseout="this.style.transform='translateY(0)'">
                 <i class="fas fa-chart-bar" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
                 <div style="font-weight: 700; font-size: 16px;">تقارير الساعات الإضافية</div>
-            </button>
+            </a>
 
-            <button onclick="exportOvertimeData()" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; padding: 20px; border: none; border-radius: 15px; cursor: pointer; text-align: center; transition: transform 0.3s;"
-                    onmouseover="this.style.transform='translateY(-5px)'" 
-                    onmouseout="this.style.transform='translateY(0)'">
+            <a href="{{ route('tenant.hr.overtime.reports') }}" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; padding: 20px; border: none; border-radius: 15px; cursor: pointer; text-align: center; transition: transform 0.3s; text-decoration: none; display: block;"
+               onmouseover="this.style.transform='translateY(-5px)'"
+               onmouseout="this.style.transform='translateY(0)'">
                 <i class="fas fa-download" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
                 <div style="font-weight: 700; font-size: 16px;">تصدير البيانات</div>
-            </button>
+            </a>
 
             <button onclick="manageOvertimeSettings()" style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); color: white; padding: 20px; border: none; border-radius: 15px; cursor: pointer; text-align: center; transition: transform 0.3s;"
                     onmouseover="this.style.transform='translateY(-5px)'" 
