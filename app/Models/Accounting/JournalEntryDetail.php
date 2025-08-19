@@ -128,12 +128,12 @@ class JournalEntryDetail extends Model
         });
 
         static::saved(function ($detail) {
-            // Update journal entry totals
+            // Update journal entry totals without firing events to avoid recursion
             $detail->journalEntry->calculateTotals();
         });
 
         static::deleted(function ($detail) {
-            // Update journal entry totals
+            // Update journal entry totals without firing events to avoid recursion
             $detail->journalEntry->calculateTotals();
         });
     }

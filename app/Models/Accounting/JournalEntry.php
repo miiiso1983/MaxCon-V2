@@ -210,7 +210,8 @@ class JournalEntry extends Model
     {
         $this->total_debit = $this->details()->sum('debit_amount');
         $this->total_credit = $this->details()->sum('credit_amount');
-        $this->save();
+        // Avoid infinite recursion: update totals without firing model events
+        $this->saveQuietly();
     }
 
     /**
