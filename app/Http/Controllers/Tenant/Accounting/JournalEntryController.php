@@ -211,7 +211,9 @@ class JournalEntryController extends Controller
             'approver'
         ]);
 
-        return view('tenant.accounting.journal-entries.show', compact('journalEntry'));
+        $statuses = JournalEntry::getStatuses();
+        $types = JournalEntry::getTypes();
+        return view('tenant.accounting.journal-entries.show', compact('journalEntry', 'statuses', 'types'));
     }
 
     /**
