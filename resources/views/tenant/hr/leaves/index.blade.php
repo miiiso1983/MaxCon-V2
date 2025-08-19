@@ -304,20 +304,7 @@ function openLeaveRequestModal() {
         display: flex;
         align-items: center;
         justify-content: center;
-                    @can('manage hr leaves')
-                    <div>
-                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الموظف</label>
-                        <select id="ui_employee_id" name="employee_id" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                            <option value="">اختر الموظف</option>
-                            @if(isset($employees))
-                                @foreach($employees as $emp)
-                                    <option value="{{ $emp->id }}">{{ $emp->full_name_arabic ?? ($emp->full_name_english ?? ($emp->first_name.' '.$emp->last_name)) }}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                        <small style="color:#718096;">هذا الحقل يظهر لمسؤولي الموارد البشرية فقط</small>
-                    </div>
-                    @endcan
+
         z-index: 10000;
     `;
 
@@ -345,6 +332,19 @@ function openLeaveRequestModal() {
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">عدد الأيام</label>
                         <input id="ui_days_requested" name="days_requested" type="number" min="1" max="365" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="عدد أيام الإجازة (اختياري)">
                     </div>
+                    @can('manage hr leaves')
+                    <div>
+                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الموظف (اختياري)</label>
+                        <select id="ui_employee_id" name="employee_id" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                            <option value="">اختر الموظف</option>
+                            @if(isset($employees))
+                                @foreach($employees as $emp)
+                                    <option value="{{ $emp->id }}">{{ $emp->full_name_arabic ?? ($emp->full_name_english ?? ($emp->first_name.' '.$emp->last_name)) }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+                    @endcan
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -354,7 +354,7 @@ function openLeaveRequestModal() {
                     </div>
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">تاريخ النهاية</label>
-                        <input id="ui_end_date" name="to_date" type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <input id="ui_end_date" name="end_date" type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     </div>
                 </div>
 
@@ -419,19 +419,27 @@ function openLeaveRequestModal() {
 
         fetch(hiddenForm.action, {
             method: 'POST',
-            headers: { 'X-CSRF-TOKEN': hiddenForm.querySelector('input[name="_token"]').value },
+            headers: {
+                'X-CSRF-TOKEN': hiddenForm.querySelector('input[name="_token"]').value,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             body: formData
         }).then(async (res) => {
-            if (!res.ok) throw new Error('failed');
-            return res.text();
-        }).then(() => {
+            if (!res.ok) {
+                let msg = 'تعذر إرسال الطلب. يرجى التحقق من المدخلات.';
+                try { const data = await res.json(); if (data?.message) msg = data.message; } catch (e) {}
+                throw new Error(msg);
+            }
+            return res.json();
+        }).then((data) => {
             modal.remove();
-            showNotification('تم إرسال طلب الإجازة بنجاح!', 'success');
+            showNotification(data?.message || 'تم إرسال طلب الإجازة بنجاح!', 'success');
             window.location.reload();
-        }).catch(() => {
+        }).catch((err) => {
             submitBtn.innerHTML = 'إرسال الطلب';
             submitBtn.disabled = false;
-            alert('تعذر إرسال الطلب. يرجى المحاولة لاحقاً.');
+            alert(err?.message || 'تعذر إرسال الطلب. يرجى المحاولة لاحقاً.');
         });
     });
 
