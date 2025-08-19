@@ -726,11 +726,61 @@ class FinancialReportController extends Controller
         ));
     }
 
+    /**
      * Export Account Ledger to Excel
      */
     public function accountLedgerExcel(Request $request)
     {
-        return redirect()->back()->with('info', 'تصدير Excel قيد التطوير - سيتم إضافته قريباً');
+        $user = Auth::user();
+        $tenantId = $user->tenant_id;
+
+        $accountId = $request->account_id;
+        $dateFrom = $request->date_from ?? now()->startOfMonth()->format('Y-m-d');
+        $dateTo = $request->date_to ?? now()->format('Y-m-d');
+
+        if (!$accountId) {
+            return back()->with('error', 'يرجى اختيار الحساب أولاً');
+        }
+
+        $account = ChartOfAccount::where('tenant_id', $tenantId)->find($accountId);
+        if (!$account) {
+            return back()->with('error', 'لم يتم العثور على الحساب');
+        }
+
+        $openingBalance = $account->getBalance(null, $dateFrom);
+
+        $entries = JournalEntryDetail::where('tenant_id', $tenantId)
+            ->where('account_id', $accountId)
+            ->whereHas('journalEntry', function($q) use ($dateFrom, $dateTo) {
+                $q->where('status', 'posted')->whereBetween('entry_date', [$dateFrom, $dateTo]);
+            })
+            ->with(['journalEntry'])
+            ->orderBy('created_at')
+            ->get();
+
+        $ledgerEntries = [];
+        $totalDebits = 0; $totalCredits = 0;
+        foreach ($entries as $entry) {
+            $ledgerEntries[] = [
+                'date' => $entry->journalEntry->entry_date,
+                'journal_number' => $entry->journalEntry->journal_number,
+                'journal_entry_id' => $entry->journal_entry_id,
+                'description' => $entry->description ?: $entry->journalEntry->description,
+                'debit_amount' => $entry->debit_amount,
+                'credit_amount' => $entry->credit_amount,
+            ];
+            $totalDebits += $entry->debit_amount; $totalCredits += $entry->credit_amount;
+        }
+
+        if ($account->account_type == 'asset' || $account->account_type == 'expense') {
+            $closingBalance = $openingBalance + $totalDebits - $totalCredits;
+        } else {
+            $closingBalance = $openingBalance + $totalCredits - $totalDebits;
+        }
+
+        $export = new \App\Exports\Tenant\Accounting\AccountLedgerExport($account, $ledgerEntries, $openingBalance, $totalDebits, $totalCredits, $closingBalance, $dateFrom, $dateTo);
+        $fileName = 'account_ledger_' . ($account->account_code ?? 'acc') . '_' . now()->format('Ymd_His') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download($export, $fileName);
     }
 
     /**

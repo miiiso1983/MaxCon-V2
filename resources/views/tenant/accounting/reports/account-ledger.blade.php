@@ -268,7 +268,16 @@ function printReport() {
 }
 
 function exportToExcel() {
-    alert('سيتم تصدير التقرير إلى Excel قريباً...');
+    const params = new URLSearchParams({
+        account_id: document.querySelector('select[name=\'account_id\']').value,
+        date_from: document.querySelector('input[name=\'date_from\']').value,
+        date_to: document.querySelector('input[name=\'date_to\']').value,
+    });
+    if (!params.get('account_id')) {
+        alert('يرجى اختيار الحساب أولاً');
+        return;
+    }
+    window.location.href = '{{ route('tenant.inventory.accounting.reports.account-ledger.excel') }}' + '?' + params.toString();
 }
 </script>
 @endsection
