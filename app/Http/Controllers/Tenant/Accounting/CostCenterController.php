@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
 class CostCenterController extends Controller
@@ -120,7 +121,7 @@ class CostCenterController extends Controller
                 'description' => $request->get('description'),
                 'parent_id' => $request->get('parent_id', $request->get('parent_cost_center_id')),
                 'budget_amount' => $request->get('budget_amount', 0),
-                'currency_code' => $request->get('currency_code', 'IQD'),
+                'currency_code' => Schema::hasColumn('cost_centers','currency_code') ? $request->get('currency_code', 'IQD') : null,
                 'is_active' => $request->boolean('is_active', true),
                 'created_by' => $user->id
             ]);
