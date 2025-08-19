@@ -245,24 +245,31 @@ class JournalEntry extends Model
         parent::boot();
 
         static::creating(function ($entry) {
-            // Guard: ensure journal_number is generated only if column exists
+            // Guard: ensure number is generated only if a number column exists
             $hasJournalNumberColumn = Schema::hasColumn('journal_entries', 'journal_number');
-            if ($hasJournalNumberColumn && !$entry->journal_number) {
-                $entry->journal_number = static::generateJournalNumber($entry);
+            $hasEntryNumberColumn = Schema::hasColumn('journal_entries', 'entry_number');
+            if (($hasJournalNumberColumn || $hasEntryNumberColumn)) {
+                $number = static::generateJournalNumber($entry);
+                if ($hasJournalNumberColumn && empty($entry->journal_number)) {
+                    $entry->journal_number = $number;
+                }
+                if ($hasEntryNumberColumn && empty($entry->entry_number)) {
+                    $entry->entry_number = $number;
+                }
             }
-            
+
             if (!$entry->status) {
                 $entry->status = self::STATUS_DRAFT;
             }
-            
+
             if (!$entry->entry_type) {
                 $entry->entry_type = self::TYPE_MANUAL;
             }
-            
+
             if (!$entry->currency_code) {
                 $entry->currency_code = 'IQD';
             }
-            
+
             if (!$entry->exchange_rate) {
                 $entry->exchange_rate = 1.0000;
             }
