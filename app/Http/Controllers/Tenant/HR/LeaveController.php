@@ -58,8 +58,21 @@ class LeaveController extends Controller
                 })->get();
             if ($candidates->count() === 1) {
                 $employee = $candidates->first();
+                // اختياري: مزامنة بريد الموظف مع بريد المستخدم إذا كان متاحاً وفريداً
+                if (!empty($user->email)) {
+                    $exists = Employee::where('tenant_id', $tenantId)
+                        ->where('email', $user->email)
+                        ->where('id', '!=', $employee->id)
+                        ->exists();
+                    if (!$exists) {
+                        $employee->email = $user->email;
+                        $employee->save();
+                    }
+                }
+            } elseif ($candidates->count() > 1) {
+                return redirect()->back()->with('error', 'تم العثور على أكثر من موظف يطابق اسم/هاتف المستخدم. يرجى تحديث بيانات الموظف لتكون فريدة.');
             } else {
-                return redirect()->back()->with('error', 'تعذر ربط المستخدم بموظف تلقائياً. يرجى تحديث بريد الموظف ليطابق بريد المستخدم الحالي أو تزويدنا باسم الموظف الدقيق لنقوم بالربط.');
+                return redirect()->back()->with('error', 'لا يوجد موظف مرتبط بحساب المستخدم الحالي. يرجى ربط المستخدم بسجل موظف.');
             }
         }
 
@@ -228,7 +241,13 @@ class LeaveController extends Controller
 
     public function export(Request $request)
     {
-        return redirect()->back()->with('success', 'تم تصدير بيانات الإجازات بنجاح');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $from = $request->get('from_date');
+        $to = $request->get('to_date');
+        $status = $request->get('status');
+        $employeeId = $request->get('employee_id');
+        $fileName = 'leaves_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\LeaveExport($tenantId, $from, $to, $status, $employeeId), $fileName);
     }
 
 }

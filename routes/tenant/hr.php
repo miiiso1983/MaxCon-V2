@@ -140,12 +140,12 @@ Route::prefix('leaves')->name('leaves.')->group(function () {
     Route::get('/', [LeaveController::class, 'index'])->name('index');
     Route::get('/create', [LeaveController::class, 'create'])->name('create');
     Route::post('/', [LeaveController::class, 'store'])->name('store');
-    Route::get('/{leave}', [LeaveController::class, 'show'])->name('show');
-    Route::get('/{leave}/edit', [LeaveController::class, 'edit'])->name('edit');
-    Route::put('/{leave}', [LeaveController::class, 'update'])->name('update');
-    Route::delete('/{leave}', [LeaveController::class, 'destroy'])->name('destroy');
-    Route::post('/{leave}/approve', [LeaveController::class, 'approve'])->name('approve');
-    Route::post('/{leave}/reject', [LeaveController::class, 'reject'])->name('reject');
+    Route::get('/{leave}', [LeaveController::class, 'show'])->whereNumber('leave')->name('show');
+    Route::get('/{leave}/edit', [LeaveController::class, 'edit'])->whereNumber('leave')->name('edit');
+    Route::put('/{leave}', [LeaveController::class, 'update'])->whereNumber('leave')->name('update');
+    Route::delete('/{leave}', [LeaveController::class, 'destroy'])->whereNumber('leave')->name('destroy');
+    Route::post('/{leave}/approve', [LeaveController::class, 'approve'])->whereNumber('leave')->name('approve');
+    Route::post('/{leave}/reject', [LeaveController::class, 'reject'])->whereNumber('leave')->name('reject');
     Route::get('/calendar/view', [LeaveController::class, 'calendar'])->name('calendar');
     Route::get('/balance/{employee}', [LeaveController::class, 'balance'])->name('balance');
     Route::get('/export', [LeaveController::class, 'export'])->name('export');
