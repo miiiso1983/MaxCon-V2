@@ -304,6 +304,20 @@ function openLeaveRequestModal() {
         display: flex;
         align-items: center;
         justify-content: center;
+                    @can('manage hr leaves')
+                    <div>
+                        <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">الموظف</label>
+                        <select id="ui_employee_id" name="employee_id" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                            <option value="">اختر الموظف</option>
+                            @if(isset($employees))
+                                @foreach($employees as $emp)
+                                    <option value="{{ $emp->id }}">{{ $emp->full_name_arabic ?? ($emp->full_name_english ?? ($emp->first_name.' '.$emp->last_name)) }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small style="color:#718096;">هذا الحقل يظهر لمسؤولي الموارد البشرية فقط</small>
+                    </div>
+                    @endcan
         z-index: 10000;
     `;
 
@@ -314,11 +328,11 @@ function openLeaveRequestModal() {
                 طلب إجازة جديد
             </h3>
 
-            <form id="leaveRequestForm" enctype="multipart/form-data">
+            <form id="leaveRequestForm" enctype="multipart/form-data">@csrf
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">نوع الإجازة</label>
-                        <select id="ui_leave_type_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <select id="ui_leave_type_id" name="leave_type_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                             <option value="">اختر نوع الإجازة</option>
                             @if(isset($leaveTypes))
                                 @foreach($leaveTypes as $lt)
@@ -329,24 +343,24 @@ function openLeaveRequestModal() {
                     </div>
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">عدد الأيام</label>
-                        <input id="ui_days_requested" type="number" min="1" max="365" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="عدد أيام الإجازة (اختياري)">
+                        <input id="ui_days_requested" name="days_requested" type="number" min="1" max="365" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="عدد أيام الإجازة (اختياري)">
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">تاريخ البداية</label>
-                        <input id="ui_start_date" type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <input id="ui_start_date" name="start_date" type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     </div>
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">تاريخ النهاية</label>
-                        <input id="ui_end_date" type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <input id="ui_end_date" name="to_date" type="date" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">سبب الإجازة</label>
-                    <textarea id="ui_reason" rows="4" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; resize: vertical;" placeholder="أدخل سبب طلب الإجازة"></textarea>
+                    <textarea id="ui_reason" name="reason" rows="4" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; resize: vertical;" placeholder="أدخل سبب طلب الإجازة"></textarea>
                 </div>
 
                 <div style="margin-bottom: 20px;">
@@ -383,6 +397,14 @@ function openLeaveRequestModal() {
         document.getElementById('start_date').value = document.getElementById('ui_start_date').value;
         document.getElementById('end_date').value = document.getElementById('ui_end_date').value;
         document.getElementById('leave_reason').value = document.getElementById('ui_reason').value;
+        const uiEmp = document.getElementById('ui_employee_id');
+        if (uiEmp) {
+            const hiddenEmp = hiddenForm.querySelector('input[name="employee_id"]') || document.createElement('input');
+            hiddenEmp.type = 'hidden';
+            hiddenEmp.name = 'employee_id';
+            hiddenEmp.value = uiEmp.value;
+            hiddenForm.appendChild(hiddenEmp);
+        }
 
         const hiddenForm = document.getElementById('leave-create-form');
 

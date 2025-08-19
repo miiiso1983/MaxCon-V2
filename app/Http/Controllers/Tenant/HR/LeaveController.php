@@ -19,7 +19,8 @@ class LeaveController extends Controller
             ->orderByDesc('created_at')
             ->paginate(10);
         $leaveTypes = \App\Models\Tenant\HR\LeaveType::where('tenant_id', $tenantId)->where('is_active', true)->orderBy('name')->get(['id','name']);
-        return view('tenant.hr.leaves.index', compact('leaves','leaveTypes'));
+        $employees = Employee::where('tenant_id', $tenantId)->active()->orderBy('first_name')->get(['id','first_name','last_name','full_name_arabic','full_name_english']);
+        return view('tenant.hr.leaves.index', compact('leaves','leaveTypes','employees'));
     }
 
     public function create()
@@ -39,12 +40,22 @@ class LeaveController extends Controller
             'days_requested' => 'nullable|integer|min:1|max:365',
             'reason' => 'required|string|max:2000',
             'attachments.*' => 'nullable|file|max:5120',
+            'employee_id' => 'nullable|integer|exists:hr_employees,id',
         ]);
 
-        // Resolve employee by user email; fallback to name/phone if not found
-        $employee = Employee::where('tenant_id', $tenantId)
-            ->where('email', $user->email)
-            ->first();
+        // Resolve employee (allow HR to submit on behalf of another employee)
+        if ($request->filled('employee_id') && Auth::user()->can('manage hr leaves')) {
+            $employee = Employee::where('tenant_id', $tenantId)->find($request->integer('employee_id'));
+            if (!$employee) {
+                return redirect()->back()->with('error', 'الموظف المحدد غير موجود');
+            }
+        } else {
+            // Resolve by current user
+            $employee = Employee::where('tenant_id', $tenantId)
+                ->where('email', $user->email)
+                ->first();
+        }
+
         if (!$employee) {
             $candidates = Employee::where('tenant_id', $tenantId)
                 ->where(function($q) use ($user) {
