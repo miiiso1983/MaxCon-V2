@@ -327,10 +327,12 @@ function openLeaveRequestModal() {
                                 @endforeach
                             @endif
                         </select>
+                        <div id="err_leave_type_id" style="color:#e53e3e; font-size:12px; margin-top:6px;"></div>
                     </div>
                     <div>
                         <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">عدد الأيام</label>
                         <input id="ui_days_requested" name="days_requested" type="number" min="1" max="365" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;" placeholder="عدد أيام الإجازة (اختياري)">
+                        <div id="err_days_requested" style="color:#e53e3e; font-size:12px; margin-top:6px;"></div>
                     </div>
                     @can('manage hr leaves')
                     <div>
@@ -341,6 +343,7 @@ function openLeaveRequestModal() {
                                 @foreach($employees as $emp)
                                     <option value="{{ $emp->id }}">{{ $emp->full_name_arabic ?? ($emp->full_name_english ?? ($emp->first_name.' '.$emp->last_name)) }}</option>
                                 @endforeach
+                        <div id="err_employee_id" style="color:#e53e3e; font-size:12px; margin-top:6px;"></div>
                             @endif
                         </select>
                     </div>
@@ -361,11 +364,13 @@ function openLeaveRequestModal() {
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">سبب الإجازة</label>
                     <textarea id="ui_reason" name="reason" rows="4" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; resize: vertical;" placeholder="أدخل سبب طلب الإجازة"></textarea>
+                    <div id="err_reason" style="color:#e53e3e; font-size:12px; margin-top:6px;"></div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px;">المرفقات (اختياري)</label>
                     <input id="ui_attachments" type="file" name="attachments[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    <div id="err_attachments" style="color:#e53e3e; font-size:12px; margin-top:6px;"></div>
                     <small style="color: #718096; font-size: 12px;">يمكن إرفاق ملفات PDF، صور، أو مستندات Word</small>
                 </div>
 
@@ -437,12 +442,31 @@ function openLeaveRequestModal() {
             try { data = JSON.parse(raw); } catch (e) { data = { message: 'تم إرسال طلب الإجازة بنجاح!' }; }
             return data;
         }).then((data) => {
+            // Clear inline errors
+            ['leave_type_id','days_requested','start_date','end_date','reason','attachments','employee_id'].forEach(id => {
+                const el = document.getElementById('err_'+id);
+                if (el) el.textContent = '';
+            });
+
             modal.remove();
             showNotification(data?.message || 'تم إرسال طلب الإجازة بنجاح!', 'success');
             window.location.reload();
         }).catch((err) => {
             submitBtn.innerHTML = 'إرسال الطلب';
             submitBtn.disabled = false;
+
+            // Try to parse per-field errors and show inline
+            try {
+                const json = JSON.parse(err.message);
+                if (json && json.errors) {
+                    Object.keys(json.errors).forEach(k => {
+                        const el = document.getElementById('err_'+k);
+                        if (el) el.textContent = Array.isArray(json.errors[k]) ? json.errors[k][0] : String(json.errors[k]);
+                    });
+                    return;
+                }
+            } catch(e) {}
+
             alert(err?.message || 'تعذر إرسال الطلب. يرجى المحاولة لاحقاً.');
         });
     });
