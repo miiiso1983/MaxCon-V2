@@ -220,9 +220,19 @@ class ChartOfAccount extends Model
      */
     public function canBeDeleted(): bool
     {
-        return !$this->is_system_account &&
-               $this->journalEntryDetails()->count() === 0 &&
-               $this->childAccounts()->count() === 0;
+        if ($this->is_system_account) {
+            return false;
+        }
+
+        // If journal details table doesn't exist yet (fresh deployment), skip that check
+        $hasDetails = false;
+        if (Schema::hasTable('journal_entry_details')) {
+            $hasDetails = $this->journalEntryDetails()->exists();
+        }
+
+        $hasChildren = $this->childAccounts()->count() > 0;
+
+        return !$hasDetails && !$hasChildren;
     }
 
     /**
