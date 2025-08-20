@@ -656,7 +656,8 @@ class FinancialReportController extends Controller
         if ($costCenterId) {
             $details->where('d.cost_center_id', $costCenterId);
         }
-        if ($warehouseId && \Schema::hasColumn('journal_entries','warehouse_id')) {
+        $hasWarehouse = \Schema::hasColumn('journal_entries','warehouse_id');
+        if ($warehouseId && $hasWarehouse) {
             $details->where('e.warehouse_id', $warehouseId);
         }
 
@@ -664,18 +665,28 @@ class FinancialReportController extends Controller
         $meta = compact('dateFrom','dateTo','costCenterId','warehouseId','type');
 
         if ($type === 'revenue_by_cc_branch') {
-            $rows = (clone $details)
+            $selectWarehouse = $hasWarehouse ? 'e.warehouse_id' : 'NULL as warehouse_id';
+            $rowsQuery = (clone $details)
                 ->where('a.account_type', 'revenue')
-                ->selectRaw('d.cost_center_id, e.warehouse_id, SUM(d.credit_amount - d.debit_amount) as amount')
-                ->groupBy('d.cost_center_id', 'e.warehouse_id')
-                ->get();
+                ->selectRaw('d.cost_center_id, ' . $selectWarehouse . ', SUM(d.credit_amount - d.debit_amount) as amount');
+            if ($hasWarehouse) {
+                $rowsQuery->groupBy('d.cost_center_id', 'e.warehouse_id');
+            } else {
+                $rowsQuery->groupBy('d.cost_center_id');
+            }
+            $rows = $rowsQuery->get();
             $data = ['rows' => $rows, 'label' => 'الإيرادات'];
         } elseif ($type === 'expense_by_cc_branch') {
-            $rows = (clone $details)
+            $selectWarehouse = $hasWarehouse ? 'e.warehouse_id' : 'NULL as warehouse_id';
+            $rowsQuery = (clone $details)
                 ->where('a.account_type', 'expense')
-                ->selectRaw('d.cost_center_id, e.warehouse_id, SUM(d.debit_amount - d.credit_amount) as amount')
-                ->groupBy('d.cost_center_id', 'e.warehouse_id')
-                ->get();
+                ->selectRaw('d.cost_center_id, ' . $selectWarehouse . ', SUM(d.debit_amount - d.credit_amount) as amount');
+            if ($hasWarehouse) {
+                $rowsQuery->groupBy('d.cost_center_id', 'e.warehouse_id');
+            } else {
+                $rowsQuery->groupBy('d.cost_center_id');
+            }
+            $rows = $rowsQuery->get();
             $data = ['rows' => $rows, 'label' => 'المصروفات'];
         } elseif ($type === 'profitability') {
             $revenue = (clone $details)
