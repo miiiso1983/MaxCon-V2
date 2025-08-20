@@ -621,8 +621,14 @@ class FinancialReportController extends Controller
             'monthly_series' => 'تحليل شهري لإيرادات/مصروفات'
         ];
 
+        $filters = [
+            'costCenterId' => $request->cost_center_id,
+            'warehouseId' => $request->warehouse_id,
+        ];
+        $type = $request->report_type ?? null;
+
         return view('tenant.accounting.reports.custom.index', compact(
-            'dateFrom','dateTo','costCenters','warehouses','reportTypes'
+            'dateFrom','dateTo','costCenters','warehouses','reportTypes','filters','type'
         ));
     }
 
