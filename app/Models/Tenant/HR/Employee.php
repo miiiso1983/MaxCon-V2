@@ -19,7 +19,7 @@ class Employee extends Model
 
     protected $table = 'hr_employees';
 
-    protected $fillable = [
+    protected $fillable = [ 'user_id',
         'tenant_id',
         'employee_code',
         'first_name',
@@ -238,8 +238,8 @@ class Employee extends Model
      */
     public function isOnProbation()
     {
-        return $this->employment_status === 'probation' && 
-               $this->probation_end_date && 
+        return $this->employment_status === 'probation' &&
+               $this->probation_end_date &&
                $this->probation_end_date->isFuture();
     }
 
@@ -248,7 +248,7 @@ class Employee extends Model
      */
     public function isContractExpiringSoon($days = 30)
     {
-        return $this->contract_end_date && 
+        return $this->contract_end_date &&
                $this->contract_end_date->diffInDays(now()) <= $days;
     }
 
@@ -293,6 +293,14 @@ class Employee extends Model
     }
 
     /**
+     * User relation
+     */
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
+
+    /**
      * Generate unique employee code
      */
     public static function generateEmployeeCode($tenantId)
@@ -300,9 +308,9 @@ class Employee extends Model
         $lastEmployee = self::where('tenant_id', $tenantId)
                            ->orderBy('id', 'desc')
                            ->first();
-        
+
         $nextNumber = $lastEmployee ? (int)substr($lastEmployee->employee_code, -4) + 1 : 1;
-        
+
         return 'EMP' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 

@@ -9,6 +9,7 @@ use App\Models\Tenant\HR\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class EmployeeController extends Controller
@@ -145,8 +146,47 @@ class EmployeeController extends Controller
 
             $employee = Employee::create($employeeData);
 
+            // Create linked user account with default role
+            $plainPassword = str()->password(10);
+            $user = new \App\Models\User();
+            $user->tenant_id = $employee->tenant_id;
+            $user->name = $employee->full_name_arabic ?: ($employee->first_name . ' ' . $employee->last_name);
+            $user->email = $employee->email;
+            $user->password = bcrypt($plainPassword);
+            $user->is_active = true;
+            $user->email_verified_at = now();
+            $user->save();
+
+            // Assign default role based on position/department if exists, else 'employee'
+            $defaultRole = 'employee';
+            try {
+                if (method_exists($employee, 'position') && $employee->position && $employee->position->title) {
+                    $candidate = strtolower($employee->position->title);
+                    if (\Spatie\Permission\Models\Role::where('name', $candidate)->exists()) {
+                        $defaultRole = $candidate;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore and fallback to 'employee'
+            }
+            if (!\Spatie\Permission\Models\Role::where('name', $defaultRole)->exists()) {
+                \Spatie\Permission\Models\Role::firstOrCreate(['name' => $defaultRole]);
+            }
+            $user->assignRole($defaultRole);
+
+            // Link user to employee
+            $employee->user_id = $user->id;
+            $employee->save();
+
+            // Notify user with credentials
+            try {
+                $user->notify(new \App\Notifications\SendUserCredentialsNotification($user->email, $plainPassword));
+            } catch (\Throwable $e) {
+                \Log::warning('Failed to send credentials email to new employee user', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+            }
+
             return redirect()->route('tenant.hr.employees.index')
-                           ->with('success', 'تم إنشاء ملف الموظف بنجاح');
+                           ->with('success', 'تم إنشاء ملف الموظف والحساب المرتبط بنجاح');
 
         } catch (\Exception $e) {
             return redirect()->back()
