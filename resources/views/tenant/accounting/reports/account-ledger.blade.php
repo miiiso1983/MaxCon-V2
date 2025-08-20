@@ -154,29 +154,29 @@
                 @foreach($ledgerEntries as $entry)
                     @php
                         if ($account->account_type == 'asset' || $account->account_type == 'expense') {
-                            $runningBalance += $entry->debit_amount - $entry->credit_amount;
+                            $runningBalance += ($entry['debit_amount'] ?? 0) - ($entry['credit_amount'] ?? 0);
                         } else {
-                            $runningBalance += $entry->credit_amount - $entry->debit_amount;
+                            $runningBalance += ($entry['credit_amount'] ?? 0) - ($entry['debit_amount'] ?? 0);
                         }
                     @endphp
                     <tr style="border-bottom: 1px solid #e2e8f0; {{ $loop->iteration % 2 == 0 ? 'background: #f8fafc;' : '' }}">
                         <td style="padding: 12px; text-align: center; color: #6b7280; border: 1px solid #e2e8f0;">
-                            {{ \Carbon\Carbon::parse($entry->date)->format('Y/m/d') }}
+                            {{ \Carbon\Carbon::parse($entry['date'] ?? now())->format('Y/m/d') }}
                         </td>
                         <td style="padding: 12px; text-align: center; border: 1px solid #e2e8f0;">
-                            <a href="{{ route('tenant.inventory.accounting.journal-entries.show', $entry->journal_entry_id) }}" 
+                            <a href="{{ route('tenant.inventory.accounting.journal-entries.show', $entry['journal_entry_id'] ?? null) }}"
                                style="color: #dc2626; text-decoration: none; font-weight: 600;">
-                                {{ $entry->journal_number }}
+                                {{ $entry['journal_number'] ?? '-' }}
                             </a>
                         </td>
                         <td style="padding: 12px; text-align: right; color: #2d3748; border: 1px solid #e2e8f0;">
-                            {{ $entry->description }}
+                            {{ $entry['description'] ?? '' }}
                         </td>
                         <td style="padding: 12px; text-align: center; font-weight: 600; color: #059669; border: 1px solid #e2e8f0;">
-                            {{ $entry->debit_amount > 0 ? number_format($entry->debit_amount, 2) : '-' }}
+                            {{ ($entry['debit_amount'] ?? 0) > 0 ? number_format($entry['debit_amount'], 2) : '-' }}
                         </td>
                         <td style="padding: 12px; text-align: center; font-weight: 600; color: #dc2626; border: 1px solid #e2e8f0;">
-                            {{ $entry->credit_amount > 0 ? number_format($entry->credit_amount, 2) : '-' }}
+                            {{ ($entry['credit_amount'] ?? 0) > 0 ? number_format($entry['credit_amount'], 2) : '-' }}
                         </td>
                         <td style="padding: 12px; text-align: center; font-weight: 600; color: {{ $runningBalance >= 0 ? '#059669' : '#dc2626' }}; border: 1px solid #e2e8f0;">
                             {{ number_format($runningBalance, 2) }}
