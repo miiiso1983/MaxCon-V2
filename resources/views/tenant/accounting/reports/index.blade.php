@@ -159,11 +159,11 @@
             <p style="color: #374151; margin: 0 0 20px 0; line-height: 1.6;">
                 إنشاء تقارير مخصصة حسب مراكز التكلفة والفروع
             </p>
-            <button onclick="alert('قريباً...')" 
-                    style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+            <a href="{{ route('tenant.inventory.accounting.reports.custom') }}"
+               style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-wrench"></i>
-                قريباً
-            </button>
+                فتح التقارير المخصصة
+            </a>
         </div>
     </div>
 </div>
