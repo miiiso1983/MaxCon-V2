@@ -1099,6 +1099,25 @@
                                 <i class="fas fa-money-bill-wave"></i>
                                 كشف الرواتب
                             </a>
+
+                            <a href="{{ route('tenant.hr.deductions.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.deductions.*') ? 'active' : '' }}">
+                                <i class="fas fa-minus-circle"></i>
+                                الخصومات
+                            </a>
+
+                            <a href="{{ route('tenant.hr.incentives.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.incentives.*') ? 'active' : '' }}">
+                                <i class="fas fa-gift"></i>
+                                الحوافز والمكافآت
+                            </a>
+
+                            <a href="{{ route('tenant.hr.warnings.index') }}"
+                               class="nav-link {{ request()->routeIs('tenant.hr.warnings.*') ? 'active' : '' }}">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                الإنذارات والتنبيهات
+                            </a>
+
                         </div>
                     </div>
 
