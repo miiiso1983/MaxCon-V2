@@ -11,6 +11,9 @@ use App\Http\Controllers\Tenant\HR\PayrollController;
 use App\Http\Controllers\Tenant\HR\ShiftController;
 use App\Http\Controllers\Tenant\HR\OvertimeController;
 use App\Http\Controllers\Tenant\HR\HRDashboardController;
+use App\Http\Controllers\Tenant\HR\DeductionController;
+use App\Http\Controllers\Tenant\HR\IncentiveController;
+use App\Http\Controllers\Tenant\HR\WarningController;
 
 // HR Dashboard
 Route::get('/', [HRDashboardController::class, 'index'])->name('dashboard');
@@ -118,6 +121,43 @@ Route::prefix('payroll')->name('payroll.')->group(function () {
     Route::get('/{payroll}/edit', [PayrollController::class, 'edit'])->name('edit');
     Route::put('/{payroll}', [PayrollController::class, 'update'])->name('update');
     Route::delete('/{payroll}', [PayrollController::class, 'destroy'])->name('destroy');
+
+// Deductions Management
+Route::prefix('deductions')->name('deductions.')->group(function () {
+    Route::get('/', [DeductionController::class, 'index'])->name('index');
+    Route::get('/create', [DeductionController::class, 'create'])->name('create');
+    Route::post('/', [DeductionController::class, 'store'])->name('store');
+    Route::get('/reports', [DeductionController::class, 'reports'])->name('reports');
+    Route::get('/export', [DeductionController::class, 'export'])->name('export');
+    Route::get('/{deduction}/edit', [DeductionController::class, 'edit'])->whereNumber('deduction')->name('edit');
+    Route::put('/{deduction}', [DeductionController::class, 'update'])->whereNumber('deduction')->name('update');
+    Route::delete('/{deduction}', [DeductionController::class, 'destroy'])->whereNumber('deduction')->name('destroy');
+});
+
+// Incentives Management
+Route::prefix('incentives')->name('incentives.')->group(function () {
+    Route::get('/', [IncentiveController::class, 'index'])->name('index');
+    Route::get('/create', [IncentiveController::class, 'create'])->name('create');
+    Route::post('/', [IncentiveController::class, 'store'])->name('store');
+    Route::get('/reports', [IncentiveController::class, 'reports'])->name('reports');
+    Route::get('/export', [IncentiveController::class, 'export'])->name('export');
+    Route::get('/{incentive}/edit', [IncentiveController::class, 'edit'])->whereNumber('incentive')->name('edit');
+    Route::put('/{incentive}', [IncentiveController::class, 'update'])->whereNumber('incentive')->name('update');
+    Route::delete('/{incentive}', [IncentiveController::class, 'destroy'])->whereNumber('incentive')->name('destroy');
+});
+
+// Warnings Management
+Route::prefix('warnings')->name('warnings.')->group(function () {
+    Route::get('/', [WarningController::class, 'index'])->name('index');
+    Route::get('/create', [WarningController::class, 'create'])->name('create');
+    Route::post('/', [WarningController::class, 'store'])->name('store');
+    Route::get('/reports', [WarningController::class, 'reports'])->name('reports');
+    Route::get('/export', [WarningController::class, 'export'])->name('export');
+    Route::get('/{warning}/edit', [WarningController::class, 'edit'])->whereNumber('warning')->name('edit');
+    Route::put('/{warning}', [WarningController::class, 'update'])->whereNumber('warning')->name('update');
+    Route::delete('/{warning}', [WarningController::class, 'destroy'])->whereNumber('warning')->name('destroy');
+});
+
     Route::post('/process', [PayrollController::class, 'process'])->name('process');
     Route::post('/generate', [PayrollController::class, 'generatePayroll'])->name('generate');
     Route::post('/{payroll}/approve', [PayrollController::class, 'approve'])->name('approve');
