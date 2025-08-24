@@ -1270,10 +1270,6 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
     Route::get('/users', [UserController::class, 'tenantUsers'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
 
-    // HR quick aliases (ensure sidebar links resolve immediately)
-    Route::get('/hr/deductions', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'index'])->name('tenant.hr.deductions.index');
-    Route::get('/hr/incentives', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'index'])->name('tenant.hr.incentives.index');
-    Route::get('/hr/warnings',   [\App\Http\Controllers\Tenant\HR\WarningController::class,   'index'])->name('tenant.hr.warnings.index');
 
     // HR Deductions full routes (explicit aliases)
     Route::get('/hr/deductions', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'index'])->name('tenant.hr.deductions.index');
