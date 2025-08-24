@@ -1269,6 +1269,43 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
     // User management (للـ Tenant Admin فقط)
     Route::get('/users', [UserController::class, 'tenantUsers'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+
+    // HR quick aliases (ensure sidebar links resolve immediately)
+    Route::get('/hr/deductions', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'index'])->name('tenant.hr.deductions.index');
+    Route::get('/hr/incentives', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'index'])->name('tenant.hr.incentives.index');
+    Route::get('/hr/warnings',   [\App\Http\Controllers\Tenant\HR\WarningController::class,   'index'])->name('tenant.hr.warnings.index');
+
+    // HR Deductions full routes (explicit aliases)
+    Route::get('/hr/deductions', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'index'])->name('tenant.hr.deductions.index');
+    Route::get('/hr/deductions/create', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'create'])->name('tenant.hr.deductions.create');
+    Route::post('/hr/deductions', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'store'])->name('tenant.hr.deductions.store');
+    Route::get('/hr/deductions/{deduction}/edit', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'edit'])->whereNumber('deduction')->name('tenant.hr.deductions.edit');
+    Route::put('/hr/deductions/{deduction}', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'update'])->whereNumber('deduction')->name('tenant.hr.deductions.update');
+    Route::delete('/hr/deductions/{deduction}', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'destroy'])->whereNumber('deduction')->name('tenant.hr.deductions.destroy');
+    Route::get('/hr/deductions/export', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'export'])->name('tenant.hr.deductions.export');
+    Route::get('/hr/deductions/reports', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'reports'])->name('tenant.hr.deductions.reports');
+
+    // HR Incentives full routes (explicit aliases)
+    Route::get('/hr/incentives', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'index'])->name('tenant.hr.incentives.index');
+    Route::get('/hr/incentives/create', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'create'])->name('tenant.hr.incentives.create');
+    Route::post('/hr/incentives', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'store'])->name('tenant.hr.incentives.store');
+    Route::get('/hr/incentives/{incentive}/edit', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'edit'])->whereNumber('incentive')->name('tenant.hr.incentives.edit');
+    Route::put('/hr/incentives/{incentive}', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'update'])->whereNumber('incentive')->name('tenant.hr.incentives.update');
+    Route::delete('/hr/incentives/{incentive}', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'destroy'])->whereNumber('incentive')->name('tenant.hr.incentives.destroy');
+    Route::get('/hr/incentives/export', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'export'])->name('tenant.hr.incentives.export');
+    Route::get('/hr/incentives/reports', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'reports'])->name('tenant.hr.incentives.reports');
+
+    // HR Warnings full routes (explicit aliases)
+    Route::get('/hr/warnings', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'index'])->name('tenant.hr.warnings.index');
+    Route::get('/hr/warnings/create', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'create'])->name('tenant.hr.warnings.create');
+    Route::post('/hr/warnings', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'store'])->name('tenant.hr.warnings.store');
+    Route::get('/hr/warnings/{warning}/edit', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'edit'])->whereNumber('warning')->name('tenant.hr.warnings.edit');
+    Route::put('/hr/warnings/{warning}', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'update'])->whereNumber('warning')->name('tenant.hr.warnings.update');
+    Route::delete('/hr/warnings/{warning}', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'destroy'])->whereNumber('warning')->name('tenant.hr.warnings.destroy');
+    Route::get('/hr/warnings/export', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'export'])->name('tenant.hr.warnings.export');
+    Route::get('/hr/warnings/reports', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'reports'])->name('tenant.hr.warnings.reports');
+
+
     Route::post('/users', [UserController::class, 'tenantStore'])->name('users.store');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
