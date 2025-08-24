@@ -114,6 +114,36 @@ class PayrollController extends Controller
             $payroll->allowances = $payroll->allowances ?? [];
             $payroll->deductions = $payroll->deductions ?? [];
 
+            // دمج خصومات وحوافز الموارد البشرية في الكشف
+            $hrIncentives = \App\Models\Tenant\HR\Incentive::where('tenant_id', $tenantId)
+                ->where('employee_id', $emp->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->sum('amount');
+
+            $hrDeductions = \App\Models\Tenant\HR\Deduction::where('tenant_id', $tenantId)
+                ->where('employee_id', $emp->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->sum('amount');
+
+            // Helper لإدراج/تحديث عنصر داخل مصفوفة JSON
+            $upsertItem = function(array &$arr, string $code, string $label, float $amount) {
+                // أزل القديم إن وجد
+                $arr = array_values(array_filter($arr, function($i) use ($code) { return ($i['code'] ?? null) !== $code; }));
+                if ($amount > 0) {
+                    $arr[] = [
+                        'code' => $code,
+                        'label' => $label,
+                        'amount' => round($amount, 2),
+                    ];
+                }
+            };
+
+            // أضف الحوافز كبدل ضمن allowances، والخصومات ضمن deductions
+            $upsertItem($payroll->allowances, 'hr_incentives', 'حوافز الموارد البشرية', (float) $hrIncentives);
+            $upsertItem($payroll->deductions, 'hr_deductions', 'خصومات الموارد البشرية', (float) $hrDeductions);
+
             // احسب بيانات الحضور وأيام العمل قبل الحفظ لضمان ملء working_days
             $payroll->calculateAttendanceData();
 

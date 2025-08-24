@@ -41,7 +41,7 @@ class WarningController extends Controller
             'severity' => 'required|in:low,medium,high,critical',
         ]);
         $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
-        Warning::create([
+        $warning = Warning::create([
             'tenant_id' => $tenantId,
             'employee_id' => $request->employee_id,
             'type' => $request->type,
@@ -50,6 +50,20 @@ class WarningController extends Controller
             'severity' => $request->severity,
             'created_by' => auth()->id(),
         ]);
+
+        // إرسال إشعار بالبريد للموظف وربما المدير المباشر
+        try {
+            $employee = $warning->employee; // eager via relation
+            if ($employee && $employee->user) {
+                $employee->user->notify(new \App\Notifications\HR\WarningCreated($warning));
+            }
+            if ($employee && $employee->manager && $employee->manager->user) {
+                $employee->manager->user->notify(new \App\Notifications\HR\WarningCreated($warning));
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to send warning notification', ['error' => $e->getMessage()]);
+        }
+
         return redirect()->route('tenant.hr.warnings.index')->with('success', 'تم تسجيل الإنذار بنجاح');
     }
 
