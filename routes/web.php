@@ -2494,6 +2494,12 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
         require __DIR__ . '/tenant/hr.php';
     });
 
+
+    // Quick aliases to ensure sidebar links resolve even if hr.php groups move
+    Route::get('/tenant/hr/deductions', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'index'])->name('tenant.hr.deductions.index');
+    Route::get('/tenant/hr/incentives', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'index'])->name('tenant.hr.incentives.index');
+    Route::get('/tenant/hr/warnings',   [\App\Http\Controllers\Tenant\HR\WarningController::class,   'index'])->name('tenant.hr.warnings.index');
+
     // Analytics and AI Module
     Route::prefix('analytics')->name('analytics.')->group(function () {
         require __DIR__ . '/tenant/analytics.php';
