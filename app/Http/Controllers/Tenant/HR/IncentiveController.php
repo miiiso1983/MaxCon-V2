@@ -87,8 +87,10 @@ class IncentiveController extends Controller
 
     public function export(Request $request): BinaryFileResponse
     {
-        // Placeholder: implement Excel export via Maatwebsite later
-        abort(501, 'Export to Excel is under development');
+        $tenantId = Auth::user()->tenant_id ?? (tenant()->id ?? null);
+        $filters = $request->only(['employee_id', 'type', 'date_from', 'date_to']);
+        $export = new \App\Exports\HR\IncentivesExport($tenantId, $filters);
+        return \Maatwebsite\Excel\Facades\Excel::download($export, 'incentives_'.now()->format('Ymd_His').'.xlsx');
     }
 }
 
