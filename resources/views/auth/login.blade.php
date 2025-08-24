@@ -397,7 +397,7 @@
             <!-- Logo and Welcome Section -->
             <div class="logo-section">
                 <div style="display:flex; justify-content:center; margin-bottom: 16px;">
-                    <img src="{{ asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" style="max-width: 200px; width: 60%; height: auto;" />
+                    <img src="{{ file_exists(public_path('images/maxcon-logo.png')) ? asset('images/maxcon-logo.png') : asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" style="max-width: 200px; width: 60%; height: auto;" />
                 </div>
                 <h1 class="welcome-text">مرحباً بك في MaxCon</h1>
                 <p class="welcome-subtitle">نظام إدارة الأعمال المتكامل والمتطور</p>

@@ -123,7 +123,7 @@
             <!-- Project Name & Subtitle -->
             <div class="animate-fadeInUp animate-delay-1">
                 <div class="mb-6 flex justify-center">
-                    <img src="{{ asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" class="w-48 md:w-56 h-auto"/>
+                    <img src="{{ file_exists(public_path('images/maxcon-logo.png')) ? asset('images/maxcon-logo.png') : asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" class="w-48 md:w-56 h-auto"/>
                 </div>
                 <h1 class="text-6xl md:text-7xl font-bold mb-6">
                     Pharmaceutical ERP System
