@@ -43,6 +43,13 @@ class ReportsController extends Controller
         $predefinedReports = $this->reportService->getPredefinedReports();
 
         return view('tenant.reports.index', compact('reports', 'recentExecutions', 'predefinedReports'));
+
+    /**
+     * History page (Blade view)
+     */
+    public function historyPage(): View
+    {
+        return view('tenant.reports.history');
     }
 
     /**

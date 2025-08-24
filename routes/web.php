@@ -2562,7 +2562,8 @@ Route::middleware(['auth', 'tenant'])->prefix('tenant')->name('tenant.')->group(
         // Report builder and management
         Route::get('builder', [ReportsController::class, 'builder'])->name('builder');
         Route::post('store', [ReportsController::class, 'store'])->name('store');
-        Route::get('history', [ReportsController::class, 'history'])->name('history');
+        // History page (Blade view)
+        Route::get('history', [ReportsController::class, 'historyPage'])->name('history');
 
         // API endpoints for dynamic data
         Route::get('api/executions', [ReportsController::class, 'history'])->name('api.executions');
