@@ -255,17 +255,19 @@ function getActionButtons(item) {
 
     if (item.status === 'completed' && item.file_path) {
         buttons += `
-            <button onclick="downloadReport(${item.id})" style="background: #10b981; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 12px;" title="تحميل">
-                <i class="fas fa-download"></i>
-            </button>
+            <a href="{{ route('tenant.reports.download', ['execution' => 'EXEC_ID']) }}" onclick="this.href=this.href.replace('EXEC_ID','${item.id}')" style="background: #10b981; color: white; padding: 6px 10px; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 12px; display:inline-block; text-decoration:none;" title="تحميل">
+                <i class=\"fas fa-download\"></i>
+            </a>
         `;
     }
 
-    buttons += `
-        <button onclick="rerunReport(${item.id})" style="background: #3b82f6; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 12px;" title="إعادة تشغيل">
-            <i class="fas fa-redo"></i>
-        </button>
-    `;
+    if (item.report_id) {
+        buttons += `
+            <button onclick="rerunReport(${item.report_id})" style="background: #3b82f6; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 12px;" title="إعادة تشغيل">
+                <i class=\"fas fa-redo\"></i>
+            </button>
+        `;
+    }
 
     if (item.status === 'completed') {
         buttons += `
@@ -357,13 +359,33 @@ function refreshHistory() {
     loadStatistics();
 }
 
-function downloadReport(id) {
-    alert(`📥 تحميل التقرير رقم ${id}\n\nسيتم تحميل الملف تلقائياً...`);
-}
+// لم يعد هناك حاجة لدالة تحميل، نستخدم رابط مباشر في الزر
 
-function rerunReport(id) {
-    if (confirm('هل تريد إعادة تشغيل هذا التقرير؟')) {
-        alert(`🔄 إعادة تشغيل التقرير رقم ${id}\n\nسيتم تشغيل التقرير بنفس المعايير السابقة...`);
+// فعلي: إعادة التشغيل عبر POST إلى execute/{report}
+async function rerunReport(reportId) {
+    if (!reportId) return alert('تقرير غير معروف');
+    if (!confirm('هل تريد إعادة تشغيل هذا التقرير بالمعايير السابقة؟')) return;
+
+    try {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const res = await fetch(`{{ url('tenant/reports/execute') }}/${reportId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ parameters: {}, format: 'html' })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            alert('تمت إعادة تشغيل التقرير بنجاح');
+            loadHistory(currentPage);
+        } else {
+            alert(data.error || 'تعذر إعادة تشغيل التقرير');
+        }
+    } catch (e) {
+        alert('خطأ أثناء إعادة التشغيل');
     }
 }
 

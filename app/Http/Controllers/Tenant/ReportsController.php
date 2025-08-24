@@ -44,6 +44,8 @@ class ReportsController extends Controller
 
         return view('tenant.reports.index', compact('reports', 'recentExecutions', 'predefinedReports'));
 
+    }
+
     /**
      * History page (Blade view)
      */
@@ -337,10 +339,29 @@ class ReportsController extends Controller
      */
     public function history(): JsonResponse
     {
-        $executions = ReportExecution::with(['report', 'user'])
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->paginate(20);
+        $tenantId = auth()->user()->tenant_id
+            ?? (app()->has('tenant') ? (app('tenant')->id ?? null) : null)
+            ?? session('tenant_id');
+
+        $query = ReportExecution::with(['report', 'user'])->latest();
+
+        if ($tenantId) {
+            $query->whereHas('report', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            });
+        }
+
+        if (request()->filled('status') && in_array(request('status'), [
+            ReportExecution::STATUS_PENDING,
+            ReportExecution::STATUS_RUNNING,
+            ReportExecution::STATUS_COMPLETED,
+            ReportExecution::STATUS_FAILED,
+            ReportExecution::STATUS_CANCELLED,
+        ], true)) {
+            $query->where('status', request('status'));
+        }
+
+        $executions = $query->paginate(20);
 
         return response()->json($executions);
     }
