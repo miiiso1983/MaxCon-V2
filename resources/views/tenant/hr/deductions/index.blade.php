@@ -1,4 +1,4 @@
-@extends('tenant.layouts.app')
+@extends('layouts.modern')
 @section('content')
 <div class="content-card">
   <h3 style="display:flex;align-items:center;gap:10px;">
