@@ -124,39 +124,40 @@ Route::prefix('payroll')->name('payroll.')->group(function () {
 
 // Deductions Management
 Route::prefix('deductions')->name('deductions.')->middleware(['permission:hr.deductions.view'])->group(function () {
-    Route::get('/', [DeductionController::class, 'index'])->name('index');
-    Route::get('/create', [DeductionController::class, 'create'])->middleware('permission:hr.deductions.create')->name('create');
-    Route::post('/', [DeductionController::class, 'store'])->middleware('permission:hr.deductions.create')->name('store');
-    Route::get('/reports', [DeductionController::class, 'reports'])->middleware('permission:hr.deductions.view')->name('reports');
-    Route::get('/export', [DeductionController::class, 'export'])->middleware('permission:hr.deductions.export')->name('export');
-    Route::get('/{deduction}/edit', [DeductionController::class, 'edit'])->middleware('permission:hr.deductions.edit')->whereNumber('deduction')->name('edit');
-    Route::put('/{deduction}', [DeductionController::class, 'update'])->middleware('permission:hr.deductions.edit')->whereNumber('deduction')->name('update');
-    Route::delete('/{deduction}', [DeductionController::class, 'destroy'])->middleware('permission:hr.deductions.delete')->whereNumber('deduction')->name('destroy');
+    Route::get('/', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'create'])->middleware('permission:hr.deductions.create')->name('create');
+    Route::post('/', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'store'])->middleware('permission:hr.deductions.create')->name('store');
+    Route::get('/reports', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'reports'])->middleware('permission:hr.deductions.view')->name('reports');
+    Route::get('/export', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'export'])->middleware('permission:hr.deductions.export')->name('export');
+    Route::get('/{deduction}/edit', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'edit'])->middleware('permission:hr.deductions.edit')->whereNumber('deduction')->name('edit');
+    Route::put('/{deduction}', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'update'])->middleware('permission:hr.deductions.edit')->whereNumber('deduction')->name('update');
+    Route::delete('/{deduction}', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'destroy'])->middleware('permission:hr.deductions.delete')->whereNumber('deduction')->name('destroy');
 });
 
 // Incentives Management
 Route::prefix('incentives')->name('incentives.')->middleware(['permission:hr.incentives.view'])->group(function () {
-    Route::get('/', [IncentiveController::class, 'index'])->name('index');
-    Route::get('/create', [IncentiveController::class, 'create'])->middleware('permission:hr.incentives.create')->name('create');
-    Route::post('/', [IncentiveController::class, 'store'])->middleware('permission:hr.incentives.create')->name('store');
-    Route::get('/reports', [IncentiveController::class, 'reports'])->middleware('permission:hr.incentives.view')->name('reports');
-    Route::get('/export', [IncentiveController::class, 'export'])->middleware('permission:hr.incentives.export')->name('export');
-    Route::get('/{incentive}/edit', [IncentiveController::class, 'edit'])->middleware('permission:hr.incentives.edit')->whereNumber('incentive')->name('edit');
-    Route::put('/{incentive}', [IncentiveController::class, 'update'])->middleware('permission:hr.incentives.edit')->whereNumber('incentive')->name('update');
-    Route::delete('/{incentive}', [IncentiveController::class, 'destroy'])->middleware('permission:hr.incentives.delete')->whereNumber('incentive')->name('destroy');
+    Route::get('/', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'create'])->middleware('permission:hr.incentives.create')->name('create');
+    Route::post('/', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'store'])->middleware('permission:hr.incentives.create')->name('store');
+    Route::get('/reports', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'reports'])->middleware('permission:hr.incentives.view')->name('reports');
+    Route::get('/export', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'export'])->middleware('permission:hr.incentives.export')->name('export');
+    Route::get('/{incentive}/edit', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'edit'])->middleware('permission:hr.incentives.edit')->whereNumber('incentive')->name('edit');
+    Route::put('/{incentive}', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'update'])->middleware('permission:hr.incentives.edit')->whereNumber('incentive')->name('update');
+    Route::delete('/{incentive}', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'destroy'])->middleware('permission:hr.incentives.delete')->whereNumber('incentive')->name('destroy');
 });
 
 // Warnings Management
 Route::prefix('warnings')->name('warnings.')->middleware(['permission:hr.warnings.view'])->group(function () {
-    Route::get('/', [WarningController::class, 'index'])->name('index');
-    Route::get('/create', [WarningController::class, 'create'])->middleware('permission:hr.warnings.create')->name('create');
-    Route::post('/', [WarningController::class, 'store'])->middleware('permission:hr.warnings.create')->name('store');
-    Route::get('/reports', [WarningController::class, 'reports'])->middleware('permission:hr.warnings.view')->name('reports');
-    Route::get('/export', [WarningController::class, 'export'])->middleware('permission:hr.warnings.export')->name('export');
-    Route::get('/{warning}/edit', [WarningController::class, 'edit'])->middleware('permission:hr.warnings.edit')->whereNumber('warning')->name('edit');
-    Route::put('/{warning}', [WarningController::class, 'update'])->middleware('permission:hr.warnings.edit')->whereNumber('warning')->name('update');
-    Route::delete('/{warning}', [WarningController::class, 'destroy'])->middleware('permission:hr.warnings.delete')->whereNumber('warning')->name('destroy');
+    Route::get('/', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'create'])->middleware('permission:hr.warnings.create')->name('create');
+    Route::post('/', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'store'])->middleware('permission:hr.warnings.create')->name('store');
+    Route::get('/reports', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'reports'])->middleware('permission:hr.warnings.view')->name('reports');
+    Route::get('/export', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'export'])->middleware('permission:hr.warnings.export')->name('export');
+    Route::get('/{warning}/edit', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'edit'])->middleware('permission:hr.warnings.edit')->whereNumber('warning')->name('edit');
+    Route::put('/{warning}', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'update'])->middleware('permission:hr.warnings.edit')->whereNumber('warning')->name('update');
+    Route::delete('/{warning}', [\App\Http\Controllers\Tenant\HR\WarningController::class, 'destroy'])->middleware('permission:hr.warnings.delete')->whereNumber('warning')->name('destroy');
 });
+
 
     Route::post('/process', [PayrollController::class, 'process'])->name('process');
     Route::post('/generate', [PayrollController::class, 'generatePayroll'])->name('generate');
