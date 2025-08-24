@@ -18,9 +18,7 @@
             
             <!-- Logo Section -->
             <div class="mt-4 text-center" x-show="!isCollapsed" x-transition>
-                <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style="background: linear-gradient(135deg, #fbbf24, #f59e0b, #ea580c); box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);">
-                    <i class="fas fa-crown text-2xl text-white"></i>
-                </div>
+                <img src="{{ file_exists(public_path('images/maxcon-logo.png')) ? asset('images/maxcon-logo.png') : asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" class="mx-auto mb-3" style="max-width: 140px; height: auto;"/>
                 <h1 class="font-bold text-xl mb-1" style="color: #fbbf24; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">MaxCon</h1>
                 <h2 class="font-bold text-lg mb-2" style="color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Master</h2>
                 <p class="text-sm" style="color: rgba(255,255,255,0.9); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">إدارة النظام الرئيسية</p>

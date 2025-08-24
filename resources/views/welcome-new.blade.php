@@ -122,10 +122,10 @@
         <div class="container mx-auto px-6 text-center relative z-10">
             <!-- Project Name & Subtitle -->
             <div class="animate-fadeInUp animate-delay-1">
+                <div class="mb-6 flex justify-center">
+                    <img src="{{ asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" class="w-48 md:w-56 h-auto"/>
+                </div>
                 <h1 class="text-6xl md:text-7xl font-bold mb-6">
-                    MaxCon
-                </h1>
-                <p class="text-xl md:text-2xl opacity-90 mb-12">
                     Pharmaceutical ERP System
                 </p>
             </div>

@@ -430,7 +430,7 @@
             <div class="sidebar-header">
                 <!-- MaxCon Logo -->
                 <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
-                    <img src="{{ asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" style="width: 120px; height: 120px; margin: 0 auto; display: block;">
+                    <img src="{{ file_exists(public_path('images/maxcon-logo.png')) ? asset('images/maxcon-logo.png') : asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" style="width: 120px; height: 120px; margin: 0 auto; display: block;">
                 </div>
                 <h2 style="text-align: center; margin-top: 10px;"><i class="fas fa-chart-line"></i> MaxCon ERP</h2>
             </div>

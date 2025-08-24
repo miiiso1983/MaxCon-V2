@@ -604,14 +604,18 @@
 </head>
 
 <body>
+@php
+    $logo = file_exists(public_path('images/maxcon-logo.png'))
+        ? asset('images/maxcon-logo.png')
+        : asset('images/maxcon-logo.svg');
+@endphp
+
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="p-6">
             <!-- Logo -->
             <div class="sidebar-logo-container text-center mb-8" style="padding: 20px; position: relative;">
-                <div style="background: linear-gradient(135deg, #fbbf24, #f59e0b, #ea580c); border-radius: 20px; padding: 20px; display: inline-block; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3); transform: perspective(1000px) rotateX(5deg); transition: all 0.3s ease;">
-                    <i class="fas fa-crown crown-icon" style="color: white; font-size: 32px;"></i>
-                </div>
+                <img src="{{ $logo }}" alt="MaxCon Logo" class="sidebar-logo" style="display:inline-block; margin-bottom: 12px; max-width: 160px; width: 70%; height: auto;"/>
                 <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; text-align: center; color: #fbbf24; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                     MaxCon
                 </h1>

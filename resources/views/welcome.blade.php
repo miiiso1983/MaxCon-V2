@@ -304,8 +304,8 @@
         <div class="hero-card">
             <!-- Logo and Title Section -->
             <div class="logo-section">
-                <div class="logo-icon">
-                    <i class="fas fa-building" style="color: white; font-size: 32px;"></i>
+                <div style="display:flex; justify-content:center; margin-bottom: 16px;">
+                    <img src="{{ asset('images/maxcon-logo.svg') }}" alt="MaxCon Logo" style="max-width: 220px; width: 60%; height: auto;" />
                 </div>
                 <h1 class="main-title">MaxCon ERP</h1>
                 <p class="subtitle">نظام إدارة الأعمال المتكامل والمتطور</p>
