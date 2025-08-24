@@ -10,7 +10,11 @@
             سجل التقارير
         </h1>
         <p style="font-size: 18px; opacity: 0.9; margin: 0;">
-            تتبع جميع التقارير المنفذة مع إمكانية إعادة التشغيل والتحميل
+            سيتم عرض:
+            <br>• التقارير المنفذة مؤخراً
+            <br>• حالة التنفيذ
+            <br>• إمكانية إعادة تشغيل التقارير
+            <br>• تحميل النتائج السابقة
         </p>
     </div>
     <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><circle cx=\"50\" cy=\"50\" r=\"2\" fill=\"rgba(255,255,255,0.1)\"/></svg>') repeat; animation: float 20s infinite linear;"></div>
@@ -22,7 +26,7 @@
         <i class="fas fa-filter" style="color: #667eea;"></i>
         تصفية السجل
     </h3>
-    
+
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
         <div>
             <label style="display: block; font-weight: 600; color: #4a5568; margin-bottom: 5px;">الفترة الزمنية:</label>
@@ -34,7 +38,7 @@
                 <option value="custom">فترة مخصصة</option>
             </select>
         </div>
-        
+
         <div>
             <label style="display: block; font-weight: 600; color: #4a5568; margin-bottom: 5px;">حالة التنفيذ:</label>
             <select id="statusFilter" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -44,7 +48,7 @@
                 <option value="running">قيد التنفيذ</option>
             </select>
         </div>
-        
+
         <div>
             <label style="display: block; font-weight: 600; color: #4a5568; margin-bottom: 5px;">نوع التقرير:</label>
             <select id="categoryFilter" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -56,7 +60,7 @@
                 <option value="products">المنتجات</option>
             </select>
         </div>
-        
+
         <div style="display: flex; align-items: end;">
             <button onclick="applyFilters()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%;">
                 <i class="fas fa-search"></i> تطبيق الفلاتر
@@ -72,19 +76,19 @@
         <h3 style="font-size: 28px; font-weight: 700; margin: 0 0 5px 0;" id="completedCount">0</h3>
         <p style="opacity: 0.9; margin: 0;">تقارير مكتملة</p>
     </div>
-    
+
     <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
         <i class="fas fa-exclamation-triangle" style="font-size: 36px; margin-bottom: 15px; opacity: 0.8;"></i>
         <h3 style="font-size: 28px; font-weight: 700; margin: 0 0 5px 0;" id="failedCount">0</h3>
         <p style="opacity: 0.9; margin: 0;">تقارير فاشلة</p>
     </div>
-    
+
     <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
         <i class="fas fa-clock" style="font-size: 36px; margin-bottom: 15px; opacity: 0.8;"></i>
         <h3 style="font-size: 28px; font-weight: 700; margin: 0 0 5px 0;" id="avgTime">0</h3>
         <p style="opacity: 0.9; margin: 0;">متوسط وقت التنفيذ (ثانية)</p>
     </div>
-    
+
     <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
         <i class="fas fa-download" style="font-size: 36px; margin-bottom: 15px; opacity: 0.8;"></i>
         <h3 style="font-size: 28px; font-weight: 700; margin: 0 0 5px 0;" id="totalDownloads">0</h3>
@@ -100,7 +104,7 @@
             <i class="fas fa-sync-alt"></i> تحديث
         </button>
     </div>
-    
+
     <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
@@ -118,11 +122,24 @@
             </tbody>
         </table>
     </div>
-    
+
     <!-- Pagination -->
     <div id="pagination" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
         <!-- Pagination will be loaded dynamically -->
     </div>
+let lastData = [];
+function updateStatsFrom(items){
+    const completed = items.filter(x=>x.status==='completed').length;
+    const failed = items.filter(x=>x.status==='failed').length;
+    const times = items.map(x=>x.execution_time).filter(Boolean);
+    const avg = times.length ? (times.reduce((a,b)=>a+b,0)/times.length).toFixed(2) : 0;
+    const downloads = items.filter(x=>x.file_path).length;
+    document.getElementById('completedCount').textContent = completed;
+    document.getElementById('failedCount').textContent = failed;
+    document.getElementById('avgTime').textContent = avg;
+    document.getElementById('totalDownloads').textContent = downloads;
+}
+
 </div>
 
 <script>
@@ -137,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadHistory(page = 1) {
     currentPage = page;
-    
+
     // Show loading
     document.getElementById('historyTableBody').innerHTML = `
         <tr>
@@ -147,65 +164,44 @@ function loadHistory(page = 1) {
             </td>
         </tr>
     `;
-    
-    // Simulate API call
-    setTimeout(() => {
-        const sampleData = [
-            {
-                id: 1,
-                report_name: 'تقرير المبيعات اليومية',
-                status: 'completed',
-                created_at: '2025-07-15 14:30:00',
-                execution_time: 2.45,
-                row_count: 156,
-                file_path: '/reports/sales_daily_2025-07-15.pdf'
-            },
-            {
-                id: 2,
-                report_name: 'تقرير أداء المندوبين',
-                status: 'completed',
-                created_at: '2025-07-15 13:15:00',
-                execution_time: 1.89,
-                row_count: 12,
-                file_path: '/reports/sales_reps_2025-07-15.xlsx'
-            },
-            {
-                id: 3,
-                report_name: 'تقرير التدفقات النقدية',
-                status: 'failed',
-                created_at: '2025-07-15 12:00:00',
-                execution_time: null,
-                row_count: null,
-                file_path: null
-            },
-            {
-                id: 4,
-                report_name: 'تقرير مستويات المخزون',
-                status: 'completed',
-                created_at: '2025-07-15 11:45:00',
-                execution_time: 3.21,
-                row_count: 89,
-                file_path: '/reports/inventory_levels_2025-07-15.pdf'
-            },
-            {
-                id: 5,
-                report_name: 'العملاء الأكثر شراءً',
-                status: 'running',
-                created_at: '2025-07-15 11:30:00',
-                execution_time: null,
-                row_count: null,
-                file_path: null
-            }
-        ];
-        
-        renderHistoryTable(sampleData);
-        renderPagination(1, 5, 20); // current page, total pages, total items
-    }, 1000);
+
+    const params = new URLSearchParams({ page });
+    fetch(`{{ route('tenant.reports.api.executions') }}?${params.toString()}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(paginated => {
+        const items = paginated?.data || [];
+        lastData = items;
+        // Normalize into the structure expected by the renderer
+        const mapped = items.map(it => ({
+            id: it.id,
+            report_name: it.report?.name || it.name || `تقرير #${it.id}`,
+            status: it.status || 'completed',
+            created_at: it.created_at,
+            execution_time: it.execution_time ?? it.duration ?? null,
+            row_count: it.row_count ?? null,
+            file_path: it.file_path ?? null,
+            report_id: it.report?.id ?? null
+        }));
+        renderHistoryTable(mapped);
+        renderPagination(paginated.current_page || 1, paginated.last_page || 1, paginated.total || mapped.length);
+        updateStatsFrom(mapped);
+    })
+    .catch(() => {
+        document.getElementById('historyTableBody').innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color:#ef4444;">
+                    حدث خطأ أثناء تحميل السجل.
+                </td>
+            </tr>
+        `;
+    });
 }
 
 function renderHistoryTable(data) {
     const tbody = document.getElementById('historyTableBody');
-    
+
     if (data.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -217,7 +213,7 @@ function renderHistoryTable(data) {
         `;
         return;
     }
-    
+
     tbody.innerHTML = data.map(item => `
         <tr style="border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
             <td style="padding: 15px;">
@@ -250,13 +246,13 @@ function getStatusBadge(status) {
         'running': '<span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;"><i class="fas fa-spinner fa-spin"></i> قيد التنفيذ</span>',
         'pending': '<span style="background: #6b7280; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;"><i class="fas fa-clock"></i> في الانتظار</span>'
     };
-    
+
     return badges[status] || badges['pending'];
 }
 
 function getActionButtons(item) {
     let buttons = '';
-    
+
     if (item.status === 'completed' && item.file_path) {
         buttons += `
             <button onclick="downloadReport(${item.id})" style="background: #10b981; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 12px;" title="تحميل">
@@ -264,13 +260,13 @@ function getActionButtons(item) {
             </button>
         `;
     }
-    
+
     buttons += `
         <button onclick="rerunReport(${item.id})" style="background: #3b82f6; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 12px;" title="إعادة تشغيل">
             <i class="fas fa-redo"></i>
         </button>
     `;
-    
+
     if (item.status === 'completed') {
         buttons += `
             <button onclick="shareReport(${item.id})" style="background: #8b5cf6; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 12px;" title="مشاركة">
@@ -278,25 +274,25 @@ function getActionButtons(item) {
             </button>
         `;
     }
-    
+
     buttons += `
         <button onclick="deleteExecution(${item.id})" style="background: #ef4444; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 12px;" title="حذف">
             <i class="fas fa-trash"></i>
         </button>
     `;
-    
+
     return buttons;
 }
 
 function renderPagination(currentPage, totalPages, totalItems) {
     const pagination = document.getElementById('pagination');
-    
+
     let paginationHTML = `
         <span style="color: #718096; margin-left: 20px;">
             إجمالي ${totalItems} عنصر
         </span>
     `;
-    
+
     if (totalPages > 1) {
         // Previous button
         if (currentPage > 1) {
@@ -306,7 +302,7 @@ function renderPagination(currentPage, totalPages, totalItems) {
                 </button>
             `;
         }
-        
+
         // Page numbers
         for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
             const isActive = i === currentPage;
@@ -316,7 +312,7 @@ function renderPagination(currentPage, totalPages, totalItems) {
                 </button>
             `;
         }
-        
+
         // Next button
         if (currentPage < totalPages) {
             paginationHTML += `
@@ -326,18 +322,13 @@ function renderPagination(currentPage, totalPages, totalItems) {
             `;
         }
     }
-    
+
     pagination.innerHTML = paginationHTML;
 }
 
 function loadStatistics() {
-    // Simulate loading statistics
-    setTimeout(() => {
-        document.getElementById('completedCount').textContent = '156';
-        document.getElementById('failedCount').textContent = '3';
-        document.getElementById('avgTime').textContent = '2.4';
-        document.getElementById('totalDownloads').textContent = '89';
-    }, 500);
+    // تحديث الإحصائيات بناءً على آخر بيانات محمّلة
+    updateStatsFrom(lastData || []);
 }
 
 function formatDateTime(dateString) {
@@ -357,7 +348,7 @@ function applyFilters() {
         status: document.getElementById('statusFilter').value,
         category: document.getElementById('categoryFilter').value
     };
-    
+
     loadHistory(1);
 }
 
