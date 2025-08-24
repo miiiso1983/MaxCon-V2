@@ -559,7 +559,8 @@ function openReportBuilder() {
 }
 
 function showReportHistory() {
-    alert('📋 سجل التقارير\n\nسيتم عرض:\n• التقارير المنفذة مؤخراً\n• حالة التنفيذ\n• إمكانية إعادة تشغيل التقارير\n• تحميل النتائج السابقة');
+    // صفحة سجل التقارير
+    window.location.href = '{{ route("tenant.reports.history") }}';
 }
 
 function showScheduledReports() {
