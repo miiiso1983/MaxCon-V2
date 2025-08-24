@@ -3231,6 +3231,12 @@ Route::get('/invoice-create-real', function() {
 
 // Enhanced Invoice Management Routes with Permissions
 Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
+
+    // HR quick aliases to ensure sidebar links resolve
+    Route::get('/hr/deductions', [\App\Http\Controllers\Tenant\HR\DeductionController::class, 'index'])->name('tenant.hr.deductions.index');
+    Route::get('/hr/incentives', [\App\Http\Controllers\Tenant\HR\IncentiveController::class, 'index'])->name('tenant.hr.incentives.index');
+    Route::get('/hr/warnings',   [\App\Http\Controllers\Tenant\HR\WarningController::class,   'index'])->name('tenant.hr.warnings.index');
+
     Route::prefix('sales/invoices')->name('tenant.sales.invoices.')->group(function () {
         // View invoices
         Route::get('/', [App\Http\Controllers\Tenant\Sales\InvoiceController::class, 'index'])
