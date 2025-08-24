@@ -609,13 +609,15 @@
         ? asset('images/maxcon-logo.png')
         : asset('images/maxcon-logo.svg');
 @endphp
+@php $logoUrl = $logo . '?v=20250824'; @endphp
+
 
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="p-6">
             <!-- Logo -->
             <div class="sidebar-logo-container text-center mb-8" style="padding: 20px; position: relative;">
-                <img src="{{ $logo }}" alt="MaxCon Logo" class="sidebar-logo" style="display:inline-block; margin-bottom: 12px; max-width: 160px; width: 70%; height: auto;"/>
+                <img src="{{ $logoUrl }}" alt="MaxCon Logo" class="sidebar-logo" style="display:inline-block; margin-bottom: 12px; max-width: 160px; width: 70%; height: auto;"/>
                 <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; text-align: center; color: #fbbf24; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                     MaxCon
                 </h1>

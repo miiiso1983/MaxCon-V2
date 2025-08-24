@@ -8,10 +8,11 @@
     $logo = file_exists(public_path('images/maxcon-logo.png'))
         ? asset('images/maxcon-logo.png')
         : asset('images/maxcon-logo.svg');
+    $logoUrl = $logo . '?v=20250824';
 @endphp
 
                     <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <img src="{{ $logo }}" alt="MaxCon" class="h-8 w-auto ml-3"/>
+                        <img src="{{ $logoUrl }}" alt="MaxCon" class="h-8 w-auto ml-3"/>
                         <span class="font-bold text-xl text-gray-900">{{ config('app.name', 'MaxCon') }}</span>
                     </a>
                 </div>
