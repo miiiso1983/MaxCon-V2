@@ -1100,23 +1100,29 @@
                                 كشف الرواتب
                             </a>
 
+                            @if(Route::has('tenant.hr.deductions.index'))
                             <a href="{{ route('tenant.hr.deductions.index') }}"
                                class="nav-link {{ request()->routeIs('tenant.hr.deductions.*') ? 'active' : '' }}">
                                 <i class="fas fa-minus-circle"></i>
                                 الخصومات
                             </a>
+                            @endif
 
+                            @if(Route::has('tenant.hr.incentives.index'))
                             <a href="{{ route('tenant.hr.incentives.index') }}"
                                class="nav-link {{ request()->routeIs('tenant.hr.incentives.*') ? 'active' : '' }}">
                                 <i class="fas fa-gift"></i>
                                 الحوافز والمكافآت
                             </a>
+                            @endif
 
+                            @if(Route::has('tenant.hr.warnings.index'))
                             <a href="{{ route('tenant.hr.warnings.index') }}"
                                class="nav-link {{ request()->routeIs('tenant.hr.warnings.*') ? 'active' : '' }}">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 الإنذارات والتنبيهات
                             </a>
+                            @endif
 
                         </div>
                     </div>
