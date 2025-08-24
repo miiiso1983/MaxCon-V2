@@ -129,14 +129,16 @@
     </div>
 let lastData = [];
 function updateStatsFrom(items){
-    const completed = items.filter(x=>x.status==='completed').length;
-    const failed = items.filter(x=>x.status==='failed').length;
-    const times = items.map(x=>x.execution_time).filter(Boolean);
-    const avg = times.length ? (times.reduce((a,b)=>a+b,0)/times.length).toFixed(2) : 0;
-    const downloads = items.filter(x=>x.file_path).length;
+    let completed = 0, failed = 0, sum = 0, count = 0, downloads = 0;
+    for (const it of items) {
+        if (it.status === 'completed') completed++; else if (it.status === 'failed') failed++;
+        const t = parseFloat(it.execution_time);
+        if (!Number.isNaN(t)) { sum += t; count++; }
+        if (it.file_path) downloads++;
+    }
     document.getElementById('completedCount').textContent = completed;
     document.getElementById('failedCount').textContent = failed;
-    document.getElementById('avgTime').textContent = avg;
+    document.getElementById('avgTime').textContent = count ? (sum / count).toFixed(2) : '0';
     document.getElementById('totalDownloads').textContent = downloads;
 }
 
